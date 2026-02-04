@@ -64,55 +64,60 @@ class PublicController extends AbstractController
             // Validate required fields
             if (!$email || !$password || !$firstName || !$lastName || !$username) {
                 $this->addFlash('error', 'Please fill in all required fields.');
-                return $this->render('pages/auth/register.html.twig');
+                return $this->redirectToRoute('app_register');
             }
             
             // Check if user already exists
             $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
             if ($existingUser) {
                 $this->addFlash('error', 'An account with this email already exists.');
-                return $this->render('pages/auth/register.html.twig');
+                return $this->redirectToRoute('app_register');
             }
             
             // Check if username already exists
             $existingUsername = $entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
             if ($existingUsername) {
                 $this->addFlash('error', 'This username is already taken. Please choose another one.');
-                return $this->render('pages/auth/register.html.twig');
+                return $this->redirectToRoute('app_register');
             }
             
-            // Create new user
-            $user = new User();
-            $user->setEmail($email);
-            $user->setFirstName($firstName);
-            $user->setLastName($lastName);
-            $user->setUsername($username);
-            $user->setGender($gender);
-            
-            // Hash password
-            $hashedPassword = $passwordHasher->hashPassword($user, $password);
-            $user->setPassword($hashedPassword);
-            
-            // Create user settings with preferences
-            $settings = new UserSettings();
-            $settings->setUser($user);
-            $settings->setStudyLevel($studyLevel);
-            $settings->setWeeklyGoal((int)$weeklyGoal);
-            $settings->setInterests($interests);
-            $settings->setNotificationEnabled($notifications);
-            $settings->setEmailNotifications($notifications);
-            $settings->setThemePreference('light');
-            $settings->setLanguage('en');
-            
-            $user->setSettings($settings);
-            
-            // Save user
-            $entityManager->persist($user);
-            $entityManager->persist($settings);
-            $entityManager->flush();
-            
-            $this->addFlash('success', 'Account created successfully! Please log in.');
-            return $this->redirectToRoute('app_login');
+            try {
+                // Create new user
+                $user = new User();
+                $user->setEmail($email);
+                $user->setFirstName($firstName);
+                $user->setLastName($lastName);
+                $user->setUsername($username);
+                $user->setGender($gender);
+                
+                // Hash password
+                $hashedPassword = $passwordHasher->hashPassword($user, $password);
+                $user->setPassword($hashedPassword);
+                
+                // Create user settings with preferences
+                $settings = new UserSettings();
+                $settings->setUser($user);
+                $settings->setStudyLevel($studyLevel);
+                $settings->setWeeklyGoal((int)$weeklyGoal);
+                $settings->setInterests($interests);
+                $settings->setNotificationEnabled($notifications);
+                $settings->setEmailNotifications($notifications);
+                $settings->setThemePreference('light');
+                $settings->setLanguage('en');
+                
+                $user->setSettings($settings);
+                
+                // Save user
+                $entityManager->persist($user);
+                $entityManager->persist($settings);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Account created successfully! Please log in.');
+                return $this->redirectToRoute('app_login');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                return $this->redirectToRoute('app_register');
+            }
         }
         
         return $this->render('pages/auth/register.html.twig');

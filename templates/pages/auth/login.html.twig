@@ -30,8 +30,32 @@
                 </p>
             </div>
 
-            <!-- Error Alert (reserved space) -->
+            <!-- Flash Messages -->
             <div class="min-h-[60px] mb-2">
+                {% for message in app.flashes('success') %}
+                <div class="p-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-xl animate-fade-in mb-2">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-success-500 flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="font-medium text-success-800 dark:text-success-200">Success</p>
+                            <p class="text-sm text-success-600 dark:text-success-300 mt-0.5">{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% for message in app.flashes('error') %}
+                <div class="p-4 bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800 rounded-xl animate-fade-in mb-2">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-circle" class="w-5 h-5 text-danger-500 flex-shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="font-medium text-danger-800 dark:text-danger-200">Error</p>
+                            <p class="text-sm text-danger-600 dark:text-danger-300 mt-0.5">{{ message }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
                 {% if error %}
                 <div class="p-4 bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800 rounded-xl animate-fade-in">
                     <div class="flex items-start gap-3">
