@@ -1,0 +1,38 @@
+{#
+    Breadcrumbs Component
+
+    Usage:
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Home', href: '/', icon: 'home' },
+            { label: 'Courses', href: '/courses' },
+            { label: 'Mathematics' }  // No href = current page
+        ]
+    } %}
+#}
+
+<nav aria-label="Breadcrumb" class="mb-4 {{ class|default('') }}">
+    <ol class="flex items-center gap-2 text-sm">
+        {% for item in items|default([]) %}
+            <li class="flex items-center gap-2">
+                {% if not loop.first %}
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 dark:text-slate-500"></i>
+                {% endif %}
+
+                {% if item.href is defined and item.href %}
+                    <a href="{{ item.href }}" class="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors inline-flex items-center gap-1.5">
+                        {% if item.icon is defined and item.icon %}
+                            <i data-lucide="{{ item.icon }}" class="w-4 h-4"></i>
+                        {% else %}
+                            {{ item.label }}
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <span class="text-slate-900 dark:text-white font-medium" aria-current="page">
+                        {{ item.label }}
+                    </span>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</nav>

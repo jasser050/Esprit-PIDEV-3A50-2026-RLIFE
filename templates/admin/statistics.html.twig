@@ -1,0 +1,130 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block body %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Statistics & Reports</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">Analytics and insights about your users</p>
+</div>
+
+<div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
+    <!-- User Growth Chart -->
+    <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">User Growth (Last 7 Days)</h2>
+        <div class="h-64">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Gender Distribution -->
+    <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Gender Distribution</h2>
+        <div class="h-64">
+            <canvas id="genderChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- University Distribution -->
+<div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Top 5 Universities</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Rank</th>
+                    <th scope="col" class="px-6 py-3">University</th>
+                    <th scope="col" class="px-6 py-3">Student Count</th>
+                    <th scope="col" class="px-6 py-3">Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total = university_stats|reduce((sum, stat) => sum + stat.count, 0) %}
+                {% for stat in university_stats %}
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-bold">{{ loop.index }}</td>
+                    <td class="px-6 py-4">{{ stat.university }}</td>
+                    <td class="px-6 py-4">{{ stat.count }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ (stat.count / total * 100)|round }}%"></div>
+                            </div>
+                            <span class="text-sm font-medium">{{ (stat.count / total * 100)|round(1) }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: {{ user_growth|map(g => g.date)|json_encode|raw }},
+        datasets: [{
+            label: 'New Users',
+            data: {{ user_growth|map(g => g.count)|json_encode|raw }},
+            borderColor: 'rgb(99, 102, 241)',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Gender Distribution Chart
+const genderCtx = document.getElementById('genderChart').getContext('2d');
+new Chart(genderCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ gender_stats|map(g => g.gender|capitalize)|json_encode|raw }},
+        datasets: [{
+            data: {{ gender_stats|map(g => g.count)|json_encode|raw }},
+            backgroundColor: [
+                'rgb(99, 102, 241)',
+                'rgb(236, 72, 153)',
+                'rgb(168, 85, 247)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

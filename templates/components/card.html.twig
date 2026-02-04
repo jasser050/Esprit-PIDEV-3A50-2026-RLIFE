@@ -1,0 +1,62 @@
+{#
+    Card Component
+
+    Usage:
+    {% embed 'components/card.html.twig' with {
+        title: 'Card Title',
+        subtitle: 'Optional subtitle',
+        padding: true,
+        hover: false,
+        compact: false,
+        class: ''
+    } %}
+        {% block header %}
+            <!-- Optional custom header -->
+        {% endblock %}
+        {% block content %}
+            <!-- Card content here -->
+        {% endblock %}
+        {% block footer %}
+            <!-- Optional footer -->
+        {% endblock %}
+    {% endembed %}
+
+    Simple usage:
+    {% include 'components/card.html.twig' with { title: 'Title', body: 'Content text' } %}
+#}
+
+{% set padding = padding|default(true) %}
+{% set hover = hover|default(false) %}
+{% set compact = compact|default(false) %}
+
+{% set paddingClass = compact ? 'p-4' : 'p-6' %}
+
+<div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm {{ hover ? 'hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 cursor-pointer' : '' }} {{ class|default('') }}">
+    {% block header %}
+        {% if title is defined and title %}
+            <div class="{{ padding ? paddingClass : 'px-' ~ (compact ? '4' : '6') ~ ' pt-' ~ (compact ? '4' : '6') }} {{ subtitle is not defined or not subtitle ? 'pb-0' : '' }} border-b border-slate-100 dark:border-slate-700/50">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900 dark:text-white">{{ title }}</h3>
+                        {% if subtitle is defined and subtitle %}
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ subtitle }}</p>
+                        {% endif %}
+                    </div>
+                    {% if headerAction is defined and headerAction %}
+                        {{ headerAction|raw }}
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block content %}
+        {% if body is defined and body %}
+            <div class="{{ padding ? paddingClass : '' }}">
+                {{ body|raw }}
+            </div>
+        {% endif %}
+    {% endblock %}
+
+    {% block footer %}{% endblock %}
+</div>

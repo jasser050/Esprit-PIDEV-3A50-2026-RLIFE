@@ -1,0 +1,427 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-4xl">
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Settings</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">Manage your account and preferences</p>
+    </div>
+
+    <form method="POST" action="{{ path('app_settings') }}" enctype="multipart/form-data" class="space-y-6" onsubmit="return validateSettingsForm(event)">
+        <!-- Profile Section -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Profile Information</h2>
+            
+            <div class="space-y-5">
+                <!-- Profile Picture -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                        Profile Picture
+                    </label>
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
+                            {% if app.user.profilePic %}
+                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                            {% else %}
+                                {{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <input
+                                type="file"
+                                id="profile_pic"
+                                name="profile_pic"
+                                accept="image/jpeg,image/png,image/jpg,image/webp"
+                                class="hidden"
+                                onchange="previewImage(event)"
+                            >
+                            <label for="profile_pic" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium rounded-xl border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer">
+                                <i data-lucide="upload" class="w-4 h-4"></i>
+                                Upload Photo
+                            </label>
+                            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">JPG, PNG or WEBP. Max size 2MB.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Name Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            First Name <span class="text-danger-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="first_name"
+                            name="first_name"
+                            value="{{ app.user.firstName }}"
+                            required
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                            Last Name <span class="text-danger-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="last_name"
+                            name="last_name"
+                            value="{{ app.user.lastName }}"
+                            required
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                    </div>
+                </div>
+
+                <!-- Username -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Username <span class="text-danger-500">*</span>
+                    </label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value="{{ app.user.username }}"
+                            required
+                            pattern="[a-zA-Z0-9_]{3,20}"
+                            title="Username must be 3-20 characters and contain only letters, numbers, and underscores"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Email Address <span class="text-danger-500">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ app.user.email }}"
+                        required
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    >
+                </div>
+
+                <!-- Phone Number -->
+                <div>
+                    <label for="phone_number" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Phone Number
+                    </label>
+                        <input
+                            type="tel"
+                            id="phone_number"
+                            name="phone_number"
+                            value="{{ app.user.phoneNumber }}"
+                            placeholder="+1 234 567 8900"
+                            pattern="[\+]?[0-9\s\-\(\)]{8,20}"
+                            title="Please enter a valid phone number"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                </div>
+
+                <!-- Gender -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                        Gender <span class="text-danger-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="gender" value="male" class="peer sr-only" {{ app.user.gender == 'male' ? 'checked' : '' }} required>
+                            <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
+                                <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="gender" value="female" class="peer sr-only" {{ app.user.gender == 'female' ? 'checked' : '' }} required>
+                            <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
+                                <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div>
+                    <label for="bio" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Bio
+                    </label>
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        rows="4"
+                        placeholder="Tell us a bit about yourself..."
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors resize-none"
+                    >{{ app.user.bio }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Academic Information</h2>
+            
+            <div class="space-y-5">
+                <!-- University -->
+                <div>
+                    <label for="university" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        University
+                    </label>
+                    <input
+                        type="text"
+                        id="university"
+                        name="university"
+                        value="{{ app.user.university }}"
+                        placeholder="e.g., University of California"
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    >
+                </div>
+
+                <!-- Student ID -->
+                <div>
+                    <label for="student_id" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Student ID
+                    </label>
+                    <input
+                        type="text"
+                        id="student_id"
+                        name="student_id"
+                        value="{{ app.user.studentId }}"
+                        placeholder="e.g., STU123456"
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Change Password</h2>
+            
+            <div class="space-y-5">
+                <div class="p-4 bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="info" class="w-5 h-5 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-sm text-info-800 dark:text-info-200">Leave password fields empty if you don't want to change your password.</p>
+                    </div>
+                </div>
+
+                <!-- Current Password -->
+                <div>
+                    <label for="current_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Current Password
+                    </label>
+                    <input
+                        type="password"
+                        id="current_password"
+                        name="current_password"
+                        placeholder="Enter your current password"
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    >
+                </div>
+
+                <!-- New Password -->
+                <div>
+                    <label for="new_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        New Password
+                    </label>
+                    <input
+                        type="password"
+                        id="new_password"
+                        name="new_password"
+                        placeholder="Enter your new password"
+                        minlength="6"
+                        title="Password must be at least 6 characters long"
+                        class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex items-center justify-end gap-3 pt-4">
+            <button
+                type="button"
+                onclick="window.location.href='{{ path('app_dashboard') }}'"
+                class="px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+            >
+                Cancel
+            </button>
+            <button
+                type="submit"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-primary-500/25 transition-all"
+            >
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>Save Changes</span>
+            </button>
+        </div>
+    </form>
+
+    <!-- Danger Zone -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-danger-200 dark:border-danger-800 p-6">
+        <h2 class="text-lg font-semibold text-danger-600 dark:text-danger-400 mb-2">Danger Zone</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
+        
+        <button
+            type="button"
+            onclick="confirmDeleteAccount()"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-danger-600 hover:bg-danger-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-danger-500/25 transition-all"
+        >
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>Delete Account</span>
+        </button>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-md mx-4 shadow-xl">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delete Account</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">This action cannot be undone</p>
+            </div>
+        </div>
+        
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+            Are you absolutely sure you want to delete your account? All of your data will be permanently removed. This action cannot be undone.
+        </p>
+        
+        <form method="POST" action="{{ path('app_settings_delete') }}" class="space-y-4">
+            <div>
+                <label for="confirm_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                    Enter your password to confirm
+                </label>
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    required
+                    placeholder="Enter your password"
+                    class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-danger-500/20 focus:border-danger-500 transition-colors"
+                >
+            </div>
+            
+            <div class="flex gap-3">
+                <button
+                    type="button"
+                    onclick="closeDeleteModal()"
+                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
+                >
+                    Cancel
+                </button>
+                <button
+                    type="submit"
+                    class="flex-1 px-4 py-2.5 bg-danger-600 hover:bg-danger-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
+                >
+                    Delete Account
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('profile-pic-preview');
+    
+    if (file) {
+        // Check file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert('File size must be less than 2MB');
+            event.target.value = '';
+            return;
+        }
+        
+        // Check file type
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Only JPG, PNG, and WEBP images are allowed');
+            event.target.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="w-full h-full object-cover">`;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function confirmDeleteAccount() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    // Re-init icons
+    setTimeout(() => lucide.createIcons(), 10);
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.getElementById('confirm_password').value = '';
+}
+
+function validateSettingsForm(event) {
+    // Get form fields
+    const firstName = document.getElementById('first_name').value.trim();
+    const lastName = document.getElementById('last_name').value.trim();
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const currentPassword = document.getElementById('current_password').value;
+    const newPassword = document.getElementById('new_password').value;
+    
+    // Validate required fields
+    if (!firstName || !lastName || !username || !email) {
+        alert('Please fill in all required fields (First Name, Last Name, Username, Email)');
+        return false;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address');
+        return false;
+    }
+    
+    // Validate username (alphanumeric and underscore only, 3-20 chars)
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    if (!usernameRegex.test(username)) {
+        alert('Username must be 3-20 characters long and contain only letters, numbers, and underscores');
+        return false;
+    }
+    
+    // Validate password change
+    if (currentPassword || newPassword) {
+        if (!currentPassword) {
+            alert('Please enter your current password to change your password');
+            return false;
+        }
+        if (!newPassword) {
+            alert('Please enter a new password');
+            return false;
+        }
+        if (newPassword.length < 6) {
+            alert('New password must be at least 6 characters long');
+            return false;
+        }
+    }
+    
+    return true;
+}
+</script>
+{% endblock %}

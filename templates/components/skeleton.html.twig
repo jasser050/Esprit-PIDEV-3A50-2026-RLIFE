@@ -1,0 +1,82 @@
+{#
+    Skeleton Loader Component
+
+    Usage:
+    {% include 'components/skeleton.html.twig' with {
+        type: 'text',       // text, avatar, card, table, image
+        lines: 3,           // For text type
+        width: 'full',      // full, 3/4, 1/2, 1/4
+        height: 'md'        // sm, md, lg, xl (for avatar/image)
+    } %}
+#}
+
+{% set type = type|default('text') %}
+{% set lines = lines|default(3) %}
+{% set width = width|default('full') %}
+{% set height = height|default('md') %}
+
+{% set widthClasses = {
+    'full': 'w-full',
+    '3/4': 'w-3/4',
+    '1/2': 'w-1/2',
+    '1/4': 'w-1/4'
+} %}
+
+{% set heightClasses = {
+    'sm': 'h-8 w-8',
+    'md': 'h-12 w-12',
+    'lg': 'h-16 w-16',
+    'xl': 'h-24 w-24'
+} %}
+
+{% if type == 'text' %}
+    <div class="space-y-3 {{ class|default('') }}">
+        {% for i in 1..lines %}
+            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse {{ loop.last ? 'w-2/3' : widthClasses[width] }}"></div>
+        {% endfor %}
+    </div>
+
+{% elseif type == 'avatar' %}
+    <div class="rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse {{ heightClasses[height] }} {{ class|default('') }}"></div>
+
+{% elseif type == 'image' %}
+    <div class="w-full h-48 bg-slate-200 dark:bg-slate-700 rounded-xl animate-pulse {{ class|default('') }}"></div>
+
+{% elseif type == 'card' %}
+    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 {{ class|default('') }}">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse h-10 w-10"></div>
+            <div class="flex-1 space-y-2">
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/2"></div>
+                <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+            </div>
+        </div>
+        <div class="space-y-3">
+            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-full"></div>
+            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-full"></div>
+            <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-3/4"></div>
+        </div>
+    </div>
+
+{% elseif type == 'table' %}
+    <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 {{ class|default('') }}">
+        <div class="bg-slate-50 dark:bg-slate-800 p-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="flex gap-4">
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+            </div>
+        </div>
+        {% for i in 1..5 %}
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0 bg-white dark:bg-slate-800">
+                <div class="flex gap-4">
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse w-1/4"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

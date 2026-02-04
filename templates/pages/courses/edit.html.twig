@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ course.name }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Courses', href: path('app_courses') },
+            { label: course.name, href: path('app_courses_show', { id: course.id }) },
+            { label: 'Edit' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'Edit Course',
+        subtitle: 'Update course information'
+    } %}
+
+    <form action="{{ path('app_courses_edit', { id: course.id }) }}" method="POST" class="card p-6">
+        <div class="space-y-6">
+            <!-- Course Name -->
+            {% include 'components/input.html.twig' with {
+                name: 'name',
+                label: 'Course Name',
+                value: course.name,
+                required: true
+            } %}
+
+            <!-- Course Code -->
+            <div class="grid grid-cols-2 gap-4">
+                {% include 'components/input.html.twig' with {
+                    name: 'code',
+                    label: 'Course Code',
+                    value: course.code,
+                    required: true
+                } %}
+
+                {% include 'components/input.html.twig' with {
+                    name: 'credits',
+                    label: 'Credits',
+                    type: 'number',
+                    value: course.credits,
+                    required: true
+                } %}
+            </div>
+
+            <!-- Instructor -->
+            {% include 'components/input.html.twig' with {
+                name: 'instructor',
+                label: 'Instructor',
+                value: course.instructor,
+                required: true
+            } %}
+
+            <!-- Schedule -->
+            {% include 'components/input.html.twig' with {
+                name: 'schedule',
+                label: 'Schedule',
+                value: course.schedule
+            } %}
+
+            <!-- Room -->
+            {% include 'components/input.html.twig' with {
+                name: 'room',
+                label: 'Room',
+                value: course.room
+            } %}
+
+            <!-- Color -->
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color Theme',
+                value: course.color,
+                options: [
+                    { value: 'primary', label: 'Indigo (Primary)' },
+                    { value: 'secondary', label: 'Teal (Secondary)' },
+                    { value: 'accent', label: 'Amber (Accent)' },
+                    { value: 'success', label: 'Green (Success)' },
+                    { value: 'warning', label: 'Orange (Warning)' },
+                    { value: 'danger', label: 'Red (Danger)' }
+                ]
+            } %}
+
+            <!-- Progress -->
+            {% include 'components/input.html.twig' with {
+                name: 'progress',
+                label: 'Progress (%)',
+                type: 'number',
+                value: course.progress,
+                min: 0,
+                max: 100
+            } %}
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-4 border-t border-light-border dark:border-dark-border">
+                <button type="button" class="btn btn-danger btn-outline" onclick="confirm('Are you sure you want to delete this course?')">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                </button>
+                <div class="flex items-center gap-3">
+                    <a href="{{ path('app_courses_show', { id: course.id }) }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
