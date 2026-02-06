@@ -6,6 +6,7 @@ use App\Entity\AdminEmailLog;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Security\Core\Security;
@@ -17,19 +18,22 @@ class AdminMailerService
     private UserRepository $userRepository;
     private AuditLogService $auditLog;
     private ?User $currentUser;
+    private LoggerInterface $logger;
 
     public function __construct(
         MailerInterface $mailer,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         AuditLogService $auditLog,
-        Security $security
+        Security $security,
+        LoggerInterface $logger
     ) {
         $this->mailer = $mailer;
         $this->entityManager = $entityManager;
         $this->userRepository = $userRepository;
         $this->auditLog = $auditLog;
         $this->currentUser = $security->getUser();
+        $this->logger = $logger;
     }
 
     /**
@@ -85,29 +89,43 @@ class AdminMailerService
     private function sendToUsers(array $users, string $recipientType, string $subject, string $messageBody): int
     {
         $sentCount = 0;
+        $failedEmails = [];
+
+        $this->logger->info(sprintf('Starting to send email to %d users (type: %s)', count($users), $recipientType));
 
         foreach ($users as $user) {
             try {
                 $email = (new Email())
-                    ->from('noreply@rlife.com')
+                    ->from('jasserbalti555@gmail.com')
                     ->to($user->getEmail())
                     ->subject($subject)
                     ->html($this->formatEmailHtml($user, $messageBody));
 
                 $this->mailer->send($email);
                 $sentCount++;
+                
+                $this->logger->info(sprintf('✅ Email sent to: %s', $user->getEmail()));
             } catch (\Exception $e) {
                 // Log error but continue sending to other users
-                // You could log this to a file or error tracking system
+                $failedEmails[] = $user->getEmail();
+                $this->logger->error(sprintf('❌ Failed to send email to %s: %s', $user->getEmail(), $e->getMessage()));
                 continue;
             }
         }
 
-        // Log the email in database
-        $this->logEmail($recipientType, $subject, $messageBody, $sentCount);
+        if (!empty($failedEmails)) {
+            $this->logger->warning(sprintf('Failed to send to %d recipients: %s', count($failedEmails), implode(', ', $failedEmails)));
+        }
 
-        // Log in audit trail
-        $this->auditLog->logEmailSent($recipientType, $sentCount, $subject);
+        // Log the email in database
+        if ($this->currentUser) {
+            $this->logEmail($recipientType, $subject, $messageBody, $sentCount);
+            
+            // Log in audit trail
+            $this->auditLog->logEmailSent($recipientType, $sentCount, $subject);
+        }
+
+        $this->logger->info(sprintf('Email sending complete. Sent: %d, Failed: %d', $sentCount, count($failedEmails)));
 
         return $sentCount;
     }
@@ -199,15 +217,20 @@ class AdminMailerService
     public function sendTestEmail(string $subject, string $message): bool
     {
         try {
+            $this->logger->info(sprintf('Sending test email to: %s', $this->currentUser->getEmail()));
+            
             $email = (new Email())
-                ->from('noreply@rlife.com')
+                ->from('jasserbalti555@gmail.com')
                 ->to($this->currentUser->getEmail())
                 ->subject('[TEST] ' . $subject)
                 ->html($this->formatEmailHtml($this->currentUser, $message));
 
             $this->mailer->send($email);
+            
+            $this->logger->info('✅ Test email sent successfully');
             return true;
         } catch (\Exception $e) {
+            $this->logger->error(sprintf('❌ Test email failed: %s', $e->getMessage()));
             return false;
         }
     }
