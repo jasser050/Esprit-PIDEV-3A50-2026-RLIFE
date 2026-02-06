@@ -2,209 +2,164 @@
 
 namespace App\Controller;
 
-use App\Data\SampleData;
+use App\Entity\Deck;
+use App\Entity\Flashcard;
+use App\Form\DeckType;
+use App\Form\FlashcardType;
+use App\Repository\DeckRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/revisions')]
 class RevisionController extends AbstractController
 {
-    #[Route('', name: 'app_revisions')]
-    public function index(): Response
+    #[Route('', name: 'app_revisions', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function index(DeckRepository $deckRepository): Response
     {
+        if ($this->isGranted('ROLE_ADMIN')) {
+            $decks = $deckRepository->findAll();
+        } else {
+            $decks = $deckRepository->findBy(
+                ['user' => $this->getUser()],
+                ['dateCreation' => 'DESC']
+            );
+        }
+
         return $this->render('pages/revisions/index.html.twig', [
-            'decks' => SampleData::getFlashcardDecks(),
+            'decks' => $decks,
         ]);
     }
 
-    #[Route('/deck/new', name: 'app_revisions_deck_new', methods: ['GET', 'POST'])]
-    public function deckNew(Request $request): Response
+    #[Route('/new', name: 'app_revisions_deck_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function newDeck(Request $request, EntityManagerInterface $em): Response
     {
-        if ($request->isMethod('POST')) {
-            // In a real app, we would save the deck to the database
-            $this->addFlash('success', 'Deck created successfully!');
+        $deck = new Deck();
+        $deck->setUser($this->getUser());
+
+        $form = $this->createForm(DeckType::class, $deck);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/decks/';
+
+            if ($imageFile = $form->get('imageFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $deck->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload image');
+                }
+            }
+
+            if ($pdfFile = $form->get('pdfFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $deck->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload PDF');
+                }
+            }
+
+            $deck->setDateCreation(new \DateTime());
+            $em->persist($deck);
+            $em->flush();
+
+            $this->addFlash('success', 'Deck créé !');
             return $this->redirectToRoute('app_revisions');
         }
 
-        return $this->render('pages/revisions/deck_new.html.twig', [
-            'courses' => SampleData::getCourses(),
+        return $this->render('pages/revisions/new.html.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
-    #[Route('/deck/{id}', name: 'app_revisions_deck')]
-    public function deck(int $id): Response
+    #[Route('/deck/{id}', name: 'app_revisions_deck_study', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function study(Deck $deck): Response
     {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $id) {
-                $deck = $d;
-                break;
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            if ($deck->getUser() !== $this->getUser()) {
+                $this->addFlash('warning', 'Ce deck ne t\'appartient pas.');
+                return $this->redirectToRoute('app_revisions');
             }
         }
 
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
-
-        $cards = array_filter(SampleData::getFlashcards(), fn($c) => $c['deck_id'] === $id);
-
-        return $this->render('pages/revisions/deck.html.twig', [
-            'deck' => $deck,
-            'cards' => array_values($cards),
+        return $this->render('pages/revisions/study.html.twig', [
+            'deck'       => $deck,
+            'flashcards' => $deck->getFlashcards(),
         ]);
     }
 
-    #[Route('/deck/{id}/edit', name: 'app_revisions_deck_edit', methods: ['GET', 'POST'])]
-    public function deckEdit(Request $request, int $id): Response
+    #[Route('/flashcard/new/{deck_id}', name: 'app_flashcard_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function newFlashcard(
+        int $deck_id,
+        DeckRepository $deckRepository,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response
     {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $id) {
-                $deck = $d;
-                break;
+        $deck = $deckRepository->find($deck_id);
+
+        if (!$deck) {
+            throw $this->createNotFoundException('Deck introuvable');
+        }
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            if ($deck->getUser() !== $this->getUser()) {
+                $this->addFlash('warning', 'Ce deck ne t\'appartient pas.');
+                return $this->redirectToRoute('app_revisions');
             }
         }
 
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
+        $flashcard = new Flashcard();
+        $flashcard->setDeck($deck);
 
-        if ($request->isMethod('POST')) {
-            // In a real app, we would update the deck in the database
-            $this->addFlash('success', 'Deck updated successfully!');
-            return $this->redirectToRoute('app_revisions_deck', ['id' => $id]);
-        }
+        $form = $this->createForm(FlashcardType::class, $flashcard);
+        $form->handleRequest($request);
 
-        return $this->render('pages/revisions/deck_edit.html.twig', [
-            'deck' => $deck,
-            'courses' => SampleData::getCourses(),
-        ]);
-    }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/flashcards/';
 
-    #[Route('/deck/{id}/delete', name: 'app_revisions_deck_delete', methods: ['POST'])]
-    public function deckDelete(int $id): Response
-    {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $id) {
-                $deck = $d;
-                break;
+            if ($imageFile = $form->get('imageFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $flashcard->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur image');
+                }
             }
-        }
 
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
-
-        // In a real app, we would delete the deck from the database
-        $this->addFlash('success', 'Deck deleted successfully!');
-        return $this->redirectToRoute('app_revisions');
-    }
-
-    #[Route('/deck/{deckId}/card/new', name: 'app_revisions_card_new', methods: ['GET', 'POST'])]
-    public function cardNew(Request $request, int $deckId): Response
-    {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $deckId) {
-                $deck = $d;
-                break;
+            if ($pdfFile = $form->get('pdfFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $flashcard->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur PDF');
+                }
             }
+
+            $em->persist($flashcard);
+            $em->flush();
+
+            $this->addFlash('success', 'Flashcard ajoutée !');
+            return $this->redirectToRoute('app_revisions');
         }
 
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
-
-        if ($request->isMethod('POST')) {
-            // In a real app, we would save the card to the database
-            $this->addFlash('success', 'Card created successfully!');
-            return $this->redirectToRoute('app_revisions_deck', ['id' => $deckId]);
-        }
-
-        return $this->render('pages/revisions/card_new.html.twig', [
+        return $this->render('pages/flashcard/new.html.twig', [
+            'form' => $form->createView(),
             'deck' => $deck,
         ]);
-    }
-
-    #[Route('/deck/{deckId}/card/{cardId}/edit', name: 'app_revisions_card_edit', methods: ['GET', 'POST'])]
-    public function cardEdit(Request $request, int $deckId, int $cardId): Response
-    {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $deckId) {
-                $deck = $d;
-                break;
-            }
-        }
-
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
-
-        $cards = SampleData::getFlashcards();
-        $card = null;
-        foreach ($cards as $c) {
-            if ($c['id'] === $cardId && $c['deck_id'] === $deckId) {
-                $card = $c;
-                break;
-            }
-        }
-
-        if (!$card) {
-            throw $this->createNotFoundException('Card not found');
-        }
-
-        if ($request->isMethod('POST')) {
-            // In a real app, we would update the card in the database
-            $this->addFlash('success', 'Card updated successfully!');
-            return $this->redirectToRoute('app_revisions_deck', ['id' => $deckId]);
-        }
-
-        return $this->render('pages/revisions/card_edit.html.twig', [
-            'deck' => $deck,
-            'card' => $card,
-        ]);
-    }
-
-    #[Route('/deck/{deckId}/card/{cardId}/delete', name: 'app_revisions_card_delete', methods: ['POST'])]
-    public function cardDelete(int $deckId, int $cardId): Response
-    {
-        $decks = SampleData::getFlashcardDecks();
-        $deck = null;
-        foreach ($decks as $d) {
-            if ($d['id'] === $deckId) {
-                $deck = $d;
-                break;
-            }
-        }
-
-        if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
-        }
-
-        $cards = SampleData::getFlashcards();
-        $card = null;
-        foreach ($cards as $c) {
-            if ($c['id'] === $cardId && $c['deck_id'] === $deckId) {
-                $card = $c;
-                break;
-            }
-        }
-
-        if (!$card) {
-            throw $this->createNotFoundException('Card not found');
-        }
-
-        // In a real app, we would delete the card from the database
-        $this->addFlash('success', 'Card deleted successfully!');
-        return $this->redirectToRoute('app_revisions_deck', ['id' => $deckId]);
     }
 }

@@ -2,13 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Deck;
 use App\Entity\User;
+use App\Form\DeckType;
+use App\Repository\DeckRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -17,7 +21,6 @@ class AdminController extends AbstractController
     #[Route('/', name: 'app_admin_dashboard')]
     public function dashboard(EntityManagerInterface $entityManager): Response
     {
-        // Get statistics
         $userRepository = $entityManager->getRepository(User::class);
         
         $totalUsers = $userRepository->count([]);
@@ -30,7 +33,6 @@ class AdminController extends AbstractController
             ->getQuery()
             ->getSingleScalarResult();
         
-        // Get recent users
         $recentUsers = $userRepository->findBy([], ['createdAt' => 'DESC'], 10);
         
         return $this->render('admin/dashboard.html.twig', [
@@ -47,7 +49,6 @@ class AdminController extends AbstractController
     {
         $userRepository = $entityManager->getRepository(User::class);
         
-        // Get filter from query params
         $filter = $request->query->get('filter', 'all');
         
         $queryBuilder = $userRepository->createQueryBuilder('u');
@@ -131,7 +132,6 @@ class AdminController extends AbstractController
     {
         $userRepository = $entityManager->getRepository(User::class);
         
-        // User growth statistics (last 7 days)
         $userGrowth = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = new \DateTime("-$i days");
@@ -154,14 +154,12 @@ class AdminController extends AbstractController
             ];
         }
         
-        // Gender distribution
         $genderStats = $userRepository->createQueryBuilder('u')
             ->select('u.gender, COUNT(u.id) as count')
             ->groupBy('u.gender')
             ->getQuery()
             ->getResult();
         
-        // University distribution (top 5)
         $universityStats = $userRepository->createQueryBuilder('u')
             ->select('u.university, COUNT(u.id) as count')
             ->where('u.university IS NOT NULL')
@@ -175,6 +173,64 @@ class AdminController extends AbstractController
             'user_growth' => $userGrowth,
             'gender_stats' => $genderStats,
             'university_stats' => $universityStats,
+        ]);
+    }
+
+    #[Route('/revision', name: 'app_admin_revision', methods: ['GET', 'POST'])]
+    public function revision(
+        Request $request,
+        EntityManagerInterface $em,
+        DeckRepository $deckRepository
+    ): Response
+    {
+        $deck = new Deck();
+        $form = $this->createForm(DeckType::class, $deck);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/decks/';
+
+            if ($imageFile = $form->get('imageFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $deck->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload image : ' . $e->getMessage());
+                }
+            }
+
+            if ($pdfFile = $form->get('pdfFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $deck->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload PDF : ' . $e->getMessage());
+                }
+            }
+
+            $deck->setUser($this->getUser());
+            $deck->setDateCreation(new \DateTime());
+
+            $em->persist($deck);
+            $em->flush();
+
+            $this->addFlash('success', 'Deck créé avec succès !');
+
+            return $this->redirectToRoute('app_admin_revision');
+        }
+
+        $decks = $deckRepository->findAll();
+
+        $recentChanges = [
+            ['entity' => 'Deck', 'id' => 1, 'action' => 'created', 'by' => $this->getUser()->getEmail() ?? 'system', 'at' => new \DateTime('-5 minutes')],
+        ];
+
+        return $this->render('admin/revision.html.twig', [
+            'form'           => $form->createView(),
+            'recent_changes' => $recentChanges,
+            'decks'          => $decks,
         ]);
     }
 }
