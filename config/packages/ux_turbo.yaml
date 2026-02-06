@@ -1,4 +1,2 @@
-# Enable stateless CSRF protection for forms and logins/logouts
-framework:
-    csrf_protection:
-        check_header: true
+# UX Turbo configuration for Symfony 6.4
+# CSRF protection is enabled in csrf.yaml

@@ -1,0 +1,196 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Send Email{% endblock %}
+{% block page_title %}Send Email{% endblock %}
+
+{% block body %}
+<!-- Page Header -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Compose Email</h1>
+            <p class="mt-2 text-slate-600 dark:text-slate-400">Send emails to users or admins</p>
+        </div>
+        <a href="{{ path('app_admin_email_history') }}" 
+           class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium rounded-xl transition-colors">
+            <i data-lucide="history" class="w-4 h-4"></i>
+            View History
+        </a>
+    </div>
+</div>
+
+<!-- Warning Banner -->
+<div class="mb-6 p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-xl">
+    <div class="flex items-start gap-3">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5"></i>
+        <div>
+            <h3 class="font-semibold text-warning-900 dark:text-warning-200">Important Notice</h3>
+            <p class="mt-1 text-sm text-warning-700 dark:text-warning-300">
+                This will send an email to multiple users. Make sure your email configuration is correct and test the email before sending to all users.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Email Compose Form -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Email Details</h2>
+    </div>
+
+    <form method="POST" action="{{ path('app_admin_email_compose') }}" class="p-6">
+        <!-- Recipient Type -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
+                <i data-lucide="users" class="w-4 h-4 inline-block mr-1"></i>
+                Recipients
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- All Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="all" class="peer sr-only" required>
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                <i data-lucide="users" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">All Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Everyone</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Active Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="active" class="peer sr-only">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-success-500 peer-checked:bg-success-50 dark:peer-checked:bg-success-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                                <i data-lucide="user-check" class="w-5 h-5 text-success-600 dark:text-success-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Active Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Not banned</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Banned Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="banned" class="peer sr-only">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-danger-500 peer-checked:bg-danger-50 dark:peer-checked:bg-danger-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                                <i data-lucide="user-x" class="w-5 h-5 text-danger-600 dark:text-danger-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Banned Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Restricted</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Admins -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="admins" class="peer sr-only">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-secondary-500 peer-checked:bg-secondary-50 dark:peer-checked:bg-secondary-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-secondary-600 dark:text-secondary-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Admins</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Staff only</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Subject -->
+        <div class="mb-6">
+            <label for="subject" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <i data-lucide="type" class="w-4 h-4 inline-block mr-1"></i>
+                Subject
+            </label>
+            <input 
+                type="text" 
+                id="subject" 
+                name="subject" 
+                required
+                placeholder="Enter email subject..."
+                class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+        </div>
+
+        <!-- Message -->
+        <div class="mb-6">
+            <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <i data-lucide="message-square" class="w-4 h-4 inline-block mr-1"></i>
+                Message
+            </label>
+            <textarea 
+                id="message" 
+                name="message" 
+                rows="10" 
+                required
+                placeholder="Write your message here..."
+                class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-y"></textarea>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                The message will be formatted with RLIFE branding and sent as HTML email.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <button 
+                type="submit" 
+                name="send_test" 
+                value="1"
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-xl transition-colors">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                Send Test Email (to yourself)
+            </button>
+            
+            <button 
+                type="submit" 
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Send to Selected Recipients
+            </button>
+
+            <a href="{{ path('app_admin_dashboard') }}" 
+               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Email Preview Section -->
+<div class="mt-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+        <i data-lucide="eye" class="w-5 h-5 inline-block mr-2"></i>
+        Email Preview
+    </h3>
+    <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+        <div class="text-center mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">RLIFE</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Student Life Management Platform</p>
+        </div>
+        <p class="text-slate-700 dark:text-slate-300 mb-4">Hello <strong>[User Name]</strong>,</p>
+        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border-l-4 border-primary-500">
+            <p class="text-slate-600 dark:text-slate-400 italic">[Your message will appear here]</p>
+        </div>
+        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-sm text-slate-500 dark:text-slate-400">
+            <p>This is an automated message from RLIFE Administration.</p>
+            <p class="mt-1">&copy; {{ "now"|date("Y") }} RLIFE. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
