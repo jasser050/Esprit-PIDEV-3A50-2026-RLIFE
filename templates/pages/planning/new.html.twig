@@ -1,0 +1,136 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Event{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Planning', href: path('app_planning') },
+            { label: 'New Event' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'New Event',
+        subtitle: 'Add a new event to your calendar'
+    } %}
+
+    <form action="{{ path('app_planning_new') }}" method="POST" class="card p-6">
+        <div class="space-y-6">
+            <!-- Event Title -->
+            {% include 'components/input.html.twig' with {
+                name: 'title',
+                label: 'Event Title',
+                placeholder: 'e.g., CS101 Lecture, Study Session',
+                required: true
+            } %}
+
+            <!-- Event Type -->
+            {% include 'components/select.html.twig' with {
+                name: 'type',
+                label: 'Event Type',
+                required: true,
+                options: [
+                    { value: 'class', label: 'Class' },
+                    { value: 'study', label: 'Study Session' },
+                    { value: 'assignment', label: 'Assignment Work' },
+                    { value: 'exam', label: 'Exam' },
+                    { value: 'meeting', label: 'Meeting' },
+                    { value: 'personal', label: 'Personal' }
+                ]
+            } %}
+
+            <!-- Course (Optional) -->
+            {% include 'components/select.html.twig' with {
+                name: 'course_id',
+                label: 'Related Course (Optional)',
+                options: [{ value: '', label: 'No specific course' }]|merge(courses|map(c => { value: c.id, label: c.name ~ ' (' ~ c.code ~ ')' }))
+            } %}
+
+            <!-- Date -->
+            {% include 'components/input.html.twig' with {
+                name: 'date',
+                label: 'Date',
+                type: 'date',
+                value: preselected_date|default(''),
+                required: true
+            } %}
+
+            <div class="grid grid-cols-2 gap-4">
+                <!-- Start Time -->
+                {% include 'components/input.html.twig' with {
+                    name: 'start_time',
+                    label: 'Start Time',
+                    type: 'time',
+                    required: true
+                } %}
+
+                <!-- End Time -->
+                {% include 'components/input.html.twig' with {
+                    name: 'end_time',
+                    label: 'End Time',
+                    type: 'time',
+                    required: true
+                } %}
+            </div>
+
+            <!-- Color -->
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color',
+                options: [
+                    { value: 'indigo', label: 'Indigo (Primary)' },
+                    { value: 'teal', label: 'Teal (Secondary)' },
+                    { value: 'amber', label: 'Amber (Accent)' },
+                    { value: 'blue', label: 'Blue' },
+                    { value: 'green', label: 'Green' },
+                    { value: 'red', label: 'Red' },
+                    { value: 'purple', label: 'Purple' },
+                    { value: 'pink', label: 'Pink' }
+                ]
+            } %}
+
+            <!-- Location -->
+            {% include 'components/input.html.twig' with {
+                name: 'location',
+                label: 'Location (Optional)',
+                placeholder: 'e.g., Room 301, Library, Zoom'
+            } %}
+
+            <!-- Recurring -->
+            {% include 'components/select.html.twig' with {
+                name: 'recurring',
+                label: 'Repeat',
+                options: [
+                    { value: 'none', label: 'Does not repeat' },
+                    { value: 'daily', label: 'Daily' },
+                    { value: 'weekly', label: 'Weekly' },
+                    { value: 'biweekly', label: 'Every 2 weeks' },
+                    { value: 'monthly', label: 'Monthly' }
+                ]
+            } %}
+
+            <!-- Description -->
+            {% include 'components/textarea.html.twig' with {
+                name: 'description',
+                label: 'Notes (Optional)',
+                placeholder: 'Add any additional notes...',
+                rows: 3
+            } %}
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Event
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

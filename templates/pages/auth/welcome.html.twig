@@ -1,0 +1,96 @@
+{% extends 'layouts/public.html.twig' %}
+
+{% block title %}Welcome to RLIFE{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-slate-50 dark:bg-slate-950" data-controller="theme">
+    <!-- Background -->
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-radial from-primary-100/50 via-transparent to-transparent dark:from-primary-900/30"></div>
+    </div>
+
+    <!-- Theme toggle -->
+    <button
+        type="button"
+        data-action="click->theme#toggle"
+        class="fixed top-6 right-6 p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 shadow-sm transition-colors"
+        aria-label="Toggle theme"
+    >
+        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+    </button>
+
+    <div class="text-center max-w-lg animate-fade-in-up">
+        <!-- Success Icon -->
+        <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-success-400 to-success-600 rounded-2xl flex items-center justify-center shadow-lg shadow-success-500/30 animate-scale-in">
+            <i data-lucide="check" class="w-10 h-10 text-white"></i>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white mb-3">
+            Welcome to RLIFE!
+        </h1>
+        <p class="text-lg text-slate-600 dark:text-slate-300 mb-8">
+            Your account is ready. Let's get you started on your learning journey.
+        </p>
+
+        <!-- Quick Start Options -->
+        <div class="grid gap-4 mb-8">
+            <a href="{{ path('app_dashboard') }}" class="group flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-lg transition-all text-left">
+                <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="layout-dashboard" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-slate-900 dark:text-white">Go to dashboard</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Explore your new study hub</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 group-hover:translate-x-1 transition-all"></i>
+            </a>
+
+            <a href="{{ path('app_courses') }}?action=new" class="group flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-secondary-300 dark:hover:border-secondary-700 hover:shadow-lg transition-all text-left">
+                <div class="w-12 h-12 rounded-xl bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="book-plus" class="w-6 h-6 text-secondary-600 dark:text-secondary-400"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-slate-900 dark:text-white">Add your first course</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Start organising your semester</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-secondary-600 dark:group-hover:text-secondary-400 group-hover:translate-x-1 transition-all"></i>
+            </a>
+
+            <a href="{{ path('app_revisions') }}" class="group flex items-center gap-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-accent-300 dark:hover:border-accent-700 hover:shadow-lg transition-all text-left">
+                <div class="w-12 h-12 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="layers" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-slate-900 dark:text-white">Create flashcards</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Start revising smarter</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-5 h-5 text-slate-400 group-hover:text-accent-600 dark:group-hover:text-accent-400 group-hover:translate-x-1 transition-all"></i>
+            </a>
+        </div>
+
+        <!-- Tips -->
+        <div class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-800">
+            <div class="flex items-start gap-3 text-left">
+                <i data-lucide="lightbulb" class="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5"></i>
+                <div>
+                    <p class="text-sm font-medium text-primary-800 dark:text-primary-200">Pro tip</p>
+                    <p class="text-sm text-primary-600 dark:text-primary-300 mt-0.5">
+                        Add all your courses first, then create assignments and events. This helps RLIFE give you better insights and reminders.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-12 text-center">
+        <p class="text-sm text-slate-400 dark:text-slate-500">
+            Need help?
+            <a href="#" class="text-primary-600 dark:text-primary-400 hover:underline">View our getting started guide</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

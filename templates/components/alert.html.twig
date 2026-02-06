@@ -1,0 +1,64 @@
+{#
+    Alert Component
+
+    Usage:
+    {% include 'components/alert.html.twig' with {
+        type: 'warning',     // info, success, warning, danger
+        title: 'Attention',
+        message: 'This is an important message.',
+        dismissible: true,
+        icon: true
+    } %}
+#}
+
+{% set type = type|default('info') %}
+{% set dismissible = dismissible|default(false) %}
+{% set showIcon = icon|default(true) %}
+
+{% set typeConfig = {
+    'info': {
+        'bg': 'bg-primary-50 dark:bg-primary-900/20',
+        'border': 'border-primary-200 dark:border-primary-800',
+        'text': 'text-primary-800 dark:text-primary-200',
+        'icon': 'info'
+    },
+    'success': {
+        'bg': 'bg-success-50 dark:bg-success-900/20',
+        'border': 'border-success-200 dark:border-success-800',
+        'text': 'text-success-800 dark:text-success-200',
+        'icon': 'check-circle'
+    },
+    'warning': {
+        'bg': 'bg-warning-50 dark:bg-warning-900/20',
+        'border': 'border-warning-200 dark:border-warning-800',
+        'text': 'text-warning-800 dark:text-warning-200',
+        'icon': 'alert-triangle'
+    },
+    'danger': {
+        'bg': 'bg-danger-50 dark:bg-danger-900/20',
+        'border': 'border-danger-200 dark:border-danger-800',
+        'text': 'text-danger-800 dark:text-danger-200',
+        'icon': 'alert-circle'
+    }
+} %}
+
+{% set config = typeConfig[type] %}
+
+<div class="rounded-xl border p-4 {{ config.bg }} {{ config.border }} {{ config.text }} {{ class|default('') }}" role="alert">
+    <div class="flex gap-3">
+        {% if showIcon %}
+            <i data-lucide="{{ config.icon }}" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
+        {% endif %}
+        <div class="flex-1">
+            {% if title is defined and title %}
+                <h4 class="font-semibold mb-1">{{ title }}</h4>
+            {% endif %}
+            <p class="text-sm">{{ message }}</p>
+        </div>
+        {% if dismissible %}
+            <button type="button" class="flex-shrink-0 p-1 -mr-1 -mt-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors" onclick="this.closest('[role=alert]').remove()" aria-label="Dismiss">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        {% endif %}
+    </div>
+</div>

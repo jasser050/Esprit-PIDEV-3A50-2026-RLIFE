@@ -19,20 +19,20 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     {
         $user = $token->getUser();
 
-      
+        // Check if user is banned
         if (method_exists($user, 'isBanned') && $user->isBanned()) {
-           
+            // Redirect to logout if banned
             return new RedirectResponse($this->router->generate('app_logout'));
         }
 
-        
+        // Check if user has admin role
         $roles = $token->getRoleNames();
         if (in_array('ROLE_ADMIN', $roles, true)) {
-           
+            // Redirect to admin dashboard
             return new RedirectResponse($this->router->generate('app_admin_dashboard'));
         }
 
-       
+        // Default redirect to user dashboard
         return new RedirectResponse($this->router->generate('app_dashboard'));
     }
 }
