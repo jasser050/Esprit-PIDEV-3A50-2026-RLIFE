@@ -19,6 +19,7 @@ class AdminMailerService
     private AuditLogService $auditLog;
     private ?User $currentUser;
     private LoggerInterface $logger;
+    private string $senderEmail;
 
     public function __construct(
         MailerInterface $mailer,
@@ -26,7 +27,8 @@ class AdminMailerService
         UserRepository $userRepository,
         AuditLogService $auditLog,
         Security $security,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        string $senderEmail = 'noreply@pidev.local'
     ) {
         $this->mailer = $mailer;
         $this->entityManager = $entityManager;
@@ -34,6 +36,7 @@ class AdminMailerService
         $this->auditLog = $auditLog;
         $this->currentUser = $security->getUser();
         $this->logger = $logger;
+        $this->senderEmail = $senderEmail;
     }
 
     /**
@@ -96,7 +99,7 @@ class AdminMailerService
         foreach ($users as $user) {
             try {
                 $email = (new Email())
-                    ->from('jasserbalti555@gmail.com')
+                    ->from($this->senderEmail)
                     ->to($user->getEmail())
                     ->subject($subject)
                     ->html($this->formatEmailHtml($user, $messageBody));
@@ -220,7 +223,7 @@ class AdminMailerService
             $this->logger->info(sprintf('Sending test email to: %s', $this->currentUser->getEmail()));
             
             $email = (new Email())
-                ->from('jasserbalti555@gmail.com')
+                ->from($this->senderEmail)
                 ->to($this->currentUser->getEmail())
                 ->subject('[TEST] ' . $subject)
                 ->html($this->formatEmailHtml($this->currentUser, $message));
