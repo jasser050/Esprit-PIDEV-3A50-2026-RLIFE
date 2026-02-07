@@ -15,7 +15,16 @@
                 </a>
 
                 <a href="{{ path('app_landing') }}" class="flex items-center gap-2.5 mb-2">
-                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-10 h-10 rounded-xl shadow-lg object-cover">
+                    <div class="w-14 h-14 relative">
+                        <!-- Light Mode Logo -->
+                        <img src="{{ asset('image/logo0.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
+                        <!-- Dark Mode Logo -->
+                        <img src="{{ asset('image/logo1.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
+                    </div>
                     <span class="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                 </a>
             </div>
@@ -260,7 +269,14 @@
     <div class="lg:hidden fixed top-0 left-0 right-0 z-10 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-slate-800 dark:to-slate-900 px-4 py-3">
         <div class="flex items-center justify-between">
             <a href="{{ path('app_landing') }}" class="flex items-center gap-2">
-                <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-8 h-8 rounded-lg object-cover">
+                <div class="w-8 h-8 relative">
+                    <img src="{{ asset('image/logo0.png') }}" 
+                         alt="RLIFE Logo" 
+                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
+                    <img src="{{ asset('image/logo1.png') }}" 
+                         alt="RLIFE Logo" 
+                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
+                </div>
                 <span class="font-semibold text-white">RLIFE</span>
             </a>
             <button

@@ -56,8 +56,15 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
-                        <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                    <div class="w-14 h-14 relative">
+                        <!-- Light Mode Logo -->
+                        <img src="{{ asset('image/logo0.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
+                        <!-- Dark Mode Logo -->
+                        <img src="{{ asset('image/logo1.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
                     </div>
                     <div data-sidebar-target="brandText">
                         <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
