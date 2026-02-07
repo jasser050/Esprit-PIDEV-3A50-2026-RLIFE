@@ -21,7 +21,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 class AdminEmailController extends AbstractController
 {
     #[Route('/compose', name: 'app_admin_email_compose')]
-    public function compose(Request $request, AdminMailerService $mailerService, CsrfTokenManagerInterface $csrfTokenManager, EntityManagerInterface $em): Response
+    public function compose(Request $request, AdminMailerService $mailerService, CsrfTokenManagerInterface $csrfTokenManager): Response
     {
         if ($request->isMethod('POST')) {
             // Validate CSRF token
@@ -35,8 +35,6 @@ class AdminEmailController extends AbstractController
             $subject = $request->request->get('subject');
             $message = $request->request->get('message');
             $sendTest = $request->request->get('send_test');
-            $scheduleEmail = $request->request->get('schedule_email');
-            $scheduledAt = $request->request->get('scheduled_at');
 
             // Validate inputs
             if (empty($subject) || empty($message)) {
@@ -53,35 +51,6 @@ class AdminEmailController extends AbstractController
                     $this->addFlash('error', 'Failed to send test email. Please check your email configuration.');
                 }
                 return $this->redirectToRoute('app_admin_email_compose');
-            }
-
-            // Check if email should be scheduled
-            if ($scheduleEmail && !empty($scheduledAt)) {
-                try {
-                    $scheduledDateTime = new \DateTime($scheduledAt);
-                    
-                    // Validate scheduled time is in the future
-                    if ($scheduledDateTime <= new \DateTime()) {
-                        $this->addFlash('error', 'Scheduled time must be in the future.');
-                        return $this->redirectToRoute('app_admin_email_compose');
-                    }
-                    
-                    $scheduledEmailEntity = new ScheduledEmail();
-                    $scheduledEmailEntity->setAdminUser($this->getUser());
-                    $scheduledEmailEntity->setRecipientType($recipientType);
-                    $scheduledEmailEntity->setSubject($subject);
-                    $scheduledEmailEntity->setMessage($message);
-                    $scheduledEmailEntity->setScheduledAt($scheduledDateTime);
-                    
-                    $em->persist($scheduledEmailEntity);
-                    $em->flush();
-                    
-                    $this->addFlash('success', sprintf('Email scheduled for %s. It will be sent automatically.', $scheduledDateTime->format('Y-m-d H:i')));
-                    return $this->redirectToRoute('app_admin_email_scheduled');
-                } catch (\Exception $e) {
-                    $this->addFlash('error', 'Failed to schedule email: ' . $e->getMessage());
-                    return $this->redirectToRoute('app_admin_email_compose');
-                }
             }
 
             // Send to recipients immediately
@@ -103,7 +72,7 @@ class AdminEmailController extends AbstractController
                 $this->addFlash('error', 'Failed to send emails: ' . $e->getMessage());
             }
 
-            return $this->redirectToRoute('app_admin_email_history');
+            return $this->redirectToRoute('app_admin_email_compose');
         }
 
         return $this->render('admin/emails/compose.html.twig');

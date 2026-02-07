@@ -46,7 +46,7 @@ class AuditLogService
         $log->setTargetId($targetId);
         $log->setDescription($description);
 
-        // Get IP address and User Agent from current request
+        
         $request = $this->requestStack->getCurrentRequest();
         if ($request) {
             $log->setIpAddress($request->getClientIp());

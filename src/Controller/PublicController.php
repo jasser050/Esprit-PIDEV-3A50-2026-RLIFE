@@ -8,6 +8,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -43,7 +45,7 @@ class PublicController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         
         if ($request->isMethod('POST')) {
@@ -112,6 +114,20 @@ class PublicController extends AbstractController
                 $entityManager->persist($settings);
                 $entityManager->flush();
                 
+                // Send automatic welcome email
+                try {
+                    $welcomeEmail = (new Email())
+                        ->from('jasserbalti555@gmail.com')
+                        ->to($user->getEmail())
+                        ->subject('Welcome to RLIFE - Your Student Life Management Platform')
+                        ->html($this->getWelcomeEmailHtml($user));
+                    
+                    $mailer->send($welcomeEmail);
+                } catch (\Exception $e) {
+                    // Log error but don't block registration
+                    // User is created successfully even if email fails
+                }
+                
                 $this->addFlash('success', 'Account created successfully! Please log in.');
                 return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
@@ -127,5 +143,226 @@ class PublicController extends AbstractController
     public function welcome(): Response
     {
         return $this->render('pages/auth/welcome.html.twig');
+    }
+
+    /**
+     * Generate HTML for welcome email
+     */
+    private function getWelcomeEmailHtml(User $user): string
+    {
+        return sprintf('
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+                        color: white;
+                        padding: 40px 30px;
+                        border-radius: 10px 10px 0 0;
+                        text-align: center;
+                    }
+                    .content {
+                        background: #f9fafb;
+                        padding: 30px;
+                        border-radius: 0 0 10px 10px;
+                    }
+                    .message {
+                        background: white;
+                        padding: 25px;
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                        margin: 20px 0;
+                    }
+                    .features {
+                        background: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    }
+                    .features h3 {
+                        color: #667eea;
+                        margin-top: 0;
+                    }
+                    .features ul {
+                        list-style: none;
+                        padding: 0;
+                    }
+                    .features li {
+                        padding: 8px 0;
+                        border-bottom: 1px solid #e5e7eb;
+                    }
+                    .features li:last-child {
+                        border-bottom: none;
+                    }
+                    .features li:before {
+                        content: "✓ ";
+                        color: #667eea;
+                        font-weight: bold;
+                        margin-right: 8px;
+                    }
+                    .button {
+                        display: inline-block;
+                        background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+                        color: white;
+                        padding: 15px 30px;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        font-weight: bold;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 30px;
+                        color: #6b7280;
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 style="margin: 0; font-size: 32px;">Welcome to RLIFE! 🎉</h1>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">Student Life Management Platform</p>
+                </div>
+                <div class="content">
+                    <div class="message">
+                        <h2 style="color: #667eea; margin-top: 0;">Hello %s! 👋</h2>
+                        <p>Thank you for joining RLIFE! We are excited to have you as part of our community.</p>
+                        <p>Your account has been successfully created and you can now start managing your student life more effectively.</p>
+                    </div>
+                    
+                    <div class="features">
+                        <h3>🚀 What You Can Do with RLIFE:</h3>
+                        <ul>
+                            <li><strong>Organize Your Schedule:</strong> Plan your study sessions and manage your time effectively</li>
+                            <li><strong>Manage Projects:</strong> Create and track your academic projects and assignments</li>
+                            <li><strong>Study with Flashcards:</strong> Create decks and master your subjects with spaced repetition</li>
+                            <li><strong>Track Your Progress:</strong> Monitor your academic performance and stay motivated</li>
+                            <li><strong>Stay Organized:</strong> Keep all your academic materials in one place</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <a href="http://localhost:8000/login" class="button">Start Using RLIFE</a>
+                    </div>
+                    
+                    <div class="message" style="background: #fef3c7; border-left-color: #f59e0b;">
+                        <p style="margin: 0;"><strong>💡 Pro Tip:</strong> Complete your profile and set your study goals to get the most out of RLIFE!</p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>If you have any questions, feel free to reach out to our support team.</p>
+                        <p style="margin-top: 15px;">Happy studying! 📚</p>
+                        <p style="margin-top: 20px;">&copy; %d RLIFE. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ', $user->getFirstName(), date('Y'));
+    }
+
+    /**
+     * Generate HTML for ban notification email
+     */
+    private function getBanEmailHtml(User $user, string $reason = null): string
+    {
+        $reasonText = $reason ? $reason : 'Violation of our Terms of Service';
+        
+        return sprintf('
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {
+                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                    }
+                    .header {
+                        background: linear-gradient(135deg, #ef4444 0%%, #dc2626 100%%);
+                        color: white;
+                        padding: 30px;
+                        border-radius: 10px 10px 0 0;
+                        text-align: center;
+                    }
+                    .content {
+                        background: #f9fafb;
+                        padding: 30px;
+                        border-radius: 0 0 10px 10px;
+                    }
+                    .message {
+                        background: white;
+                        padding: 25px;
+                        border-radius: 8px;
+                        border-left: 4px solid #ef4444;
+                        margin: 20px 0;
+                    }
+                    .warning-box {
+                        background: #fef2f2;
+                        border: 2px solid #ef4444;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                    }
+                    .footer {
+                        text-align: center;
+                        margin-top: 30px;
+                        color: #6b7280;
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 style="margin: 0; font-size: 28px;">⚠️ Account Suspended</h1>
+                    <p style="margin: 10px 0 0 0; opacity: 0.9;">RLIFE Platform</p>
+                </div>
+                <div class="content">
+                    <div class="message">
+                        <h2 style="color: #ef4444; margin-top: 0;">Dear %s,</h2>
+                        <p>We are writing to inform you that your RLIFE account has been temporarily suspended.</p>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h3 style="color: #ef4444; margin-top: 0;">🚫 Reason for Suspension:</h3>
+                        <p style="font-size: 16px;"><strong>%s</strong></p>
+                    </div>
+                    
+                    <div class="message">
+                        <h3>What This Means:</h3>
+                        <ul>
+                            <li>You will not be able to access your RLIFE account</li>
+                            <li>Your data remains secure and will not be deleted</li>
+                            <li>This action may be temporary or permanent depending on the situation</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="message" style="background: #fef3c7; border-left-color: #f59e0b;">
+                        <h3 style="margin-top: 0;">📞 Need Help?</h3>
+                        <p>If you believe this is a mistake or would like to appeal this decision, please contact our support team immediately.</p>
+                        <p><strong>Support Email:</strong> jasserbalti555@gmail.com</p>
+                    </div>
+                    
+                    <div class="footer">
+                        <p>Please review our Terms of Service and Community Guidelines.</p>
+                        <p style="margin-top: 20px;">&copy; %d RLIFE. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ', $user->getFirstName(), $reasonText, date('Y'));
     }
 }
