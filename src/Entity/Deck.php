@@ -15,10 +15,10 @@ class Deck
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_deck', type: Types::INTEGER)]
-    private ?int $id = null;
+    private ?int $idDeck = null;  // ← on renomme la propriété en $idDeck pour clarté
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'decks')]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
@@ -58,9 +58,15 @@ class Deck
         $this->dateCreation = new \DateTime();
     }
 
-    public function getId(): ?int
+    public function getIdDeck(): ?int
     {
-        return $this->id;
+        return $this->idDeck;
+    }
+
+    public function setIdDeck(int $idDeck): static
+    {
+        $this->idDeck = $idDeck;
+        return $this;
     }
 
     public function getUser(): ?User

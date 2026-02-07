@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\FlashcardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 #[ORM\Entity(repositoryClass: FlashcardRepository::class)]
 #[ORM\Table(name: 'flashcard')]
@@ -20,7 +21,11 @@ class Flashcard
     #[ORM\JoinColumn(name: 'id_deck', referencedColumnName: 'id_deck', nullable: false, onDelete: 'CASCADE')]
     private ?Deck $deck = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true)]
+    private ?User $createdBy = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -32,10 +37,10 @@ class Flashcard
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER)]
+    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: true)]
     private ?int $niveauDifficulte = null;
 
-    #[ORM\Column(type: Types::STRING, length: 20)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
     private ?string $etat = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -61,6 +66,10 @@ class Flashcard
         $this->dateModification = new \DateTime();
     }
 
+    // ────────────────────────────────────────────────
+    // GETTERS & SETTERS
+    // ────────────────────────────────────────────────
+
     public function getId(): ?int
     {
         return $this->id;
@@ -77,12 +86,23 @@ class Flashcard
         return $this;
     }
 
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+
     public function getTitre(): ?string
     {
         return $this->titre;
     }
 
-    public function setTitre(string $titre): static
+    public function setTitre(?string $titre): static
     {
         $this->titre = $titre;
         return $this;
@@ -126,7 +146,7 @@ class Flashcard
         return $this->niveauDifficulte;
     }
 
-    public function setNiveauDifficulte(int $niveauDifficulte): static
+    public function setNiveauDifficulte(?int $niveauDifficulte): static
     {
         $this->niveauDifficulte = $niveauDifficulte;
         return $this;
@@ -137,7 +157,7 @@ class Flashcard
         return $this->etat;
     }
 
-    public function setEtat(string $etat): static
+    public function setEtat(?string $etat): static
     {
         $this->etat = $etat;
         return $this;

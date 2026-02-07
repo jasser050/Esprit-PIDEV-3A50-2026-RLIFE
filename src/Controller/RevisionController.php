@@ -22,14 +22,7 @@ class RevisionController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function index(DeckRepository $deckRepository): Response
     {
-        if ($this->isGranted('ROLE_ADMIN')) {
-            $decks = $deckRepository->findAll();
-        } else {
-            $decks = $deckRepository->findBy(
-                ['user' => $this->getUser()],
-                ['dateCreation' => 'DESC']
-            );
-        }
+        $decks = $deckRepository->findAll();
 
         return $this->render('pages/revisions/index.html.twig', [
             'decks' => $decks,
@@ -73,7 +66,7 @@ class RevisionController extends AbstractController
             $em->persist($deck);
             $em->flush();
 
-            $this->addFlash('success', 'Deck créé !');
+            $this->addFlash('success', 'Deck créé avec succès !');
             return $this->redirectToRoute('app_revisions');
         }
 
@@ -86,13 +79,22 @@ class RevisionController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function study(Deck $deck): Response
     {
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            if ($deck->getUser() !== $this->getUser()) {
-                $this->addFlash('warning', 'Ce deck ne t\'appartient pas.');
-                return $this->redirectToRoute('app_revisions');
-            }
+        $user = $this->getUser();
+
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté.');
+            return $this->redirectToRoute('app_revisions');
         }
 
+        // Admin voit tout
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->render('pages/revisions/study.html.twig', [
+                'deck'       => $deck,
+                'flashcards' => $deck->getFlashcards(),
+            ]);
+        }
+
+        // Accès libre à tous les decks
         return $this->render('pages/revisions/study.html.twig', [
             'deck'       => $deck,
             'flashcards' => $deck->getFlashcards(),
@@ -114,15 +116,11 @@ class RevisionController extends AbstractController
             throw $this->createNotFoundException('Deck introuvable');
         }
 
-        if (!$this->isGranted('ROLE_ADMIN')) {
-            if ($deck->getUser() !== $this->getUser()) {
-                $this->addFlash('warning', 'Ce deck ne t\'appartient pas.');
-                return $this->redirectToRoute('app_revisions');
-            }
-        }
+        $currentUser = $this->getUser();
 
         $flashcard = new Flashcard();
         $flashcard->setDeck($deck);
+        $flashcard->setCreatedBy($currentUser); // Associe le créateur
 
         $form = $this->createForm(FlashcardType::class, $flashcard);
         $form->handleRequest($request);
@@ -136,7 +134,7 @@ class RevisionController extends AbstractController
                     $imageFile->move($uploadDir, $filename);
                     $flashcard->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur image');
+                    $this->addFlash('error', 'Erreur upload image');
                 }
             }
 
@@ -146,20 +144,112 @@ class RevisionController extends AbstractController
                     $pdfFile->move($uploadDir, $filename);
                     $flashcard->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur PDF');
+                    $this->addFlash('error', 'Erreur upload PDF');
                 }
             }
 
             $em->persist($flashcard);
             $em->flush();
 
-            $this->addFlash('success', 'Flashcard ajoutée !');
-            return $this->redirectToRoute('app_revisions');
+            $this->addFlash('success', 'Flashcard ajoutée avec succès !');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
         }
 
         return $this->render('pages/flashcard/new.html.twig', [
             'form' => $form->createView(),
             'deck' => $deck,
         ]);
+    }
+
+    #[Route('/flashcard/{id}/edit', name: 'app_flashcard_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function editFlashcard(
+        Flashcard $flashcard,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response
+    {
+        $deck = $flashcard->getDeck();
+        $currentUser = $this->getUser();
+
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à modifier (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à modifier cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
+
+        $form = $this->createForm(FlashcardType::class, $flashcard);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/flashcards/';
+
+            if ($imageFile = $form->get('imageFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $flashcard->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload image');
+                }
+            }
+
+            if ($pdfFile = $form->get('pdfFile')->getData()) {
+                $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $flashcard->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload PDF');
+                }
+            }
+
+            $em->flush();
+
+            $this->addFlash('success', 'Flashcard modifiée avec succès !');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+
+        return $this->render('pages/flashcard/edit.html.twig', [
+            'form' => $form->createView(),
+            'flashcard' => $flashcard,
+            'deck' => $deck,
+        ]);
+    }
+
+    #[Route('/flashcard/{id}', name: 'app_flashcard_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function deleteFlashcard(
+        Flashcard $flashcard,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response
+    {
+        $deck = $flashcard->getDeck();
+        $currentUser = $this->getUser();
+
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à supprimer (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à supprimer cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
+
+        if ($this->isCsrfTokenValid('delete' . $flashcard->getId(), $request->request->get('_token'))) {
+            $em->remove($flashcard);
+            $em->flush();
+            $this->addFlash('success', 'Flashcard supprimée avec succès !');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
+        }
+
+        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
     }
 }

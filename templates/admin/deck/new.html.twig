@@ -1,128 +1,215 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Créer un Deck - RLIFE Admin{% endblock %}
+{% block title %}Create a Deck - RLIFE Admin{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto px-4 sm:px-6">
+<div class="space-y-8 max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in">
 
-    <!-- Breadcrumbs -->
-    <nav class="flex items-center text-sm text-slate-500 dark:text-slate-400 mb-6">
-        <a href="{{ path('app_admin_dashboard') }}" class="hover:text-slate-900 dark:hover:text-white transition">Dashboard</a>
-        <span class="mx-2">›</span>
-        <a href="{{ path('app_admin_revision') }}" class="hover:text-slate-900 dark:hover:text-white transition">Révisions</a>
-        <span class="mx-2">›</span>
-        <span class="font-medium text-slate-900 dark:text-white">Créer un Deck</span>
+    <!-- Breadcrumbs Modern -->
+    <nav class="flex items-center text-sm gap-2">
+        <a href="{{ path('app_admin_dashboard') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">
+            Dashboard
+        </a>
+        <span class="text-slate-400">›</span>
+        <a href="{{ path('app_admin_revision') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">Revisions</a>
+        <span class="text-slate-400">›</span>
+        <span class="font-semibold text-indigo-600">Create Deck</span>
     </nav>
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-        <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Créer un Deck</h1>
-            <p class="mt-1 text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-                Organise tes flashcards et commence à réviser efficacement
-            </p>
+    <!-- Header avec gradient -->
+    <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-3xl"></div>
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg text-2xl">
+                        📚
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Create New Deck</h1>
+                        <p class="mt-1 text-slate-600 dark:text-slate-400">
+                            Organize your flashcards and start studying effectively
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ path('app_admin_revision') }}" 
+                   class="inline-flex items-center justify-center px-5 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition shadow-sm gap-2">
+                    ← Back
+                </a>
+            </div>
         </div>
-        <a href="{{ path('app_admin_revision') }}" 
-           class="inline-flex items-center px-5 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition text-sm">
-            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-            Retour
-        </a>
     </div>
 
-    <!-- Formulaire clair et normal -->
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="p-6 sm:p-8">
-            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
+    <!-- Formulaire Ultra Moderne -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        
+        <!-- Header du formulaire -->
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                ✏️ Deck Information
+            </h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Fill in the details below to create your deck</p>
+        </div>
 
-            <!-- Titre -->
-            <div>
-                {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
-                {{ form_widget(form.titre, {
-                    'attr': {
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                        'placeholder': 'Ex: Biologie - Système nerveux, Vocabulaire espagnol A2...'
-                    }
-                }) }}
-                {{ form_errors(form.titre, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
-            </div>
+        <div class="p-8">
+            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
 
-            <!-- Matière -->
-            <div>
-                {{ form_label(form.matiere, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
-                {{ form_widget(form.matiere, {
-                    'attr': {
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                        'placeholder': 'Ex: Biologie, Anglais, Mathématiques, Histoire...'
-                    }
-                }) }}
-                {{ form_errors(form.matiere, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
-            </div>
+            <!-- Grille pour les champs principaux -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Titre -->
+                <div class="md:col-span-2">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        📝 Deck Title
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_widget(form.titre, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base font-medium',
+                            'placeholder': 'e.g., Biology - Nervous System, Spanish Vocabulary A2...'
+                        }
+                    }) }}
+                    {{ form_errors(form.titre, {'attr': {'class': 'text-red-600 text-sm mt-1.5 flex items-center gap-1'}}) }}
+                </div>
 
-            <!-- Niveau -->
-            <div>
-                {{ form_label(form.niveau, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
-                {{ form_widget(form.niveau, {
-                    'attr': {
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                        'placeholder': 'Ex: Terminale, Licence 1, B1, Master 2...'
-                    }
-                }) }}
-                {{ form_errors(form.niveau, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                <!-- Matière -->
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        📚 Subject
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_widget(form.matiere, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base',
+                            'placeholder': 'e.g., Biology, English, Math...'
+                        }
+                    }) }}
+                    {{ form_errors(form.matiere, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
+                </div>
+
+                <!-- Niveau -->
+                <div>
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        🎓 Level
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form_widget(form.niveau, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base',
+                            'placeholder': 'e.g., High School, Bachelor, B1...'
+                        }
+                    }) }}
+                    {{ form_errors(form.niveau, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
+                </div>
             </div>
 
             <!-- Description -->
             <div>
-                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
+                <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    💭 Description
+                </label>
                 {{ form_widget(form.description, {
                     'attr': {
                         'rows': 4,
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all duration-200 min-h-[110px] text-base',
-                        'placeholder': 'Décris le contenu, les objectifs, les chapitres ou les compétences visées...'
+                        'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 min-h-[120px] text-base resize-none',
+                        'placeholder': 'Describe the content, objectives, chapters or skills covered...'
                     }
                 }) }}
-                {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+                {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
             </div>
 
-            <!-- Image -->
-            <div class="space-y-1.5">
-                {{ form_label(form.imageFile, 'Image de couverture (jpg, png, webp)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}}) }}
-                {{ form_widget(form.imageFile, {
-                    'attr': {
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 transition cursor-pointer'
-                    }
-                }) }}
-                <p class="text-xs text-slate-500 dark:text-slate-400">Max 5 Mo – Format idéal : 16:9 ou carré</p>
-                {{ form_errors(form.imageFile, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+            <!-- Divider -->
+            <div class="relative py-4">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t-2 border-slate-200 dark:border-slate-700"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-white dark:bg-slate-800 px-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        🖼️ Media Files
+                    </span>
+                </div>
             </div>
 
-            <!-- PDF -->
-            <div class="space-y-1.5">
-                {{ form_label(form.pdfFile, 'Fichier PDF (optionnel – cours ou résumé)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}}) }}
-                {{ form_widget(form.pdfFile, {
-                    'attr': {
-                        'class': 'w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-400 transition cursor-pointer'
-                    }
-                }) }}
-                <p class="text-xs text-slate-500 dark:text-slate-400">Max 10 Mo</p>
-                {{ form_errors(form.pdfFile, {'attr': {'class': 'text-red-600 text-xs mt-1'}}) }}
+            <!-- Files Upload Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- Image Upload -->
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        🖼️ Cover Image
+                    </label>
+                    <div class="relative">
+                        {{ form_widget(form.imageFile, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-purple-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/30 dark:file:text-purple-400'
+                            }
+                        }) }}
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        ℹ️ Max 5MB • JPG, PNG, WEBP • Recommended: 16:9 or square
+                    </p>
+                    {{ form_errors(form.imageFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                </div>
+
+                <!-- PDF Upload -->
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        📄 PDF File
+                        <span class="text-xs font-normal text-slate-500">(optional)</span>
+                    </label>
+                    <div class="relative">
+                        {{ form_widget(form.pdfFile, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-amber-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400'
+                            }
+                        }) }}
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        ℹ️ Max 10MB • Course notes or summary
+                    </p>
+                    {{ form_errors(form.pdfFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
+                </div>
             </div>
 
-            <!-- Boutons -->
-            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <!-- Action Buttons -->
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 border-t-2 border-slate-200 dark:border-slate-700">
                 <a href="{{ path('app_admin_revision') }}" 
-                   class="px-6 py-2.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition text-center text-sm">
-                    Annuler
+                   class="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all shadow-sm text-center">
+                    ✕ Cancel
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-sm flex items-center justify-center gap-2 text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Créer le Deck
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
+                    ✓ Create Deck
                 </button>
             </div>
 
             {{ form_end(form) }}
+        </div>
+    </div>
+
+    <!-- Tips Card -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800 p-6 shadow-lg">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0 text-xl">
+                💡
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Pro Tips</h3>
+                <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span>Use descriptive titles to easily find your decks later</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span>Add a cover image to make your deck more appealing</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span>Upload a PDF for quick reference while studying</span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 

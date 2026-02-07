@@ -21,7 +21,6 @@ class AdminDeckController extends AbstractController
     #[Route('', name: 'app_admin_deck_index', methods: ['GET'])]
     public function index(): Response
     {
-        // Redirige vers la page principale de révision (liste + formulaire intégré)
         return $this->redirectToRoute('app_admin_revision');
     }
 
@@ -37,14 +36,22 @@ class AdminDeckController extends AbstractController
 
             if ($imageFile = $form->get('imageFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
-                $imageFile->move($uploadDir, $filename);
-                $deck->setImage($filename);
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $deck->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload image');
+                }
             }
 
             if ($pdfFile = $form->get('pdfFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
-                $pdfFile->move($uploadDir, $filename);
-                $deck->setPdf($filename);
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $deck->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload PDF');
+                }
             }
 
             $deck->setUser($this->getUser());
@@ -63,9 +70,6 @@ class AdminDeckController extends AbstractController
         ]);
     }
 
-    /**
-     * Édition d'un deck
-     */
     #[Route('/{id_deck}/edit', name: 'app_admin_deck_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
@@ -81,14 +85,22 @@ class AdminDeckController extends AbstractController
 
             if ($imageFile = $form->get('imageFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
-                $imageFile->move($uploadDir, $filename);
-                $deck->setImage($filename);
+                try {
+                    $imageFile->move($uploadDir, $filename);
+                    $deck->setImage($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload image');
+                }
             }
 
             if ($pdfFile = $form->get('pdfFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
-                $pdfFile->move($uploadDir, $filename);
-                $deck->setPdf($filename);
+                try {
+                    $pdfFile->move($uploadDir, $filename);
+                    $deck->setPdf($filename);
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur upload PDF');
+                }
             }
 
             $em->flush();
@@ -104,9 +116,6 @@ class AdminDeckController extends AbstractController
         ]);
     }
 
-    /**
-     * Suppression d'un deck
-     */
     #[Route('/{id_deck}', name: 'app_admin_deck_delete', methods: ['POST'])]
     public function delete(
         Request $request,
@@ -114,11 +123,13 @@ class AdminDeckController extends AbstractController
         EntityManagerInterface $em
     ): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $deck->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $deck->getIdDeck(), $request->request->get('_token'))) {
             $em->remove($deck);
             $em->flush();
 
             $this->addFlash('success', 'Deck supprimé avec succès.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_admin_revision');

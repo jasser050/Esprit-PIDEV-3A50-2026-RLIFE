@@ -1,152 +1,153 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Créer un nouveau deck - RLIFE{% endblock %}
+{% block title %}Add Flashcard - {{ deck.titre }} - RLIFE{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
-        <!-- Header avec retour -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 mb-10">
-            <div>
-                <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white">
-                    Créer un nouveau deck
+<div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4 sm:px-6 lg:px-8 text-gray-900 dark:text-gray-100">
+    <div class="max-w-4xl mx-auto">
+
+        <!-- Main Card -->
+        <div class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-10 text-white">
+                <h1 class="text-3xl font-bold mb-2">
+                    Create New Flashcard
                 </h1>
-                <p class="mt-2 text-slate-600 dark:text-slate-400">
-                    Organise tes flashcards et commence à réviser efficacement
+                <p class="text-indigo-100/90 text-lg">
+                    Deck: <strong class="text-white">{{ deck.titre }}</strong>
+                    <span class="opacity-80">({{ deck.matiere }} • {{ deck.niveau }})</span>
                 </p>
             </div>
-            <a href="{{ path('app_revisions') }}"
-               class="inline-flex items-center px-6 py-3 bg-slate-200 dark:bg-slate-700 
-                      hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 
-                      font-medium rounded-lg transition shadow-md text-sm">
-                <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
-                Retour à la liste
-            </a>
-        </div>
 
-        <!-- Formulaire -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <div class="p-6 sm:p-10">
-                {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+            <!-- Form Body -->
+            <div class="p-8 lg:p-10">
+                {{ form_start(form, {'attr': {'class': 'space-y-7'}}) }}
 
-                <!-- Titre -->
-                <div>
-                    {{ form_label(form.titre, null, {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}
+                <!-- Title (optional) -->
+                <div class="space-y-2">
+                    {{ form_label(form.titre, 'Title (optional)', {
+                        'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
                     {{ form_widget(form.titre, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 
-                                     focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                            'placeholder': 'Ex : Vocabulaire anglais C1 - Série Friends'
+                            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
+                            'placeholder': 'e.g. Definition, Theorem, Formula...'
                         }
                     }) }}
                     {{ form_errors(form.titre, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
                 </div>
 
-                <!-- Matière -->
-                <div>
-                    {{ form_label(form.matiere, null, {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}
+                <!-- Question -->
+                <div class="space-y-2">
+                    {{ form_label(form.question, 'Question', {
+                        'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
-                    {{ form_widget(form.matiere, {
+                    {{ form_widget(form.question, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 
-                                     focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                            'placeholder': 'Ex : Anglais, Biologie, Mathématiques, Droit...'
+                            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm min-h-[130px]',
+                            'placeholder': 'What is the capital of France?\nWhat is 2 + 2?\nState Pythagoras\' theorem...'
                         }
                     }) }}
-                    {{ form_errors(form.matiere) }}
+                    {{ form_errors(form.question, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
                 </div>
 
-                <!-- Niveau -->
-                <div>
-                    {{ form_label(form.niveau, null, {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}
+                <!-- Answer -->
+                <div class="space-y-2">
+                    {{ form_label(form.reponse, 'Answer', {
+                        'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
-                    {{ form_widget(form.niveau, {
+                    {{ form_widget(form.reponse, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 
-                                     focus:ring-indigo-200 outline-none transition-all duration-200 text-base',
-                            'placeholder': 'Ex : Terminale, Licence 2, B2, Avancé...'
+                            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition shadow-sm min-h-[160px]',
+                            'placeholder': 'Paris\n4\nIn a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides.'
                         }
                     }) }}
-                    {{ form_errors(form.niveau) }}
+                    {{ form_errors(form.reponse, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
                 </div>
 
-                <!-- Description -->
-                <div>
-                    {{ form_label(form.description, null, {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}
+                <!-- Description (optional) -->
+                <div class="space-y-2">
+                    {{ form_label(form.description, 'Additional explanation / notes (optional)', {
+                        'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
                     {{ form_widget(form.description, {
                         'attr': {
-                            'rows': 5,
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 
-                                     focus:ring-indigo-200 outline-none transition-all duration-200 resize-y min-h-[140px] text-base',
-                            'placeholder': 'Décris le contenu du deck, les objectifs, les chapitres couverts...'
+                            'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition shadow-sm min-h-[110px]',
+                            'placeholder': 'Extra context, examples, proof, common mistakes, historical note...'
                         }
                     }) }}
-                    {{ form_errors(form.description) }}
+                    {{ form_errors(form.description, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
                 </div>
 
-                <!-- Image de couverture -->
-                <div class="space-y-2">
-                    {{ form_label(form.imageFile, 'Image de couverture (optionnel)', {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}
-                    }) }}
-                    {{ form_widget(form.imageFile, {
-                        'attr': {
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white file:mr-4 file:py-2 file:px-5 
-                                     file:rounded-lg file:border-0 file:text-sm file:font-medium 
-                                     file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 
-                                     dark:file:bg-indigo-950/30 dark:file:text-indigo-300 transition cursor-pointer'
-                        }
-                    }) }}
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        PNG, JPG, WebP – recommandé 16:9 ou carré – max 5 Mo
-                    </p>
-                    {{ form_errors(form.imageFile) }}
+                <!-- Difficulty + Status -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Difficulty -->
+                    <div class="space-y-2">
+                        {{ form_label(form.niveauDifficulte, 'Difficulty level', {
+                            'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
+                        }) }}
+                        {{ form_widget(form.niveauDifficulte, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
+                            }
+                        }) }}
+                        {{ form_errors(form.niveauDifficulte, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
+                    </div>
+
+                    <!-- Status -->
+                    <div class="space-y-2">
+                        {{ form_label(form.etat, 'Card status', {
+                            'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
+                        }) }}
+                        {{ form_widget(form.etat, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
+                            }
+                        }) }}
+                        {{ form_errors(form.etat, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
+                    </div>
                 </div>
 
-                <!-- PDF (optionnel) -->
-                <div class="space-y-2">
-                    {{ form_label(form.pdfFile, 'Fichier PDF (optionnel – cours ou résumé)', {
-                        'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}
-                    }) }}
-                    {{ form_widget(form.pdfFile, {
-                        'attr': {
-                            'class': 'w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 
-                                     dark:bg-slate-800 dark:text-white file:mr-4 file:py-2 file:px-5 
-                                     file:rounded-lg file:border-0 file:text-sm file:font-medium 
-                                     file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 
-                                     dark:file:bg-indigo-950/30 dark:file:text-indigo-300 transition cursor-pointer'
-                        }
-                    }) }}
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        Max 10 Mo
-                    </p>
-                    {{ form_errors(form.pdfFile) }}
+                <!-- File uploads -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <div class="space-y-2">
+                        {{ form_label(form.imageFile, 'Image (optional)', {
+                            'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
+                        }) }}
+                        {{ form_widget(form.imageFile, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-indigo-300 shadow-sm'
+                            }
+                        }) }}
+                        {{ form_errors(form.imageFile, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
+                    </div>
+
+                    <div class="space-y-2">
+                        {{ form_label(form.pdfFile, 'PDF document (optional)', {
+                            'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
+                        }) }}
+                        {{ form_widget(form.pdfFile, {
+                            'attr': {
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-gray-700 dark:file:text-purple-300 shadow-sm'
+                            }
+                        }) }}
+                        {{ form_errors(form.pdfFile, {'attr': {'class': 'text-red-600 dark:text-red-400 text-sm mt-1'}}) }}
+                    </div>
                 </div>
 
-                <!-- Boutons d'action -->
-                <div class="flex flex-col sm:flex-row gap-4 pt-8 border-t border-slate-200 dark:border-slate-700">
-                    <a href="{{ path('app_revisions') }}"
-                       class="flex-1 sm:flex-none px-6 py-3 bg-slate-200 dark:bg-slate-700 
-                              hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 
-                              font-medium rounded-lg transition text-center">
-                        Annuler
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-end mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+                    <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
+                       class="inline-flex items-center justify-center px-8 py-3.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium rounded-lg transition shadow-sm">
+                        <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                        Cancel
                     </a>
+
                     <button type="submit"
-                            class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 
-                                  text-white font-medium rounded-lg transition shadow-md flex items-center justify-center gap-2">
-                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
-                        Créer le deck
+                            class="inline-flex items-center justify-center px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-md">
+                        <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+                        Save Flashcard
                     </button>
                 </div>
 

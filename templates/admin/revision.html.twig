@@ -1,26 +1,26 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Révisions - RLIFE Admin{% endblock %}
+{% block title %}Revisions{% endblock %}
 
 {% block body %}
 <div class="space-y-8 animate-fade-in">
 
     <!-- Header + Bouton Créer Deck -->
+    <div class="space-y-6 animate-fade-in">
+    <!-- Page Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Révisions</h1>
-            <p class="text-slate-600 dark:text-slate-400 mt-1">
-                Étudie efficacement avec des flashcards et la répétition espacée
-            </p>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Study efficiently with flashcards and spaced repetition</p>
         </div>
         <a href="{{ path('app_admin_deck_new') }}"
            class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md">
             <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-            Créer un Deck
+            Create Deck
         </a>
     </div>
 
-    <!-- Statistiques -->
+    <!-- Statistiques avec données de démonstration -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
             <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -28,7 +28,7 @@
             </div>
             <div>
                 <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ decks|length }}</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Decks au total</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Total Decks</p>
             </div>
         </div>
 
@@ -37,8 +37,8 @@
                 <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold text-green-600 dark:text-green-400">0</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Cartes maîtrisées</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">6</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Mastered Cards</p>
             </div>
         </div>
 
@@ -47,8 +47,8 @@
                 <i data-lucide="inbox" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">0</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">Cartes totales</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">15</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Total Cards</p>
             </div>
         </div>
 
@@ -57,8 +57,8 @@
                 <i data-lucide="flame" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
             </div>
             <div>
-                <p class="text-2xl font-bold text-red-600 dark:text-red-400">12</p>
-                <p class="text-sm text-slate-600 dark:text-slate-400">À réviser aujourd’hui</p>
+                <p class="text-2xl font-bold text-slate-900 dark:text-white">12</p>
+                <p class="text-sm text-slate-600 dark:text-slate-400">To Review Today</p>
             </div>
         </div>
     </div>
@@ -66,128 +66,164 @@
     <!-- Call to Action -->
     <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-2xl p-8 text-white relative overflow-hidden">
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-            <div>
-                <h3 class="text-2xl font-semibold">Prêt à réviser ?</h3>
-                <p class="text-indigo-100">Crée un nouveau deck pour commencer à étudier</p>
-            </div>
         </div>
     </div>
 
-    <!-- Liste des decks -->
+    <!-- Liste des decks - STYLE MODERNE -->
     {% if decks is empty %}
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
         <i data-lucide="layers-2" class="w-20 h-20 mx-auto text-slate-300 dark:text-slate-600 mb-6"></i>
-        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">Aucun deck pour l'instant</h3>
+        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks yet</h3>
         <p class="text-slate-600 dark:text-slate-400 mb-6">
-            Crée ton premier deck pour organiser tes flashcards et réviser efficacement
+            Create your first deck to organize your flashcards and study effectively
         </p>
         <a href="{{ path('app_admin_deck_new') }}"
            class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-lg">
             <i data-lucide="plus" class="w-6 h-6 mr-3"></i>
-            Créer ton premier Deck
+            Create your first Deck
         </a>
     </div>
     {% else %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% set colorPalettes = [
-            {from: '#dbeafe', accent: '#2563eb'},
-            {from: '#f3e8ff', accent: '#7c3aed'},
-            {from: '#fce7f3', accent: '#ec4899'},
-            {from: '#d1fae5', accent: '#10b981'},
-            {from: '#cffafe', accent: '#06b6d4'},
-            {from: '#fef3c7', accent: '#d97706'},
-            {from: '#d1fae5', accent: '#059669'},
-            {from: '#fae8ff', accent: '#c026d3'},
-            {from: '#f3e8ff', accent: '#9333ea'},
-            {from: '#e0f2fe', accent: '#0284c7'},
-            {from: '#ffe4e6', accent: '#e11d48'},
-            {from: '#ecfccb', accent: '#65a30d'}
+            {bg: '#fef3c7', border: '#f59e0b', text: '#d97706'},
+            {bg: '#dbeafe', border: '#3b82f6', text: '#2563eb'},
+            {bg: '#fce7f3', border: '#ec4899', text: '#db2777'},
+            {bg: '#d1fae5', border: '#10b981', text: '#059669'},
+            {bg: '#e0e7ff', border: '#6366f1', text: '#4f46e5'},
+            {bg: '#ffe4e6', border: '#f43f5e', text: '#e11d48'},
+            {bg: '#f3e8ff', border: '#a855f7', text: '#9333ea'},
+            {bg: '#ccfbf1', border: '#14b8a6', text: '#0d9488'},
+            {bg: '#fef08a', border: '#eab308', text: '#ca8a04'},
+            {bg: '#fbcfe8', border: '#ec4899', text: '#db2777'},
+            {bg: '#bfdbfe', border: '#3b82f6', text: '#2563eb'},
+            {bg: '#c7d2fe', border: '#818cf8', text: '#6366f1'}
+        ] %}
+
+        {# Données de démonstration pour chaque deck #}
+        {% set demoStats = [
+            {cards: 15, mastered: 6, progress: 40},
+            {cards: 8, mastered: 4, progress: 50},
+            {cards: 12, mastered: 9, progress: 75},
+            {cards: 10, mastered: 7, progress: 70},
+            {cards: 20, mastered: 15, progress: 75},
+            {cards: 6, mastered: 3, progress: 50},
+            {cards: 14, mastered: 10, progress: 71},
+            {cards: 9, mastered: 6, progress: 67},
+            {cards: 11, mastered: 8, progress: 73},
+            {cards: 7, mastered: 5, progress: 71},
+            {cards: 13, mastered: 9, progress: 69},
+            {cards: 16, mastered: 12, progress: 75}
         ] %}
 
         {% for deck in decks %}
-        {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
-
-        <div class="rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 group border"
-             style="background: linear-gradient(to bottom, {{ palette.from }}, white); border-color: {{ palette.from }};">
-            <!-- Photo de couverture -->
-            <div class="h-32 overflow-hidden relative">
-                {% if deck.image %}
-                <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
-                     alt="{{ deck.titre }}"
-                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                {% else %}
-                <div class="w-full h-full flex items-center justify-center"
-                     style="background: linear-gradient(135deg, {{ palette.from }}, white);">
-                    <i data-lucide="layers" class="w-16 h-16 opacity-80"
-                       style="color: {{ palette.accent }};"></i>
+            {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
+            {% set demoIndex = loop.index0 % demoStats|length %}
+            {% set deckCards = demoStats[demoIndex].cards %}
+            {% set deckMastered = demoStats[demoIndex].mastered %}
+            {% set deckProgress = demoStats[demoIndex].progress %}
+            
+            <div class="bg-white rounded-2xl shadow-lg border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col"
+                 style="border-color: {{ palette.border }};">
+                
+                <!-- Photo de couverture -->
+                <div class="h-32 overflow-hidden relative">
+                    {% if deck.image %}
+                        <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
+                             alt="{{ deck.titre }}"
+                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center"
+                             style="background: linear-gradient(135deg, {{ palette.bg }}, {{ palette.border }});">
+                            <i data-lucide="layers" class="w-16 h-16 opacity-80" style="color: {{ palette.text }};"></i>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
+                
+                <!-- Header avec icône et date -->
+                <div class="p-5 pb-0">
+                    <div class="flex items-start justify-between mb-4">
+                        <!-- Icône du deck (overlap avec l'image) -->
+                        <div class="w-12 h-12 rounded-lg backdrop-blur-sm flex items-center justify-center shadow-lg -mt-8 group-hover:scale-110 transition-transform"
+                             style="background-color: rgba(255, 255, 255, 0.9); border: 2px solid {{ palette.border }};">
+                            <i data-lucide="layers" class="w-6 h-6" style="color: {{ palette.text }};"></i>
+                        </div>
+                        
+                        <!-- Date de création -->
+                        <span class="text-xs text-slate-500 font-medium">
+                            {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
+                        </span>
+                    </div>
+
+                    <!-- Titre du deck -->
+                    <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color: {{ palette.text }};">
+                        {{ deck.titre }}
+                    </h3>
+
+                    <!-- Matière et niveau -->
+                    <p class="text-sm text-slate-600 mb-3 flex items-center gap-1.5">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        {{ deck.matiere }} • {{ deck.niveau }}
+                    </p>
+
+                    <!-- Description -->
+                    <p class="text-sm text-slate-500 mb-4 line-clamp-2">
+                        {{ deck.description ?: 'No description available' }}
+                    </p>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="px-5 pb-4">
+                    <div class="flex gap-2 mb-4">
+                        <!-- Nombre de cartes -->
+                        <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
+                              style="background-color: {{ palette.bg }}; color: {{ palette.text }}; border: 1px solid {{ palette.border }};">
+                            <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>
+                            {{ deckCards }} cards
+                        </span>
+                        
+                        <!-- Cartes maîtrisées -->
+                        <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
+                              style="background-color: #d1fae5; color: #059669; border: 1px solid #6ee7b7;">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
+                            {{ deckMastered }} mastered
+                        </span>
+                    </div>
+
+                    <!-- Barre de progression -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-slate-600">Progress</span>
+                            <span class="text-sm font-bold" style="color: {{ palette.text }};">
+                                {{ deckProgress }}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500"
+                                 style="width: {{ deckProgress }}%; background-color: {{ palette.text }};">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions : Éditer et Supprimer -->
+                    <div class="flex justify-end gap-3">
+                        <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.idDeck}) }}"
+                           class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
+                           style="background-color: {{ palette.bg }}; color: {{ palette.text }};">
+                            <i data-lucide="pencil" class="w-5 h-5"></i>
+                        </a>
+                        
+                        <form method="post" action="{{ path('app_admin_deck_delete', {'id_deck': deck.idDeck}) }}"
+                              onsubmit="return confirm('Really delete this deck?');" class="inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.idDeck) }}">
+                            <button type="submit" class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
             </div>
-
-            <div class="p-4">
-                <div class="flex items-start justify-between mb-3">
-                    <div class="w-10 h-10 rounded-lg backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform -mt-6 shadow-lg"
-                         style="background-color: rgba(255, 255, 255, 0.9); border: 2px solid {{ palette.from }};">
-                        <i data-lucide="layers" class="w-5 h-5"
-                           style="color: {{ palette.accent }};"></i>
-                    </div>
-                    <span class="text-xs text-slate-500 dark:text-slate-400">
-                        {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
-                    </span>
-                </div>
-
-                <h3 class="text-lg font-semibold mb-1 truncate" style="color: {{ palette.accent }};">
-                    {{ deck.titre }}
-                </h3>
-
-                <p class="text-xs text-slate-600 dark:text-slate-400 mb-2 flex items-center gap-1">
-                    <i data-lucide="book-open" class="w-3 h-3"></i>
-                    {{ deck.matiere }} • {{ deck.niveau }}
-                </p>
-
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3 line-clamp-2 h-8">
-                    {{ deck.description ?: 'Aucune description' }}
-                </p>
-
-                <div class="flex flex-wrap gap-1.5 mb-3">
-                    <span class="px-2 py-1 rounded text-xs font-medium shadow-sm"
-                          style="background-color: {{ palette.from }}; color: {{ palette.accent }}; border: 1px solid {{ palette.from }};">
-                        {{ deck.flashcards|length }} cartes
-                    </span>
-                    <span class="px-2 py-1 rounded text-xs font-medium shadow-sm"
-                          style="background-color: #d1fae5; color: #059669; border: 1px solid #a7f3d0;">
-                        0 maîtrisées
-                    </span>
-                </div>
-
-                <div class="space-y-1.5 mb-4">
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="text-slate-500 dark:text-slate-400">Progression</span>
-                        <span class="font-semibold" style="color: {{ palette.accent }};">0%</span>
-                    </div>
-                    <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full transition-all duration-500"
-                             style="width: 0%; background: linear-gradient(to right, {{ palette.accent }}, {{ palette.accent }});"></div>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-end gap-3">
-                    <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.id}) }}"
-                       class="transition hover:scale-110"
-                       style="color: {{ palette.accent }};">
-                        <i data-lucide="edit-3" class="w-4 h-4"></i>
-                    </a>
-
-                    <form method="post" action="{{ path('app_admin_deck_delete', {'id_deck': deck.id}) }}"
-                          onsubmit="return confirm('Vraiment supprimer ce deck ?');" class="inline">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.id) }}">
-                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-700 transition hover:scale-110">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
         {% endfor %}
     </div>
     {% endif %}
