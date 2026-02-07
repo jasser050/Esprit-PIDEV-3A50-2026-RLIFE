@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\AuditLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,7 +71,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/ban', name: 'app_admin_user_ban', methods: ['POST'])]
-    public function banUser(User $user, Request $request, EntityManagerInterface $entityManager): Response
+    public function banUser(User $user, Request $request, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
     {
         $reason = $request->request->get('reason', 'Violation of terms of service');
         
@@ -80,13 +81,16 @@ class AdminController extends AbstractController
         
         $entityManager->flush();
         
+        // Log the action
+        $auditLog->logUserBan($user, $reason);
+        
         $this->addFlash('success', sprintf('User %s has been banned.', $user->getEmail()));
         
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/unban', name: 'app_admin_user_unban', methods: ['POST'])]
-    public function unbanUser(User $user, EntityManagerInterface $entityManager): Response
+    public function unbanUser(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
     {
         $user->setIsBanned(false);
         $user->setBannedAt(null);
@@ -94,19 +98,25 @@ class AdminController extends AbstractController
         
         $entityManager->flush();
         
+        // Log the action
+        $auditLog->logUserUnban($user);
+        
         $this->addFlash('success', sprintf('User %s has been unbanned.', $user->getEmail()));
         
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/make-admin', name: 'app_admin_user_make_admin', methods: ['POST'])]
-    public function makeAdmin(User $user, EntityManagerInterface $entityManager): Response
+    public function makeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
     {
         $roles = $user->getRoles();
         if (!in_array('ROLE_ADMIN', $roles, true)) {
             $roles[] = 'ROLE_ADMIN';
             $user->setRoles($roles);
             $entityManager->flush();
+            
+            // Log the action
+            $auditLog->logUserPromotion($user);
             
             $this->addFlash('success', sprintf('User %s is now an admin.', $user->getEmail()));
         }
@@ -115,11 +125,14 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/remove-admin', name: 'app_admin_user_remove_admin', methods: ['POST'])]
-    public function removeAdmin(User $user, EntityManagerInterface $entityManager): Response
+    public function removeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
     {
         $roles = array_filter($user->getRoles(), fn($role) => $role !== 'ROLE_ADMIN');
         $user->setRoles($roles);
         $entityManager->flush();
+        
+        // Log the action
+        $auditLog->logUserDemotion($user);
         
         $this->addFlash('success', sprintf('Admin role removed from %s.', $user->getEmail()));
         

@@ -56,12 +56,18 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
-                        <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                    <div class="w-14 h-14 relative">
+                        <!-- Light Mode Logo -->
+                        <img src="{{ asset('image/logo0.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
+                        <!-- Dark Mode Logo -->
+                        <img src="{{ asset('image/logo1.png') }}" 
+                             alt="RLIFE Logo" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
                     </div>
                     <div data-sidebar-target="brandText">
                         <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
-                        <span class="ml-1 px-1.5 py-0.5 text-2xs font-bold bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded">ADMIN</span>
                     </div>
                 </a>
                 <button type="button"
@@ -97,6 +103,25 @@
                               {{ app.request.attributes.get('_route') == 'app_admin_statistics' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Analytics</span>
+                    </a>
+
+                    <a href="{{ path('app_admin_audit_log') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_audit' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="shield-alert" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Audit Log</span>
+                    </a>
+                </div>
+
+                <!-- Communication Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Communication</p>
+
+                    <a href="{{ path('app_admin_email_compose') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') == 'app_admin_email_compose' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="mail-plus" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Send Email</span>
                     </a>
                 </div>
 
