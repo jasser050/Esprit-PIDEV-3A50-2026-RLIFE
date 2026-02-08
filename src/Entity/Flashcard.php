@@ -50,6 +50,10 @@ class Flashcard
     #[ORM\Column(name: 'date_modification', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateModification = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by', nullable: true)]
+    private ?User $createdBy = null;
+
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
@@ -184,6 +188,17 @@ class Flashcard
     public function setDateModification(?\DateTimeInterface $dateModification): static
     {
         $this->dateModification = $dateModification;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 }

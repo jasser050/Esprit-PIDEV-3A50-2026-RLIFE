@@ -5,15 +5,9 @@
 {% block body %}
 <div class="space-y-6 animate-fade-in">
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Study with flashcards and spaced repetition</p>
-        </div>
-        <a href="{{ path('app_revisions_deck_new') }}" class="btn btn-primary">
-            <i data-lucide="plus" class="w-5 h-5"></i>
-            Create Deck
-        </a>
+    <div>
+        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
+        <p class="text-secondary-500 dark:text-secondary-400 mt-1">Study with flashcards and spaced repetition</p>
     </div>
 
     <!-- Stats -->
@@ -33,7 +27,7 @@
             </div>
             <div>
                 {% set total_mastered = 0 %}
-                {% for deck in decks %}{% set total_mastered = total_mastered + deck.mastered_count %}{% endfor %}
+                {% for deck in decks %}{% set total_mastered = total_mastered + deck.masteredCount %}{% endfor %}
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ total_mastered }}</p>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Cards Mastered</p>
             </div>
@@ -44,7 +38,7 @@
             </div>
             <div>
                 {% set total_cards = 0 %}
-                {% for deck in decks %}{% set total_cards = total_cards + deck.card_count %}{% endfor %}
+                {% for deck in decks %}{% set total_cards = total_cards + deck.cardCount %}{% endfor %}
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ total_cards }}</p>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Total Cards</p>
             </div>
@@ -85,46 +79,60 @@
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {% for deck in decks %}
         <div class="card card-hover overflow-hidden group">
-            <div class="h-1.5 bg-gradient-to-r from-{{ deck.color }}-500 to-{{ deck.color }}-400"></div>
+            <!-- Deck Image -->
+            {% if deck.image %}
+            <div class="w-full h-20 overflow-hidden bg-slate-100 dark:bg-slate-800">
+                <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}" class="w-full h-full object-cover">
+            </div>
+            {% else %}
+            <div class="w-full h-20 bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <i data-lucide="layers" class="w-10 h-10 text-white/80"></i>
+            </div>
+            {% endif %}
+            
             <div class="p-5">
                 <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-{{ deck.color }}-100 dark:bg-{{ deck.color }}-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <i data-lucide="layers" class="w-6 h-6 text-{{ deck.color }}-600 dark:text-{{ deck.color }}-400"></i>
-                    </div>
                     <span class="text-sm text-secondary-500 dark:text-secondary-400 flex items-center gap-1">
                         <i data-lucide="clock" class="w-3 h-3"></i>
-                        {{ deck.last_studied }}
+                        {{ deck.dateCreation|date('Y-m-d') }}
                     </span>
                 </div>
 
-                <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{{ deck.name }}</h3>
+                <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{{ deck.titre }}</h3>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-4 flex items-center gap-1.5">
                     <i data-lucide="book-open" class="w-3 h-3"></i>
-                    {{ deck.course }}
+                    {{ deck.matiere }}
                 </p>
 
                 <div class="flex items-center gap-3 mb-5">
                     <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 text-sm">
                         <i data-lucide="inbox" class="w-3 h-3"></i>
-                        {{ deck.card_count }} cards
+                        {{ deck.cardCount }} cards
                     </span>
                     <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 text-sm">
                         <i data-lucide="check" class="w-3 h-3"></i>
-                        {{ deck.mastered_count }} mastered
+                        {{ deck.masteredCount }} mastered
                     </span>
                 </div>
 
                 <div class="space-y-2 mb-5">
                     <div class="flex items-center justify-between text-sm">
                         <span class="text-secondary-500 dark:text-secondary-400">Progress</span>
-                        <span class="font-semibold text-secondary-900 dark:text-white">{{ ((deck.mastered_count / deck.card_count) * 100)|round }}%</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">{{ deck.cardCount > 0 ? ((deck.masteredCount / deck.cardCount) * 100)|round : 0 }}%</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-bar-fill bg-gradient-to-r from-{{ deck.color }}-500 to-{{ deck.color }}-400" style="width: {{ (deck.mastered_count / deck.card_count) * 100 }}%"></div>
+                        {% set progress = deck.cardCount > 0 ? (deck.masteredCount / deck.cardCount) * 100 : 0 %}
+                        {% if progress < 30 %}
+                            <div class="progress-bar-fill" style="width: {{ progress }}%; background: linear-gradient(to right, #ef4444, #f87171);"></div>
+                        {% elseif progress < 70 %}
+                            <div class="progress-bar-fill" style="width: {{ progress }}%; background: linear-gradient(to right, #eab308, #facc15);"></div>
+                        {% else %}
+                            <div class="progress-bar-fill" style="width: {{ progress }}%; background: linear-gradient(to right, #22c55e, #4ade80);"></div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <a href="{{ path('app_revisions_deck', {id: deck.id}) }}" class="btn btn-primary w-full">
+                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}" class="btn btn-primary w-full">
                     <i data-lucide="play-circle" class="w-5 h-5"></i>
                     Study Now
                 </a>

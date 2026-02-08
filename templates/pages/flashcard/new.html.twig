@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Flashcard{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center gap-4">
+        <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}" class="btn btn-ghost btn-sm">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Add Flashcard</h1>
+            <p class="text-slate-500 dark:text-slate-400">To: {{ deck.titre }}</p>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Flashcard Details</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Fill in the question and answer below</p>
+        </div>
+
+        <div class="p-6">
+            {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'space-y-6'}}) }}
+            
+            <!-- Title -->
+            <div>
+                {{ form_label(form.titre, 'Title (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'block w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors', 'placeholder': 'e.g., European Capitals'}}) }}
+                {{ form_errors(form.titre) }}
+            </div>
+
+            <!-- Question -->
+            <div>
+                {{ form_label(form.question, 'Question', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.question, {'attr': {'class': 'block w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors resize-none', 'rows': 5, 'placeholder': 'Enter your question here...'}}) }}
+                {{ form_errors(form.question) }}
+            </div>
+
+            <!-- Answer -->
+            <div>
+                {{ form_label(form.reponse, 'Answer', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.reponse, {'attr': {'class': 'block w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors resize-none', 'rows': 6, 'placeholder': 'Enter the answer here...'}}) }}
+                {{ form_errors(form.reponse) }}
+            </div>
+
+            <!-- Description -->
+            <div>
+                {{ form_label(form.description, 'Additional Notes (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'block w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-400 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors resize-none', 'rows': 3, 'placeholder': 'Add hints or extra information...'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Difficulty & Status Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Difficulty -->
+                <div>
+                    {{ form_label(form.niveauDifficulte, 'Difficulty Level', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                    <div class="flex items-center gap-3">
+                        {{ form_widget(form.niveauDifficulte, {'attr': {'class': 'block w-20 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors', 'min': 1, 'max': 5}}) }}
+                        <div class="flex gap-1" id="difficulty-stars">
+                            {% for i in 1..5 %}
+                                <i data-lucide="star" class="w-6 h-6 text-slate-300 dark:text-slate-600 difficulty-star cursor-pointer transition-colors" data-value="{{ i }}"></i>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">1 = Easy, 5 = Hard</p>
+                    {{ form_errors(form.niveauDifficulte) }}
+                </div>
+
+                <!-- Status -->
+                <div>
+                    {{ form_label(form.etat, 'Status', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                    {{ form_widget(form.etat, {'attr': {'class': 'block w-full rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 text-slate-900 dark:text-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 focus:outline-none transition-colors'}}) }}
+                    {{ form_errors(form.etat) }}
+                </div>
+            </div>
+
+            <!-- File Uploads Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Image Upload -->
+                <div>
+                    {{ form_label(form.imageFile, 'Image (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                    {{ form_widget(form.imageFile, {'attr': {'class': 'block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-300'}}) }}
+                    <p class="text-xs text-slate-500 mt-1">Max 5MB - JPEG, PNG, WEBP</p>
+                    {{ form_errors(form.imageFile) }}
+                </div>
+
+                <!-- PDF Upload -->
+                <div>
+                    {{ form_label(form.pdfFile, 'PDF Document (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                    {{ form_widget(form.pdfFile, {'attr': {'class': 'block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-medium file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/20 dark:file:text-primary-300'}}) }}
+                    <p class="text-xs text-slate-500 mt-1">Max 10MB - PDF only</p>
+                    {{ form_errors(form.pdfFile) }}
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                <button type="submit" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
+                    Add Flashcard
+                </button>
+                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                    Cancel
+                </a>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+
+<script>
+// Difficulty slider visual feedback
+const difficultyInput = document.querySelector('input[name$="[niveauDifficulte]"]');
+const stars = document.querySelectorAll('.difficulty-star');
+
+function updateStars(value) {
+    stars.forEach((star, index) => {
+        if (index < value) {
+            star.classList.remove('text-slate-300', 'dark:text-slate-600');
+            star.classList.add('text-warning-400', 'fill-warning-400');
+        } else {
+            star.classList.add('text-slate-300', 'dark:text-slate-600');
+            star.classList.remove('text-warning-400', 'fill-warning-400');
+        }
+    });
+}
+
+if (difficultyInput) {
+    difficultyInput.addEventListener('input', (e) => updateStars(e.target.value));
+    updateStars(difficultyInput.value || 1);
+}
+</script>
+{% endblock %}

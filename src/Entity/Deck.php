@@ -51,6 +51,10 @@ class Deck
     #[ORM\InverseJoinColumn(name: 'id_flashcard', referencedColumnName: 'id_flashcard')]
     private Collection $revisionFlashcards;
 
+    private ?int $cardCount = null;
+
+    private ?int $masteredCount = null;
+
     public function __construct()
     {
         $this->flashcards = new ArrayCollection();
@@ -201,6 +205,28 @@ class Deck
     {
         $this->revisionFlashcards->removeElement($flashcard);
 
+        return $this;
+    }
+
+    public function getCardCount(): ?int
+    {
+        return $this->cardCount;
+    }
+
+    public function setCardCount(?int $cardCount): static
+    {
+        $this->cardCount = $cardCount;
+        return $this;
+    }
+
+    public function getMasteredCount(): ?int
+    {
+        return $this->masteredCount;
+    }
+
+    public function setMasteredCount(?int $masteredCount): static
+    {
+        $this->masteredCount = $masteredCount;
         return $this;
     }
 }

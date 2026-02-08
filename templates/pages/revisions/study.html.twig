@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ deck.titre }} - Study{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="{{ path('app_revisions') }}" class="btn btn-ghost btn-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ deck.titre }}</h1>
+                <p class="text-slate-500 dark:text-slate-400">{{ deck.matiere }} • {{ deck.niveau }}</p>
+            </div>
+        </div>
+        <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn btn-primary btn-sm">
+            <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+            Add Card
+        </a>
+    </div>
+
+    <!-- Deck Info - Compact -->
+    <div class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+        <!-- Deck Icon/Image -->
+        <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {% if deck.image %}
+                <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}" class="w-full h-full object-cover">
+            {% else %}
+                <i data-lucide="layers" class="w-8 h-8 text-white"></i>
+            {% endif %}
+        </div>
+
+        <!-- Deck Details -->
+        <div class="flex-1 min-w-0">
+            {% if deck.description %}
+                <p class="text-sm text-slate-600 dark:text-slate-400 truncate">{{ deck.description }}</p>
+            {% endif %}
+            <div class="flex flex-wrap items-center gap-4 mt-2 text-xs text-slate-500">
+                <span class="flex items-center gap-1">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                    {{ flashcards|length }} cards
+                </span>
+                <span class="flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    {{ deck.dateCreation|date('M d, Y') }}
+                </span>
+                {% if deck.pdf %}
+                    <a href="{{ asset('uploads/decks/' ~ deck.pdf) }}" target="_blank" class="flex items-center gap-1 text-primary-600 hover:text-primary-700">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        View PDF
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcards -->
+    {% if flashcards is empty %}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <i data-lucide="credit-card" class="w-8 h-8 text-slate-400"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No flashcards yet</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">Add flashcards to start studying</p>
+            <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn btn-primary inline-flex">
+                <i data-lucide="plus" class="w-5 h-5 mr-1"></i>
+                Add First Card
+            </a>
+        </div>
+    {% else %}
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for flashcard in flashcards %}
+                <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-slate-500">#{{ loop.index }}</span>
+                            {% if flashcard.titre %}
+                                <span class="text-sm font-medium text-slate-900 dark:text-white">{{ flashcard.titre }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium
+                                {% if flashcard.etat == 'maitrisee' %}bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400
+                                {% elseif flashcard.etat == 'en_cours' %}bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400
+                                {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+                                {{ flashcard.etat|replace({'a_apprendre': 'To Learn', 'en_cours': 'In Progress', 'maitrisee': 'Mastered'}) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard Image -->
+                    {% if flashcard.image %}
+                    <div class="w-full h-48 overflow-hidden">
+                        <img src="{{ asset('uploads/flashcards/' ~ flashcard.image) }}" alt="{{ flashcard.titre ?: 'Flashcard image' }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endif %}
+
+                    <!-- Question -->
+                    <div class="p-4">
+                        <div class="mb-4">
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Question</p>
+                            <p class="text-slate-900 dark:text-white line-clamp-3">{{ flashcard.question }}</p>
+                        </div>
+
+                        <!-- Answer Preview -->
+                        <div class="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg mb-4">
+                            <p class="text-xs font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1">Answer</p>
+                            <p class="text-slate-700 dark:text-slate-300 line-clamp-2 text-sm">{{ flashcard.reponse }}</p>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                            <a href="{{ path('app_flashcard_edit', {id: flashcard.id}) }}" class="btn btn-ghost btn-sm flex-1">
+                                <i data-lucide="edit-2" class="w-4 h-4 mr-1"></i>
+                                Edit
+                            </a>
+                            <form method="POST" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}" class="flex-1" onsubmit="return confirm('Delete this flashcard?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
+                                <button type="submit" class="btn btn-ghost btn-sm w-full text-danger-600 hover:text-danger-700 hover:bg-danger-50 dark:hover:bg-danger-900/20">
+                                    <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
