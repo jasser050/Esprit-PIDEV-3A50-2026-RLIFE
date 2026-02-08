@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QuestionStress index{% endblock %}
+
+{% block body %}
+    <h1>QuestionStress index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>QuestionNumber_ques</th>
+                <th>QuestionText_ques</th>
+                <th>IsActive_ques</th>
+                <th>CreatedAt_ques</th>
+                <th>UpdatedAt_ques</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for question_stress in question_stresses %}
+            <tr>
+                <td>{{ question_stress.id }}</td>
+                <td>{{ question_stress.questionNumberQues }}</td>
+                <td>{{ question_stress.questionTextQues }}</td>
+                <td>{{ question_stress.isActiveQues ? 'Yes' : 'No' }}</td>
+                <td>{{ question_stress.createdAtQues ? question_stress.createdAtQues|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ question_stress.updatedAtQues ? question_stress.updatedAtQues|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_question_stress_show', {'id': question_stress.id}) }}">show</a>
+                    <a href="{{ path('app_question_stress_edit', {'id': question_stress.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_question_stress_new') }}">Create new</a>
+{% endblock %}

@@ -91,7 +91,7 @@ class SampleData
     public static function getAssignments(): array
     {
         $today = new \DateTime();
-        
+
         return [
             [
                 'id' => 1,
@@ -210,8 +210,7 @@ class SampleData
     {
         $today = new \DateTime();
         $events = [];
-        
-        // Regular class schedule
+
         $classSchedule = [
             ['name' => 'Data Structures', 'color' => 'primary', 'time' => '10:00', 'duration' => 90, 'days' => [1, 3]],
             ['name' => 'Molecular Biology', 'color' => 'secondary', 'time' => '14:00', 'duration' => 90, 'days' => [2, 4]],
@@ -222,12 +221,11 @@ class SampleData
         ];
 
         $id = 1;
-        
-        // Generate events for the next 14 days
+
         for ($i = 0; $i < 14; $i++) {
             $date = (clone $today)->modify("+{$i} days");
             $dayOfWeek = (int) $date->format('N');
-            
+
             foreach ($classSchedule as $class) {
                 if (in_array($dayOfWeek, $class['days'])) {
                     $events[] = [
@@ -244,7 +242,6 @@ class SampleData
             }
         }
 
-        // Add special events and conflicts
         $specialEvents = [
             [
                 'id' => $id++,
@@ -262,7 +259,7 @@ class SampleData
                 'type' => 'event',
                 'color' => 'secondary',
                 'date' => (clone $today)->modify('+3 days')->format('Y-m-d'),
-                'start_time' => '14:00', // Conflicts with Molecular Biology
+                'start_time' => '14:00',
                 'duration' => 180,
                 'location' => 'Student Center',
                 'conflict' => true,
@@ -293,7 +290,7 @@ class SampleData
                 'type' => 'meeting',
                 'color' => 'warning',
                 'date' => (clone $today)->modify('+1 day')->format('Y-m-d'),
-                'start_time' => '14:00', // Conflicts with Biology on Tue/Thu
+                'start_time' => '14:00',
                 'duration' => 60,
                 'location' => 'Online - Zoom',
                 'conflict' => true,
@@ -339,21 +336,18 @@ class SampleData
     public static function getFlashcards(): array
     {
         return [
-            // Data Structures deck
             ['id' => 1, 'deck_id' => 1, 'front' => 'What is the time complexity of binary search?', 'back' => 'O(log n)', 'mastered' => true],
             ['id' => 2, 'deck_id' => 1, 'front' => 'What is a stack?', 'back' => 'A LIFO (Last In, First Out) data structure', 'mastered' => true],
             ['id' => 3, 'deck_id' => 1, 'front' => 'What is the difference between BFS and DFS?', 'back' => 'BFS explores level by level (uses queue), DFS explores depth first (uses stack)', 'mastered' => false],
             ['id' => 4, 'deck_id' => 1, 'front' => 'What is a hash collision?', 'back' => 'When two different keys hash to the same index', 'mastered' => true],
             ['id' => 5, 'deck_id' => 1, 'front' => 'Time complexity of inserting into a balanced BST?', 'back' => 'O(log n)', 'mastered' => false],
-            
-            // Biology deck
+
             ['id' => 6, 'deck_id' => 2, 'front' => 'What is mitosis?', 'back' => 'Cell division resulting in two identical daughter cells', 'mastered' => true],
             ['id' => 7, 'deck_id' => 2, 'front' => 'What are the four phases of mitosis?', 'back' => 'Prophase, Metaphase, Anaphase, Telophase', 'mastered' => true],
             ['id' => 8, 'deck_id' => 2, 'front' => 'What is mRNA?', 'back' => 'Messenger RNA - carries genetic information from DNA to ribosomes', 'mastered' => false],
             ['id' => 9, 'deck_id' => 2, 'front' => 'What is the function of ribosomes?', 'back' => 'Protein synthesis - translating mRNA into proteins', 'mastered' => true],
             ['id' => 10, 'deck_id' => 2, 'front' => 'What is ATP?', 'back' => 'Adenosine triphosphate - the primary energy carrier in cells', 'mastered' => false],
-            
-            // Calculus deck
+
             ['id' => 11, 'deck_id' => 3, 'front' => 'What is the gradient of a function?', 'back' => 'A vector of partial derivatives pointing in the direction of steepest ascent', 'mastered' => true],
             ['id' => 12, 'deck_id' => 3, 'front' => 'What is divergence?', 'back' => 'The scalar measure of a vector field\'s source or sink at a point', 'mastered' => false],
             ['id' => 13, 'deck_id' => 3, 'front' => 'What is curl?', 'back' => 'A vector measure of rotation or circulation at a point in a vector field', 'mastered' => false],
@@ -389,7 +383,6 @@ class SampleData
     public static function getKanbanTasks(): array
     {
         return [
-            // Project 1 tasks
             ['id' => 1, 'project_id' => 1, 'title' => 'Requirements gathering', 'status' => 'done', 'assignee' => 'Amine B.'],
             ['id' => 2, 'project_id' => 1, 'title' => 'Create ER diagram', 'status' => 'done', 'assignee' => 'Sarah K.'],
             ['id' => 3, 'project_id' => 1, 'title' => 'Design database schema', 'status' => 'in_progress', 'assignee' => 'Amine B.'],
@@ -397,9 +390,8 @@ class SampleData
             ['id' => 5, 'project_id' => 1, 'title' => 'Write stored procedures', 'status' => 'todo', 'assignee' => 'Sarah K.'],
             ['id' => 6, 'project_id' => 1, 'title' => 'Create test data', 'status' => 'todo', 'assignee' => 'Mike L.'],
             ['id' => 7, 'project_id' => 1, 'title' => 'Performance testing', 'status' => 'todo', 'assignee' => 'Amine B.'],
-            ['id' => 8, 'project_id' => 1, 'title' => 'Documentation', 'status' => 'todo', 'assignee' => 'Sarah K.'],
-            
-            // Project 2 tasks
+            ['id' => 8, 'project_id' => 1, 'title' => 'Documentation', 'status' => 'todo', 'assignee' => 'Amine B.'],
+
             ['id' => 9, 'project_id' => 2, 'title' => 'Setup React project', 'status' => 'done', 'assignee' => 'Amine B.'],
             ['id' => 10, 'project_id' => 2, 'title' => 'Design UI mockups', 'status' => 'in_progress', 'assignee' => 'John D.'],
             ['id' => 11, 'project_id' => 2, 'title' => 'Implement sorting visualizer', 'status' => 'todo', 'assignee' => 'Amine B.'],
@@ -413,7 +405,7 @@ class SampleData
     {
         $checkins = [];
         $today = new \DateTime();
-        
+
         for ($i = 9; $i >= 0; $i--) {
             $date = (clone $today)->modify("-{$i} days");
             $checkins[] = [
@@ -426,58 +418,71 @@ class SampleData
                 'notes' => '',
             ];
         }
-        
+
         return $checkins;
     }
 
+    // ✅ UNIQUE FUNCTION (pas de doublon)
     public static function getCopingTools(): array
     {
         return [
             [
                 'id' => 1,
+                'key' => 'breathing',
                 'name' => 'Breathing Exercise',
                 'description' => '4-7-8 breathing technique for quick relaxation',
                 'duration' => '3 min',
+                'durationSeconds' => 180,
                 'icon' => 'wind',
                 'color' => 'primary',
             ],
             [
                 'id' => 2,
+                'key' => 'meditation',
                 'name' => 'Quick Meditation',
                 'description' => 'Guided mindfulness session',
                 'duration' => '5 min',
+                'durationSeconds' => 300,
                 'icon' => 'sparkles',
                 'color' => 'secondary',
             ],
             [
                 'id' => 3,
+                'key' => 'stretching',
                 'name' => 'Stretching Break',
                 'description' => 'Desk-friendly stretches for tension relief',
                 'duration' => '4 min',
+                'durationSeconds' => 240,
                 'icon' => 'heart',
                 'color' => 'success',
             ],
             [
                 'id' => 4,
+                'key' => 'pomodoro',
                 'name' => 'Pomodoro Timer',
                 'description' => 'Focused work sessions with breaks',
                 'duration' => '25 min',
+                'durationSeconds' => 1500,
                 'icon' => 'clock',
                 'color' => 'accent',
             ],
             [
                 'id' => 5,
+                'key' => 'gratitude',
                 'name' => 'Gratitude Journal',
                 'description' => 'Write three things you\'re grateful for',
                 'duration' => '2 min',
+                'durationSeconds' => 120,
                 'icon' => 'book',
                 'color' => 'warning',
             ],
             [
                 'id' => 6,
+                'key' => 'nature',
                 'name' => 'Nature Sounds',
                 'description' => 'Relaxing ambient sounds for focus',
                 'duration' => 'Ongoing',
+                'durationSeconds' => 0,
                 'icon' => 'music',
                 'color' => 'success',
             ],

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QuestionStress{% endblock %}
+
+{% block body %}
+    <h1>QuestionStress</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ question_stress.id }}</td>
+            </tr>
+            <tr>
+                <th>QuestionNumber_ques</th>
+                <td>{{ question_stress.questionNumberQues }}</td>
+            </tr>
+            <tr>
+                <th>QuestionText_ques</th>
+                <td>{{ question_stress.questionTextQues }}</td>
+            </tr>
+            <tr>
+                <th>IsActive_ques</th>
+                <td>{{ question_stress.isActiveQues ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt_ques</th>
+                <td>{{ question_stress.createdAtQues ? question_stress.createdAtQues|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt_ques</th>
+                <td>{{ question_stress.updatedAtQues ? question_stress.updatedAtQues|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_question_stress_index') }}">back to list</a>
+
+    <a href="{{ path('app_question_stress_edit', {'id': question_stress.id}) }}">edit</a>
+
+    {{ include('question_stress/_delete_form.html.twig') }}
+{% endblock %}

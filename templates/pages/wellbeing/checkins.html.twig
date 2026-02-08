@@ -15,7 +15,7 @@
         title: 'Check-in History',
         subtitle: 'Track your mood, stress, and energy over time',
         actions: [
-            { label: 'New Check-in', url: path('app_wellbeing_checkin_new'), variant: 'primary', icon: 'plus' }
+            { label: 'New Check-in', url: path('app_wellbeing_checkin_new'), variant: 'primary', icon: '+' }
         ]
     } %}
 
@@ -26,121 +26,87 @@
             <p class="text-sm text-light-muted dark:text-dark-muted">Total Check-ins</p>
         </div>
         <div class="card p-4 text-center">
-            <p class="text-2xl font-bold text-{{ avg_stress <= 4 ? 'success' : (avg_stress <= 6 ? 'warning' : 'danger') }}-600 dark:text-{{ avg_stress <= 4 ? 'success' : (avg_stress <= 6 ? 'warning' : 'danger') }}-400">{{ avg_stress }}/10</p>
+            <p class="text-2xl font-bold">{{ avg_stress }}/10</p>
             <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Stress</p>
         </div>
         <div class="card p-4 text-center">
-            <p class="text-2xl font-bold text-accent-600 dark:text-accent-400">{{ avg_energy }}/10</p>
+            <p class="text-2xl font-bold">{{ avg_energy }}/10</p>
             <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Energy</p>
         </div>
         <div class="card p-4 text-center">
-            <p class="text-2xl font-bold text-secondary-600 dark:text-secondary-400">{{ avg_sleep }}h</p>
+            <p class="text-2xl font-bold">{{ avg_sleep }}h</p>
             <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Sleep</p>
         </div>
     </div>
 
-    <!-- Check-ins List -->
     <div class="card">
         {% if checkins|length > 0 %}
         <div class="overflow-x-auto">
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Mood</th>
-                        <th>Stress Level</th>
-                        <th>Energy Level</th>
-                        <th>Sleep</th>
-                        <th>Notes</th>
-                    </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Mood</th>
+                    <th>Stress</th>
+                    <th>Energy</th>
+                    <th>Sleep</th>
+                    <th>Notes</th>
+                    <th class="text-right">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
-                    {% for checkin in checkins|reverse %}
+                {% for checkin in checkins %}
                     <tr>
-                        <td>
-                            <span class="font-medium">{{ checkin.date|date('M j, Y') }}</span>
-                        </td>
+                        <td class="font-medium">{{ checkin.entryDateWell|date('M j, Y H:i') }}</td>
+
                         <td>
                             <div class="flex items-center gap-2">
                                 <span class="text-xl">
-                                    {% if checkin.mood == 'great' %}😊
-                                    {% elseif checkin.mood == 'good' %}🙂
-                                    {% elseif checkin.mood == 'okay' %}😐
-                                    {% elseif checkin.mood == 'stressed' %}😟
+                                    {% if checkin.moodWell == 'great' %}😊
+                                    {% elseif checkin.moodWell == 'good' %}🙂
+                                    {% elseif checkin.moodWell == 'okay' %}😐
+                                    {% elseif checkin.moodWell == 'stressed' %}😟
                                     {% else %}😴{% endif %}
                                 </span>
-                                <span class="capitalize">{{ checkin.mood }}</span>
+                                <span class="capitalize">{{ checkin.moodWell }}</span>
                             </div>
                         </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-24 h-2 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
-                                    <div class="h-full rounded-full bg-{{ checkin.stress_level <= 4 ? 'success' : (checkin.stress_level <= 6 ? 'warning' : 'danger') }}-500" 
-                                         style="width: {{ checkin.stress_level * 10 }}%"></div>
-                                </div>
-                                <span class="text-sm font-medium">{{ checkin.stress_level }}/10</span>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2">
-                                <div class="w-24 h-2 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
-                                    <div class="h-full rounded-full bg-accent-500" 
-                                         style="width: {{ checkin.energy_level * 10 }}%"></div>
-                                </div>
-                                <span class="text-sm font-medium">{{ checkin.energy_level }}/10</span>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="badge badge-secondary">{{ checkin.sleep_hours }}h</span>
-                        </td>
+
+                        <td>{{ checkin.stressLevelWell }}/10</td>
+                        <td>{{ checkin.energyLevelWell }}/10</td>
+                        <td>{{ checkin.sleepHoursWell }}h</td>
+
                         <td class="max-w-xs">
-                            {% if checkin.notes %}
-                                <span class="text-sm text-light-muted dark:text-dark-muted truncate block">{{ checkin.notes }}</span>
+                            {% if checkin.noteWell %}
+                                <span class="text-sm text-light-muted dark:text-dark-muted truncate block">{{ checkin.noteWell }}</span>
                             {% else %}
                                 <span class="text-sm text-light-muted dark:text-dark-muted italic">No notes</span>
                             {% endif %}
                         </td>
+
+                        <td class="text-right whitespace-nowrap">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ path('app_wellbeing_checkin_edit', {id: checkin.id}) }}" class="btn btn-secondary">Edit</a>
+
+                                <form method="POST"
+                                      action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}"
+                                      onsubmit="return confirm('Delete this check-in?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_delete_' ~ checkin.id) }}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                    {% endfor %}
+                {% endfor %}
                 </tbody>
             </table>
         </div>
         {% else %}
-            {% include 'components/empty_state.html.twig' with {
-                icon: 'clipboard',
-                title: 'No check-ins yet',
-                description: 'Start tracking your wellbeing by creating your first check-in.',
-                action_label: 'New Check-in',
-                action_url: path('app_wellbeing_checkin_new')
-            } %}
+            <div class="p-6 text-center">
+                <p class="text-light-muted dark:text-dark-muted">No check-ins yet.</p>
+                <a href="{{ path('app_wellbeing_checkin_new') }}" class="btn btn-primary mt-4">New Check-in</a>
+            </div>
         {% endif %}
     </div>
-
-    <!-- Mood Distribution -->
-    {% if checkins|length > 0 %}
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-4">Mood Distribution</h2>
-        <div class="grid grid-cols-5 gap-4">
-            {% set mood_counts = { great: 0, good: 0, okay: 0, stressed: 0, tired: 0 } %}
-            {% for checkin in checkins %}
-                {% set mood_counts = mood_counts|merge({ (checkin.mood): mood_counts[checkin.mood] + 1 }) %}
-            {% endfor %}
-            
-            {% for mood, count in mood_counts %}
-            <div class="text-center">
-                <div class="text-3xl mb-2">
-                    {% if mood == 'great' %}😊
-                    {% elseif mood == 'good' %}🙂
-                    {% elseif mood == 'okay' %}😐
-                    {% elseif mood == 'stressed' %}😟
-                    {% else %}😴{% endif %}
-                </div>
-                <p class="text-2xl font-bold">{{ count }}</p>
-                <p class="text-sm text-light-muted dark:text-dark-muted capitalize">{{ mood }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
