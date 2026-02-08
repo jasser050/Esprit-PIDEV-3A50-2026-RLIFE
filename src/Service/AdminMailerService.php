@@ -234,4 +234,90 @@ class AdminMailerService
             return false;
         }
     }
+
+    /**
+     * Send welcome email to new user
+     */
+    public function sendWelcomeEmail(User $user): bool
+    {
+        try {
+            $this->logger->info(sprintf('Sending welcome email to: %s', $user->getEmail()));
+            
+            $email = (new Email())
+                ->from('jasserbalti555@gmail.com')
+                ->to($user->getEmail())
+                ->subject('Welcome to RLIFE - Your Account is Ready!')
+                ->html($this->formatWelcomeEmailHtml($user));
+
+            $this->mailer->send($email);
+            
+            $this->logger->info('✅ Welcome email sent successfully');
+            return true;
+        } catch (\Exception $e) {
+            $this->logger->error(sprintf('❌ Welcome email failed: %s', $e->getMessage()));
+            return false;
+        }
+    }
+
+    /**
+     * Format welcome email HTML
+     */
+    private function formatWelcomeEmailHtml(User $user): string
+    {
+        return sprintf('
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                    .button { display: inline-block; padding: 12px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                    .footer { text-align: center; color: #888; font-size: 12px; margin-top: 30px; }
+                    .highlight { background: #fff; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Welcome to RLIFE! 🎉</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Hello %s!</h2>
+                        <p>Thank you for joining RLIFE, your comprehensive student life management platform.</p>
+                        
+                        <div class="highlight">
+                            <strong>Your account is now active!</strong><br>
+                            Email: <strong>%s</strong><br>
+                            Username: <strong>%s</strong>
+                        </div>
+
+                        <p>With RLIFE, you can:</p>
+                        <ul>
+                            <li>📚 Manage your courses and assignments</li>
+                            <li>📅 Plan your study schedule</li>
+                            <li>🎯 Track your academic progress</li>
+                            <li>📝 Create and study flashcards</li>
+                            <li>💪 Monitor your wellbeing</li>
+                        </ul>
+
+                        <p style="text-align: center;">
+                            <a href="http://localhost:8000/dashboard" class="button">Go to Dashboard</a>
+                        </p>
+
+                        <p>If you have any questions or need assistance, feel free to reach out to our support team.</p>
+                        
+                        <p>Best regards,<br><strong>The RLIFE Team</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>This is an automated message from RLIFE.</p>
+                        <p>&copy; %d RLIFE. All rights reserved.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        ', $user->getFirstName(), $user->getEmail(), $user->getUsername(), date('Y'));
+    }
 }
