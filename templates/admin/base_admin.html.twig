@@ -56,16 +56,7 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-14 h-14 relative">
-                        <!-- Light Mode Logo -->
-                        <img src="{{ asset('image/logo0.png') }}" 
-                             alt="RLIFE Logo" 
-                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
-                        <!-- Dark Mode Logo -->
-                        <img src="{{ asset('image/logo1.png') }}" 
-                             alt="RLIFE Logo" 
-                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
-                    </div>
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
                     <div data-sidebar-target="brandText">
                         <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                     </div>
@@ -144,7 +135,7 @@
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
                             {% if app.user and app.user.profilePic %}
-                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
                                 {{ app.user ? app.user.firstName|first ~ app.user.lastName|first : 'A' }}
                             {% endif %}
@@ -202,7 +193,7 @@
                                     data-action="click->dropdown#toggle">
                                 <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                                     {% if app.user and app.user.profilePic %}
-                                        <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                        <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                                     {% else %}
                                         {{ app.user ? app.user.firstName|first ~ app.user.lastName|first : 'A' }}
                                     {% endif %}

@@ -15,16 +15,7 @@
                 </a>
 
                 <a href="{{ path('app_landing') }}" class="flex items-center gap-2.5 mb-2">
-                    <div class="w-14 h-14 relative">
-                        <!-- Light Mode Logo -->
-                        <img src="{{ asset('image/logo0.png') }}" 
-                             alt="RLIFE Logo" 
-                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
-                        <!-- Dark Mode Logo -->
-                        <img src="{{ asset('image/logo1.png') }}" 
-                             alt="RLIFE Logo" 
-                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
-                    </div>
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
                     <span class="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                 </a>
             </div>
@@ -169,8 +160,7 @@
             </div>
 
             <!-- Social Login -->
-            <button
-                type="button"
+            <a href="{{ path('connect_google_start') }}"
                 class="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
             >
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -180,7 +170,7 @@
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 Continue with Google
-            </button>
+            </a>
 
             <!-- Sign up link -->
             <p class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
@@ -269,14 +259,7 @@
     <div class="lg:hidden fixed top-0 left-0 right-0 z-10 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-slate-800 dark:to-slate-900 px-4 py-3">
         <div class="flex items-center justify-between">
             <a href="{{ path('app_landing') }}" class="flex items-center gap-2">
-                <div class="w-8 h-8 relative">
-                    <img src="{{ asset('image/logo0.png') }}" 
-                         alt="RLIFE Logo" 
-                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out dark:opacity-0">
-                    <img src="{{ asset('image/logo1.png') }}" 
-                         alt="RLIFE Logo" 
-                         class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0 dark:opacity-100">
-                </div>
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-8 h-8 object-cover">
                 <span class="font-semibold text-white">RLIFE</span>
             </a>
             <button

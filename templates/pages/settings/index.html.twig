@@ -24,7 +24,7 @@
                     <div class="flex items-center gap-6">
                         <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
                             {% if app.user.profilePic %}
-                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
                                 {{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}
                             {% endif %}
