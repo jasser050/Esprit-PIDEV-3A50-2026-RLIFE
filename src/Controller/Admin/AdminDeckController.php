@@ -85,12 +85,16 @@ class AdminDeckController extends AbstractController
             $em->flush();
 
             // Log in audit trail
-            $auditLog->log(
-                'deck_created',
-                'deck',
-                $deck->getId(),
-                sprintf('Created deck: %s', $deck->getTitre())
-            );
+            try {
+                $auditLog->log(
+                    'deck_created',
+                    'deck',
+                    $deck->getId(),
+                    sprintf('Created deck: %s', $deck->getTitre())
+                );
+            } catch (\Exception $e) {
+                // Silently continue if audit log fails
+            }
 
             $this->addFlash('success', sprintf('Deck "%s" created successfully!', $deck->getTitre()));
             return $this->redirectToRoute('app_admin_decks');
@@ -155,12 +159,16 @@ class AdminDeckController extends AbstractController
             $em->flush();
 
             // Log in audit trail
-            $auditLog->log(
-                'deck_updated',
-                'deck',
-                $deck->getId(),
-                sprintf('Updated deck: %s', $deck->getTitre())
-            );
+            try {
+                $auditLog->log(
+                    'deck_updated',
+                    'deck',
+                    $deck->getId(),
+                    sprintf('Updated deck: %s', $deck->getTitre())
+                );
+            } catch (\Exception $e) {
+                // Silently continue if audit log fails
+            }
 
             $this->addFlash('success', sprintf('Deck "%s" updated successfully!', $deck->getTitre()));
             return $this->redirectToRoute('app_admin_decks');
@@ -208,12 +216,16 @@ class AdminDeckController extends AbstractController
         $em->flush();
 
         // Log in audit trail
-        $auditLog->log(
-            'deck_deleted',
-            'deck',
-            $deckId,
-            sprintf('Deleted deck: %s', $deckTitle)
-        );
+        try {
+            $auditLog->log(
+                'deck_deleted',
+                'deck',
+                $deckId,
+                sprintf('Deleted deck: %s', $deckTitle)
+            );
+        } catch (\Exception $e) {
+            // Silently continue if audit log fails
+        }
 
         $this->addFlash('success', sprintf('Deck "%s" deleted successfully!', $deckTitle));
         return $this->redirectToRoute('app_admin_decks');
@@ -262,12 +274,16 @@ class AdminDeckController extends AbstractController
             $em->flush();
 
             // Log in audit trail
-            $auditLog->log(
-                'flashcard_created',
-                'flashcard',
-                $flashcard->getId(),
-                sprintf('Created flashcard in deck: %s', $deck->getTitre())
-            );
+            try {
+                $auditLog->log(
+                    'flashcard_created',
+                    'flashcard',
+                    $flashcard->getId(),
+                    sprintf('Created flashcard in deck: %s', $deck->getTitre())
+                );
+            } catch (\Exception $e) {
+                // Silently continue if audit log fails
+            }
 
             $this->addFlash('success', 'Flashcard added successfully!');
             return $this->redirectToRoute('app_admin_deck_view', ['id' => $deck->getId()]);
@@ -305,12 +321,16 @@ class AdminDeckController extends AbstractController
         $em->flush();
 
         // Log in audit trail
-        $auditLog->log(
-            'flashcard_deleted',
-            'flashcard',
-            $flashcard->getId(),
-            'Deleted flashcard'
-        );
+        try {
+            $auditLog->log(
+                'flashcard_deleted',
+                'flashcard',
+                $flashcard->getId(),
+                'Deleted flashcard'
+            );
+        } catch (\Exception $e) {
+            // Silently continue if audit log fails
+        }
 
         $this->addFlash('success', 'Flashcard deleted successfully!');
         return $this->redirectToRoute('app_admin_deck_view', ['id' => $deckId]);
