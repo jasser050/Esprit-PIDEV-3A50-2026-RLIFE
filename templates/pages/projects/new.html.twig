@@ -1,107 +1,73 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Project{% endblock %}
+{% block title %}Nouveau Projet{% endblock %}
 
 {% block body %}
 <div class="space-y-6">
     <!-- Breadcrumbs -->
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Projects', url: path('app_projects') },
-            { label: 'New Project' }
-        ]
-    } %}
+    <nav class="text-sm">
+        <ol class="flex items-center gap-2">
+            <li><a href="{{ path('app_project_index') }}" class="text-primary hover:underline">Projets</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li class="text-light-muted dark:text-dark-muted">Nouveau Projet</li>
+        </ol>
+    </nav>
 
     <!-- Page Header -->
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Project',
-        subtitle: 'Create a new group project'
-    } %}
+    <div>
+        <h1 class="text-3xl font-bold mb-2">Nouveau Projet</h1>
+        <p class="text-light-muted dark:text-dark-muted">Créez un nouveau projet de groupe</p>
+    </div>
 
     <!-- Form -->
-    <form method="POST" class="max-w-2xl">
+    {{ form_start(form, {'attr': {'class': 'max-w-2xl'}}) }}
         <div class="card p-6 space-y-6">
-            <!-- Project Name -->
-            {% include 'components/input.html.twig' with {
-                name: 'name',
-                label: 'Project Name',
-                placeholder: 'e.g., Database Design Project',
-                required: true
-            } %}
-
-            <!-- Course -->
-            {% include 'components/select.html.twig' with {
-                name: 'course_id',
-                label: 'Course',
-                required: true,
-                options: [{ value: '', label: 'Select a course' }]|merge(
-                    courses|map(c => { value: c.id, label: c.code ~ ' - ' ~ c.name })
-                )
-            } %}
-
-            <!-- Due Date -->
-            {% include 'components/input.html.twig' with {
-                name: 'due_date',
-                label: 'Due Date',
-                type: 'date',
-                required: true
-            } %}
-
-            <!-- Color Theme -->
-            {% include 'components/select.html.twig' with {
-                name: 'color',
-                label: 'Color Theme',
-                options: [
-                    { value: 'primary', label: 'Indigo' },
-                    { value: 'secondary', label: 'Teal' },
-                    { value: 'accent', label: 'Amber' },
-                    { value: 'success', label: 'Green' },
-                    { value: 'warning', label: 'Orange' },
-                    { value: 'danger', label: 'Red' }
-                ]
-            } %}
-
-            <!-- Description -->
-            {% include 'components/textarea.html.twig' with {
-                name: 'description',
-                label: 'Description',
-                placeholder: 'Describe the project goals and requirements...',
-                rows: 4
-            } %}
-
-            <!-- Team Members -->
+            <!-- Titre -->
             <div>
-                <label class="block text-sm font-medium mb-2">Team Members</label>
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-3">Enter team member names (one per line)</p>
-                {% include 'components/textarea.html.twig' with {
-                    name: 'members',
-                    placeholder: 'John Doe\nJane Smith\nAlex Johnson',
-                    rows: 3
-                } %}
+                {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'input w-full'}}) }}
+                {{ form_errors(form.titre) }}
             </div>
 
-            <!-- Initial Tasks (Optional) -->
+            <!-- Description -->
             <div>
-                <label class="block text-sm font-medium mb-2">Initial Tasks (Optional)</label>
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-3">Add initial tasks to get started (one per line)</p>
-                {% include 'components/textarea.html.twig' with {
-                    name: 'initial_tasks',
-                    placeholder: 'Research topic\nCreate outline\nDraft first section',
-                    rows: 3
-                } %}
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'textarea w-full'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Date de Début -->
+            <div>
+                {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full'}}) }}
+                {{ form_errors(form.dateDebut) }}
+            </div>
+
+            <!-- Date de Fin -->
+            <div>
+                {{ form_label(form.dateFin, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full'}}) }}
+                {{ form_errors(form.dateFin) }}
+            </div>
+
+            <!-- Statut -->
+            <div>
+                {{ form_label(form.statut, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.statut, {'attr': {'class': 'select w-full'}}) }}
+                {{ form_errors(form.statut) }}
             </div>
         </div>
 
         <!-- Form Actions -->
         <div class="flex items-center justify-end gap-3 mt-6">
-            <a href="{{ path('app_projects') }}" class="btn btn-ghost">Cancel</a>
+            <a href="{{ path('app_project_index') }}" class="btn btn-ghost">Annuler</a>
             <button type="submit" class="btn btn-primary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Create Project
+                Créer le Projet
             </button>
         </div>
-    </form>
+    {{ form_end(form) }}
 </div>
 {% endblock %}

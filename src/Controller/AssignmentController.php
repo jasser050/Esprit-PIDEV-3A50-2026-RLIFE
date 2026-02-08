@@ -2,74 +2,70 @@
 
 namespace App\Controller;
 
-use App\Data\SampleData;
+use App\Entity\Assignment;
+use App\Form\AssignmentType;
+use App\Repository\AssignmentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/assignments')]
+#[IsGranted('ROLE_USER')]
 class AssignmentController extends AbstractController
 {
-    #[Route('', name: 'app_assignments')]
-    public function index(Request $request): Response
+    #[Route('', name: 'app_assignments', methods: ['GET'])]
+    public function index(AssignmentRepository $assignmentRepository): Response
     {
-        $assignments = SampleData::getAssignments();
-        $filter = $request->query->get('filter', 'all');
-        $sort = $request->query->get('sort', 'due_date');
-
-        if ($filter !== 'all') {
-            $assignments = array_filter($assignments, fn($a) => $a['status'] === $filter);
-        }
-
-        usort($assignments, function($a, $b) use ($sort) {
-            if ($sort === 'priority') {
-                $order = ['high' => 0, 'medium' => 1, 'low' => 2];
-                return ($order[$a['priority']] ?? 3) - ($order[$b['priority']] ?? 3);
-            }
-            return strcmp($a['due_date'], $b['due_date']);
-        });
+        $assignments = $assignmentRepository->findByUser($this->getUser());
 
         return $this->render('pages/assignments/index.html.twig', [
             'assignments' => $assignments,
-            'current_filter' => $filter,
-            'current_sort' => $sort,
         ]);
     }
 
-    #[Route('/new', name: 'app_assignments_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
-    {
-        if ($request->isMethod('POST')) {
-            // In a real app, we would save the assignment here
-            $this->addFlash('success', 'Assignment created successfully!');
+   #[Route('/new', name: 'app_assignments_new', methods: ['GET', 'POST'])]
+public function new(Request $request, EntityManagerInterface $entityManager): Response
+{
+    $assignment = new Assignment();
+
+    // Si on vient d'un projet
+    if ($projectId = $request->query->get('project_id')) {
+        $project = $entityManager->getRepository(Project::class)->find($projectId);
+        if ($project && $project->getUser() === $this->getUser()) {
+            $assignment->setProject($project);
+        }
+    }
+
+    $form = $this->createForm(AssignmentType::class, $assignment, [
+        'user' => $this->getUser(),
+    ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $assignment->setUser($this->getUser());
+
+            $entityManager->persist($assignment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Assignment créé avec succès !');
+
             return $this->redirectToRoute('app_assignments');
         }
 
-        $courses = SampleData::getCourses();
-        $preselectedCourseId = $request->query->get('course_id');
-
         return $this->render('pages/assignments/new.html.twig', [
-            'courses' => $courses,
-            'preselected_course_id' => $preselectedCourseId,
+            'assignment' => $assignment,
+            'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_assignments_show', methods: ['GET'])]
-    public function show(int $id): Response
+    public function show(Assignment $assignment): Response
     {
-        $assignments = SampleData::getAssignments();
-        $assignment = null;
-
-        foreach ($assignments as $a) {
-            if ($a['id'] === $id) {
-                $assignment = $a;
-                break;
-            }
-        }
-
-        if (!$assignment) {
-            throw $this->createNotFoundException('Assignment not found');
+        if ($assignment->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
         return $this->render('pages/assignments/show.html.twig', [
@@ -78,41 +74,45 @@ class AssignmentController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_assignments_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, int $id): Response
+    public function edit(Request $request, Assignment $assignment, EntityManagerInterface $entityManager): Response
     {
-        $assignments = SampleData::getAssignments();
-        $assignment = null;
-
-        foreach ($assignments as $a) {
-            if ($a['id'] === $id) {
-                $assignment = $a;
-                break;
-            }
+        if ($assignment->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        if (!$assignment) {
-            throw $this->createNotFoundException('Assignment not found');
-        }
+        $form = $this->createForm(AssignmentType::class, $assignment, [
+            'user' => $this->getUser(),
+        ]);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            // In a real app, we would update the assignment here
-            $this->addFlash('success', 'Assignment updated successfully!');
-            return $this->redirectToRoute('app_assignments_show', ['id' => $id]);
-        }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
 
-        $courses = SampleData::getCourses();
+            $this->addFlash('success', 'Assignment modifié avec succès !');
+
+            return $this->redirectToRoute('app_assignments');
+        }
 
         return $this->render('pages/assignments/edit.html.twig', [
             'assignment' => $assignment,
-            'courses' => $courses,
+            'form' => $form,
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_assignments_delete', methods: ['POST'])]
-    public function delete(int $id): Response
+    #[Route('/{id}', name: 'app_assignments_delete', methods: ['POST'])]
+    public function delete(Request $request, Assignment $assignment, EntityManagerInterface $entityManager): Response
     {
-        // In a real app, we would delete the assignment here
-        $this->addFlash('success', 'Assignment deleted successfully!');
+        if ($assignment->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($this->isCsrfTokenValid('delete'.$assignment->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($assignment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Assignment supprimé avec succès !');
+        }
+
         return $this->redirectToRoute('app_assignments');
     }
 }
