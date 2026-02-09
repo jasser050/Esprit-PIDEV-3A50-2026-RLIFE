@@ -34,23 +34,25 @@ class AdminDeckController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/decks/';
 
+            // Upload image
             if ($imageFile = $form->get('imageFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
                 try {
                     $imageFile->move($uploadDir, $filename);
                     $deck->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur upload image');
+                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
                 }
             }
 
+            // Upload PDF
             if ($pdfFile = $form->get('pdfFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
                 try {
                     $pdfFile->move($uploadDir, $filename);
                     $deck->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur upload PDF');
+                    $this->addFlash('error', 'Erreur lors de l\'upload du PDF : ' . $e->getMessage());
                 }
             }
 
@@ -83,23 +85,25 @@ class AdminDeckController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/decks/';
 
+            // Upload nouvelle image (remplace l'ancienne si upload)
             if ($imageFile = $form->get('imageFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $imageFile->guessExtension();
                 try {
                     $imageFile->move($uploadDir, $filename);
                     $deck->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur upload image');
+                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image : ' . $e->getMessage());
                 }
             }
 
+            // Upload nouveau PDF (remplace l'ancien si upload)
             if ($pdfFile = $form->get('pdfFile')->getData()) {
                 $filename = md5(uniqid()) . '.' . $pdfFile->guessExtension();
                 try {
                     $pdfFile->move($uploadDir, $filename);
                     $deck->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Erreur upload PDF');
+                    $this->addFlash('error', 'Erreur lors de l\'upload du PDF : ' . $e->getMessage());
                 }
             }
 
@@ -111,7 +115,7 @@ class AdminDeckController extends AbstractController
         }
 
         return $this->render('admin/deck/edit.html.twig', [
-            'deck' => $deck,
+            'deck' => $deck,                  // ← IMPORTANT : on passe $deck ici !
             'form' => $form->createView(),
         ]);
     }

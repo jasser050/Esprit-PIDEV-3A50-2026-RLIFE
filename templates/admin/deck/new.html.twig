@@ -1,10 +1,49 @@
 {% extends 'admin/base_admin.html.twig' %}
-
 {% block title %}Create a Deck - RLIFE Admin{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Champ invalide - bordure rouge */
+    input:invalid, textarea:invalid, input[type="file"]:invalid {
+        border-color: #ef4444 !important;
+        border-width: 2px !important;
+    }
+
+    /* Animation shake sur erreur */
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .error-shake {
+        animation: shake 0.3s ease-in-out;
+    }
+
+    /* Message d'erreur */
+    .error-message {
+        color: #dc2626;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        display: none;
+    }
+
+    .error-message.show {
+        display: block;
+    }
+
+    /* Champ valide - bordure verte */
+    input:valid:not(:placeholder-shown), 
+    textarea:valid:not(:placeholder-shown) {
+        border-color: #10b981 !important;
+    }
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="space-y-8 max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in">
-
     <!-- Breadcrumbs Modern -->
     <nav class="flex items-center text-sm gap-2">
         <a href="{{ path('app_admin_dashboard') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">
@@ -32,7 +71,7 @@
                         </p>
                     </div>
                 </div>
-                <a href="{{ path('app_admin_revision') }}" 
+                <a href="{{ path('app_admin_revision') }}"
                    class="inline-flex items-center justify-center px-5 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition shadow-sm gap-2">
                     ← Back
                 </a>
@@ -42,80 +81,123 @@
 
     <!-- Formulaire Ultra Moderne -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-        
+       
         <!-- Header du formulaire -->
         <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 px-8 py-6 border-b border-slate-200 dark:border-slate-700">
             <h2 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
                 ✏️ Deck Information
             </h2>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Fill in the details below to create your deck</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Remplissez les champs obligatoires (*) pour créer votre deck
+            </p>
         </div>
 
         <div class="p-8">
-            {{ form_start(form, {'attr': {'class': 'space-y-6'}}) }}
+            {{ form_start(form, {'attr': {'class': 'space-y-6', 'id': 'deckForm'}}) }}
 
             <!-- Grille pour les champs principaux -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
+               
                 <!-- Titre -->
                 <div class="md:col-span-2">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        📝 Deck Title
-                        <span class="text-red-500">*</span>
+                        📝 Deck Title <span class="text-red-500">*</span>
                     </label>
                     {{ form_widget(form.titre, {
                         'attr': {
                             'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base font-medium',
-                            'placeholder': 'e.g., Biology - Nervous System, Spanish Vocabulary A2...'
+                            'placeholder': 'Exemple : Biologie - Système nerveux, Vocabulaire Espagnol A2...',
+                            'id': 'titre',
+                            'minlength': '3',
+                            'maxlength': '255',
+                            'required': 'required',
+                            'pattern': '[^0-9].*'
                         }
                     }) }}
-                    {{ form_errors(form.titre, {'attr': {'class': 'text-red-600 text-sm mt-1.5 flex items-center gap-1'}}) }}
+                    <!-- Message d'erreur -->
+                    <div id="titre-error" class="error-message">
+                        ⚠️ Le titre est obligatoire (min 3 caractères, ne doit pas commencer par un chiffre)
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Min 3 caractères, ne doit pas commencer par un chiffre
+                    </p>
+                    {{ form_errors(form.titre, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
 
                 <!-- Matière -->
                 <div>
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        📚 Subject
-                        <span class="text-red-500">*</span>
+                        📚 Matière <span class="text-red-500">*</span>
                     </label>
                     {{ form_widget(form.matiere, {
                         'attr': {
                             'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base',
-                            'placeholder': 'e.g., Biology, English, Math...'
+                            'placeholder': 'Exemple : Biologie, Anglais, Mathématiques...',
+                            'id': 'matiere',
+                            'minlength': '3',
+                            'maxlength': '100',
+                            'required': 'required'
                         }
                     }) }}
-                    {{ form_errors(form.matiere, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
+                    <!-- Message d'erreur -->
+                    <div id="matiere-error" class="error-message">
+                        ⚠️ La matière est obligatoire (minimum 3 caractères)
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Minimum 3 caractères
+                    </p>
+                    {{ form_errors(form.matiere, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
 
                 <!-- Niveau -->
                 <div>
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                        🎓 Level
-                        <span class="text-red-500">*</span>
+                        🎓 Niveau <span class="text-red-500">*</span>
                     </label>
                     {{ form_widget(form.niveau, {
                         'attr': {
                             'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base',
-                            'placeholder': 'e.g., High School, Bachelor, B1...'
+                            'placeholder': 'Exemple : Lycée, Licence, B1, Terminale...',
+                            'id': 'niveau',
+                            'minlength': '1',
+                            'maxlength': '50',
+                            'required': 'required'
                         }
                     }) }}
-                    {{ form_errors(form.niveau, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
+                    <!-- Message d'erreur -->
+                    <div id="niveau-error" class="error-message">
+                        ⚠️ Le niveau est obligatoire
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Indiquez le niveau scolaire
+                    </p>
+                    {{ form_errors(form.niveau, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
             </div>
 
             <!-- Description -->
             <div>
                 <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    💭 Description
+                    💭 Description 
+                    <span class="text-xs font-normal text-slate-500">(optionnel)</span>
                 </label>
                 {{ form_widget(form.description, {
                     'attr': {
                         'rows': 4,
                         'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 min-h-[120px] text-base resize-none',
-                        'placeholder': 'Describe the content, objectives, chapters or skills covered...'
+                        'placeholder': 'Décrivez le contenu, les objectifs, les chapitres ou compétences abordées...',
+                        'id': 'description',
+                        'maxlength': '2000'
                     }
                 }) }}
-                {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-sm mt-1.5'}}) }}
+                <!-- Message d'erreur -->
+                <div id="description-error" class="error-message">
+                    ⚠️ La description ne doit pas dépasser 2000 caractères
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                    ℹ️ Maximum 2000 caractères
+                </p>
+                {{ form_errors(form.description, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
             </div>
 
             <!-- Divider -->
@@ -125,28 +207,32 @@
                 </div>
                 <div class="relative flex justify-center">
                     <span class="bg-white dark:bg-slate-800 px-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
-                        🖼️ Media Files
+                        🖼️ Fichiers média
                     </span>
                 </div>
             </div>
 
             <!-- Files Upload Section -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
                 <!-- Image Upload -->
                 <div class="space-y-2">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        🖼️ Cover Image
+                        🖼️ Image de couverture <span class="text-red-500">*</span>
                     </label>
-                    <div class="relative">
-                        {{ form_widget(form.imageFile, {
-                            'attr': {
-                                'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-purple-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/30 dark:file:text-purple-400'
-                            }
-                        }) }}
+                    {{ form_widget(form.imageFile, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-purple-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/30 dark:file:text-purple-400',
+                            'id': 'imageFile',
+                            'accept': 'image/jpeg,image/png,image/webp,image/gif',
+                            'required': 'required'
+                        }
+                    }) }}
+                    <!-- Message d'erreur -->
+                    <div id="imageFile-error" class="error-message">
+                        ⚠️ L'image de couverture est obligatoire (max 5 Mo, formats JPG/PNG/WEBP/GIF)
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        ℹ️ Max 5MB • JPG, PNG, WEBP • Recommended: 16:9 or square
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Max 5 Mo • JPG, PNG, WEBP, GIF uniquement
                     </p>
                     {{ form_errors(form.imageFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
@@ -154,18 +240,22 @@
                 <!-- PDF Upload -->
                 <div class="space-y-2">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        📄 PDF File
-                        <span class="text-xs font-normal text-slate-500">(optional)</span>
+                        📄 Fichier PDF 
+                        <span class="text-xs font-normal text-slate-500">(optionnel)</span>
                     </label>
-                    <div class="relative">
-                        {{ form_widget(form.pdfFile, {
-                            'attr': {
-                                'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-amber-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400'
-                            }
-                        }) }}
+                    {{ form_widget(form.pdfFile, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-amber-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400',
+                            'id': 'pdfFile',
+                            'accept': 'application/pdf'
+                        }
+                    }) }}
+                    <!-- Message d'erreur -->
+                    <div id="pdfFile-error" class="error-message">
+                        ⚠️ Le PDF ne doit pas dépasser 10 Mo
                     </div>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                        ℹ️ Max 10MB • Course notes or summary
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Max 10 Mo • PDF uniquement
                     </p>
                     {{ form_errors(form.pdfFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
@@ -173,11 +263,11 @@
 
             <!-- Action Buttons -->
             <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 border-t-2 border-slate-200 dark:border-slate-700">
-                <a href="{{ path('app_admin_revision') }}" 
+                <a href="{{ path('app_admin_revision') }}"
                    class="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all shadow-sm text-center">
                     ✕ Cancel
                 </a>
-                <button type="submit" 
+                <button type="submit"
                         class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
                     ✓ Create Deck
                 </button>
@@ -194,24 +284,119 @@
                 💡
             </div>
             <div>
-                <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Pro Tips</h3>
+                <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Astuces pro</h3>
                 <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-400">
                     <li class="flex items-start gap-2">
                         <span class="text-green-500 flex-shrink-0">✓</span>
-                        <span>Use descriptive titles to easily find your decks later</span>
+                        <span>Utilisez des titres clairs pour retrouver facilement vos decks</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <span class="text-green-500 flex-shrink-0">✓</span>
-                        <span>Add a cover image to make your deck more appealing</span>
+                        <span>Ajoutez une image de couverture pour rendre votre deck plus attractif</span>
                     </li>
                     <li class="flex items-start gap-2">
                         <span class="text-green-500 flex-shrink-0">✓</span>
-                        <span>Upload a PDF for quick reference while studying</span>
+                        <span>Le titre ne doit pas commencer par un chiffre</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span>Tous les champs marqués d'une (*) sont obligatoires</span>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
-
 </div>
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('deckForm');
+    
+    // Liste des champs à valider
+    const fields = [
+        { id: 'titre', errorId: 'titre-error' },
+        { id: 'matiere', errorId: 'matiere-error' },
+        { id: 'niveau', errorId: 'niveau-error' },
+        { id: 'description', errorId: 'description-error' },
+        { id: 'imageFile', errorId: 'imageFile-error' },
+        { id: 'pdfFile', errorId: 'pdfFile-error' }
+    ];
+    
+    // Fonction pour afficher/masquer le message d'erreur
+    function validateField(field) {
+        const input = document.getElementById(field.id);
+        const errorMsg = document.getElementById(field.errorId);
+        
+        if (!input || !errorMsg) return;
+        
+        // Vérifier si le champ est invalide
+        if (!input.checkValidity() && input.value !== '') {
+            errorMsg.classList.add('show');
+            input.classList.add('error-shake');
+            
+            // Retirer l'animation après 300ms
+            setTimeout(() => {
+                input.classList.remove('error-shake');
+            }, 300);
+        } else {
+            errorMsg.classList.remove('show');
+        }
+    }
+    
+    // Ajouter les événements sur chaque champ
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input) return;
+        
+        // Validation à la perte du focus
+        input.addEventListener('blur', function() {
+            validateField(field);
+        });
+        
+        // Validation en temps réel pendant la saisie
+        input.addEventListener('input', function() {
+            if (this.classList.contains('error-shake')) {
+                validateField(field);
+            }
+        });
+        
+        // Pour les fichiers
+        if (input.type === 'file') {
+            input.addEventListener('change', function() {
+                validateField(field);
+            });
+        }
+    });
+    
+    // Validation finale à la soumission
+    form.addEventListener('submit', function(e) {
+        let hasErrors = false;
+        
+        // Valider tous les champs
+        fields.forEach(field => {
+            const input = document.getElementById(field.id);
+            if (!input) return;
+            
+            if (!input.checkValidity()) {
+                validateField(field);
+                hasErrors = true;
+            }
+        });
+        
+        if (hasErrors) {
+            e.preventDefault();
+            
+            // Scroller vers le premier champ en erreur
+            const firstInvalid = document.querySelector(':invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => firstInvalid.focus(), 500);
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
 {% endblock %}
