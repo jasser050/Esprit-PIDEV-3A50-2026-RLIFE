@@ -15,7 +15,7 @@ class EvaluationMatiere
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_eval', type: 'integer')]
-    private ?int $id = null;
+    private ?int $id_eval = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'evaluations')]
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
@@ -57,9 +57,9 @@ class EvaluationMatiere
         $this->updatedAt = new \DateTime();
     }
 
-    public function getId(): ?int
+public function getIdEval(): ?int
     {
-        return $this->id;
+        return $this->id_eval;
     }
 
     public function getUser(): ?User

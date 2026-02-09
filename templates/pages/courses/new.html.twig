@@ -1,97 +1,114 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Course{% endblock %}
+{% block title %}Add New Course Evaluation{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Courses', href: path('app_courses') },
-            { label: 'New Course' }
-        ]
-    } %}
+<div class="container mx-auto p-6">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-primary">Add New Course Evaluation</h1>
+       
 
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Course',
-        subtitle: 'Add a new course to your schedule'
-    } %}
 
-    <form action="{{ path('app_courses_new') }}" method="POST" class="card p-6">
-        <div class="space-y-6">
-            <!-- Course Name -->
-            {% include 'components/input.html.twig' with {
-                name: 'name',
-                label: 'Course Name',
-                placeholder: 'e.g., Data Structures & Algorithms',
-                required: true
-            } %}
-
-            <!-- Course Code -->
-            <div class="grid grid-cols-2 gap-4">
-                {% include 'components/input.html.twig' with {
-                    name: 'code',
-                    label: 'Course Code',
-                    placeholder: 'e.g., CS201',
-                    required: true
-                } %}
-
-                {% include 'components/input.html.twig' with {
-                    name: 'credits',
-                    label: 'Credits',
-                    type: 'number',
-                    placeholder: '3',
-                    required: true
-                } %}
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center gap-4 mb-4">
+                <a href="{{ path('app_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to courses
+                </a>
             </div>
+            
+           
+        </div>
 
-            <!-- Instructor -->
-            {% include 'components/input.html.twig' with {
-                name: 'instructor',
-                label: 'Instructor',
-                placeholder: 'e.g., Dr. Sarah Chen',
-                required: true
-            } %}
+        {{ form_start(form) }}
 
-            <!-- Schedule -->
-            {% include 'components/input.html.twig' with {
-                name: 'schedule',
-                label: 'Schedule',
-                placeholder: 'e.g., Mon, Wed 10:00 - 11:30'
-            } %}
+        {# ---------------- SECTION SELECTION ---------------- #}
+        <div class="form-control w-full mb-4">
+            <label class="label font-semibold">Section</label>
+            <select id="section-select" class="select select-bordered w-full" name="section">
+                <option value="">Choisir une section</option>
+                {% for section in sections %}
+                    <option value="{{ section }}">{{ section }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <!-- Room -->
-            {% include 'components/input.html.twig' with {
-                name: 'room',
-                label: 'Room',
-                placeholder: 'e.g., Tech Building 301'
-            } %}
+        {# ---------------- MATIÈRES FILTRÉES ---------------- #}
+        <div class="form-control w-full mb-4">
+            <label class="label font-semibold">Matières <span class="text-error">*</span></label>
+            <select id="matieres-select" class="select select-bordered w-full h-64" name="matieres[]" multiple required>
+                {# Initialement vide, sera rempli via JS côté client #}
+            </select>
+        </div>
 
-            <!-- Color -->
-            {% include 'components/select.html.twig' with {
-                name: 'color',
-                label: 'Color Theme',
-                options: [
-                    { value: 'primary', label: 'Indigo (Primary)' },
-                    { value: 'secondary', label: 'Teal (Secondary)' },
-                    { value: 'accent', label: 'Amber (Accent)' },
-                    { value: 'success', label: 'Green (Success)' },
-                    { value: 'warning', label: 'Orange (Warning)' },
-                    { value: 'danger', label: 'Red (Danger)' }
-                ]
-            } %}
-
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_courses') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Create Course
-                </button>
+        {# ---------------- SCORE ---------------- #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+                {{ form_label(form.scoreEval) }}
+                {{ form_widget(form.scoreEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
+            </div>
+            <div class="form-control w-full">
+                {{ form_label(form.noteMaximaleEval) }}
+                {{ form_widget(form.noteMaximaleEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
             </div>
         </div>
-    </form>
+
+        {# ---------------- SCHEDULE ---------------- #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="form-control w-full">
+                {{ form_label(form.dateEvaluation) }}
+                {{ form_widget(form.dateEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
+            </div>
+            <div class="form-control w-full">
+                {{ form_label(form.dureeEvaluation) }}
+                {{ form_widget(form.dureeEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
+            </div>
+        </div>
+
+        <div class="form-control w-full mb-6">
+            {{ form_label(form.prioriteE) }}
+            {{ form_widget(form.prioriteE, {'attr': {'class': 'select select-bordered w-full'}}) }}
+        </div>
+
+        <div class="flex justify-end gap-4">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 </div>
+
+{# ---------------- JS pour filtrer les matières côté client ---------------- #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sectionSelect = document.getElementById('section-select');
+    const matieresSelect = document.getElementById('matieres-select');
+
+    // Créer un dictionnaire JS avec toutes les matières regroupées par section
+    const matieresBySection = {
+        {% for section, matieres in matieresBySection %}
+            "{{ section }}": [
+                {% for matiere in matieres %}
+                    { id: "{{ matiere.id }}", nom: "{{ matiere.nomMatiere }} ({{ matiere.code }})" }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    sectionSelect.addEventListener('change', function() {
+        const selectedSection = this.value;
+        matieresSelect.innerHTML = '';
+
+        if (selectedSection && matieresBySection[selectedSection]) {
+            matieresBySection[selectedSection].forEach(matiere => {
+                const option = document.createElement('option');
+                option.value = matiere.id;
+                option.textContent = matiere.nom;
+                matieresSelect.appendChild(option);
+            });
+        }
+    });
+});
+</script>
 {% endblock %}
