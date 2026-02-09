@@ -1,151 +1,110 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ assignment.title }}{% endblock %}
+{% block title %}{{ assignment.titre }}{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-4xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Assignments', href: path('app_assignments') },
-            { label: assignment.title }
-        ]
-    } %}
+<div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-sm">
+        <ol class="flex items-center gap-2">
+            <li><a href="{{ path('app_assignments') }}" class="text-primary hover:underline">Tâches</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li class="text-light-muted dark:text-dark-muted">{{ assignment.titre }}</li>
+        </ol>
+    </nav>
 
-    <div class="flex items-start justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-3 mb-2">
-                <h1 class="text-2xl font-bold">{{ assignment.title }}</h1>
-                <span class="badge badge-{{ assignment.priority == 'high' ? 'danger' : (assignment.priority == 'medium' ? 'warning' : 'success') }}">
-                    {{ assignment.priority }} priority
-                </span>
-                <span class="badge badge-{{ assignment.status == 'completed' ? 'success' : (assignment.status == 'in_progress' ? 'primary' : 'secondary') }}">
-                    {{ assignment.status|replace({'_': ' '})|title }}
-                </span>
-            </div>
-            <p class="text-light-muted dark:text-dark-muted">
-                {{ assignment.course }} ({{ assignment.course_code }})
-            </p>
-        </div>
-        <a href="{{ path('app_assignments_edit', { id: assignment.id }) }}" class="btn btn-secondary">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-            Edit
-        </a>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Description -->
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Description</h2>
-                <p class="text-light-muted dark:text-dark-muted">{{ assignment.description }}</p>
-            </div>
-
-            <!-- Progress -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Progress</h2>
-                    <span class="text-lg font-bold text-primary-500">{{ assignment.progress }}%</span>
+    <!-- En-tête principal -->
+    <div class="card p-6">
+        <div class="flex items-start justify-between mb-6 gap-4">
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h1 class="text-3xl font-bold">{{ assignment.titre }}</h1>
+                    <span class="badge 
+                        {% if assignment.statut == 'Terminé' %}badge-success
+                        {% elseif assignment.statut == 'En cours' %}badge-primary
+                        {% elseif assignment.statut == 'À faire' %}badge-warning
+                        {% else %}badge-danger{% endif %}">
+                        {{ assignment.statut }}
+                    </span>
+                    <span class="badge 
+                        {% if assignment.priorite == 'Haute' %}badge-danger
+                        {% elseif assignment.priorite == 'Moyenne' %}badge-warning
+                        {% else %}badge-success{% endif %}">
+                        {{ assignment.priorite }}
+                    </span>
                 </div>
-                <div class="w-full h-3 bg-light-border dark:bg-dark-border rounded-full overflow-hidden">
-                    <div class="h-full bg-primary-500 rounded-full transition-all" style="width: {{ assignment.progress }}%"></div>
-                </div>
-                <div class="mt-4 flex gap-2">
-                    <button class="btn btn-secondary btn-sm" onclick="updateProgress({{ assignment.progress - 10 }})">-10%</button>
-                    <button class="btn btn-secondary btn-sm" onclick="updateProgress({{ assignment.progress + 10 }})">+10%</button>
-                    <button class="btn btn-success btn-sm" onclick="updateProgress(100)">Mark Complete</button>
-                </div>
-            </div>
 
-            <!-- Notes/Subtasks -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Checklist</h2>
-                    <button class="btn btn-secondary btn-sm">Add Item</button>
-                </div>
-                <div class="space-y-2">
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg cursor-pointer hover:ring-2 hover:ring-primary-500/30">
-                        <input type="checkbox" class="checkbox" checked>
-                        <span class="line-through text-light-muted dark:text-dark-muted">Research requirements</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg cursor-pointer hover:ring-2 hover:ring-primary-500/30">
-                        <input type="checkbox" class="checkbox" checked>
-                        <span class="line-through text-light-muted dark:text-dark-muted">Create initial structure</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg cursor-pointer hover:ring-2 hover:ring-primary-500/30">
-                        <input type="checkbox" class="checkbox">
-                        <span>Implement core functionality</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg cursor-pointer hover:ring-2 hover:ring-primary-500/30">
-                        <input type="checkbox" class="checkbox">
-                        <span>Write tests</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg cursor-pointer hover:ring-2 hover:ring-primary-500/30">
-                        <input type="checkbox" class="checkbox">
-                        <span>Final review and submit</span>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Details</h2>
-                <dl class="space-y-4">
-                    <div>
-                        <dt class="text-sm text-light-muted dark:text-dark-muted">Due Date</dt>
-                        <dd class="font-medium flex items-center gap-2">
-                            {% set dueDate = assignment.due_date|date('U') %}
-                            {% set today = 'now'|date('U') %}
-                            {% set daysUntil = ((dueDate - today) / 86400)|round(0, 'floor') %}
-                            
-                            {{ assignment.due_date|date('F j, Y') }}
-                            
-                            {% if assignment.status != 'completed' %}
-                                {% if daysUntil < 0 %}
-                                    <span class="badge badge-danger">Overdue</span>
-                                {% elseif daysUntil == 0 %}
-                                    <span class="badge badge-danger">Today</span>
-                                {% elseif daysUntil == 1 %}
-                                    <span class="badge badge-warning">Tomorrow</span>
-                                {% elseif daysUntil <= 3 %}
-                                    <span class="badge badge-warning">{{ daysUntil }} days</span>
-                                {% endif %}
-                            {% endif %}
-                        </dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm text-light-muted dark:text-dark-muted">Course</dt>
-                        <dd class="font-medium">{{ assignment.course }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-sm text-light-muted dark:text-dark-muted">Course Code</dt>
-                        <dd class="font-medium">{{ assignment.course_code }}</dd>
-                    </div>
-                </dl>
-            </div>
-
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-                <div class="space-y-2">
-                    <a href="{{ path('app_planning') }}?add_event=assignment&id={{ assignment.id }}" class="w-full btn btn-secondary justify-start">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        Schedule Work Time
+                <div class="text-light-muted dark:text-dark-muted">
+                    Projet : 
+                    <a href="{{ path('app_project_show', {id: assignment.project.id}) }}" class="text-primary hover:underline font-medium">
+                        {{ assignment.project.titre }}
                     </a>
-                    <button class="w-full btn btn-secondary justify-start">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-shrink-0">
+                <a href="{{ path('app_assignments_edit', {'id': assignment.id}) }}" class="btn btn-ghost">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    Modifier
+                </a>
+
+                <form method="post" action="{{ path('app_assignments_delete', {'id': assignment.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ assignment.id) }}">
+                    <button type="submit" class="btn btn-ghost text-danger">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                         </svg>
-                        Attach Files
+                        Supprimer
                     </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-8">
+            <h2 class="text-lg font-semibold mb-3">Description</h2>
+            <div class="prose dark:prose-invert max-w-none text-light-muted dark:text-dark-muted">
+                {{ assignment.description|nl2br }}
+            </div>
+        </div>
+
+        <!-- Informations clés -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-light-surface dark:bg-dark-surface p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-light-muted dark:text-dark-muted mb-1">Date de début</h3>
+                <div class="flex items-center gap-2 text-lg font-medium">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    {{ assignment.dateDebut|date('d/m/Y') }}
+                </div>
+            </div>
+
+            <div class="bg-light-surface dark:bg-dark-surface p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-light-muted dark:text-dark-muted mb-1">Date de fin</h3>
+                <div class="flex items-center gap-2 text-lg font-medium">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    {{ assignment.dateFin|date('d/m/Y') }}
+                </div>
+            </div>
+
+            <div class="bg-light-surface dark:bg-dark-surface p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-light-muted dark:text-dark-muted mb-1">Créée le</h3>
+                <div class="text-lg font-medium">
+                    {{ assignment.createdAt|date('d/m/Y H:i') }}
                 </div>
             </div>
         </div>
+
+        {% if assignment.updatedAt %}
+            <p class="text-sm text-light-muted dark:text-dark-muted mt-4 text-center">
+                Dernière modification : {{ assignment.updatedAt|date('d/m/Y H:i') }}
+            </p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

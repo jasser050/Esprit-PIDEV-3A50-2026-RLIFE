@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Supprimer le Projet{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-sm">
+        <ol class="flex items-center gap-2">
+            <li><a href="{{ path('app_project_index') }}" class="text-primary hover:underline">Projets</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li><a href="{{ path('app_project_show', {'id': project.id}) }}" class="text-primary hover:underline">{{ project.titre }}</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li class="text-light-muted dark:text-dark-muted">Supprimer</li>
+        </ol>
+    </nav>
+
+    <!-- Delete Confirmation Card -->
+    <div class="card p-8">
+        <!-- Warning Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 rounded-full bg-danger/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-2xl font-bold text-center mb-2">Supprimer le Projet</h1>
+        <p class="text-center text-light-muted dark:text-dark-muted mb-6">
+            Êtes-vous sûr de vouloir supprimer ce projet ?
+        </p>
+
+        <!-- Project Details -->
+        <div class="bg-light-surface dark:bg-dark-surface rounded-lg p-4 mb-6">
+            <div class="flex items-start justify-between mb-2">
+                <h3 class="font-semibold text-lg">{{ project.titre }}</h3>
+                <span class="badge 
+                    {% if project.statut == 'En cours' %}badge-primary
+                    {% elseif project.statut == 'Terminé' %}badge-success
+                    {% elseif project.statut == 'En attente' %}badge-warning
+                    {% else %}badge-danger{% endif %}">
+                    {{ project.statut }}
+                </span>
+            </div>
+            <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ project.description }}</p>
+            <div class="text-xs text-light-muted dark:text-dark-muted">
+                {{ project.dateDebut|date('d/m/Y') }} - {{ project.dateFin|date('d/m/Y') }}
+                {% if project.assignments|length > 0 %}
+                    • {{ project.assignments|length }} tâche(s)
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Warning Message -->
+        <div class="bg-danger/10 border border-danger/20 rounded-lg p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-danger flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <h4 class="font-semibold text-danger mb-1">⚠️ Action Irréversible</h4>
+                    <p class="text-sm text-light-muted dark:text-dark-muted mb-2">
+                        Cette action est <strong>irréversible</strong>. La suppression du projet entraînera :
+                    </p>
+                    <ul class="text-sm text-light-muted dark:text-dark-muted space-y-1 list-disc list-inside">
+                        <li>Suppression définitive du projet</li>
+                        {% if project.assignments|length > 0 %}
+                            <li>Suppression de <strong>{{ project.assignments|length }} tâche(s)</strong> associée(s)</li>
+                        {% endif %}
+                        <li>Perte de toutes les données liées</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+            
+            <div class="flex items-center justify-center gap-3">
+                <a href="{{ path('app_project_show', {'id': project.id}) }}" class="btn btn-ghost">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Non, Annuler
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Oui, Supprimer Définitivement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

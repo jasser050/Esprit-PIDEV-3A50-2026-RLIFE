@@ -1,79 +1,87 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Assignment{% endblock %}
+{% block title %}Nouvelle Tâche{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Assignments', href: path('app_assignments') },
-            { label: 'New Assignment' }
-        ]
-    } %}
+<div class="space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-sm">
+        <ol class="flex items-center gap-2">
+            <li><a href="{{ path('app_assignments') }}" class="text-primary hover:underline">Tâches</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li class="text-light-muted dark:text-dark-muted">Nouvelle Tâche</li>
+        </ol>
+    </nav>
 
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Assignment',
-        subtitle: 'Add a new assignment to track'
-    } %}
+    <!-- Page Header -->
+    <div>
+        <h1 class="text-3xl font-bold mb-2">Nouvelle Tâche</h1>
+        <p class="text-light-muted dark:text-dark-muted">Ajoutez une nouvelle tâche à l'un de vos projets</p>
+    </div>
 
-    <form action="{{ path('app_assignments_new') }}" method="POST" class="card p-6">
-        <div class="space-y-6">
-            <!-- Title -->
-            {% include 'components/input.html.twig' with {
-                name: 'title',
-                label: 'Assignment Title',
-                placeholder: 'e.g., Binary Tree Implementation',
-                required: true
-            } %}
-
-            <!-- Course Selection -->
-            {% include 'components/select.html.twig' with {
-                name: 'course_id',
-                label: 'Course',
-                value: preselected_course_id|default(''),
-                required: true,
-                options: courses|map(c => { value: c.id, label: c.name ~ ' (' ~ c.code ~ ')' })
-            } %}
-
-            <!-- Due Date -->
-            {% include 'components/input.html.twig' with {
-                name: 'due_date',
-                label: 'Due Date',
-                type: 'date',
-                required: true
-            } %}
-
-            <!-- Priority -->
-            {% include 'components/select.html.twig' with {
-                name: 'priority',
-                label: 'Priority',
-                options: [
-                    { value: 'high', label: 'High Priority' },
-                    { value: 'medium', label: 'Medium Priority' },
-                    { value: 'low', label: 'Low Priority' }
-                ]
-            } %}
+    <!-- Formulaire -->
+    {{ form_start(form, {'attr': {'class': 'max-w-2xl'}}) }}
+        <div class="card p-6 space-y-6">
+            <!-- Titre -->
+            <div>
+                {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'Ex: Rédiger le rapport final'}}) }}
+                {{ form_errors(form.titre) }}
+            </div>
 
             <!-- Description -->
-            {% include 'components/textarea.html.twig' with {
-                name: 'description',
-                label: 'Description',
-                placeholder: 'Describe the assignment requirements...',
-                rows: 4
-            } %}
+            <div>
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'textarea w-full', 'rows': 4, 'placeholder': 'Décrivez la tâche, les objectifs, les livrables...'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
 
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_assignments') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Create Assignment
-                </button>
+            <!-- Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full'}}) }}
+                    {{ form_errors(form.dateDebut) }}
+                </div>
+                <div>
+                    {{ form_label(form.dateFin, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full'}}) }}
+                    {{ form_errors(form.dateFin) }}
+                </div>
+            </div>
+
+            <!-- Priorité + Statut -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(form.priorite, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    {{ form_widget(form.priorite, {'attr': {'class': 'select w-full'}}) }}
+                    {{ form_errors(form.priorite) }}
+                </div>
+                <div>
+                    {{ form_label(form.statut, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                    {{ form_widget(form.statut, {'attr': {'class': 'select w-full'}}) }}
+                    {{ form_errors(form.statut) }}
+                </div>
+            </div>
+
+            <!-- Projet associé -->
+            <div>
+                {{ form_label(form.project, null, {'label_attr': {'class': 'block text-sm font-medium mb-2'}}) }}
+                {{ form_widget(form.project, {'attr': {'class': 'select w-full'}}) }}
+                {{ form_errors(form.project) }}
             </div>
         </div>
-    </form>
+
+        <!-- Boutons d'action -->
+        <div class="flex items-center justify-end gap-3 mt-6">
+            <a href="{{ path('app_assignments') }}" class="btn btn-ghost">Annuler</a>
+            <button type="submit" class="btn btn-primary">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Créer la Tâche
+            </button>
+        </div>
+    {{ form_end(form) }}
 </div>
 {% endblock %}
