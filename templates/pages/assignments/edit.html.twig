@@ -151,9 +151,63 @@
 </div>
 
 <script>
-console.log('🔴 INLINE SCRIPT TEST - If you see this, JavaScript is working!');
-console.log('🔴 Delete button exists:', document.getElementById('delete-btn'));
-console.log('🔴 Modal exists:', document.getElementById('delete-modal'));
+console.log('🔴 INLINE SCRIPT TEST - JavaScript is working!');
+console.log('🔴 Delete button:', document.getElementById('delete-btn'));
+console.log('🔴 Modal:', document.getElementById('delete-modal'));
+
+// Wait a moment for DOM to be fully ready
+setTimeout(function() {
+  console.log('🟢 Starting delete modal setup...');
+  
+  const deleteBtn = document.getElementById('delete-btn');
+  const cancelBtn = document.getElementById('cancel-btn');
+  const modalBackdrop = document.getElementById('modal-backdrop');
+  const modal = document.getElementById('delete-modal');
+  
+  console.log('🟢 Elements found:', {
+    deleteBtn: !!deleteBtn,
+    cancelBtn: !!cancelBtn, 
+    modalBackdrop: !!modalBackdrop,
+    modal: !!modal
+  });
+  
+  if (deleteBtn && modal) {
+    deleteBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('🟢 DELETE BUTTON CLICKED!');
+      modal.classList.remove('hidden');
+      console.log('🟢 Modal should be visible now');
+      console.log('🟢 Modal classes:', modal.className);
+    });
+    console.log('✅ Delete button click listener attached successfully!');
+  } else {
+    console.error('❌ Could not find delete button or modal!');
+  }
+  
+  if (cancelBtn && modal) {
+    cancelBtn.addEventListener('click', function() {
+      console.log('🟢 Cancel clicked');
+      modal.classList.add('hidden');
+    });
+  }
+  
+  if (modalBackdrop && modal) {
+    modalBackdrop.addEventListener('click', function() {
+      console.log('🟢 Backdrop clicked');
+      modal.classList.add('hidden');
+    });
+  }
+  
+  // ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+      console.log('🟢 ESC pressed');
+      modal.classList.add('hidden');
+    }
+  });
+  
+  console.log('✅ All event listeners attached!');
+}, 100);
 </script>
 {% endblock %}
 
