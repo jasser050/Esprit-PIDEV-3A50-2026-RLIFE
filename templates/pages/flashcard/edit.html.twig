@@ -75,6 +75,10 @@
         margin-top: 0.25rem;
     }
 
+    .dark .char-counter {
+        color: #cbd5e1;
+    }
+
     .char-counter.warning {
         color: #f59e0b;
         font-weight: 600;
@@ -127,7 +131,7 @@
 
         <!-- Form Card -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="p-6 lg:p-10">
+            <div class="p-6 lg:p-10 bg-white dark:bg-slate-800">
                 {{ form_start(form, {'attr': {'class': 'space-y-7', 'id': 'flashcardForm', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
                 
                 <!-- Title -->
