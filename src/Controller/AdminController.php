@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Deck;
 use App\Entity\User;
+use App\Form\DeckType;
+use App\Repository\DeckRepository;
 use App\Service\AuditLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +15,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -84,7 +88,11 @@ class AdminController extends AbstractController
         $entityManager->flush();
         
         // Log the action
-        $auditLog->logUserBan($user, $reason);
+        try {
+            $auditLog->logUserBan($user, $reason);
+        } catch (\Exception $e) {
+            // Silently continue if audit log fails
+        }
         
         // Send automatic ban notification email
         try {
@@ -114,7 +122,11 @@ class AdminController extends AbstractController
         $entityManager->flush();
         
         // Log the action
-        $auditLog->logUserUnban($user);
+        try {
+            $auditLog->logUserUnban($user);
+        } catch (\Exception $e) {
+            // Silently continue if audit log fails
+        }
         
         $this->addFlash('success', sprintf('User %s has been unbanned.', $user->getEmail()));
         
@@ -131,7 +143,12 @@ class AdminController extends AbstractController
             $entityManager->flush();
             
             // Log the action
-            $auditLog->logUserPromotion($user);
+            try {
+     $auditLog->logUserPromotion($user);
+            } catch (\Exception $e) {
+    // Silently continue if audit log fails
+        }
+            
             
             $this->addFlash('success', sprintf('User %s is now an admin.', $user->getEmail()));
         }
@@ -147,7 +164,14 @@ class AdminController extends AbstractController
         $entityManager->flush();
         
         // Log the action
-        $auditLog->logUserDemotion($user);
+        
+             try {
+     $auditLog->logUserDemotion($user);
+            } catch (\Exception $e) {
+    // Silently continue if audit log fails
+        }
+
+        
         
         $this->addFlash('success', sprintf('Admin role removed from %s.', $user->getEmail()));
         
@@ -303,6 +327,16 @@ class AdminController extends AbstractController
         $response->headers->set('Content-Disposition', 'attachment; filename="rlife-statistics-' . date('Y-m-d') . '.csv"');
         
         return $response;
+    }
+
+    #[Route('/revision', name: 'app_admin_revision', methods: ['GET'])]
+    public function revision(DeckRepository $deckRepository): Response
+    {
+        $decks = $deckRepository->findAll();
+
+        return $this->render('admin/revision.html.twig', [
+            'decks' => $decks,
+        ]);
     }
 
     /**

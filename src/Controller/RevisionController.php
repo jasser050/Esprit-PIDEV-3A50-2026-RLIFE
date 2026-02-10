@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/revisions')]
 class RevisionController extends AbstractController
@@ -248,6 +249,120 @@ class RevisionController extends AbstractController
             $this->addFlash('success', 'Flashcard deleted successfully!');
         } else {
             $this->addFlash('error', 'Invalid CSRF token.');
+        }
+
+        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+    }
+
+    /**
+     * Automatically generates flashcards via the Gemini API (Google AI)
+     */
+    #[Route('/deck/{id}/generate-flashcards', name: 'app_deck_generate_flashcards', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function generateFlashcards(
+        Deck $deck,
+        Request $request,
+        EntityManagerInterface $em,
+        HttpClientInterface $httpClient
+    ): Response
+    {
+        $theme = trim($request->request->get('theme') ?? '');
+
+        if (empty($theme)) {
+            $this->addFlash('error', 'Please enter a theme or subject.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+        }
+
+        $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
+
+        if (!$apiKey) {
+            $this->addFlash('error', 'Gemini API key not configured in .env');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+        }
+
+        try {
+            // Using Gemini 2.5 Flash model with proper API v1 endpoint
+            // API key passed in header x-goog-api-key (not in URL)
+            $response = $httpClient->request(
+                'POST', 
+                'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent',
+                [
+                    'headers' => [
+                        'x-goog-api-key' => $apiKey,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => [
+                        'contents' => [
+                            [
+                                'parts' => [
+                                    [
+                                        'text' => "Generate 6 educational flashcards in English on the theme: \"$theme\". 
+                                        Return ONLY a valid JSON array (no markdown, no ```, no text before/after).
+                                        Exact format expected for EACH element:
+                                        {
+                                          \"titre\": \"Short and clear title\",
+                                          \"question\": \"Precise pedagogical question\",
+                                          \"reponse\": \"Complete and correct answer\",
+                                          \"description\": \"Explanation or context (or empty if unnecessary)\",
+                                          \"niveauDifficulte\": integer between 1 and 5,
+                                          \"etat\": \"actif\"
+                                        }"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'generationConfig' => [
+                            'temperature' => 0.7,
+                            'maxOutputTokens' => 2048,
+                        ]
+                    ]
+                ]
+            );
+
+            $data = $response->toArray();
+            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+            // Aggressive cleanup (Gemini likes to add markdown)
+            $text = trim($text);
+            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
+            $text = preg_replace('/\s*```$/', '', $text);
+
+            $flashcardsData = json_decode($text, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($flashcardsData)) {
+                throw new \Exception('Invalid JSON response from Gemini (' . json_last_error_msg() . '). Raw response: ' . substr($text, 0, 200));
+            }
+
+            $currentUser = $this->getUser();
+            $count = 0;
+
+            foreach ($flashcardsData as $item) {
+                if (empty($item['question']) || empty($item['reponse'])) {
+                    continue;
+                }
+
+                $flashcard = new Flashcard();
+                $flashcard->setDeck($deck);
+                $flashcard->setCreatedBy($currentUser);
+                $flashcard->setTitre($item['titre'] ?? 'AI-generated Flashcard');
+                $flashcard->setQuestion($item['question']);
+                $flashcard->setReponse($item['reponse']);
+                $flashcard->setDescription($item['description'] ?? null);
+                $flashcard->setNiveauDifficulte($item['niveauDifficulte'] ?? 3);
+                $flashcard->setEtat($item['etat'] ?? 'actif');
+
+                $em->persist($flashcard);
+                $count++;
+            }
+
+            if ($count > 0) {
+                $em->flush();
+                $this->addFlash('success', $count . ' flashcards generated successfully via AI!');
+            } else {
+                $this->addFlash('warning', 'No valid flashcards could be created.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'AI generation error: ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);

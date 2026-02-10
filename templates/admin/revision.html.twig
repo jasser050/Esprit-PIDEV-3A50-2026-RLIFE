@@ -84,7 +84,14 @@
         color: #64748b;
     }
     
-    .filter-label.dark {
+    .filter-label.dark,
+    label.filter-label.dark {
+        color: #94a3b8;
+    }
+    
+    /* Dark mode for filter labels */
+    .dark .filter-label,
+    .dark label.filter-label {
         color: #94a3b8;
     }
     
@@ -105,14 +112,30 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
-    .filter-select.dark {
+    .filter-select.dark,
+    select.filter-select.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
     
-    .filter-select.dark:focus {
+    .filter-select.dark:focus,
+    select.filter-select.dark:focus {
         border-color: #60a5fa;
+    }
+    
+    /* Dark mode for filter select options */
+    .dark .filter-select,
+    .dark select.filter-select {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: white;
+    }
+    
+    .dark .filter-select option,
+    .dark select.filter-select option {
+        background-color: #1e293b;
+        color: white;
     }
     
     /* Recherche par date */
@@ -137,10 +160,23 @@
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
-    .date-input.dark {
+    .date-input.dark,
+    input.date-input.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
+    }
+    
+    /* Dark mode for date inputs */
+    .dark .date-input,
+    .dark input.date-input {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: white;
+    }
+    
+    .dark .date-input::-webkit-calendar-picker-indicator {
+        filter: invert(1);
     }
     
     /* Boutons de tri */
@@ -659,13 +695,13 @@
                         </div>
 
                         <div class="flex justify-end gap-3">
-                            <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.id}) }}"
+                            <a href="{{ path('app_admin_deck_edit', {'id': deck.id}) }}"
                                class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
                                style="background-color: {{ palette.bg }}; color: {{ palette.text }};">
                                 <i data-lucide="pencil" class="w-5 h-5"></i>
                             </a>
                             
-                            <form method="post" action="{{ path('app_admin_deck_delete', {'id_deck': deck.id}) }}"
+                            <form method="post" action="{{ path('app_admin_deck_delete', {'id': deck.id}) }}"
                                   onsubmit="return confirm('Really delete this deck?');" class="inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.id) }}">
                                 <button type="submit" class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110">
@@ -1019,6 +1055,11 @@ document.addEventListener('DOMContentLoaded', function() {
         progressFilter.classList.add('dark');
         sortButtons.forEach(button => button.classList.add('dark'));
         resetButton.classList.add('dark');
+        
+        // Add dark mode to labels
+        document.querySelectorAll('.filter-label').forEach(label => {
+            label.classList.add('dark');
+        });
     }
 });
 </script>
