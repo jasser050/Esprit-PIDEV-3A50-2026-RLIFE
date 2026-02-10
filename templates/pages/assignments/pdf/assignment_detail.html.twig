@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ assignment.titre }}</title>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+            color: white;
+            padding: 25px;
+            margin: -20px -20px 30px -20px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 26px;
+        }
+        .header .meta {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .badge-primary { background-color: #4f46e5; color: white; }
+        .badge-success { background-color: #22c55e; color: white; }
+        .badge-warning { background-color: #f59e0b; color: white; }
+        .badge-danger { background-color: #ef4444; color: white; }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .priority-haute {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 2px solid #ef4444;
+        }
+        .priority-moyenne {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 2px solid #f59e0b;
+        }
+        .priority-basse {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 2px solid #3b82f6;
+        }
+        
+        .stats-grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 25px;
+            border-collapse: collapse;
+        }
+        .stat-box {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+        }
+        .stat-box .icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+        .stat-box .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #4f46e5;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .stat-box .label {
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4f46e5;
+            margin: 0 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4f46e5;
+        }
+        .info-row {
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            height: 25px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            background: #4f46e5;
+            height: 100%;
+            line-height: 25px;
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 11px;
+        }
+        .progress-fill.warning {
+            background: #f59e0b;
+        }
+        .progress-fill.success {
+            background: #22c55e;
+        }
+        .progress-fill.danger {
+            background: #ef4444;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .alert-danger {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+        .alert-warning {
+            background-color: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            color: #92400e;
+        }
+        .alert-success {
+            background-color: #dcfce7;
+            border-left: 4px solid #22c55e;
+            color: #166534;
+        }
+        .alert-info {
+            background-color: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            color: #1e40af;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: -26px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            background: #4f46e5;
+        }
+        .timeline-marker.success {
+            background: #22c55e;
+        }
+        .timeline-marker.warning {
+            background: #f59e0b;
+        }
+        .timeline-marker.danger {
+            background: #ef4444;
+        }
+        .timeline-content {
+            padding-left: 10px;
+        }
+        .timeline-content .title {
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+        }
+        .timeline-content .date {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 15px;
+        }
+        
+        .project-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4f46e5;
+        }
+        .project-info .project-title {
+            font-weight: bold;
+            color: #4f46e5;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .project-info .project-desc {
+            font-size: 11px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ assignment.titre }}</h1>
+        <div class="meta">
+            <strong>Créé le :</strong> {{ assignment.createdAt|date('d/m/Y à H:i') }}
+            {% if assignment.updatedAt %}
+                | <strong>Modifié le :</strong> {{ assignment.updatedAt|date('d/m/Y à H:i') }}
+            {% endif %}
+            
+            {# Badge Statut #}
+            {% if assignment.statut == 'En cours' %}
+                <span class="badge badge-primary">{{ assignment.statut }}</span>
+            {% elseif assignment.statut == 'Terminé' %}
+                <span class="badge badge-success">{{ assignment.statut }}</span>
+            {% elseif assignment.statut == 'À faire' %}
+                <span class="badge badge-warning">{{ assignment.statut }}</span>
+            {% else %}
+                <span class="badge badge-danger">{{ assignment.statut }}</span>
+            {% endif %}
+            
+            {# Badge Priorité #}
+            {% if assignment.priorite == 'Haute' %}
+                <span class="priority-badge priority-haute">↑ {{ assignment.priorite }}</span>
+            {% elseif assignment.priorite == 'Moyenne' %}
+                <span class="priority-badge priority-moyenne">− {{ assignment.priorite }}</span>
+            {% else %}
+                <span class="priority-badge priority-basse">↓ {{ assignment.priorite }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    {# Alerte si en retard #}
+    {% set now = date() %}
+    {% set isOverdue = assignment.dateFin < now and assignment.statut != 'Terminé' %}
+    {% if isOverdue %}
+        <div class="alert alert-danger">
+            <strong>⚠ ATTENTION :</strong> Cette tâche est en retard ! L'échéance était le {{ assignment.dateFin|date('d/m/Y') }}.
+        </div>
+    {% endif %}
+
+    {# Statistiques #}
+    {% set totalDays = date_diff(assignment.dateDebut, assignment.dateFin).days %}
+    {% set elapsedDays = date_diff(assignment.dateDebut, now).days %}
+    {% set remainingDays = date_diff(now, assignment.dateFin).days %}
+    {% set progress = totalDays > 0 ? ((elapsedDays / totalDays * 100) > 100 ? 100 : (elapsedDays / totalDays * 100))|round(0) : 0 %}
+    
+    <div class="stats-grid">
+        <div class="stat-box">
+            <div class="icon">📅</div>
+            <span class="value">{{ totalDays }}</span>
+            <span class="label">Durée Totale (jours)</span>
+        </div>
+        <div class="stat-box">
+            <div class="icon">⏳</div>
+            <span class="value">{{ elapsedDays }}</span>
+            <span class="label">Temps Écoulé (jours)</span>
+        </div>
+        <div class="stat-box">
+            <div class="icon">🕐</div>
+            <span class="value">{{ remainingDays >= 0 ? remainingDays : 0 }}</span>
+            <span class="label">Jours Restants</span>
+        </div>
+        <div class="stat-box">
+            <div class="icon">
+                {% if assignment.priorite == 'Haute' %}🔴
+                {% elseif assignment.priorite == 'Moyenne' %}🟡
+                {% else %}🔵
+                {% endif %}
+            </div>
+            <span class="value" style="font-size: 16px;">{{ assignment.priorite }}</span>
+            <span class="label">Priorité</span>
+        </div>
+    </div>
+
+    {# Progression #}
+    <div class="section">
+        <h2 class="section-title">📊 Progression Temporelle</h2>
+        <div class="progress-bar">
+            <div class="progress-fill {% if progress >= 100 %}success{% elseif progress >= 75 %}warning{% else %}{% endif %}" 
+                 style="width: {{ progress }}%;">
+                {{ progress }}%
+            </div>
+        </div>
+        {% if progress < 50 %}
+            <div class="alert alert-info" style="margin-top: 15px;">
+                ℹ️ Vous êtes dans les temps ! {{ progress }}% du temps s'est écoulé.
+            </div>
+        {% elseif progress < 100 %}
+            <div class="alert alert-warning" style="margin-top: 15px;">
+                ⚠️ Attention ! {{ progress }}% du temps s'est écoulé, il faut accélérer.
+            </div>
+        {% else %}
+            <div class="alert alert-danger" style="margin-top: 15px;">
+                🚨 Échéance dépassée ! Cette tâche nécessite une attention immédiate.
+            </div>
+        {% endif %}
+    </div>
+
+    {# Informations de la tâche #}
+    <div class="section">
+        <h2 class="section-title">ℹ️ Informations de la Tâche</h2>
+        
+        <div class="info-row">
+            <div class="info-label">Date de Début</div>
+            <div class="info-value">{{ assignment.dateDebut|date('d/m/Y') }} ({{ assignment.dateDebut|date('l') }})</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">Date d'Échéance</div>
+            <div class="info-value">
+                {{ assignment.dateFin|date('d/m/Y') }} ({{ assignment.dateFin|date('l') }})
+                {% if isOverdue %}
+                    <span style="color: #ef4444; font-weight: bold; margin-left: 10px;">⚠ EN RETARD</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">Description Détaillée</div>
+            <div class="info-value" style="line-height: 1.8;">{{ assignment.description|nl2br }}</div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">Statut Actuel</div>
+            <div class="info-value">
+                {% if assignment.statut == 'En cours' %}
+                    <span class="badge badge-primary">{{ assignment.statut }}</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">La tâche est en cours de réalisation</span>
+                {% elseif assignment.statut == 'Terminé' %}
+                    <span class="badge badge-success">{{ assignment.statut }}</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">✓ Tâche complétée avec succès</span>
+                {% elseif assignment.statut == 'À faire' %}
+                    <span class="badge badge-warning">{{ assignment.statut }}</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">Tâche non commencée</span>
+                {% else %}
+                    <span class="badge badge-danger">{{ assignment.statut }}</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">Tâche annulée</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="info-row">
+            <div class="info-label">Niveau de Priorité</div>
+            <div class="info-value">
+                {% if assignment.priorite == 'Haute' %}
+                    <span class="priority-badge priority-haute">↑ Priorité HAUTE</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">⚠️ Nécessite une attention immédiate</span>
+                {% elseif assignment.priorite == 'Moyenne' %}
+                    <span class="priority-badge priority-moyenne">− Priorité MOYENNE</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">📌 À traiter dans les prochains jours</span>
+                {% else %}
+                    <span class="priority-badge priority-basse">↓ Priorité BASSE</span>
+                    <span style="color: #666; margin-left: 10px; font-size: 11px;">📋 Peut attendre si nécessaire</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Projet associé #}
+    <div class="section">
+        <h2 class="section-title">📁 Projet Associé</h2>
+        <div class="project-info">
+            <div class="project-title">{{ assignment.project.titre }}</div>
+            <div class="project-desc">{{ assignment.project.description }}</div>
+            <div style="margin-top: 10px; font-size: 11px;">
+                <strong>Période du projet :</strong> 
+                {{ assignment.project.dateDebut|date('d/m/Y') }} → {{ assignment.project.dateFin|date('d/m/Y') }}
+            </div>
+            <div style="margin-top: 5px; font-size: 11px;">
+                <strong>Statut du projet :</strong> 
+                {% if assignment.project.statut == 'En cours' %}
+                    <span class="badge badge-primary">{{ assignment.project.statut }}</span>
+                {% elseif assignment.project.statut == 'Terminé' %}
+                    <span class="badge badge-success">{{ assignment.project.statut }}</span>
+                {% else %}
+                    <span class="badge badge-warning">{{ assignment.project.statut }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Timeline #}
+    <div class="section">
+        <h2 class="section-title">⏱️ Timeline</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="title">Début de la tâche</div>
+                    <div class="date">{{ assignment.dateDebut|date('d/m/Y à H:i') }}</div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker {% if now < assignment.dateFin %}warning{% else %}danger{% endif %}"></div>
+                <div class="timeline-content">
+                    <div class="title">Aujourd'hui</div>
+                    <div class="date">{{ 'now'|date('d/m/Y à H:i') }}</div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker {% if now > assignment.dateFin %}danger{% elseif assignment.statut == 'Terminé' %}success{% else %}{% endif %}"></div>
+                <div class="timeline-content">
+                    <div class="title">Échéance</div>
+                    <div class="date">{{ assignment.dateFin|date('d/m/Y à H:i') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Recommandations #}
+    <div class="section">
+        <h2 class="section-title">💡 Recommandations</h2>
+        {% if assignment.statut == 'Terminé' %}
+            <div class="alert alert-success">
+                ✓ <strong>Bravo !</strong> Cette tâche a été complétée avec succès.
+            </div>
+        {% elseif isOverdue %}
+            <div class="alert alert-danger">
+                🚨 <strong>Action urgente requise :</strong> Cette tâche est en retard. Contactez votre équipe pour réorganiser les priorités.
+            </div>
+        {% elseif progress >= 75 %}
+            <div class="alert alert-warning">
+                ⏰ <strong>Attention au délai :</strong> Il ne reste que {{ remainingDays }} jour(s) pour terminer cette tâche.
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                ℹ️ <strong>Tout va bien :</strong> Vous êtes dans les temps. Continuez sur cette lancée !
+            </div>
+        {% endif %}
+        
+        {% if assignment.priorite == 'Haute' %}
+            <div class="alert alert-warning" style="margin-top: 10px;">
+                ⚠️ <strong>Priorité haute :</strong> Cette tâche nécessite une attention particulière et doit être traitée en priorité.
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        Document généré le {{ generatedAt|date('d/m/Y à H:i') }}<br>
+        © {{ 'now'|date('Y') }} - Système de Gestion de Tâches
+    </div>
+</body>
+</html>

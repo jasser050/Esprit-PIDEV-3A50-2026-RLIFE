@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Supprimer la Tâche{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Breadcrumbs -->
+    <nav class="text-sm">
+        <ol class="flex items-center gap-2">
+            <li><a href="{{ path('app_assignments') }}" class="text-primary hover:underline">Tâches</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li><a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="text-primary hover:underline">{{ assignment.titre }}</a></li>
+            <li class="text-light-muted dark:text-dark-muted">/</li>
+            <li class="text-light-muted dark:text-dark-muted">Supprimer</li>
+        </ol>
+    </nav>
+
+    <div class="card p-8">
+        <div class="flex justify-center mb-6">
+            <div class="w-16 h-16 rounded-full bg-danger/10 flex items-center justify-center">
+                <svg class="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="text-2xl font-bold text-center mb-2">Supprimer la Tâche</h1>
+        <p class="text-center text-light-muted dark:text-dark-muted mb-6">
+            Êtes-vous sûr de vouloir supprimer cette tâche ?
+        </p>
+
+        <div class="bg-light-surface dark:bg-dark-surface rounded-lg p-4 mb-6">
+            <div class="flex items-start justify-between mb-2">
+                <h3 class="font-semibold text-lg">{{ assignment.titre }}</h3>
+                <span class="badge 
+                    {% if assignment.statut == 'En cours' %}badge-primary
+                    {% elseif assignment.statut == 'Terminé' %}badge-success
+                    {% elseif assignment.statut == 'À faire' %}badge-warning
+                    {% else %}badge-danger{% endif %}">
+                    {{ assignment.statut }}
+                </span>
+            </div>
+            <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ assignment.description|slice(0, 120) }}...</p>
+            <div class="text-xs text-light-muted dark:text-dark-muted">
+                {{ assignment.dateDebut|date('d/m/Y') }} - {{ assignment.dateFin|date('d/m/Y') }}
+                • Projet : {{ assignment.project.titre }}
+            </div>
+        </div>
+
+        <div class="bg-danger/10 border border-danger/30 rounded-lg p-4 mb-6">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-danger flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <h4 class="font-semibold text-danger mb-1">Action irréversible</h4>
+                    <p class="text-sm text-danger-foreground/90">
+                        La suppression de cette tâche est définitive.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" action="{{ path('app_assignments_delete', {'id': assignment.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ assignment.id) }}">
+
+            <div class="flex items-center justify-center gap-3">
+                <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="btn btn-ghost">
+                    Non, Annuler
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    Oui, Supprimer Définitivement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

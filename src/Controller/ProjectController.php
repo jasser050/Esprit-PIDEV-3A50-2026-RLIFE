@@ -2,131 +2,207 @@
 
 namespace App\Controller;
 
-use App\Data\SampleData;
+use App\Entity\Project;
+use App\Form\ProjectType;
+use App\Form\ProjectFilterType;
+use App\Repository\ProjectRepository;
+use App\Repository\AssignmentRepository;
+use App\Service\ProjectPdfService;
+use App\Service\ProjectStatsService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/projects')]
+#[Route('/project')]
+#[IsGranted('ROLE_USER')]
 class ProjectController extends AbstractController
 {
-    #[Route('', name: 'app_projects')]
-    public function index(): Response
-    {
-        $projects = SampleData::getProjects();
-        $tasks = SampleData::getKanbanTasks();
+    #[Route('/', name: 'app_project_index', methods: ['GET'])]
+    public function index(
+        Request $request,
+        ProjectRepository $projectRepository,
+        ProjectStatsService $statsService
+    ): Response {
+        $sort      = $request->query->getString('sort', 'createdAt');
+        $direction = $request->query->getString('direction', 'DESC');
+        $statut    = $request->query->getString('statut', '');
+        $search    = $request->query->getString('search', '');
 
-        // Group tasks by project
-        $tasksByProject = [];
-        foreach ($tasks as $task) {
-            $pid = $task['project_id'];
-            if (!isset($tasksByProject[$pid])) {
-                $tasksByProject[$pid] = ['todo' => [], 'in_progress' => [], 'done' => []];
-            }
-            $tasksByProject[$pid][$task['status']][] = $task;
+        // Liste des champs autorisés pour éviter les injections
+        $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
+
+        if (!in_array($sort, $allowedSortFields, true)) {
+            $sort = 'createdAt';
         }
 
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+        // Récupération des projets avec filtres
+        $projects = $projectRepository->findByUserWithFilters(
+            user: $this->getUser(),
+            sort: $sort,
+            direction: $direction,
+            statut: $statut,
+            search: $search
+        );
+
+        // Statistiques
+        $stats = $statsService->getProjectStats($this->getUser());
+
         return $this->render('pages/projects/index.html.twig', [
-            'projects' => $projects,
-            'tasks_by_project' => $tasksByProject,
+            'projects'  => $projects,
+            'sort'      => $sort,
+            'direction' => strtolower($direction),
+            'statut'    => $statut,
+            'search'    => $search,
+            'stats'     => $stats,
         ]);
     }
 
-    #[Route('/new', name: 'app_projects_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
-    {
-        if ($request->isMethod('POST')) {
-            // In a real app, we would save the project to the database
-            $this->addFlash('success', 'Project created successfully!');
-            return $this->redirectToRoute('app_projects');
+    #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $project = new Project();
+        $form = $this->createForm(ProjectType::class, $project);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $project->setUser($this->getUser());
+
+            $entityManager->persist($project);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Projet créé avec succès !');
+
+            return $this->redirectToRoute('app_project_index');
         }
 
         return $this->render('pages/projects/new.html.twig', [
-            'courses' => SampleData::getCourses(),
+            'project' => $project,
+            'form'    => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_projects_show', requirements: ['id' => '\d+'])]
-    public function show(int $id): Response
-    {
-        $projects = SampleData::getProjects();
-        $project = null;
-        foreach ($projects as $p) {
-            if ($p['id'] === $id) {
-                $project = $p;
-                break;
-            }
+    #[Route('/{id}', name: 'app_project_show', methods: ['GET'])]
+    public function show(
+        Project $project,
+        AssignmentRepository $assignmentRepository,
+        ProjectStatsService $statsService
+    ): Response {
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        if (!$project) {
-            throw $this->createNotFoundException('Project not found');
-        }
-
-        // Get tasks for this project
-        $allTasks = SampleData::getKanbanTasks();
-        $tasks = ['todo' => [], 'in_progress' => [], 'done' => []];
-        foreach ($allTasks as $task) {
-            if ($task['project_id'] === $id) {
-                $tasks[$task['status']][] = $task;
-            }
-        }
-
-        $totalTasks = count($tasks['todo']) + count($tasks['in_progress']) + count($tasks['done']);
+        $assignments = $assignmentRepository->findByProject($project);
+        $projectStats = $statsService->getSingleProjectStats($project);
 
         return $this->render('pages/projects/show.html.twig', [
-            'project' => $project,
-            'tasks' => $tasks,
-            'total_tasks' => $totalTasks,
+            'project'      => $project,
+            'assignments'  => $assignments,
+            'projectStats' => $projectStats,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_projects_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, int $id): Response
-    {
-        $projects = SampleData::getProjects();
-        $project = null;
-        foreach ($projects as $p) {
-            if ($p['id'] === $id) {
-                $project = $p;
-                break;
-            }
+    #[Route('/{id}/edit', name: 'app_project_edit', methods: ['GET', 'POST'])]
+    public function edit(
+        Request $request,
+        Project $project,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        if (!$project) {
-            throw $this->createNotFoundException('Project not found');
-        }
+        $form = $this->createForm(ProjectType::class, $project);
+        $form->handleRequest($request);
 
-        if ($request->isMethod('POST')) {
-            // In a real app, we would update the project in the database
-            $this->addFlash('success', 'Project updated successfully!');
-            return $this->redirectToRoute('app_projects_show', ['id' => $id]);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Projet modifié avec succès !');
+
+            return $this->redirectToRoute('app_project_index');
         }
 
         return $this->render('pages/projects/edit.html.twig', [
             'project' => $project,
-            'courses' => SampleData::getCourses(),
+            'form'    => $form,
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_projects_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(int $id): Response
-    {
-        $projects = SampleData::getProjects();
-        $project = null;
-        foreach ($projects as $p) {
-            if ($p['id'] === $id) {
-                $project = $p;
-                break;
-            }
+    #[Route('/{id}/delete', name: 'app_project_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        Project $project,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
         }
 
-        if (!$project) {
-            throw $this->createNotFoundException('Project not found');
+        if ($this->isCsrfTokenValid('delete' . $project->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($project);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Projet supprimé avec succès !');
         }
 
-        // In a real app, we would delete the project from the database
-        $this->addFlash('success', 'Project deleted successfully!');
-        return $this->redirectToRoute('app_projects');
+        return $this->redirectToRoute('app_project_index');
+    }
+
+    #[Route('/export/pdf', name: 'app_project_export_pdf', methods: ['GET'])]
+    public function exportPdf(
+        Request $request,
+        ProjectRepository $projectRepository,
+        ProjectPdfService $pdfService
+    ): Response {
+        $statut = $request->query->getString('statut', '');
+        $search = $request->query->getString('search', '');
+
+        $projects = $projectRepository->findByUserWithFilters(
+            user: $this->getUser(),
+            sort: 'createdAt',
+            direction: 'DESC',
+            statut: $statut,
+            search: $search
+        );
+
+        return $pdfService->generateProjectListPdf($projects, $this->getUser());
+    }
+
+    #[Route('/{id}/export/pdf', name: 'app_project_export_single_pdf', methods: ['GET'])]
+    public function exportSinglePdf(
+        Project $project,
+        AssignmentRepository $assignmentRepository,
+        ProjectPdfService $pdfService
+    ): Response {
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $assignments = $assignmentRepository->findByProject($project);
+
+        return $pdfService->generateSingleProjectPdf($project, $assignments);
+    }
+
+    #[Route('/stats/data', name: 'app_project_stats_data', methods: ['GET'])]
+    public function statsData(
+        ProjectStatsService $statsService
+    ): Response {
+        $stats = $statsService->getProjectStats($this->getUser());
+        
+        return $this->json([
+            'total' => $stats['total'],
+            'enCours' => $stats['enCours'],
+            'termines' => $stats['termines'],
+            'enAttente' => $stats['enAttente'],
+            'enRetard' => $stats['enRetard'],
+            'chartData' => $stats['chartData'],
+        ]);
     }
 }
