@@ -155,22 +155,8 @@
 {{ parent() }}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Initialize icons
-    lucide.createIcons();
-    
-    // Close modal with ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeModal();
-      }
-    });
-    
-    console.log('✅ Edit page initialized');
-  });
-  
-  // Show delete confirmation modal (global function)
-  function confirmDelete() {
+  // Define functions in global scope immediately
+  window.confirmDelete = function() {
     console.log('Delete button clicked');
     const modal = document.getElementById('delete-modal');
     console.log('Modal element:', modal);
@@ -182,22 +168,40 @@
       
       // Reinitialize icons in the modal
       setTimeout(() => {
-        lucide.createIcons();
-        console.log('Icons reinitialized');
+        if (typeof lucide !== 'undefined') {
+          lucide.createIcons();
+          console.log('Icons reinitialized');
+        }
       }, 10);
     } else {
       console.error('❌ Modal not found!');
     }
-  }
+  };
   
-  // Close modal (global function)
-  function closeModal() {
+  window.closeModal = function() {
     console.log('Closing modal');
     const modal = document.getElementById('delete-modal');
     if (modal) {
       modal.classList.add('hidden');
       console.log('Modal hidden');
     }
-  }
+  };
+  
+  // Initialize when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Edit page initialized');
+    
+    // Initialize icons
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+    
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        window.closeModal();
+      }
+    });
+  });
 </script>
 {% endblock %}
