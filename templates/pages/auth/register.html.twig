@@ -73,7 +73,7 @@
             </div>
 
             <!-- Registration Form -->
-            <form action="{{ path('app_register') }}" method="POST" data-turbo="false">
+            <form action="{{ path('app_register') }}" method="POST" data-turbo="false" novalidate>
                 <!-- Step 1: Account Details -->
                 <div data-wizard-target="step" class="space-y-5">
                     <!-- First Name -->
@@ -86,11 +86,18 @@
                                 type="text"
                                 id="first_name"
                                 name="first_name"
-                                required
+                                value="{{ old.first_name ?? '' }}"
                                 autocomplete="given-name"
                                 placeholder="John"
-                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.first_name is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'first_name' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
+                            <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 2 characters, letters only (spaces, hyphens, apostrophes allowed)</p>
+                            {% if errors.first_name is defined %}
+                                <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                    <span>{{ errors.first_name }}</span>
+                                </div>
+                            {% endif %}
                         </div>
                         <div>
                             <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
@@ -100,11 +107,18 @@
                                 type="text"
                                 id="last_name"
                                 name="last_name"
-                                required
+                                value="{{ old.last_name ?? '' }}"
                                 autocomplete="family-name"
                                 placeholder="Doe"
-                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.last_name is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'last_name' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
+                            <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 2 characters, letters only (spaces, hyphens, apostrophes allowed)</p>
+                            {% if errors.last_name is defined %}
+                                <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                    <span>{{ errors.last_name }}</span>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -117,11 +131,18 @@
                             type="text"
                             id="username"
                             name="username"
-                            required
+                            value="{{ old.username ?? '' }}"
                             autocomplete="username"
                             placeholder="johndoe"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.username is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'username' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
+                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 3 characters, letters, numbers and underscores only</p>
+                        {% if errors.username is defined %}
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ errors.username }}</span>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- Email -->
@@ -130,15 +151,21 @@
                             Email address
                         </label>
                         <input
-                            type="email"
+                            type="text"
                             id="email"
                             name="email"
-                            required
+                            value="{{ old.email ?? '' }}"
                             autocomplete="email"
                             placeholder="you@university.edu"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.email is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'email' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
                         <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Use your .edu email for free access</p>
+                        {% if errors.email is defined %}
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ errors.email }}</span>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- Password -->
@@ -146,52 +173,21 @@
                         <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Password
                         </label>
-                        <div class="relative">
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
-                                required
                                 autocomplete="new-password"
                                 placeholder="Create a strong password"
-                                data-password-target="input"
-                                class="block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
-                            <button
-                                type="button"
-                                data-password-target="toggle"
-                                data-action="click->password#toggleVisibility"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                            >
-                                <i data-lucide="eye" class="w-5 h-5 icon-show"></i>
-                                <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
-                            </button>
-                        </div>
-
-                        <!-- Password strength meter -->
-                        <div class="mt-3">
-                            <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                                <div class="h-full w-0 transition-all duration-300" data-password-target="strength"></div>
+                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 8 characters, must include uppercase, lowercase and number</p>
+                        {% if errors.password is defined %}
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ errors.password }}</span>
                             </div>
-                            <div class="mt-2 grid grid-cols-2 gap-2 text-xs" data-password-target="requirements">
-                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="length">
-                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
-                                    8+ characters
-                                </span>
-                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="lowercase">
-                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
-                                    Lowercase letter
-                                </span>
-                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="uppercase">
-                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
-                                    Uppercase letter
-                                </span>
-                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="number">
-                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
-                                    Number
-                                </span>
-                            </div>
-                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Confirm Password -->
@@ -203,25 +199,37 @@
                             type="password"
                             id="confirm_password"
                             name="confirm_password"
-                            required
                             autocomplete="new-password"
                             placeholder="Confirm your password"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.confirm_password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'confirm_password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
+                        {% if errors.confirm_password is defined %}
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ errors.confirm_password }}</span>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- Terms -->
-                    <div class="flex items-start gap-3">
-                        <input
-                            type="checkbox"
-                            id="terms"
-                            name="terms"
-                            required
-                            class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
-                        >
-                        <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
-                            I agree to the <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
-                        </label>
+                    <div>
+                        <div class="flex items-start gap-3">
+                            <input
+                                type="checkbox"
+                                id="terms"
+                                name="terms"
+                                class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
+                            >
+                            <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
+                                I agree to the <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
+                            </label>
+                        </div>
+                        {% if errors.terms is defined %}
+                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                <span>{{ errors.terms }}</span>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -234,14 +242,14 @@
                         </label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="gender" value="male" class="peer sr-only" checked required>
+                                <input type="radio" name="gender" value="male" class="peer sr-only" checked>
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="gender" value="female" class="peer sr-only" required>
+                                <input type="radio" name="gender" value="female" class="peer sr-only">
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>

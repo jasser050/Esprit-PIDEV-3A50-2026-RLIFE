@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\UserSettings;
+use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,14 +48,20 @@ class PublicController extends AbstractController
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
+        $errors = [];
+        $validFields = [];
+        $submitted = false;
         
         if ($request->isMethod('POST')) {
+            $submitted = true;
             // Get form data - Step 1
             $email = $request->request->get('email');
             $password = $request->request->get('password');
+            $confirmPassword = $request->request->get('confirm_password');
             $firstName = $request->request->get('first_name');
             $lastName = $request->request->get('last_name');
             $username = $request->request->get('username');
+            $terms = $request->request->get('terms');
             
             // Get form data - Step 2
             $gender = $request->request->get('gender', 'male');
@@ -63,80 +70,133 @@ class PublicController extends AbstractController
             $interests = $request->request->all('interests') ?? [];
             $notifications = $request->request->get('notifications') ? true : false;
             
-            // Validate required fields
-            if (!$email || !$password || !$firstName || !$lastName || !$username) {
-                $this->addFlash('error', 'Please fill in all required fields.');
-                return $this->redirectToRoute('app_register');
+            // Server-side validation
+            if (!$firstName || strlen($firstName) < 2) {
+                $errors['first_name'] = 'First name must be at least 2 characters';
+            } elseif (!preg_match('/^[a-zA-Z\s\-\']+$/', $firstName)) {
+                $errors['first_name'] = 'First name can only contain letters, spaces, hyphens and apostrophes';
+            } else {
+                $validFields[] = 'first_name';
             }
             
-            // Check if user already exists
-            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
-            if ($existingUser) {
-                $this->addFlash('error', 'An account with this email already exists.');
-                return $this->redirectToRoute('app_register');
+            if (!$lastName || strlen($lastName) < 2) {
+                $errors['last_name'] = 'Last name must be at least 2 characters';
+            } elseif (!preg_match('/^[a-zA-Z\s\-\']+$/', $lastName)) {
+                $errors['last_name'] = 'Last name can only contain letters, spaces, hyphens and apostrophes';
+            } else {
+                $validFields[] = 'last_name';
             }
             
-            // Check if username already exists
-            $existingUsername = $entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
-            if ($existingUsername) {
-                $this->addFlash('error', 'This username is already taken. Please choose another one.');
-                return $this->redirectToRoute('app_register');
-            }
-            
-            try {
-                // Create new user
-                $user = new User();
-                $user->setEmail($email);
-                $user->setFirstName($firstName);
-                $user->setLastName($lastName);
-                $user->setUsername($username);
-                $user->setGender($gender);
-                
-                // Hash password
-                $hashedPassword = $passwordHasher->hashPassword($user, $password);
-                $user->setPassword($hashedPassword);
-                
-                // Create user settings with preferences
-                $settings = new UserSettings();
-                $settings->setUser($user);
-                $settings->setStudyLevel($studyLevel);
-                $settings->setWeeklyGoal((int)$weeklyGoal);
-                $settings->setInterests($interests);
-                $settings->setNotificationEnabled($notifications);
-                $settings->setEmailNotifications($notifications);
-                $settings->setThemePreference('light');
-                $settings->setLanguage('en');
-                
-                $user->setSettings($settings);
-                
-                // Save user
-                $entityManager->persist($user);
-                $entityManager->persist($settings);
-                $entityManager->flush();
-                
-                // Send automatic welcome email
-                try {
-                    $welcomeEmail = (new Email())
-                        ->from('jasserbalti555@gmail.com')
-                        ->to($user->getEmail())
-                        ->subject('Welcome to RLIFE - Your Student Life Management Platform')
-                        ->html($this->getWelcomeEmailHtml($user));
-                    
-                    $mailer->send($welcomeEmail);
-                } catch (\Exception $e) {
-                    // Log error but don't block registration
-                    // User is created successfully even if email fails
+            if (!$username || strlen($username) < 3) {
+                $errors['username'] = 'Username must be at least 3 characters';
+            } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+                $errors['username'] = 'Username can only contain letters, numbers and underscores';
+            } else {
+                $existingUsername = $entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+                if ($existingUsername) {
+                    $errors['username'] = 'This username is already taken';
+                } else {
+                    $validFields[] = 'username';
                 }
-                
-                $this->addFlash('success', 'Account created successfully! Please log in.');
-                return $this->redirectToRoute('app_login');
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
-                return $this->redirectToRoute('app_register');
+            }
+            
+            if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors['email'] = 'Please enter a valid email address';
+            } else {
+                $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+                if ($existingUser) {
+                    $errors['email'] = 'An account with this email already exists';
+                } else {
+                    $validFields[] = 'email';
+                }
+            }
+            
+            if (!$password || strlen($password) < 8) {
+                $errors['password'] = 'Password must be at least 8 characters';
+            } elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/', $password)) {
+                $errors['password'] = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
+            } else {
+                $validFields[] = 'password';
+            }
+            
+            if ($password !== $confirmPassword) {
+                $errors['confirm_password'] = 'Password confirmation does not match';
+            } else {
+                $validFields[] = 'confirm_password';
+            }
+            
+            if (!$terms) {
+                $errors['terms'] = 'You must agree to the terms and conditions';
+            } else {
+                $validFields[] = 'terms';
+            }
+            
+            if (!$gender || !in_array($gender, ['male', 'female'])) {
+                $errors['gender'] = 'Please select a valid gender';
+            } else {
+                $validFields[] = 'gender';
+            }
+            
+            // If no errors, create user
+            if (empty($errors)) {
+                try {
+                    // Create new user
+                    $user = new User();
+                    $user->setEmail($email);
+                    $user->setFirstName($firstName);
+                    $user->setLastName($lastName);
+                    $user->setUsername($username);
+                    $user->setGender($gender);
+                    
+                    // Hash password
+                    $hashedPassword = $passwordHasher->hashPassword($user, $password);
+                    $user->setPassword($hashedPassword);
+                    
+                    // Create user settings with preferences
+                    $settings = new UserSettings();
+                    $settings->setUser($user);
+                    $settings->setStudyLevel($studyLevel);
+                    $settings->setWeeklyGoal((int)$weeklyGoal);
+                    $settings->setInterests($interests);
+                    $settings->setNotificationEnabled($notifications);
+                    $settings->setEmailNotifications($notifications);
+                    $settings->setThemePreference('light');
+                    $settings->setLanguage('en');
+                    
+                    $user->setSettings($settings);
+                    
+                    // Save user
+                    $entityManager->persist($user);
+                    $entityManager->persist($settings);
+                    $entityManager->flush();
+                    
+                    // Send automatic welcome email
+                    try {
+                        $welcomeEmail = (new Email())
+                            ->from('jasserbalti555@gmail.com')
+                            ->to($user->getEmail())
+                            ->subject('Welcome to RLIFE - Your Student Life Management Platform')
+                            ->html($this->getWelcomeEmailHtml($user));
+                        
+                        $mailer->send($welcomeEmail);
+                    } catch (\Exception $e) {
+                        // Log error but don't block registration
+                    }
+                    
+                    $this->addFlash('success', 'Account created successfully! Please log in.');
+                    return $this->redirectToRoute('app_login');
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                }
             }
         }
         
-        return $this->render('pages/auth/register.html.twig');
+        return $this->render('pages/auth/register.html.twig', [
+            'errors' => $errors,
+            'validFields' => $validFields,
+            'submitted' => $submitted,
+            'old' => $request->request->all()
+        ]);
     }
 
     #[Route('/welcome', name: 'app_welcome')]
