@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\PlanningRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PlanningRepository::class)]
@@ -20,116 +19,62 @@ class Planning
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Seance::class, inversedBy: 'plannings')]
+    #[ORM\ManyToOne(targetEntity: Seance::class)]
     #[ORM\JoinColumn(name: 'seance_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?Seance $seance = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'date_debut', type: 'datetime')]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'date_fin', type: 'datetime')]
     private ?\DateTimeInterface $dateFin = null;
 
-    #[ORM\Column(length: 30, nullable: true)]
-    private ?string $color = null;
+    #[ORM\Column(length: 50, options: ['default' => 'indigo'])]
+    private ?string $color = 'indigo';
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt = null;
+    #[ORM\Column(type: 'smallint', nullable: true)]
+    private ?int $feedback = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $updatedAt = null;
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $createdAt = null;
 
-    public function __construct()
+    #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $updatedAt = null;
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
     {
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $this->createdAt ?? $now;
+        $this->updatedAt = $this->updatedAt ?? $now;
     }
 
     #[ORM\PreUpdate]
-    public function setUpdatedAtValue(): void
+    public function onPreUpdate(): void
     {
-        $this->updatedAt = new \DateTime();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): self { $this->user = $user; return $this; }
 
-    public function setUser(?User $user): static
-    {
-        $this->user = $user;
-        return $this;
-    }
+    public function getSeance(): ?Seance { return $this->seance; }
+    public function setSeance(?Seance $seance): self { $this->seance = $seance; return $this; }
 
-    public function getSeance(): ?Seance
-    {
-        return $this->seance;
-    }
+    public function getDateDebut(): ?\DateTimeInterface { return $this->dateDebut; }
+    public function setDateDebut(\DateTimeInterface $dateDebut): self { $this->dateDebut = $dateDebut; return $this; }
 
-    public function setSeance(?Seance $seance): static
-    {
-        $this->seance = $seance;
-        return $this;
-    }
+    public function getDateFin(): ?\DateTimeInterface { return $this->dateFin; }
+    public function setDateFin(\DateTimeInterface $dateFin): self { $this->dateFin = $dateFin; return $this; }
 
-    public function getDateDebut(): ?\DateTimeInterface
-    {
-        return $this->dateDebut;
-    }
+    public function getColor(): ?string { return $this->color; }
+    public function setColor(?string $color): self { $this->color = $color; return $this; }
 
-    public function setDateDebut(\DateTimeInterface $dateDebut): static
-    {
-        $this->dateDebut = $dateDebut;
-        return $this;
-    }
+    public function getFeedback(): ?int { return $this->feedback; }
+    public function setFeedback(?int $feedback): self { $this->feedback = $feedback; return $this; }
 
-    public function getDateFin(): ?\DateTimeInterface
-    {
-        return $this->dateFin;
-    }
-
-    public function setDateFin(\DateTimeInterface $dateFin): static
-    {
-        $this->dateFin = $dateFin;
-        return $this;
-    }
-
-    public function getColor(): ?string
-    {
-        return $this->color;
-    }
-
-    public function setColor(?string $color): static
-    {
-        $this->color = $color;
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-        return $this;
-    }
+    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
+    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
 }

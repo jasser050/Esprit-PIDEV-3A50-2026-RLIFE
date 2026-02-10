@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Session{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Planning', href: path('app_planning') },
+            { label: 'Add Session' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'Add Session',
+        subtitle: 'Create a new session'
+    } %}
+
+    <form method="post" class="card p-6 space-y-6">
+        {# Title #}
+        {% include 'components/input.html.twig' with {
+            name: 'titre',
+            label: 'Title',
+            type: 'text',
+            required: true,
+            value: ''
+        } %}
+
+        {# Session Type #}
+        {% include 'components/select.html.twig' with {
+    name: 'type_seance_id',
+    label: 'Session Type',
+    required: false,
+    value: '',
+    options: types|default([])|map(t => { value: t.id, label: t.name })
+} %}
+
+        {# Description #}
+        <div class="space-y-2">
+            <label class="text-sm font-medium text-secondary-900 dark:text-white">Description</label>
+            <textarea name="description"
+                      rows="4"
+                      class="w-full rounded-xl border border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+            <a href="{{ path('app_planning') }}" class="btn btn-secondary">Back</a>
+            <button class="btn btn-primary" type="submit">Create</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
