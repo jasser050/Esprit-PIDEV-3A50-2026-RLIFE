@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit QuestionStress{% endblock %}
+
+{% block body %}
+    <h1>Edit QuestionStress</h1>
+
+    {{ include('question_stress/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_question_stress_index') }}">back to list</a>
+
+    {{ include('question_stress/_delete_form.html.twig') }}
+{% endblock %}

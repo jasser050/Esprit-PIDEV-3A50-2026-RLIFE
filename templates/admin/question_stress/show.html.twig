@@ -12,20 +12,24 @@
                 <td>{{ question_stress.id }}</td>
             </tr>
             <tr>
-                <th>Label</th>
-                <td>{{ question_stress.label }}</td>
+                <th>QuestionNumber_ques</th>
+                <td>{{ question_stress.questionNumberQues }}</td>
             </tr>
             <tr>
-                <th>OrderIndex</th>
-                <td>{{ question_stress.orderIndex }}</td>
+                <th>QuestionText_ques</th>
+                <td>{{ question_stress.questionTextQues }}</td>
             </tr>
             <tr>
-                <th>MinValue</th>
-                <td>{{ question_stress.minValue }}</td>
+                <th>IsActive_ques</th>
+                <td>{{ question_stress.isActiveQues ? 'Yes' : 'No' }}</td>
             </tr>
             <tr>
-                <th>MaxValue</th>
-                <td>{{ question_stress.maxValue }}</td>
+                <th>CreatedAt_ques</th>
+                <td>{{ question_stress.createdAtQues ? question_stress.createdAtQues|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt_ques</th>
+                <td>{{ question_stress.updatedAtQues ? question_stress.updatedAtQues|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
         </tbody>
     </table>

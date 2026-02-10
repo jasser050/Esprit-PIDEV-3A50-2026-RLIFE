@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\QuestionStress;
-use App\Form\QuestionStressType;
+use App\Form\QuestionStress1Type;
 use App\Repository\QuestionStressRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,8 +17,8 @@ final class QuestionStressController extends AbstractController
     #[Route(name: 'app_question_stress_index', methods: ['GET'])]
     public function index(QuestionStressRepository $questionStressRepository): Response
     {
-        return $this->render('question_stress/index.html.twig', [
-            'question_stresses' => $questionStressRepository->findAll(),
+        return $this->render('admin/question_stress/index.html.twig', [
+            'questionStresses' => $repo->findAll(),
         ]);
     }
 
@@ -26,7 +26,7 @@ final class QuestionStressController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $questionStress = new QuestionStress();
-        $form = $this->createForm(QuestionStressType::class, $questionStress);
+        $form = $this->createForm(QuestionStress1Type::class, $questionStress);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -53,7 +53,7 @@ final class QuestionStressController extends AbstractController
     #[Route('/{id}/edit', name: 'app_question_stress_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, QuestionStress $questionStress, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(QuestionStressType::class, $questionStress);
+        $form = $this->createForm(QuestionStress1Type::class, $questionStress);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

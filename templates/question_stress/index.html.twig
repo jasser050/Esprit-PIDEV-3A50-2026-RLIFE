@@ -1,43 +1,70 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}QuestionStress index{% endblock %}
+{% block title %}Questions Stress{% endblock %}
+{% block page_title %}Questions Stress{% endblock %}
 
 {% block body %}
-    <h1>QuestionStress index</h1>
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-bold">Questions</h2>
+            <p class="text-slate-500 dark:text-slate-400">Manage QuestionStress questions</p>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>QuestionNumber_ques</th>
-                <th>QuestionText_ques</th>
-                <th>IsActive_ques</th>
-                <th>CreatedAt_ques</th>
-                <th>UpdatedAt_ques</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for question_stress in question_stresses %}
-            <tr>
-                <td>{{ question_stress.id }}</td>
-                <td>{{ question_stress.questionNumberQues }}</td>
-                <td>{{ question_stress.questionTextQues }}</td>
-                <td>{{ question_stress.isActiveQues ? 'Yes' : 'No' }}</td>
-                <td>{{ question_stress.createdAtQues ? question_stress.createdAtQues|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ question_stress.updatedAtQues ? question_stress.updatedAtQues|date('Y-m-d H:i:s') : '' }}</td>
-                <td>
-                    <a href="{{ path('app_question_stress_show', {'id': question_stress.id}) }}">show</a>
-                    <a href="{{ path('app_question_stress_edit', {'id': question_stress.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="7">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+        <a href="{{ path('app_admin_question_stress_new') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            New Question
+        </a>
+    </div>
 
-    <a href="{{ path('app_question_stress_new') }}">Create new</a>
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800/50">
+                <tr class="text-left">
+                    <th class="p-4">ID</th>
+                    <th class="p-4">Number</th>
+                    <th class="p-4">Text</th>
+                    <th class="p-4">Active</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for q in questions %}
+                <tr class="border-t border-slate-100 dark:border-slate-800">
+                    <td class="p-4">{{ q.id }}</td>
+                    <td class="p-4">{{ q.questionNumberQues }}</td>
+                    <td class="p-4">{{ q.questionTextQues }}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 rounded-lg text-xs font-semibold
+                            {{ q.isActiveQues ? 'bg-success-100 text-success-800 dark:bg-success-900/30 dark:text-success-200' : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200' }}">
+                            {{ q.isActiveQues ? 'Yes' : 'No' }}
+                        </span>
+                    </td>
+                    <td class="p-4 text-right">
+                        <a class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700"
+                           href="{{ path('app_admin_question_stress_edit', {id: q.id}) }}">
+                            Edit
+                        </a>
+
+                        <form method="post"
+                              action="{{ path('app_admin_question_stress_delete', {id: q.id}) }}"
+                              class="inline"
+                              onsubmit="return confirm('Delete this question?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ q.id) }}">
+                            <button class="px-3 py-2 rounded-lg bg-danger-100 text-danger-700 dark:bg-danger-900/30 dark:text-danger-200 hover:bg-danger-200 dark:hover:bg-danger-900/50">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td class="p-4 text-slate-500 dark:text-slate-400" colspan="5">No questions found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

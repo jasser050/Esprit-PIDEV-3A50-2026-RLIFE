@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New QuestionStress{% endblock %}
+
+{% block body %}
+    <h1>Create new QuestionStress</h1>
+
+    {{ include('question_stress/_form.html.twig') }}
+
+    <a href="{{ path('app_question_stress_index') }}">back to list</a>
+{% endblock %}

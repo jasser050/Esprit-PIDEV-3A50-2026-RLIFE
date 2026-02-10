@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\QuestionStressRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: QuestionStressRepository::class)]
@@ -14,83 +13,36 @@ class QuestionStress
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $questionNumber_ques = null;
+    #[ORM\ManyToOne(targetEntity: QuizStress::class, inversedBy: 'questions')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?QuizStress $quiz = null;
 
-    #[ORM\Column(type: Types::TEXT)]
-    private ?string $questionText_ques = null;
-
-    #[ORM\Column]
-    private ?bool $isActive_ques = null;
+    #[ORM\Column(length: 255)]
+    private string $label;
 
     #[ORM\Column]
-    private ?\DateTime $createdAt_ques = null;
+    private int $orderIndex = 1; // 1..10
 
-    #[ORM\Column(nullable: true)]
-    private ?\DateTime $updatedAt_ques = null;
+    #[ORM\Column]
+    private int $minValue = 0; // 0
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column]
+    private int $maxValue = 4; // 4
 
-    public function getQuestionNumberQues(): ?int
-    {
-        return $this->questionNumber_ques;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setQuestionNumberQues(int $questionNumber_ques): static
-    {
-        $this->questionNumber_ques = $questionNumber_ques;
+    public function getQuiz(): ?QuizStress { return $this->quiz; }
+    public function setQuiz(?QuizStress $quiz): self { $this->quiz = $quiz; return $this; }
 
-        return $this;
-    }
+    public function getLabel(): string { return $this->label; }
+    public function setLabel(string $label): self { $this->label = $label; return $this; }
 
-    public function getQuestionTextQues(): ?string
-    {
-        return $this->questionText_ques;
-    }
+    public function getOrderIndex(): int { return $this->orderIndex; }
+    public function setOrderIndex(int $orderIndex): self { $this->orderIndex = $orderIndex; return $this; }
 
-    public function setQuestionTextQues(string $questionText_ques): static
-    {
-        $this->questionText_ques = $questionText_ques;
+    public function getMinValue(): int { return $this->minValue; }
+    public function setMinValue(int $minValue): self { $this->minValue = $minValue; return $this; }
 
-        return $this;
-    }
-
-    public function isActiveQues(): ?bool
-    {
-        return $this->isActive_ques;
-    }
-
-    public function setIsActiveQues(bool $isActive_ques): static
-    {
-        $this->isActive_ques = $isActive_ques;
-
-        return $this;
-    }
-
-    public function getCreatedAtQues(): ?\DateTime
-    {
-        return $this->createdAt_ques;
-    }
-
-    public function setCreatedAtQues(\DateTime $createdAt_ques): static
-    {
-        $this->createdAt_ques = $createdAt_ques;
-
-        return $this;
-    }
-
-    public function getUpdatedAtQues(): ?\DateTime
-    {
-        return $this->updatedAt_ques;
-    }
-
-    public function setUpdatedAtQues(?\DateTime $updatedAt_ques): static
-    {
-        $this->updatedAt_ques = $updatedAt_ques;
-
-        return $this;
-    }
+    public function getMaxValue(): int { return $this->maxValue; }
+    public function setMaxValue(int $maxValue): self { $this->maxValue = $maxValue; return $this; }
 }
