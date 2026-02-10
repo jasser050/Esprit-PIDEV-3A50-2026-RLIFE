@@ -117,6 +117,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $assignments;
 
+    /**
+     * @var Collection<int, Deck>
+     */
+    #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $decks;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
@@ -124,6 +130,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->evaluations = new ArrayCollection();
         $this->projects = new ArrayCollection();
         $this->assignments = new ArrayCollection();
+        $this->decks = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
@@ -545,6 +552,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->assignments->removeElement($assignment)) {
             if ($assignment->getUser() === $this) {
                 $assignment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Deck>
+     */
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function addDeck(Deck $deck): self
+    {
+        if (!$this->decks->contains($deck)) {
+            $this->decks->add($deck);
+            $deck->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeck(Deck $deck): self
+    {
+        if ($this->decks->removeElement($deck)) {
+            if ($deck->getUser() === $this) {
+                $deck->setUser(null);
             }
         }
 

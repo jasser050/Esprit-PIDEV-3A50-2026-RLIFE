@@ -206,6 +206,105 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/statistics/export', name: 'app_admin_statistics_export')]
+    public function exportStatistics(EntityManagerInterface $entityManager): Response
+    {
+        $userRepository = $entityManager->getRepository(User::class);
+        
+        // Get all statistics
+        $totalUsers = $userRepository->count([]);
+        $activeUsers = $userRepository->count(['isBanned' => false]);
+        $bannedUsers = $userRepository->count(['isBanned' => true]);
+        
+        // User growth statistics (last 7 days)
+        $userGrowth = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = new \DateTime("-$i days");
+            $date->setTime(0, 0, 0);
+            $nextDate = clone $date;
+            $nextDate->modify('+1 day');
+            
+            $count = $userRepository->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->where('u.createdAt >= :start')
+                ->andWhere('u.createdAt < :end')
+                ->setParameter('start', $date)
+                ->setParameter('end', $nextDate)
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $userGrowth[] = [
+                'date' => $date->format('Y-m-d'),
+                'count' => $count,
+            ];
+        }
+        
+        // Gender distribution
+        $genderStats = $userRepository->createQueryBuilder('u')
+            ->select('u.gender, COUNT(u.id) as count')
+            ->groupBy('u.gender')
+            ->getQuery()
+            ->getResult();
+        
+        // University distribution (all)
+        $universityStats = $userRepository->createQueryBuilder('u')
+            ->select('u.university, COUNT(u.id) as count')
+            ->where('u.university IS NOT NULL')
+            ->groupBy('u.university')
+            ->orderBy('count', 'DESC')
+            ->getQuery()
+            ->getResult();
+        
+        // Create CSV content
+        $csv = [];
+        
+        // Header
+        $csv[] = "RLIFE Platform Statistics Report";
+        $csv[] = "Generated: " . date('Y-m-d H:i:s');
+        $csv[] = "";
+        
+        // Summary
+        $csv[] = "SUMMARY";
+        $csv[] = "Total Users," . $totalUsers;
+        $csv[] = "Active Users," . $activeUsers;
+        $csv[] = "Banned Users," . $bannedUsers;
+        $csv[] = "";
+        
+        // User Growth
+        $csv[] = "USER GROWTH (LAST 7 DAYS)";
+        $csv[] = "Date,New Users";
+        foreach ($userGrowth as $growth) {
+            $csv[] = $growth['date'] . "," . $growth['count'];
+        }
+        $csv[] = "";
+        
+        // Gender Distribution
+        $csv[] = "GENDER DISTRIBUTION";
+        $csv[] = "Gender,Count,Percentage";
+        foreach ($genderStats as $stat) {
+            $percentage = round(($stat['count'] / $totalUsers) * 100, 2);
+            $csv[] = ucfirst($stat['gender']) . "," . $stat['count'] . "," . $percentage . "%";
+        }
+        $csv[] = "";
+        
+        // University Distribution
+        $csv[] = "UNIVERSITY DISTRIBUTION";
+        $csv[] = "Rank,University,Students,Percentage";
+        $rank = 1;
+        foreach ($universityStats as $stat) {
+            $percentage = round(($stat['count'] / $totalUsers) * 100, 2);
+            $csv[] = $rank . "," . $stat['university'] . "," . $stat['count'] . "," . $percentage . "%";
+            $rank++;
+        }
+        
+        // Create response
+        $response = new Response(implode("\n", $csv));
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="rlife-statistics-' . date('Y-m-d') . '.csv"');
+        
+        return $response;
+    }
+
     /**
      * Generate HTML for ban notification email
      */
