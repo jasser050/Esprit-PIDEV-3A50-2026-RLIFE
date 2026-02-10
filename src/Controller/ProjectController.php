@@ -31,7 +31,7 @@ class ProjectController extends AbstractController
         $statut    = $request->query->getString('statut', '');
         $search    = $request->query->getString('search', '');
 
-        // Liste des champs autorisés pour éviter les injections
+        // List of allowed fields to prevent injections
         $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
 
         if (!in_array($sort, $allowedSortFields, true)) {
@@ -40,7 +40,7 @@ class ProjectController extends AbstractController
 
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
-        // Récupération des projets avec filtres
+        // Retrieve projects with filters
         $projects = $projectRepository->findByUserWithFilters(
             user: $this->getUser(),
             sort: $sort,
@@ -77,7 +77,7 @@ class ProjectController extends AbstractController
             $entityManager->persist($project);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet créé avec succès !');
+            $this->addFlash('success', 'Project created successfully!');
 
             return $this->redirectToRoute('app_project_index');
         }
@@ -124,7 +124,7 @@ class ProjectController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet modifié avec succès !');
+            $this->addFlash('success', 'Project updated successfully!');
 
             return $this->redirectToRoute('app_project_index');
         }
@@ -149,7 +149,7 @@ class ProjectController extends AbstractController
             $entityManager->remove($project);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet supprimé avec succès !');
+            $this->addFlash('success', 'Project deleted successfully!');
         }
 
         return $this->redirectToRoute('app_project_index');

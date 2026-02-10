@@ -1,17 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Supprimer la Tâche{% endblock %}
+{% block title %}Delete Task{% endblock %}
 
 {% block body %}
 <div class="max-w-2xl mx-auto space-y-6">
     <!-- Breadcrumbs -->
     <nav class="text-sm">
         <ol class="flex items-center gap-2">
-            <li><a href="{{ path('app_assignments') }}" class="text-primary hover:underline">Tâches</a></li>
+            <li><a href="{{ path('app_assignments') }}" class="text-primary hover:underline">Tasks</a></li>
             <li class="text-light-muted dark:text-dark-muted">/</li>
             <li><a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="text-primary hover:underline">{{ assignment.titre }}</a></li>
             <li class="text-light-muted dark:text-dark-muted">/</li>
-            <li class="text-light-muted dark:text-dark-muted">Supprimer</li>
+            <li class="text-light-muted dark:text-dark-muted">Delete</li>
         </ol>
     </nav>
 
@@ -24,9 +24,9 @@
             </div>
         </div>
 
-        <h1 class="text-2xl font-bold text-center mb-2">Supprimer la Tâche</h1>
+        <h1 class="text-2xl font-bold text-center mb-2">Delete Task</h1>
         <p class="text-center text-light-muted dark:text-dark-muted mb-6">
-            Êtes-vous sûr de vouloir supprimer cette tâche ?
+            Are you sure you want to delete this task?
         </p>
 
         <div class="bg-light-surface dark:bg-dark-surface rounded-lg p-4 mb-6">
@@ -37,13 +37,16 @@
                     {% elseif assignment.statut == 'Terminé' %}badge-success
                     {% elseif assignment.statut == 'À faire' %}badge-warning
                     {% else %}badge-danger{% endif %}">
-                    {{ assignment.statut }}
+                    {% if assignment.statut == 'En cours' %}In Progress
+                    {% elseif assignment.statut == 'Terminé' %}Completed
+                    {% elseif assignment.statut == 'À faire' %}To Do
+                    {% else %}{{ assignment.statut }}{% endif %}
                 </span>
             </div>
             <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ assignment.description|slice(0, 120) }}...</p>
             <div class="text-xs text-light-muted dark:text-dark-muted">
                 {{ assignment.dateDebut|date('d/m/Y') }} - {{ assignment.dateFin|date('d/m/Y') }}
-                • Projet : {{ assignment.project.titre }}
+                • Project: {{ assignment.project.titre }}
             </div>
         </div>
 
@@ -53,9 +56,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
                 <div>
-                    <h4 class="font-semibold text-danger mb-1">Action irréversible</h4>
+                    <h4 class="font-semibold text-danger mb-1">Irreversible Action</h4>
                     <p class="text-sm text-danger-foreground/90">
-                        La suppression de cette tâche est définitive.
+                        This task deletion is permanent.
                     </p>
                 </div>
             </div>
@@ -66,10 +69,10 @@
 
             <div class="flex items-center justify-center gap-3">
                 <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="btn btn-ghost">
-                    Non, Annuler
+                    No, Cancel
                 </a>
                 <button type="submit" class="btn btn-danger">
-                    Oui, Supprimer Définitivement
+                    Yes, Delete Permanently
                 </button>
             </div>
         </form>

@@ -18,7 +18,7 @@ class SeanceController extends AbstractController
     {
         $user = $this->getUser();
         if (!$user instanceof \App\Entity\User) {
-            throw $this->createAccessDeniedException('Vous devez être connecté.');
+            throw $this->createAccessDeniedException('You must be logged in.');
         }
 
         $types = $em->getRepository(TypeSeance::class)->findBy([], ['name' => 'ASC']);
@@ -29,7 +29,7 @@ class SeanceController extends AbstractController
             $description = trim((string) $request->request->get('description', ''));
 
             if ($titre === '') {
-                $this->addFlash('error', 'Le titre est obligatoire.');
+                $this->addFlash('error', 'Title is required.');
                 return $this->redirectToRoute('app_seance_new');
             }
 
@@ -47,7 +47,7 @@ class SeanceController extends AbstractController
             $em->persist($seance);
             $em->flush();
 
-            $this->addFlash('success', 'Séance créée.');
+            $this->addFlash('success', 'Session created.');
             return $this->redirectToRoute('app_planning');
         }
 
@@ -72,7 +72,7 @@ class SeanceController extends AbstractController
             $description = trim((string) $request->request->get('description', ''));
 
             if ($titre === '') {
-                $this->addFlash('error', 'Le titre est obligatoire.');
+                $this->addFlash('error', 'Title is required.');
                 return $this->redirectToRoute('app_seance_edit', ['id' => $id]);
             }
 
@@ -87,7 +87,7 @@ class SeanceController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'Séance modifiée.');
+            $this->addFlash('success', 'Session updated.');
             return $this->redirectToRoute('app_planning');
         }
 
@@ -107,7 +107,7 @@ public function delete(int $id, EntityManagerInterface $em): Response
     $em->remove($seance);
     $em->flush();
 
-    $this->addFlash('success', 'Séance supprimée.');
+    $this->addFlash('success', 'Session deleted.');
     return $this->redirectToRoute('app_planning');
 }
 }

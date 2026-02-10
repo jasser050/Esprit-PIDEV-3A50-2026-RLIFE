@@ -31,7 +31,7 @@ class AssignmentController extends AbstractController
         $statut    = $request->query->getString('statut', '');
         $search    = $request->query->getString('search', '');
 
-        // Liste des champs autorisés pour le tri
+        // List of allowed fields for sorting
         $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'priorite', 'statut', 'createdAt'];
 
         if (!in_array($sort, $allowedSortFields, true)) {
@@ -40,7 +40,7 @@ class AssignmentController extends AbstractController
 
         $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
 
-        // Récupération des assignments avec filtres
+        // Retrieve assignments with filters
         $assignments = $assignmentRepository->findByUserWithFilters(
             user: $this->getUser(),
             sort: $sort,
@@ -71,7 +71,7 @@ class AssignmentController extends AbstractController
     ): Response {
         $assignment = new Assignment();
 
-        // Si on vient d'un projet
+        // If coming from a project
         if ($projectId = $request->query->get('project_id')) {
             $project = $entityManager->getRepository(Project::class)->find($projectId);
             if ($project && $project->getUser() === $this->getUser()) {
@@ -90,7 +90,7 @@ class AssignmentController extends AbstractController
             $entityManager->persist($assignment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tâche créée avec succès !');
+            $this->addFlash('success', 'Task created successfully!');
 
             return $this->redirectToRoute('app_assignments');
         }
@@ -136,7 +136,7 @@ class AssignmentController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tâche modifiée avec succès !');
+            $this->addFlash('success', 'Task updated successfully!');
 
             return $this->redirectToRoute('app_assignments');
         }
@@ -161,7 +161,7 @@ class AssignmentController extends AbstractController
             $entityManager->remove($assignment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Tâche supprimée avec succès !');
+            $this->addFlash('success', 'Task deleted successfully!');
         }
 
         return $this->redirectToRoute('app_assignments');
