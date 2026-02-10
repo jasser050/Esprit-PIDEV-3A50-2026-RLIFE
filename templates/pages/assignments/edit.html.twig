@@ -113,7 +113,7 @@
 
             <!-- Actions -->
             <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                <button type="button" class="btn btn-danger" id="delete-btn">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                     Delete
                 </button>
@@ -131,7 +131,7 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" id="delete-modal">
-    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm" id="modal-backdrop"></div>
     <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-200 dark:border-slate-800 z-10">
         <div class="flex items-center justify-center w-12 h-12 mx-auto bg-danger-100 dark:bg-danger-900/30 rounded-full mb-4">
             <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
@@ -141,8 +141,8 @@
             Are you sure you want to delete <strong>{{ assignment.titre }}</strong>? This action cannot be undone.
         </p>
         <div class="flex flex-col-reverse sm:flex-row gap-3">
-            <button type="button" class="btn btn-secondary flex-1" onclick="closeModal()">Cancel</button>
-            <form action="{{ path('app_assignments_delete', { id: assignment.id }) }}" method="POST" class="flex-1" data-turbo="false">
+            <button type="button" class="btn btn-secondary flex-1" id="cancel-btn">Cancel</button>
+            <form action="{{ path('app_assignments_delete', { id: assignment.id }) }}" method="POST" class="flex-1" data-turbo="false" id="delete-form">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ assignment.id) }}">
                 <button type="submit" class="btn btn-danger w-full">Delete</button>
             </form>
@@ -155,53 +155,102 @@
 {{ parent() }}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-  // Define functions in global scope immediately
-  window.confirmDelete = function() {
-    console.log('Delete button clicked');
+(function() {
+  'use strict';
+  
+  console.log('🚀 Delete modal script loading...');
+  
+  // Function to show modal
+  function showDeleteModal() {
+    console.log('✅ Delete button clicked');
     const modal = document.getElementById('delete-modal');
-    console.log('Modal element:', modal);
     
     if (modal) {
+      console.log('✅ Modal found:', modal);
       modal.classList.remove('hidden');
-      console.log('Modal classList after remove hidden:', modal.classList.value);
-      console.log('Modal display style:', window.getComputedStyle(modal).display);
+      console.log('✅ Modal classList:', modal.classList.value);
+      console.log('✅ Modal display:', window.getComputedStyle(modal).display);
       
-      // Reinitialize icons in the modal
+      // Reinitialize icons
       setTimeout(() => {
         if (typeof lucide !== 'undefined') {
           lucide.createIcons();
-          console.log('Icons reinitialized');
+          console.log('✅ Icons reinitialized');
         }
       }, 10);
     } else {
       console.error('❌ Modal not found!');
     }
-  };
+  }
   
-  window.closeModal = function() {
-    console.log('Closing modal');
+  // Function to close modal
+  function closeDeleteModal() {
+    console.log('🔒 Closing modal');
     const modal = document.getElementById('delete-modal');
     if (modal) {
       modal.classList.add('hidden');
-      console.log('Modal hidden');
+      console.log('✅ Modal closed');
     }
-  };
+  }
   
   // Initialize when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Edit page initialized');
+  function initDeleteModal() {
+    console.log('🔧 Initializing delete modal...');
+    
+    // Get elements
+    const deleteBtn = document.getElementById('delete-btn');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    
+    console.log('Delete button:', deleteBtn);
+    console.log('Cancel button:', cancelBtn);
+    console.log('Backdrop:', modalBackdrop);
+    
+    // Attach event listeners
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🖱️ Delete button click event fired');
+        showDeleteModal();
+      });
+      console.log('✅ Delete button listener attached');
+    } else {
+      console.error('❌ Delete button not found!');
+    }
+    
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', closeDeleteModal);
+      console.log('✅ Cancel button listener attached');
+    }
+    
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', closeDeleteModal);
+      console.log('✅ Backdrop listener attached');
+    }
+    
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeDeleteModal();
+      }
+    });
+    console.log('✅ ESC key listener attached');
     
     // Initialize icons
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
+      console.log('✅ Icons initialized');
     }
     
-    // Close modal with ESC key
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        window.closeModal();
-      }
-    });
-  });
+    console.log('✅ Delete modal fully initialized');
+  }
+  
+  // Run initialization
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDeleteModal);
+  } else {
+    initDeleteModal();
+  }
+})();
 </script>
 {% endblock %}
