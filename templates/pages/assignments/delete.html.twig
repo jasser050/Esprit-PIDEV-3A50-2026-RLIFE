@@ -37,10 +37,7 @@
                     {% elseif assignment.statut == 'Terminé' %}badge-success
                     {% elseif assignment.statut == 'À faire' %}badge-warning
                     {% else %}badge-danger{% endif %}">
-                    {% if assignment.statut == 'En cours' %}In Progress
-                    {% elseif assignment.statut == 'Terminé' %}Completed
-                    {% elseif assignment.statut == 'À faire' %}To Do
-                    {% else %}{{ assignment.statut }}{% endif %}
+                    {{ assignment.statut }}
                 </span>
             </div>
             <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ assignment.description|slice(0, 120) }}...</p>
@@ -58,7 +55,7 @@
                 <div>
                     <h4 class="font-semibold text-danger mb-1">Irreversible Action</h4>
                     <p class="text-sm text-danger-foreground/90">
-                        This task deletion is permanent.
+                        Deleting this task is permanent.
                     </p>
                 </div>
             </div>

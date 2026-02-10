@@ -23,67 +23,103 @@
     <!-- Form -->
     {{ form_start(form, {'attr': {'class': 'card p-6'}}) }}
         <div class="space-y-6">
-            <!-- Title -->
+            <!-- Titre -->
             <div>
                 {{ form_label(form.titre, 'Task Title', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'e.g., Write final report'}}) }}
-                {% if form.titre.vars.errors|length > 0 %}
+                {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'Ex: Write the final report'}}) }}
+                {% if form.titre.vars.errors|length %}
                     <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
-                        {% for error in form.titre.vars.errors %}
-                            <p>{{ error.message }}</p>
-                        {% endfor %}
+                        {{ form_errors(form.titre) }}
                     </div>
                 {% endif %}
+            </div>
+
+            <!-- Projet -->
+            <div>
+                {{ form_label(form.project, 'Associated Project', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
+                {{ form_widget(form.project, {'attr': {'class': 'select w-full'}}) }}
+                {% if form.project.vars.errors|length %}
+                    <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                        {{ form_errors(form.project) }}
+                    </div>
+                {% endif %}
+                <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Select the project this task belongs to</p>
+            </div>
+
+            <!-- Date de début et Date de fin -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(form.dateDebut, 'Start Date', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
+                    {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full', 'type': 'date'}}) }}
+                    {% if form.dateDebut.vars.errors|length %}
+                        <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                            {{ form_errors(form.dateDebut) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form_label(form.dateFin, 'Due Date', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
+                    {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full', 'type': 'date'}}) }}
+                    {% if form.dateFin.vars.errors|length %}
+                        <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                            {{ form_errors(form.dateFin) }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Priorité et Statut -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    {{ form_label(form.priorite, 'Priority', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
+                    {{ form_widget(form.priorite, {'attr': {'class': 'select w-full'}}) }}
+                    {% if form.priorite.vars.errors|length %}
+                        <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                            {{ form_errors(form.priorite) }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    {{ form_label(form.statut, 'Status', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
+                    {{ form_widget(form.statut, {'attr': {'class': 'select w-full'}}) }}
+                    {% if form.statut.vars.errors|length %}
+                        <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                            {{ form_errors(form.statut) }}
+                        </div>
+                    {% endif %}
+                </div>
             </div>
 
             <!-- Description -->
             <div>
                 {{ form_label(form.description, 'Description', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                {{ form_widget(form.description, {'attr': {'class': 'textarea w-full', 'rows': '4', 'placeholder': 'Provide a detailed description of the task...'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'textarea w-full', 'rows': '4', 'placeholder': 'Describe the task requirements...'}}) }}
+                {% if form.description.vars.errors|length %}
+                    <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                        {{ form_errors(form.description) }}
+                    </div>
+                {% endif %}
             </div>
 
-            <!-- Project -->
-            <div>
-                {{ form_label(form.project, 'Project', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                {{ form_widget(form.project, {'attr': {'class': 'input w-full'}}) }}
-            </div>
-
-            <!-- Dates -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    {{ form_label(form.dateDebut, 'Start Date', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                    {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full'}}) }}
-                </div>
-                <div>
-                    {{ form_label(form.dateFin, 'Due Date', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                    {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full'}}) }}
-                </div>
-            </div>
-
-            <!-- Priority & Status -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    {{ form_label(form.priorite, 'Priority', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                    {{ form_widget(form.priorite, {'attr': {'class': 'input w-full'}}) }}
-                </div>
-                <div>
-                    {{ form_label(form.statut, 'Status', {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                    {{ form_widget(form.statut, {'attr': {'class': 'input w-full'}}) }}
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <a href="{{ path('app_assignments') }}" class="btn btn-secondary inline-flex items-center justify-center gap-2 w-full sm:w-auto order-2 sm:order-1">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    Back to List
-                </a>
-                <button type="submit" class="btn btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto order-1 sm:order-2">
-                    <i data-lucide="save" class="w-5 h-5"></i>
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                <a href="{{ path('app_assignments') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="plus" class="w-5 h-5"></i>
                     Create Task
                 </button>
             </div>
         </div>
     {{ form_end(form) }}
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 {% endblock %}

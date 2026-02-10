@@ -27,10 +27,7 @@
         <div class="flex items-start justify-between mb-4">
             <h3 class="text-lg font-semibold">{{ project.titre }}</h3>
             <span class="badge badge-{{ project.statut == 'En cours' ? 'primary' : (project.statut == 'Terminé' ? 'success' : (project.statut == 'En attente' ? 'warning' : 'danger')) }}">
-                {% if project.statut == 'En cours' %}In Progress
-                {% elseif project.statut == 'Terminé' %}Completed
-                {% elseif project.statut == 'En attente' %}Pending
-                {% else %}{{ project.statut }}{% endif %}
+                {{ project.statut }}
             </span>
         </div>
         <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-4">{{ project.description }}</p>
@@ -49,7 +46,7 @@
             <i data-lucide="alert-triangle" class="w-6 h-6 flex-shrink-0"></i>
             <div>
                 <h4 class="font-semibold text-lg mb-2">Irreversible Action</h4>
-                <p class="mb-2">This deletion will result in:</p>
+                <p class="mb-2">Deletion will result in:</p>
                 <ul class="list-disc list-inside space-y-1 text-sm">
                     <li>Permanent deletion of the project</li>
                     {% if project.assignments|length > 0 %}

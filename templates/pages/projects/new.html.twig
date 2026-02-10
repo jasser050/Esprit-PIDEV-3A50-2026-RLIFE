@@ -16,7 +16,7 @@
 
     <!-- Page Header -->
     <div>
-        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Create New Project</h1>
+        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Create a New Project</h1>
         <p class="text-secondary-500 dark:text-secondary-400 mt-1">Organize your work by creating a new project</p>
     </div>
 
@@ -26,12 +26,10 @@
         
         <div>
             {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-            {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'e.g., Website Development'}}) }}
-            {% if form.titre.vars.errors|length > 0 %}
+            {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'Ex: Website development'}}) }}
+            {% if form.titre.vars.errors|length %}
                 <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
-                    {% for error in form.titre.vars.errors %}
-                        <p>{{ error.message }}</p>
-                    {% endfor %}
+                    {{ form_errors(form.titre) }}
                 </div>
             {% endif %}
         </div>
@@ -39,11 +37,9 @@
         <div>
             {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
             {{ form_widget(form.description, {'attr': {'class': 'textarea w-full', 'rows': '5', 'placeholder': 'Describe the objectives and context...'}}) }}
-            {% if form.description.vars.errors|length > 0 %}
+            {% if form.description.vars.errors|length %}
                 <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
-                    {% for error in form.description.vars.errors %}
-                        <p>{{ error.message }}</p>
-                    {% endfor %}
+                    {{ form_errors(form.description) }}
                 </div>
             {% endif %}
         </div>
@@ -51,44 +47,82 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 {{ form_label(form.dateDebut, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full'}}) }}
+                {{ form_widget(form.dateDebut, {'attr': {'class': 'input w-full', 'type': 'date'}}) }}
+                {% if form.dateDebut.vars.errors|length %}
+                    <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                        {{ form_errors(form.dateDebut) }}
+                    </div>
+                {% endif %}
             </div>
+
             <div>
                 {{ form_label(form.dateFin, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-                {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full'}}) }}
+                {{ form_widget(form.dateFin, {'attr': {'class': 'input w-full', 'type': 'date'}}) }}
+                {% if form.dateFin.vars.errors|length %}
+                    <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                        {{ form_errors(form.dateFin) }}
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <div>
             {{ form_label(form.statut, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
-            {{ form_widget(form.statut, {'attr': {'class': 'input w-full'}}) }}
+            {{ form_widget(form.statut, {'attr': {'class': 'select w-full'}}) }}
+            {% if form.statut.vars.errors|length %}
+                <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                    {{ form_errors(form.statut) }}
+                </div>
+            {% endif %}
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-            <a href="{{ path('app_project_index') }}" class="btn btn-secondary inline-flex items-center justify-center gap-2 w-full sm:w-auto order-2 sm:order-1">
+        <!-- Actions -->
+        <div class="flex flex-col-reverse sm:flex-row justify-between gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <a href="{{ path('app_project_index') }}" class="btn btn-secondary w-full sm:w-auto">
                 <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                Back to List
+                Cancel
             </a>
-            <button type="submit" class="btn btn-primary inline-flex items-center justify-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+            <button type="submit" class="btn btn-primary w-full sm:w-auto">
                 <i data-lucide="save" class="w-5 h-5"></i>
                 Create Project
             </button>
         </div>
-        
+
         {{ form_end(form) }}
     </div>
 
-    <!-- Help Card -->
-    <div class="card bg-info-50 dark:bg-info-900/20 p-6 border border-info-200 dark:border-info-800">
-        <h3 class="font-semibold text-info-800 dark:text-info-200 mb-3">
-            <i data-lucide="info" class="w-5 h-5 inline mr-2"></i>
-            Tips for Creating a Project
+    <!-- Conseils Card -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">
+            <i data-lucide="lightbulb" class="w-5 h-5 text-warning-500 mr-2"></i>
+            Tips for a good project
         </h3>
-        <ul class="space-y-2 text-sm text-info-700 dark:text-info-300">
-            <li>• Provide a detailed description of the objectives</li>
-            <li>• Make sure the end date is after the start date</li>
-            <li>• Update the status as you progress</li>
+        <ul class="space-y-2 text-sm text-secondary-600 dark:text-secondary-400">
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Choose a clear and descriptive title
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Provide a detailed description of the objectives
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Make sure the end date is after the start date
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Update the status as you progress
+            </li>
         </ul>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
 {% endblock %}
