@@ -1,0 +1,266 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}View Deck #{{ deck.idDeck }} - Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center text-sm gap-2">
+        <a href="{{ path('app_admin_dashboard') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">
+            Dashboard
+        </a>
+        <span class="text-slate-400">›</span>
+        <a href="{{ path('app_admin_revision') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">
+            Revisions
+        </a>
+        <span class="text-slate-400">›</span>
+        <span class="font-semibold text-indigo-600">Deck #{{ deck.idDeck }}</span>
+    </nav>
+
+    <!-- Section Deck -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+        
+        <!-- Titre "Deck" en haut -->
+        <div class="bg-white dark:bg-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                        <i data-lucide="book-open" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Deck Details</h1>
+                </div>
+                <a href="{{ path('app_admin_revision') }}"
+                   class="inline-flex items-center px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-lg transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Back to decks
+                </a>
+            </div>
+        </div>
+
+        <!-- Image du deck -->
+        <div class="relative h-72 md:h-96 overflow-hidden">
+            {% if deck.image %}
+                <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
+                     alt="{{ deck.titre }}"
+                     class="w-full h-full object-cover">
+            {% else %}
+                <div class="w-full h-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800"></div>
+            {% endif %}
+        </div>
+
+        <!-- Infos sous l'image -->
+        <div class="p-6 md:p-8 bg-white dark:bg-slate-800">
+            <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
+                {{ deck.titre }}
+            </h2>
+
+            <div class="flex flex-wrap items-center gap-3 mb-6">
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
+                    {{ deck.matiere }}
+                </span>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                    Niveau {{ deck.niveau }}
+                </span>
+                
+                <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.idDeck}) }}"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm">
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                    Edit Deck
+                </a>
+
+                {% if deck.pdf %}
+                <a href="{{ asset('uploads/decks/' ~ deck.pdf) }}"
+                   target="_blank"
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition font-medium text-sm">
+                    <i data-lucide="file-text" class="w-4 h-4"></i>
+                    View / Download PDF
+                </a>
+                {% endif %}
+            </div>
+
+            {% if deck.description %}
+            <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {{ deck.description }}
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Statistiques -->
+        <div class="p-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Total Flashcards -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                            <i data-lucide="layers" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ flashcards|length }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Total Flashcards</p>
+                    </div>
+                </div>
+
+                <!-- Mastered -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                            0%
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">0</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Mastered</p>
+                    </div>
+                </div>
+
+                <!-- To Review -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-start justify-between">
+                        <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                            Pending
+                        </span>
+                    </div>
+                    <div class="mt-4">
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ flashcards|length }}</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">To Review</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section Flashcards -->
+        <div class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+            <div class="p-6 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                        <i data-lucide="layers" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
+                        Flashcards
+                    </h2>
+                    <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
+                       class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-sm">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Add Flashcard
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 dark:bg-slate-900/50">
+                {% if flashcards is empty %}
+                <div class="text-center py-20">
+                    <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <i data-lucide="layers" class="w-8 h-8 text-slate-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No flashcards yet</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-8">Add your first flashcard to start studying</p>
+                    <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
+                       class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-sm">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Create first flashcard
+                    </a>
+                </div>
+                {% else %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {% for flashcard in flashcards %}
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100 dark:border-slate-700">
+                        {% if flashcard.image %}
+                        <div class="h-48 overflow-hidden">
+                            <img src="{{ asset('uploads/flashcards/' ~ flashcard.image) }}"
+                                 alt="{{ flashcard.titre|default('Flashcard') }}"
+                                 class="w-full h-full object-cover">
+                        </div>
+                        {% endif %}
+
+                        <div class="p-6">
+                            {% if flashcard.titre %}
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                                {{ flashcard.titre }}
+                            </h3>
+                            {% endif %}
+
+                            <div class="mb-4">
+                                <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Question</p>
+                                <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
+                                    {{ flashcard.question }}
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Réponse</p>
+                                <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
+                                    {{ flashcard.reponse }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-3 mb-4 text-sm">
+                                <span class="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                    <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                                    <span class="font-medium">Q & A</span>
+                                </span>
+                                {% if flashcard.etat != 'active' %}
+                                <span class="inline-flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                    <i data-lucide="clock" class="w-4 h-4"></i>
+                                    <span class="font-medium">{{ flashcard.etat|capitalize }}</span>
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span class="font-medium text-slate-500 dark:text-slate-400">Progress</span>
+                                    <span class="font-bold text-slate-900 dark:text-white">
+                                        {{ (flashcard.niveauDifficulte|default(0) * 20) }}%
+                                    </span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full transition-all bg-gradient-to-r from-indigo-400 to-indigo-600" style="width: {{ (flashcard.niveauDifficulte|default(0) * 20) }}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2 pt-2">
+                                <a href="{{ path('app_flashcard_edit', {id: flashcard.id}) }}"
+                                   class="flex-1 text-center py-2.5 rounded-lg font-semibold text-sm transition-all bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 dark:hover:bg-indigo-900/30">
+                                    Edit
+                                </a>
+                                <form method="post" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}"
+                                      onsubmit="return confirm('Delete this flashcard?');" class="flex-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
+                                    <button type="submit" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 rounded-lg font-semibold text-sm transition-all">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

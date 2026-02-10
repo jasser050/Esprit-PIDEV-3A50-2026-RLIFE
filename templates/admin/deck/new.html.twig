@@ -1,45 +1,41 @@
 {% extends 'admin/base_admin.html.twig' %}
+
 {% block title %}Create a Deck - RLIFE Admin{% endblock %}
 
 {% block stylesheets %}
-{{ parent() }}
-<style>
-    /* Champ invalide - bordure rouge */
-    input:invalid, textarea:invalid, input[type="file"]:invalid {
-        border-color: #ef4444 !important;
-        border-width: 2px !important;
-    }
-
-    /* Animation shake sur erreur */
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    .error-shake {
-        animation: shake 0.3s ease-in-out;
-    }
-
-    /* Message d'erreur */
-    .error-message {
-        color: #dc2626;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-top: 0.5rem;
-        display: none;
-    }
-
-    .error-message.show {
-        display: block;
-    }
-
-    /* Champ valide - bordure verte */
-    input:valid:not(:placeholder-shown), 
-    textarea:valid:not(:placeholder-shown) {
-        border-color: #10b981 !important;
-    }
-</style>
+    {{ parent() }}
+    <style>
+        /* Champ invalide - bordure rouge */
+        input:invalid, textarea:invalid, input[type="file"]:invalid {
+            border-color: #ef4444 !important;
+            border-width: 2px !important;
+        }
+        /* Animation shake sur erreur */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .error-shake {
+            animation: shake 0.3s ease-in-out;
+        }
+        /* Message d'erreur */
+        .error-message {
+            color: #dc2626;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        /* Champ valide - bordure verte */
+        input:valid:not(:placeholder-shown),
+        textarea:valid:not(:placeholder-shown) {
+            border-color: #10b981 !important;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
@@ -81,7 +77,7 @@
 
     <!-- Formulaire Ultra Moderne -->
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-       
+      
         <!-- Header du formulaire -->
         <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 px-8 py-6 border-b border-slate-200 dark:border-slate-700">
             <h2 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
@@ -97,7 +93,7 @@
 
             <!-- Grille pour les champs principaux -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-               
+              
                 <!-- Titre -->
                 <div class="md:col-span-2">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -114,7 +110,6 @@
                             'pattern': '[^0-9].*'
                         }
                     }) }}
-                    <!-- Message d'erreur -->
                     <div id="titre-error" class="error-message">
                         ⚠️ Le titre est obligatoire (min 3 caractères, ne doit pas commencer par un chiffre)
                     </div>
@@ -139,7 +134,6 @@
                             'required': 'required'
                         }
                     }) }}
-                    <!-- Message d'erreur -->
                     <div id="matiere-error" class="error-message">
                         ⚠️ La matière est obligatoire (minimum 3 caractères)
                     </div>
@@ -164,7 +158,6 @@
                             'required': 'required'
                         }
                     }) }}
-                    <!-- Message d'erreur -->
                     <div id="niveau-error" class="error-message">
                         ⚠️ Le niveau est obligatoire
                     </div>
@@ -175,11 +168,10 @@
                 </div>
             </div>
 
-            <!-- Description -->
+            <!-- Description (obligatoire) -->
             <div>
                 <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    💭 Description 
-                    <span class="text-xs font-normal text-slate-500">(optionnel)</span>
+                    💭 Description <span class="text-red-500">*</span>
                 </label>
                 {{ form_widget(form.description, {
                     'attr': {
@@ -187,12 +179,12 @@
                         'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 min-h-[120px] text-base resize-none',
                         'placeholder': 'Décrivez le contenu, les objectifs, les chapitres ou compétences abordées...',
                         'id': 'description',
-                        'maxlength': '2000'
+                        'maxlength': '2000',
+                        'required': 'required'
                     }
                 }) }}
-                <!-- Message d'erreur -->
                 <div id="description-error" class="error-message">
-                    ⚠️ La description ne doit pas dépasser 2000 caractères
+                    ⚠️ La description est obligatoire (max 2000 caractères)
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
                     ℹ️ Maximum 2000 caractères
@@ -227,7 +219,6 @@
                             'required': 'required'
                         }
                     }) }}
-                    <!-- Message d'erreur -->
                     <div id="imageFile-error" class="error-message">
                         ⚠️ L'image de couverture est obligatoire (max 5 Mo, formats JPG/PNG/WEBP/GIF)
                     </div>
@@ -237,22 +228,21 @@
                     {{ form_errors(form.imageFile, {'attr': {'class': 'text-red-600 text-sm mt-1'}}) }}
                 </div>
 
-                <!-- PDF Upload -->
+                <!-- PDF Upload (obligatoire) -->
                 <div class="space-y-2">
                     <label class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                        📄 Fichier PDF 
-                        <span class="text-xs font-normal text-slate-500">(optionnel)</span>
+                        📄 Fichier PDF <span class="text-red-500">*</span>
                     </label>
                     {{ form_widget(form.pdfFile, {
                         'attr': {
                             'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-amber-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400',
                             'id': 'pdfFile',
-                            'accept': 'application/pdf'
+                            'accept': 'application/pdf',
+                            'required': 'required'
                         }
                     }) }}
-                    <!-- Message d'erreur -->
                     <div id="pdfFile-error" class="error-message">
-                        ⚠️ Le PDF ne doit pas dépasser 10 Mo
+                        ⚠️ Le fichier PDF est obligatoire (max 10 Mo)
                     </div>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
                         ℹ️ Max 10 Mo • PDF uniquement
@@ -307,96 +297,78 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block javascripts %}
-{{ parent() }}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('deckForm');
-    
-    // Liste des champs à valider
-    const fields = [
-        { id: 'titre', errorId: 'titre-error' },
-        { id: 'matiere', errorId: 'matiere-error' },
-        { id: 'niveau', errorId: 'niveau-error' },
-        { id: 'description', errorId: 'description-error' },
-        { id: 'imageFile', errorId: 'imageFile-error' },
-        { id: 'pdfFile', errorId: 'pdfFile-error' }
-    ];
-    
-    // Fonction pour afficher/masquer le message d'erreur
-    function validateField(field) {
-        const input = document.getElementById(field.id);
-        const errorMsg = document.getElementById(field.errorId);
-        
-        if (!input || !errorMsg) return;
-        
-        // Vérifier si le champ est invalide
-        if (!input.checkValidity() && input.value !== '') {
-            errorMsg.classList.add('show');
-            input.classList.add('error-shake');
-            
-            // Retirer l'animation après 300ms
-            setTimeout(() => {
-                input.classList.remove('error-shake');
-            }, 300);
-        } else {
-            errorMsg.classList.remove('show');
-        }
-    }
-    
-    // Ajouter les événements sur chaque champ
-    fields.forEach(field => {
-        const input = document.getElementById(field.id);
-        if (!input) return;
-        
-        // Validation à la perte du focus
-        input.addEventListener('blur', function() {
-            validateField(field);
-        });
-        
-        // Validation en temps réel pendant la saisie
-        input.addEventListener('input', function() {
-            if (this.classList.contains('error-shake')) {
-                validateField(field);
+    {{ parent() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('deckForm');
+       
+        // Liste des champs à valider
+        const fields = [
+            { id: 'titre',       errorId: 'titre-error' },
+            { id: 'matiere',     errorId: 'matiere-error' },
+            { id: 'niveau',      errorId: 'niveau-error' },
+            { id: 'description', errorId: 'description-error' },
+            { id: 'imageFile',   errorId: 'imageFile-error' },
+            { id: 'pdfFile',     errorId: 'pdfFile-error' }
+        ];
+       
+        function validateField(field) {
+            const input = document.getElementById(field.id);
+            const errorMsg = document.getElementById(field.errorId);
+           
+            if (!input || !errorMsg) return;
+           
+            if (!input.checkValidity() && (input.value !== '' || input.type === 'file')) {
+                errorMsg.classList.add('show');
+                input.classList.add('error-shake');
+                setTimeout(() => input.classList.remove('error-shake'), 300);
+            } else {
+                errorMsg.classList.remove('show');
             }
-        });
-        
-        // Pour les fichiers
-        if (input.type === 'file') {
-            input.addEventListener('change', function() {
-                validateField(field);
-            });
         }
-    });
-    
-    // Validation finale à la soumission
-    form.addEventListener('submit', function(e) {
-        let hasErrors = false;
-        
-        // Valider tous les champs
+       
         fields.forEach(field => {
             const input = document.getElementById(field.id);
             if (!input) return;
-            
-            if (!input.checkValidity()) {
-                validateField(field);
-                hasErrors = true;
+           
+            input.addEventListener('blur', () => validateField(field));
+           
+            input.addEventListener('input', () => {
+                if (input.classList.contains('error-shake')) {
+                    validateField(field);
+                }
+            });
+           
+            if (input.type === 'file') {
+                input.addEventListener('change', () => validateField(field));
             }
         });
-        
-        if (hasErrors) {
-            e.preventDefault();
-            
-            // Scroller vers le premier champ en erreur
-            const firstInvalid = document.querySelector(':invalid');
-            if (firstInvalid) {
-                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(() => firstInvalid.focus(), 500);
+       
+        form.addEventListener('submit', function(e) {
+            let hasErrors = false;
+           
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                if (!input) return;
+               
+                if (!input.checkValidity()) {
+                    validateField(field);
+                    hasErrors = true;
+                }
+            });
+           
+            if (hasErrors) {
+                e.preventDefault();
+                const firstInvalid = document.querySelector(':invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => firstInvalid.focus(), 500);
+                }
             }
-        }
+        });
     });
-});
-</script>
-{% endblock %}
+    </script>
 {% endblock %}

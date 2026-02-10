@@ -589,7 +589,7 @@
                      data-progress="{{ deckProgress }}"
                      data-cards="{{ deckCards }}">
                     
-                    <!-- Le reste de votre code de carte deck reste inchangé -->
+                    <!-- Image du deck -->
                     <div class="h-32 overflow-hidden relative">
                         {% if deck.image %}
                             <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
@@ -658,17 +658,31 @@
                             </div>
                         </div>
 
-                        <div class="flex justify-end gap-3">
+                        {# ✨ SECTION MODIFIÉE : 3 boutons (View, Edit, Delete) #}
+                        <div class="flex justify-end gap-2">
+                            <!-- NOUVEAU : Bouton View (👁️) -->
+                            <a href="{{ path('app_admin_deck_show', {'id_deck': deck.idDeck}) }}"
+                               class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
+                               style="background-color: #dbeafe; color: #2563eb;"
+                               title="View deck and flashcards">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </a>
+                            
+                            <!-- Bouton Edit (✏️) -->
                             <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.idDeck}) }}"
                                class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
-                               style="background-color: {{ palette.bg }}; color: {{ palette.text }};">
+                               style="background-color: {{ palette.bg }}; color: {{ palette.text }};"
+                               title="Edit deck">
                                 <i data-lucide="pencil" class="w-5 h-5"></i>
                             </a>
                             
+                            <!-- Bouton Delete (🗑️) -->
                             <form method="post" action="{{ path('app_admin_deck_delete', {'id_deck': deck.idDeck}) }}"
                                   onsubmit="return confirm('Really delete this deck?');" class="inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.idDeck) }}">
-                                <button type="submit" class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110">
+                                <button type="submit" 
+                                        class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110"
+                                        title="Delete deck">
                                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                                 </button>
                             </form>
@@ -874,7 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <i data-lucide="${iconName}" class="w-4 h-4"></i>
             Sorted by: ${sortLabels[currentState.sort]}
         `;
-        lucide.create();
+        lucide.createIcons();
         
         // Gérer l'affichage "Aucun résultat"
         const gridContainer = decksContainer.querySelector('.grid');
@@ -897,6 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (clearSearchBtn) {
                         clearSearchBtn.addEventListener('click', resetAllFilters);
                     }
+                    lucide.createIcons();
                 }, 100);
             } else {
                 gridContainer.style.display = 'grid';

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Deck;
 use App\Form\DeckType;
 use App\Repository\DeckRepository;
+use App\Repository\FlashcardRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,6 +70,24 @@ class AdminDeckController extends AbstractController
 
         return $this->render('admin/deck/new.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * ✨ NOUVELLE MÉTHODE : Afficher un deck avec ses flashcards (vue similaire à celle des étudiants)
+     */
+    #[Route('/{id_deck}/show', name: 'app_admin_deck_show', methods: ['GET'])]
+    public function show(
+        #[MapEntity(id: 'id_deck')] Deck $deck,
+        FlashcardRepository $flashcardRepository
+    ): Response
+    {
+        // Récupérer toutes les flashcards de ce deck
+        $flashcards = $flashcardRepository->findBy(['deck' => $deck]);
+
+        return $this->render('admin/deck/show.html.twig', [
+            'deck' => $deck,
+            'flashcards' => $flashcards,
         ]);
     }
 

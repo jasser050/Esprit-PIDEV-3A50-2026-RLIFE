@@ -84,9 +84,9 @@ class Deck
         $this->dateCreation = new \DateTime();
     }
 
-    // ──────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // Getters & Setters pour les fichiers (VALIDATION)
-    // ──────────────────────────────────────────────
+    // ────────────────────────────────────────────────
 
     public function getImageFile(): ?File
     {
@@ -110,9 +110,9 @@ class Deck
         return $this;
     }
 
-    // ──────────────────────────────────────────────
+    // ────────────────────────────────────────────────
     // Getters & Setters pour les noms en base (STRING)
-    // ──────────────────────────────────────────────
+    // ────────────────────────────────────────────────
 
     public function getIdDeck(): ?int
     {
@@ -135,7 +135,8 @@ class Deck
         return $this->titre;
     }
 
-    public function setTitre(string $titre): self
+    // ✅ CORRECTION : Accepte null pour éviter l'erreur lors de la soumission du formulaire
+    public function setTitre(?string $titre): self
     {
         $this->titre = $titre;
         return $this;
@@ -146,7 +147,8 @@ class Deck
         return $this->matiere;
     }
 
-    public function setMatiere(string $matiere): self
+    // ✅ CORRECTION : Accepte null
+    public function setMatiere(?string $matiere): self
     {
         $this->matiere = $matiere;
         return $this;
@@ -157,7 +159,8 @@ class Deck
         return $this->niveau;
     }
 
-    public function setNiveau(string $niveau): self
+    // ✅ CORRECTION : Accepte null
+    public function setNiveau(?string $niveau): self
     {
         $this->niveau = $niveau;
         return $this;
