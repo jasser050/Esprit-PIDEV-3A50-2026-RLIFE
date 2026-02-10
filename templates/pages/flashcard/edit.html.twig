@@ -5,6 +5,27 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
+    /* Force dark mode backgrounds */
+    .dark .bg-white {
+        background-color: #1e293b !important;
+    }
+    
+    .dark .bg-slate-50 {
+        background-color: #0f172a !important;
+    }
+    
+    .dark input,
+    .dark textarea,
+    .dark select {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+        border-color: #475569 !important;
+    }
+    
+    .dark label {
+        color: #cbd5e1 !important;
+    }
+    
     /* Validation visuelle en temps réel */
     input:invalid:not(:placeholder-shown):not(:focus),
     textarea:invalid:not(:placeholder-shown):not(:focus),
