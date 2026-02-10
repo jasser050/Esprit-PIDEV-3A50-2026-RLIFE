@@ -30,10 +30,10 @@ class Assignment
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
@@ -58,6 +58,10 @@ class Assignment
     {
         $this->updatedAt = new \DateTime();
     }
+
+    // ────────────────────────────────────────────────
+    // Getters & Setters
+    // ────────────────────────────────────────────────
 
     public function getId(): ?int
     {
@@ -113,7 +117,7 @@ class Assignment
         return $this->dateDebut;
     }
 
-    public function setDateDebut(\DateTimeInterface $dateDebut): static
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -124,7 +128,7 @@ class Assignment
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTimeInterface $dateFin): static
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;

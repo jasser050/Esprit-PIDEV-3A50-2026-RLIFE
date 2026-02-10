@@ -1,378 +1,190 @@
+{# templates/project/show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ project.titre }}{% endblock %}
 
 {% block body %}
-<div class="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto">
-    <!-- Breadcrumb -->
-    <nav class="flex text-sm mb-8" aria-label="breadcrumb">
-        <ol class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-            <li><a href="{{ path('app_project_index') }}" class="hover:text-slate-900 dark:hover:text-slate-200 transition-colors">Projets</a></li>
-            <li><i class="fas fa-chevron-right text-xs"></i></li>
-            <li class="text-slate-900 dark:text-white">{{ project.titre }}</li>
+<div class="space-y-6 max-w-4xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="flex text-sm" aria-label="breadcrumb">
+        <ol class="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
+            <li><a href="{{ path('app_project_index') }}" class="hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors">Projets</a></li>
+            <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+            <li class="text-secondary-900 dark:text-white">{{ project.titre }}</li>
         </ol>
     </nav>
 
     <!-- Header -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="lg:col-span-2">
-            <h1 class="page-title"><i class="fas fa-project-diagram me-2"></i>{{ project.titre }}</h1>
-            <p class="page-subtitle">{{ project.description|length > 100 ? project.description|slice(0, 100) ~ '...' : project.description }}</p>
-            
-            <div class="flex flex-wrap items-center gap-3 mt-4">
-                {% if project.statut == 'En cours' %}
-                    <span class="badge badge-primary">{{ project.statut }}</span>
-                {% elseif project.statut == 'Terminé' %}
-                    <span class="badge badge-success">{{ project.statut }}</span>
-                {% elseif project.statut == 'En attente' %}
-                    <span class="badge badge-warning">{{ project.statut }}</span>
-                {% elseif project.statut == 'Annulé' %}
-                    <span class="badge badge-danger">{{ project.statut }}</span>
-                {% else %}
-                    <span class="badge badge-secondary">{{ project.statut }}</span>
-                {% endif %}
-                
-                {% if projectStats.estEnRetard %}
-                    <span class="badge badge-danger"><i class="fas fa-exclamation-triangle me-1"></i>En retard</span>
-                {% endif %}
-                
-                <span class="text-sm text-slate-500 dark:text-slate-400">
-                    <i class="fas fa-calendar me-1"></i>Créé le {{ project.createdAt|date('d/m/Y à H:i') }}
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-2xl font-bold">{{ project.titre }}</h1>
+                <span class="badge badge-{{ project.statut == 'En cours' ? 'primary' : (project.statut == 'Terminé' ? 'success' : (project.statut == 'En attente' ? 'warning' : 'danger')) }}">
+                    {{ project.statut }}
                 </span>
             </div>
+            <p class="text-secondary-500 dark:text-secondary-400">{{ project.description }}</p>
         </div>
-
-        <div class="flex flex-col gap-2">
-            <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-primary text-center">
-                <i class="fas fa-edit"></i>Modifier
+        <div class="flex gap-2">
+            <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-secondary">
+                <i data-lucide="edit-2" class="w-5 h-5"></i>
+                Modifier
             </a>
-            <a href="{{ path('app_project_export_single_pdf', {'id': project.id}) }}" class="btn btn-outline text-center">
-                <i class="fas fa-file-pdf"></i>Exporter PDF
-            </a>
-            <button type="button" class="btn bg-danger-600 hover:bg-danger-700 text-white text-center" data-modal="deleteModal">
-                <i class="fas fa-trash"></i>Supprimer
+            <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                Supprimer
             </button>
         </div>
     </div>
 
-    <!-- Statistiques du projet -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="card stat-card">
-            <div class="stat-card-icon bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400">
-                <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="stat-card-value">{{ projectStats.dureeTotale }}</div>
-            <div class="stat-card-label">Durée totale (jours)</div>
-        </div>
-
-        <div class="card stat-card">
-            <div class="stat-card-icon bg-warning-100 dark:bg-warning-900/30 text-warning-600 dark:text-warning-400">
-                <i class="fas fa-hourglass-half"></i>
-            </div>
-            <div class="stat-card-value text-warning-600 dark:text-warning-400">{{ projectStats.tempsEcoule }}</div>
-            <div class="stat-card-label">Temps écoulé (jours)</div>
-        </div>
-
-        <div class="card stat-card">
-            <div class="stat-card-icon bg-info-100 dark:bg-info-900/30 text-info-600 dark:text-info-400">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-card-value text-info-600 dark:text-info-400">{{ projectStats.joursRestants }}</div>
-            <div class="stat-card-label">Jours restants</div>
-        </div>
-
-        <div class="card stat-card">
-            <div class="stat-card-icon bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400">
-                <i class="fas fa-tasks"></i>
-            </div>
-            <div class="stat-card-value text-success-600 dark:text-success-400">{{ projectStats.nombreAssignments }}</div>
-            <div class="stat-card-label">Assignments</div>
-        </div>
-    </div>
-
-    <!-- Progression temporelle -->
-    <div class="card mb-8">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-            <h5 class="font-semibold text-slate-900 dark:text-white">
-                <i class="fas fa-chart-line me-2"></i>Progression Temporelle
-            </h5>
-        </div>
-        <div class="p-6">
-            <div class="flex flex-col md:flex-row md:items-center gap-6">
-                <div class="flex-1">
-                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
-                        <div class="h-full rounded-full {% if projectStats.pourcentageTemps >= 100 %}bg-success-500{% elseif projectStats.pourcentageTemps >= 75 %}bg-warning-500{% else %}bg-primary-500{% endif %} transition-all duration-300"
-                             style="width: {{ projectStats.pourcentageTemps }}%">
-                        </div>
-                    </div>
-                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">{{ projectStats.pourcentageTemps }}% complété</div>
+    <!-- Project Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card p-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="calendar-days" class="w-5 h-5 text-primary-600"></i>
+                <div>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Durée totale</p>
+                    <p class="text-2xl font-bold">{{ projectStats.dureeTotale }} jours</p>
                 </div>
-                <div class="text-center md:text-right">
-                    <div class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ projectStats.pourcentageTemps }}%</div>
+            </div>
+        </div>
+        <div class="card p-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="clock" class="w-5 h-5 text-warning-600"></i>
+                <div>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Temps écoulé</p>
+                    <p class="text-2xl font-bold">{{ projectStats.tempsEcoule }} jours</p>
+                </div>
+            </div>
+        </div>
+        <div class="card p-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="hourglass" class="w-5 h-5 text-info-600"></i>
+                <div>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Jours restants</p>
+                    <p class="text-2xl font-bold">{{ projectStats.joursRestants }} jours</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Informations du projet -->
-            <div class="card">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                    <h5 class="font-semibold text-slate-900 dark:text-white">
-                        <i class="fas fa-info-circle me-2"></i>Informations du Projet
-                    </h5>
-                </div>
-                <div class="p-6 space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Date de début</label>
-                            <div class="text-lg font-semibold text-slate-900 dark:text-white">{{ project.dateDebut|date('d/m/Y') }}</div>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Date de fin</label>
-                            <div class="text-lg font-semibold text-slate-900 dark:text-white">{{ project.dateFin|date('d/m/Y') }}</div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Statut</label>
-                        <div class="text-lg font-semibold text-slate-900 dark:text-white">
-                            {% if project.statut == 'En cours' %}
-                                <span class="badge badge-primary">{{ project.statut }}</span>
-                            {% elseif project.statut == 'Terminé' %}
-                                <span class="badge badge-success">{{ project.statut }}</span>
-                            {% elseif project.statut == 'En attente' %}
-                                <span class="badge badge-warning">{{ project.statut }}</span>
-                            {% elseif project.statut == 'Annulé' %}
-                                <span class="badge badge-danger">{{ project.statut }}</span>
-                            {% else %}
-                                <span class="badge badge-secondary">{{ project.statut }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
+    <!-- Progression -->
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">Progression du Projet</h2>
+        <div class="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
+            <div class="h-full bg-primary-500 rounded-full transition-all" style="width: {{ projectStats.pourcentageTemps }}%"></div>
+        </div>
+        <p class="text-right text-sm font-medium">{{ projectStats.pourcentageTemps }}% complété</p>
+    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Description</label>
-                        <p class="text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{{ project.description }}</p>
-                    </div>
-                    
-                    {% if project.updatedAt %}
-                        <div class="text-xs text-slate-500 dark:text-slate-400 pt-4 border-t border-slate-200 dark:border-slate-700">
-                            <i class="fas fa-clock me-1"></i>Dernière modification : {{ project.updatedAt|date('d/m/Y à H:i') }}
-                        </div>
-                    {% endif %}
-                </div>
+    <!-- Détails -->
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">Détails du Projet</h2>
+        <dl class="space-y-4">
+            <div>
+                <dt class="text-sm text-secondary-500 dark:text-secondary-400">Date de début</dt>
+                <dd class="font-medium">{{ project.dateDebut|date('d/m/Y') }}</dd>
             </div>
-
-            <!-- Assignments -->
-            <div class="card">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                    <h5 class="font-semibold text-slate-900 dark:text-white">
-                        <i class="fas fa-tasks me-2"></i>Assignments
-                    </h5>
-                    <span class="badge badge-secondary">{{ assignments|length }}</span>
+            <div>
+                <dt class="text-sm text-secondary-500 dark:text-secondary-400">Date de fin</dt>
+                <dd class="font-medium">{{ project.dateFin|date('d/m/Y') }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm text-secondary-500 dark:text-secondary-400">Créé le</dt>
+                <dd class="font-medium">{{ project.createdAt|date('d/m/Y à H:i') }}</dd>
+            </div>
+            {% if project.updatedAt %}
+                <div>
+                    <dt class="text-sm text-secondary-500 dark:text-secondary-400">Modifié le</dt>
+                    <dd class="font-medium">{{ project.updatedAt|date('d/m/Y à H:i') }}</dd>
                 </div>
-                <div class="p-6">
-                    {% if assignments|length > 0 %}
-                        <div class="space-y-4">
-                            {% for assignment in assignments %}
-                                <div class="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
-                                    <div class="flex items-start justify-between gap-4">
-                                        <div class="flex-1">
-                                            <h6 class="font-semibold text-slate-900 dark:text-white mb-1">{{ assignment.titre }}</h6>
-                                            <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">{{ assignment.description }}</p>
-                                            <div class="text-xs text-slate-500 dark:text-slate-500">
-                                                <i class="fas fa-calendar me-1"></i>{{ assignment.dateEcheance|date('d/m/Y') }}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            {% if assignment.statut == 'Terminé' %}
-                                                <span class="badge badge-success">{{ assignment.statut }}</span>
-                                            {% elseif assignment.statut == 'En cours' %}
-                                                <span class="badge badge-primary">{{ assignment.statut }}</span>
-                                            {% else %}
-                                                <span class="badge badge-warning">{{ assignment.statut }}</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
+            {% endif %}
+        </dl>
+    </div>
+
+    <!-- Tâches associées -->
+    <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Tâches Associées</h2>
+            <a href="{{ path('app_assignments_new') }}?project_id={{ project.id }}" class="btn btn-primary text-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Nouvelle Tâche
+            </a>
+        </div>
+        {% if project.assignments|length > 0 %}
+            <div class="space-y-4">
+                {% for assignment in project.assignments %}
+                    <div class="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-500 transition-colors">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex-1">
+                                <h6 class="font-semibold text-secondary-900 dark:text-white mb-1">{{ assignment.titre }}</h6>
+                                <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-2">{{ assignment.description }}</p>
+                                <div class="text-xs text-secondary-500 dark:text-secondary-400 flex gap-4">
+                                    <span><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>{{ assignment.dateFin|date('d/m/Y') }}</span>
+                                    <span class="badge badge-{{ assignment.statut == 'Terminé' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
+                                        {{ assignment.statut }}
+                                    </span>
                                 </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="empty-state p-8">
-                            <div class="empty-state-icon">
-                                <i class="fas fa-clipboard-list"></i>
                             </div>
-                            <div class="empty-state-title">Aucun assignment</div>
-                            <div class="empty-state-description">Aucun assignment n'est associé à ce projet</div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <!-- Timeline -->
-            <div class="card">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                    <h5 class="font-semibold text-slate-900 dark:text-white">
-                        <i class="fas fa-history me-2"></i>Timeline
-                    </h5>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-6">
-                        <!-- Start -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div class="w-3 h-3 rounded-full bg-primary-600 dark:bg-primary-400 ring-4 ring-primary-100 dark:ring-primary-900/30"></div>
-                                <div class="w-0.5 h-12 bg-slate-300 dark:bg-slate-700 my-2"></div>
-                            </div>
-                            <div class="pt-1">
-                                <h6 class="font-semibold text-slate-900 dark:text-white">Début du projet</h6>
-                                <p class="text-sm text-slate-600 dark:text-slate-400">{{ project.dateDebut|date('d/m/Y') }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Today -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div class="w-3 h-3 rounded-full {% if date() < project.dateFin %}bg-warning-600 dark:bg-warning-400{% else %}bg-success-600 dark:bg-success-400{% endif %} ring-4 {% if date() < project.dateFin %}ring-warning-100 dark:ring-warning-900/30{% else %}ring-success-100 dark:ring-success-900/30{% endif %}"></div>
-                                <div class="w-0.5 h-12 bg-slate-300 dark:bg-slate-700 my-2"></div>
-                            </div>
-                            <div class="pt-1">
-                                <h6 class="font-semibold text-slate-900 dark:text-white">Aujourd'hui</h6>
-                                <p class="text-sm text-slate-600 dark:text-slate-400">{{ 'now'|date('d/m/Y') }}</p>
-                            </div>
-                        </div>
-
-                        <!-- End -->
-                        <div class="flex gap-4">
-                            <div class="flex flex-col items-center">
-                                <div class="w-3 h-3 rounded-full {% if date() > project.dateFin %}bg-danger-600 dark:bg-danger-400{% else %}bg-slate-400 dark:bg-slate-600{% endif %} ring-4 {% if date() > project.dateFin %}ring-danger-100 dark:ring-danger-900/30{% else %}ring-slate-200 dark:ring-slate-800{% endif %}"></div>
-                            </div>
-                            <div class="pt-1">
-                                <h6 class="font-semibold text-slate-900 dark:text-white">Fin prévue</h6>
-                                <p class="text-sm text-slate-600 dark:text-slate-400">{{ project.dateFin|date('d/m/Y') }}</p>
-                            </div>
+                            <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="btn btn-ghost btn-icon-sm">
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </a>
                         </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
+        {% else %}
+            <div class="empty-state p-8 text-center">
+                <i data-lucide="clipboard-x" class="w-12 h-12 empty-state-icon mb-4"></i>
+                <p class="empty-state-title">Aucune tâche</p>
+                <p class="empty-state-description">Ajoutez votre première tâche pour ce projet</p>
+            </div>
+        {% endif %}
+    </div>
 
-            <!-- Actions rapides -->
-            <div class="card">
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                    <h5 class="font-semibold text-slate-900 dark:text-white">
-                        <i class="fas fa-bolt me-2"></i>Actions Rapides
-                    </h5>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal hidden fixed inset-0 z-50 flex items-center justify-center" id="delete-modal">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="card max-w-sm mx-4 relative z-10">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 mx-auto bg-danger-100 dark:bg-danger-900/30 rounded-full mb-4">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
                 </div>
-                <div class="p-6 space-y-3">
-                    <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-outline w-full justify-center">
-                        <i class="fas fa-edit"></i>Modifier
-                    </a>
-                    <a href="{{ path('app_project_export_single_pdf', {'id': project.id}) }}" class="btn btn-outline w-full justify-center">
-                        <i class="fas fa-file-pdf"></i>Télécharger PDF
-                    </a>
-                    <div class="border-t border-slate-200 dark:border-slate-700 pt-3">
-                        <a href="{{ path('app_project_index') }}" class="btn btn-ghost w-full justify-center">
-                            <i class="fas fa-arrow-left"></i>Retour à la liste
-                        </a>
-                    </div>
+                <h3 class="text-lg font-semibold text-secondary-900 dark:text-white text-center mb-2">Supprimer le projet ?</h3>
+                <p class="text-sm text-light-muted dark:text-dark-muted text-center mb-6">
+                    Êtes-vous sûr de vouloir supprimer <strong>{{ project.titre }}</strong> ? Cette action ne peut pas être annulée.
+                </p>
+                <div class="flex flex-col-reverse sm:flex-row gap-3">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                    <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" style="flex: 1;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                        <button type="submit" class="btn btn-danger w-full">Supprimer</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal hidden fixed inset-0 z-50 flex items-center justify-center" id="deleteModal">
-    <div class="modal-backdrop" data-dismiss="modal"></div>
-    <div class="modal-content max-w-sm mx-4">
-        <div class="p-6">
-            <div class="flex items-center justify-center w-12 h-12 mx-auto bg-danger-100 dark:bg-danger-900/30 rounded-full mb-4">
-                <i class="fas fa-exclamation-triangle text-danger-600 dark:text-danger-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-slate-900 dark:text-white text-center mb-2">Supprimer le projet ?</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">
-                Êtes-vous sûr de vouloir supprimer <strong>{{ project.titre }}</strong> ? Cette action ne peut pas être annulée.
-            </p>
-            <div class="flex flex-col-reverse sm:flex-row gap-3">
-                <button type="button" class="btn btn-outline" data-dismiss="modal">
-                    <i class="fas fa-times"></i>Annuler
-                </button>
-                <form method="POST" action="{{ path('app_project_delete', {'id': project.id}) }}" style="flex: 1;">
-                    <button type="submit" class="btn w-full bg-danger-600 hover:bg-danger-700 text-white">
-                        <i class="fas fa-check"></i>Supprimer
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
 {{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const modalTriggers = document.querySelectorAll('[data-modal]');
-    const modals = document.querySelectorAll('.modal');
-    const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-    const modalDismisses = document.querySelectorAll('[data-dismiss="modal"]');
-
-    // Open modal
-    modalTriggers.forEach(trigger => {
-        trigger.addEventListener('click', function() {
-            const modalId = this.getAttribute('data-modal');
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('hidden');
-            }
-        });
-    });
-
-    // Close modal
-    const closeModal = (modal) => {
-        modal.classList.add('hidden');
-    };
-
-    // Backdrop click
-    modalBackdrops.forEach(backdrop => {
-        backdrop.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            if (modal) {
-                closeModal(modal);
-            }
-        });
-    });
-
-    // Dismiss buttons
-    modalDismisses.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            if (modal) {
-                closeModal(modal);
-            }
-        });
-    });
-
-    // ESC key to close
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            modals.forEach(modal => {
-                if (!modal.classList.contains('hidden')) {
-                    closeModal(modal);
-                }
-            });
-        }
-    });
-});
+  lucide.createIcons();
+  
+  function confirmDelete() {
+    document.getElementById('delete-modal').classList.remove('hidden');
+  }
+  
+  function closeModal() {
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
 </script>
 {% endblock %}
-
-
-
