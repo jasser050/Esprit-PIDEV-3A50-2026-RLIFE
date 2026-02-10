@@ -23,7 +23,7 @@
     </div>
 
     <!-- Form -->
-    {{ form_start(form, {'attr': {'class': 'card p-6'}}) }}
+    {{ form_start(form, {'attr': {'class': 'card p-6', 'data-turbo': 'false'}}) }}
         <div class="space-y-6">
             <!-- Titre -->
             <div>
@@ -112,7 +112,7 @@
             {% endif %}
 
             <!-- Actions -->
-            <div class="flex items-center justify-between pt-4 border-t border-light-border dark:border-dark-border">
+            <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                     Delete
@@ -142,7 +142,7 @@
         </p>
         <div class="flex flex-col-reverse sm:flex-row gap-3">
             <button type="button" class="btn btn-secondary flex-1" onclick="closeModal()">Cancel</button>
-            <form action="{{ path('app_assignments_delete', { id: assignment.id }) }}" method="POST" class="flex-1">
+            <form action="{{ path('app_assignments_delete', { id: assignment.id }) }}" method="POST" class="flex-1" data-turbo="false">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ assignment.id) }}">
                 <button type="submit" class="btn btn-danger w-full">Delete</button>
             </form>
@@ -155,28 +155,49 @@
 {{ parent() }}
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-  // Initialize icons
-  lucide.createIcons();
-  
-  // Show delete confirmation modal
-  function confirmDelete() {
-    const modal = document.getElementById('delete-modal');
-    modal.classList.remove('hidden');
-    // Reinitialize icons in the modal
-    setTimeout(() => lucide.createIcons(), 10);
-  }
-  
-  // Close modal
-  function closeModal() {
-    const modal = document.getElementById('delete-modal');
-    modal.classList.add('hidden');
-  }
-  
-  // Close modal with ESC key
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeModal();
-    }
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize icons
+    lucide.createIcons();
+    
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+    
+    console.log('✅ Edit page initialized');
   });
+  
+  // Show delete confirmation modal (global function)
+  function confirmDelete() {
+    console.log('Delete button clicked');
+    const modal = document.getElementById('delete-modal');
+    console.log('Modal element:', modal);
+    
+    if (modal) {
+      modal.classList.remove('hidden');
+      console.log('Modal classList after remove hidden:', modal.classList.value);
+      console.log('Modal display style:', window.getComputedStyle(modal).display);
+      
+      // Reinitialize icons in the modal
+      setTimeout(() => {
+        lucide.createIcons();
+        console.log('Icons reinitialized');
+      }, 10);
+    } else {
+      console.error('❌ Modal not found!');
+    }
+  }
+  
+  // Close modal (global function)
+  function closeModal() {
+    console.log('Closing modal');
+    const modal = document.getElementById('delete-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      console.log('Modal hidden');
+    }
+  }
 </script>
 {% endblock %}
