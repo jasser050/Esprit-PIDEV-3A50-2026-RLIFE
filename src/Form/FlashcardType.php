@@ -18,142 +18,142 @@ class FlashcardType extends AbstractType
     {
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Titre de la carte',
+                'label' => 'Card Title',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Ex : Capitales d\'Europe, Théorème de Pythagore...',
+                    'placeholder' => 'e.g., European Capitals, Pythagorean Theorem...',
                     'class' => 'w-full p-3 border rounded-lg',
                     'minlength' => 3,
                     'maxlength' => 255,
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Le titre est obligatoire'
+                        'message' => 'Title is required'
                     ]),
                     new Assert\Length([
                         'min' => 3,
                         'max' => 255,
-                        'minMessage' => 'Le titre doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'Le titre ne peut pas dépasser {{ limit }} caractères'
+                        'minMessage' => 'Title must be at least {{ limit }} characters',
+                        'maxMessage' => 'Title cannot exceed {{ limit }} characters'
                     ]),
                     new Assert\Regex([
                         'pattern' => '/^[^0-9]/',
-                        'message' => 'Le titre ne doit pas commencer par un chiffre'
+                        'message' => 'Title cannot start with a number'
                     ])
                 ]
             ])
             ->add('question', TextareaType::class, [
-                'label' => 'Question / Recto',
+                'label' => 'Question / Front',
                 'required' => true,
                 'attr' => [
                     'rows' => 5,
-                    'placeholder' => 'Pose ta question ici...',
+                    'placeholder' => 'Write your question here...',
                     'class' => 'w-full p-3 border rounded-lg',
                     'minlength' => 5,
                     'maxlength' => 2000,
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'La question est obligatoire'
+                        'message' => 'Question is required'
                     ]),
                     new Assert\Length([
                         'min' => 5,
                         'max' => 2000,
-                        'minMessage' => 'La question doit contenir au moins {{ limit }} caractères',
-                        'maxMessage' => 'La question ne peut pas dépasser {{ limit }} caractères'
+                        'minMessage' => 'Question must be at least {{ limit }} characters',
+                        'maxMessage' => 'Question cannot exceed {{ limit }} characters'
                     ])
                 ]
             ])
             ->add('reponse', TextareaType::class, [
-                'label' => 'Réponse / Verso',
+                'label' => 'Answer / Back',
                 'required' => true,
                 'attr' => [
                     'rows' => 6,
-                    'placeholder' => 'Écris la réponse complète ici...',
+                    'placeholder' => 'Write the complete answer here...',
                     'class' => 'w-full p-3 border rounded-lg',
                     'minlength' => 1,
                     'maxlength' => 2000,
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'La réponse est obligatoire'
+                        'message' => 'Answer is required'
                     ]),
                     new Assert\Length([
                         'min' => 1,
                         'max' => 2000,
-                        'minMessage' => 'La réponse doit contenir au moins {{ limit }} caractère',
-                        'maxMessage' => 'La réponse ne peut pas dépasser {{ limit }} caractères'
+                        'minMessage' => 'Answer must be at least {{ limit }} character',
+                        'maxMessage' => 'Answer cannot exceed {{ limit }} characters'
                     ])
                 ]
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description / Note (optionnel)',
+                'label' => 'Description / Note (optional)',
                 'required' => false,
                 'attr' => [
                     'rows' => 3,
-                    'placeholder' => 'Ajoute un commentaire ou un indice...',
+                    'placeholder' => 'Add a comment or hint...',
                     'class' => 'w-full p-3 border rounded-lg',
                     'maxlength' => 2000,
                 ],
                 'constraints' => [
                     new Assert\Length([
                         'max' => 2000,
-                        'maxMessage' => 'La description ne peut pas dépasser {{ limit }} caractères'
+                        'maxMessage' => 'Description cannot exceed {{ limit }} characters'
                     ])
                 ]
             ])
             ->add('niveauDifficulte', ChoiceType::class, [
-                'label' => 'Niveau de difficulté',
+                'label' => 'Difficulty Level',
                 'required' => true,
                 'choices' => [
-                    'Très facile (1)' => 1,
-                    'Facile (2)' => 2,
-                    'Moyen (3)' => 3,
-                    'Difficile (4)' => 4,
-                    'Très difficile (5)' => 5,
+                    'Very Easy (1)' => 1,
+                    'Easy (2)' => 2,
+                    'Medium (3)' => 3,
+                    'Hard (4)' => 4,
+                    'Very Hard (5)' => 5,
                 ],
-                'placeholder' => '-- Sélectionnez un niveau --',
+                'placeholder' => '-- Select a level --',
                 'attr' => [
                     'class' => 'w-full p-3 border rounded-lg',
                 ],
                 'constraints' => [
                     new Assert\NotNull([
-                        'message' => 'Le niveau de difficulté est obligatoire'
+                        'message' => 'Difficulty level is required'
                     ]),
                     new Assert\Range([
                         'min' => 1,
                         'max' => 5,
-                        'notInRangeMessage' => 'Le niveau de difficulté doit être entre {{ min }} et {{ max }}'
+                        'notInRangeMessage' => 'Difficulty level must be between {{ min }} and {{ max }}'
                     ])
                 ]
             ])
             ->add('etat', ChoiceType::class, [
-                'label' => 'État actuel',
+                'label' => 'Current Status',
                 'required' => true,
                 'choices' => [
-                    'Actif' => 'actif',
-                    'Brouillon' => 'brouillon',
-                    'Archivé' => 'archive',
-                    'Inactif' => 'inactif',
+                    'Active' => 'actif',
+                    'Draft' => 'brouillon',
+                    'Archived' => 'archive',
+                    'Inactive' => 'inactif',
                 ],
-                'data' => 'actif', // Valeur par défaut
+                'data' => 'actif', // Default value
                 'attr' => [
                     'class' => 'w-full p-3 border rounded-lg',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'L\'état est obligatoire'
+                        'message' => 'Status is required'
                     ]),
                     new Assert\Choice([
                         'choices' => ['actif', 'brouillon', 'archive', 'inactif'],
-                        'message' => 'L\'état doit être : actif, brouillon, archive ou inactif'
+                        'message' => 'Status must be: active, draft, archived or inactive'
                     ])
                 ]
             ])
             ->add('imageFile', FileType::class, [
-                'label' => 'Image (optionnel)',
+                'label' => 'Image (optional)',
                 'required' => false,
-                'mapped' => false, // Important : ce champ n'est pas mappé directement à l'entity
+                'mapped' => false, // Important: this field is not mapped directly to the entity
                 'attr' => [
                     'accept' => 'image/jpeg,image/png,image/webp,image/gif',
                     'class' => 'w-full p-3 border rounded-lg',
@@ -167,15 +167,15 @@ class FlashcardType extends AbstractType
                             'image/webp',
                             'image/gif',
                         ],
-                        'maxSizeMessage' => 'L\'image ne doit pas dépasser {{ limit }} {{ suffix }}',
-                        'mimeTypesMessage' => 'Format d\'image invalide. Formats acceptés : JPG, PNG, WEBP, GIF'
+                        'maxSizeMessage' => 'Image cannot exceed {{ limit }} {{ suffix }}',
+                        'mimeTypesMessage' => 'Invalid image format. Accepted formats: JPG, PNG, WEBP, GIF'
                     ])
                 ]
             ])
             ->add('pdfFile', FileType::class, [
-                'label' => 'PDF (optionnel)',
+                'label' => 'PDF (optional)',
                 'required' => false,
-                'mapped' => false, // Important : ce champ n'est pas mappé directement à l'entity
+                'mapped' => false, // Important: this field is not mapped directly to the entity
                 'attr' => [
                     'accept' => 'application/pdf,.pdf',
                     'class' => 'w-full p-3 border rounded-lg',
@@ -184,8 +184,8 @@ class FlashcardType extends AbstractType
                     new Assert\File([
                         'maxSize' => '10M',
                         'mimeTypes' => ['application/pdf'],
-                        'maxSizeMessage' => 'Le PDF ne doit pas dépasser {{ limit }} {{ suffix }}',
-                        'mimeTypesMessage' => 'Seuls les fichiers PDF sont acceptés'
+                        'maxSizeMessage' => 'PDF cannot exceed {{ limit }} {{ suffix }}',
+                        'mimeTypesMessage' => 'Only PDF files are accepted'
                     ])
                 ]
             ]);

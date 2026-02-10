@@ -225,32 +225,32 @@
 
             <!-- Header -->
             <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-10 text-white">
-                <h1 class="text-3xl font-bold mb-2">Créer une nouvelle Flashcard</h1>
+                <h1 class="text-3xl font-bold mb-2">Create New Flashcard</h1>
                 <p class="text-indigo-100/90 text-lg">
-                    Deck : <strong class="text-white">{{ deck.titre }}</strong>
+                    Deck: <strong class="text-white">{{ deck.titre }}</strong>
                     <span class="opacity-80">({{ deck.matiere }} • {{ deck.niveau }})</span>
                 </p>
             </div>
 
             <!-- Form Body -->
             <div class="p-8 lg:p-10 bg-white dark:bg-gray-900">
-                <!-- Alert de validation globale -->
+                <!-- Validation Alert -->
                 <div id="validationAlert" class="validation-alert">
-                    <strong>⚠️ Erreurs de validation :</strong>
+                    <strong>⚠️ Validation Errors:</strong>
                     <ul id="validationErrors" class="list-disc list-inside mt-2"></ul>
                 </div>
 
                 {{ form_start(form, {'attr': {'class': 'space-y-7', 'id': 'flashcardForm', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
 
-                <!-- Titre (OBLIGATOIRE) -->
+                <!-- Title (REQUIRED) -->
                 <div class="space-y-2">
-                    {{ form_label(form.titre, 'Titre de la flashcard', {
+                    {{ form_label(form.titre, 'Flashcard Title', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
                     {{ form_widget(form.titre, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                            'placeholder': 'Ex : Définition du système nerveux, Théorème de Pythagore...',
+                            'placeholder': 'e.g., Definition of nervous system, Pythagorean theorem...',
                             'required': 'required',
                             'minlength': '3',
                             'maxlength': '255',
@@ -259,9 +259,9 @@
                             'id': 'flashcard_titre'
                         }
                     }) }}
-                    <p class="help-text">📌 Obligatoire – Min 3 caractères – Ne doit pas commencer par un chiffre – Max 255 caractères</p>
+                    <p class="help-text">📌 Required – Min 3 characters – Cannot start with a number – Max 255 characters</p>
                     <div class="char-counter" data-counter="titre">
-                        <span class="current">0</span> / 255 caractères
+                        <span class="current">0</span> / 255 characters
                     </div>
                     {% if form.titre.vars.errors|length > 0 %}
                         <div class="error-message">
@@ -273,7 +273,7 @@
                     <div class="error-message" id="error-titre"></div>
                 </div>
 
-                <!-- Question (OBLIGATOIRE) -->
+                <!-- Question (REQUIRED) -->
                 <div class="space-y-2">
                     {{ form_label(form.question, 'Question', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
@@ -281,7 +281,7 @@
                     {{ form_widget(form.question, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm min-h-[130px]',
-                            'placeholder': 'Quelle est la capitale de la France ? Expliquez le théorème de Pythagore...',
+                            'placeholder': 'What is the capital of France? Explain the Pythagorean theorem...',
                             'required': 'required',
                             'minlength': '5',
                             'maxlength': '2000',
@@ -289,9 +289,9 @@
                             'id': 'flashcard_question'
                         }
                     }) }}
-                    <p class="help-text">📌 Obligatoire – Min 5 caractères – Max 2000 caractères</p>
+                    <p class="help-text">📌 Required – Min 5 characters – Max 2000 characters</p>
                     <div class="char-counter" data-counter="question">
-                        <span class="current">0</span> / 2000 caractères
+                        <span class="current">0</span> / 2000 characters
                     </div>
                     {% if form.question.vars.errors|length > 0 %}
                         <div class="error-message">
@@ -303,15 +303,15 @@
                     <div class="error-message" id="error-question"></div>
                 </div>
 
-                <!-- Réponse (OBLIGATOIRE) -->
+                <!-- Answer (REQUIRED) -->
                 <div class="space-y-2">
-                    {{ form_label(form.reponse, 'Réponse', {
+                    {{ form_label(form.reponse, 'Answer', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
                     {{ form_widget(form.reponse, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition shadow-sm min-h-[160px]',
-                            'placeholder': 'Paris\n\nDans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés...',
+                            'placeholder': 'Paris\n\nIn a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides...',
                             'required': 'required',
                             'minlength': '1',
                             'maxlength': '2000',
@@ -319,9 +319,9 @@
                             'id': 'flashcard_reponse'
                         }
                     }) }}
-                    <p class="help-text">📌 Obligatoire – Min 1 caractère – Max 2000 caractères</p>
+                    <p class="help-text">📌 Required – Min 1 character – Max 2000 characters</p>
                     <div class="char-counter" data-counter="reponse">
-                        <span class="current">0</span> / 2000 caractères
+                        <span class="current">0</span> / 2000 characters
                     </div>
                     {% if form.reponse.vars.errors|length > 0 %}
                         <div class="error-message">
@@ -333,23 +333,23 @@
                     <div class="error-message" id="error-reponse"></div>
                 </div>
 
-                <!-- Description (OPTIONNEL) -->
+                <!-- Description (OPTIONAL) -->
                 <div class="space-y-2">
-                    {{ form_label(form.description, 'Notes / Explications supplémentaires (optionnel)', {
+                    {{ form_label(form.description, 'Notes / Additional Explanation (optional)', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
                     {{ form_widget(form.description, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition shadow-sm min-h-[110px]',
-                            'placeholder': 'Contexte supplémentaire, exemples, pièges classiques, démonstration...',
+                            'placeholder': 'Additional context, examples, common mistakes, proof...',
                             'maxlength': '2000',
                             'data-field': 'description',
                             'id': 'flashcard_description'
                         }
                     }) }}
-                    <p class="help-text">💡 Optionnel – Max 2000 caractères</p>
+                    <p class="help-text">💡 Optional – Max 2000 characters</p>
                     <div class="char-counter" data-counter="description">
-                        <span class="current">0</span> / 2000 caractères
+                        <span class="current">0</span> / 2000 characters
                     </div>
                     {% if form.description.vars.errors|length > 0 %}
                         <div class="error-message">
@@ -361,11 +361,11 @@
                     <div class="error-message" id="error-description"></div>
                 </div>
 
-                <!-- Niveau de difficulté + État -->
+                <!-- Difficulty Level + Status -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Niveau de difficulté -->
+                    <!-- Difficulty Level -->
                     <div class="space-y-2">
-                        {{ form_label(form.niveauDifficulte, 'Niveau de difficulté', {
+                        {{ form_label(form.niveauDifficulte, 'Difficulty Level', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
                         {{ form_widget(form.niveauDifficulte, {
@@ -376,7 +376,7 @@
                                 'id': 'flashcard_niveauDifficulte'
                             }
                         }) }}
-                        <p class="help-text">📌 Obligatoire – Entre 1 (facile) et 5 (difficile)</p>
+                        <p class="help-text">📌 Required – Between 1 (easy) and 5 (hard)</p>
                         {% if form.niveauDifficulte.vars.errors|length > 0 %}
                             <div class="error-message">
                                 {% for error in form.niveauDifficulte.vars.errors %}
@@ -387,9 +387,9 @@
                         <div class="error-message" id="error-niveauDifficulte"></div>
                     </div>
 
-                    <!-- État -->
+                    <!-- Status -->
                     <div class="space-y-2">
-                        {{ form_label(form.etat, 'État de la carte', {
+                        {{ form_label(form.etat, 'Card Status', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
                         {{ form_widget(form.etat, {
@@ -400,7 +400,7 @@
                                 'id': 'flashcard_etat'
                             }
                         }) }}
-                        <p class="help-text">📌 Obligatoire – Statut de la flashcard</p>
+                        <p class="help-text">📌 Required – Flashcard status</p>
                         {% if form.etat.vars.errors|length > 0 %}
                             <div class="error-message">
                                 {% for error in form.etat.vars.errors %}
@@ -412,11 +412,11 @@
                     </div>
                 </div>
 
-                <!-- Fichiers (OPTIONNELS) -->
+                <!-- Files (OPTIONAL) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <!-- Image -->
                     <div class="space-y-2">
-                        {{ form_label(form.imageFile, 'Image (optionnel)', {
+                        {{ form_label(form.imageFile, 'Image (optional)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
                         {{ form_widget(form.imageFile, {
@@ -427,10 +427,10 @@
                                 'id': 'flashcard_imageFile'
                             }
                         }) }}
-                        <p class="help-text">💡 Optionnel – Max 5 Mo – JPG, PNG, WEBP, GIF</p>
+                        <p class="help-text">💡 Optional – Max 5 MB – JPG, PNG, WEBP, GIF</p>
                         <div id="imagePreview" class="file-preview" style="display: none;">
-                            <strong>Fichier sélectionné :</strong> <span id="imageName"></span>
-                            <br><small>Taille : <span id="imageSize"></span></small>
+                            <strong>Selected file:</strong> <span id="imageName"></span>
+                            <br><small>Size: <span id="imageSize"></span></small>
                         </div>
                         {% if form.imageFile.vars.errors|length > 0 %}
                             <div class="error-message">
@@ -444,7 +444,7 @@
 
                     <!-- PDF -->
                     <div class="space-y-2">
-                        {{ form_label(form.pdfFile, 'Document PDF (optionnel)', {
+                        {{ form_label(form.pdfFile, 'PDF Document (optional)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
                         {{ form_widget(form.pdfFile, {
@@ -455,10 +455,10 @@
                                 'id': 'flashcard_pdfFile'
                             }
                         }) }}
-                        <p class="help-text">💡 Optionnel – Max 10 Mo – PDF uniquement</p>
+                        <p class="help-text">💡 Optional – Max 10 MB – PDF only</p>
                         <div id="pdfPreview" class="file-preview" style="display: none;">
-                            <strong>Fichier sélectionné :</strong> <span id="pdfName"></span>
-                            <br><small>Taille : <span id="pdfSize"></span></small>
+                            <strong>Selected file:</strong> <span id="pdfName"></span>
+                            <br><small>Size: <span id="pdfSize"></span></small>
                         </div>
                         {% if form.pdfFile.vars.errors|length > 0 %}
                             <div class="error-message">
@@ -471,17 +471,17 @@
                     </div>
                 </div>
 
-                <!-- Boutons d'action -->
+                <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
                     <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
                        class="btn-cancel">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        Annuler
+                        Cancel
                     </a>
 
                     <button type="submit" id="submitBtn" class="btn-save">
                         <i data-lucide="save" class="w-5 h-5"></i>
-                        Enregistrer la flashcard
+                        Save Flashcard
                     </button>
                 </div>
 
@@ -509,7 +509,7 @@ document.addEventListener('DOMContentLoaded', function() {
             maxLength: 255,
             required: true,
             pattern: /^[^0-9]/,
-            patternMessage: 'Le titre ne doit pas commencer par un chiffre'
+            patternMessage: 'Title cannot start with a number'
         },
         question: {
             element: document.getElementById('flashcard_question'),
@@ -584,26 +584,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const errorDiv = document.getElementById(`error-${fieldName}`);
         let errors = [];
 
-        // Champ obligatoire
+        // Required field
         if (field.required && !field.element.value.trim()) {
-            errors.push('Ce champ est obligatoire');
+            errors.push('This field is required');
         }
 
         // Validation pour les champs texte
         if (field.element.type !== 'file' && field.element.value) {
             // Min length
             if (field.minLength && field.element.value.length < field.minLength) {
-                errors.push(`Minimum ${field.minLength} caractères requis`);
+                errors.push(`Minimum ${field.minLength} characters required`);
             }
 
             // Max length
             if (field.maxLength && field.element.value.length > field.maxLength) {
-                errors.push(`Maximum ${field.maxLength} caractères autorisés`);
+                errors.push(`Maximum ${field.maxLength} characters allowed`);
             }
 
             // Pattern
             if (field.pattern && !field.pattern.test(field.element.value)) {
-                errors.push(field.patternMessage || 'Format invalide');
+                errors.push(field.patternMessage || 'Invalid format');
             }
         }
 
@@ -611,15 +611,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (field.element.type === 'file' && field.element.files.length > 0) {
             const file = field.element.files[0];
 
-            // Taille
+            // Size
             if (field.maxSize && file.size > field.maxSize) {
                 const maxSizeMB = field.maxSize / (1024 * 1024);
-                errors.push(`Taille maximale : ${maxSizeMB} Mo`);
+                errors.push(`Maximum size: ${maxSizeMB} MB`);
             }
 
             // Type
             if (field.allowedTypes && !field.allowedTypes.includes(file.type)) {
-                errors.push('Type de fichier non autorisé');
+                errors.push('File type not allowed');
             }
         }
 
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
             submitBtn.disabled = false;
         } else {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Enregistrement...';
+            submitBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Saving...';
         }
     });
 
