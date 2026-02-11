@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Recommendations API</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        h1 { color: #333; }
+        .section { margin: 20px 0; padding: 20px; background: #f5f5f5; border-radius: 8px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #4F46E5; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #4338CA; }
+        .result { margin-top: 15px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 5px; white-space: pre-wrap; }
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Recommendations API</h1>
+    
+    <div class="section">
+        <h2>API Endpoints</h2>
+        <button onclick="testAllRecommendations()">Get All Recommendations</button>
+        <button onclick="testLowLevel()">Low Stress</button>
+        <button onclick="testMediumLevel()">Medium Stress</button>
+        <button onclick="testHighLevel()">High Stress</button>
+        <button onclick="testInvalidLevel()">Invalid Level</button>
+    </div>
+    
+    <div class="section">
+        <h2>Results</h2>
+        <div id="results" class="result">Click a button above to test...</div>
+    </div>
+    
+    <script>
+        const apiBase = '/api/wellbeing/recommendations';
+        
+        async function testEndpoint(url) {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+        
+        function displayResult(title, result) {
+            const resultsDiv = document.getElementById('results');
+            const status = result.success ? '✅' : '❌';
+            const colorClass = result.success ? 'success' : 'error';
+            
+            let html = `<strong>${status} ${title}</strong>\n`;
+            html += `Status: ${result.status || 'Error'}\n\n`;
+            html += `<span class="${colorClass}">${JSON.stringify(result.data || result.error, null, 2)}</span>`;
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        async function testAllRecommendations() {
+            const result = await testEndpoint(apiBase);
+            displayResult('All Recommendations', result);
+        }
+        
+        async function testLowLevel() {
+            const result = await testEndpoint(apiBase + '/by-level/low');
+            displayResult('Low Stress Recommendations', result);
+        }
+        
+        async function testMediumLevel() {
+            const result = await testEndpoint(apiBase + '/by-level/medium');
+            displayResult('Medium Stress Recommendations', result);
+        }
+        
+        async function testHighLevel() {
+            const result = await testEndpoint(apiBase + '/by-level/high');
+            displayResult('High Stress Recommendations', result);
+        }
+        
+        async function testInvalidLevel() {
+            const result = await testEndpoint(apiBase + '/by-level/invalid');
+            displayResult('Invalid Level (should error)', result);
+        }
+    </script>
+</body>
+</html>

@@ -18,6 +18,8 @@
     } %}
 
     <form method="POST" action="{{ path('app_wellbeing_checkin_new') }}" class="space-y-6">
+        <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_new') }}">
+        
         <div class="card p-6">
             <h2 class="text-lg font-semibold mb-6">Mood</h2>
             <p class="text-sm text-light-muted dark:text-dark-muted mb-4">Select the emoji that best represents how you're feeling</p>
@@ -116,6 +118,7 @@
             <h2 class="text-lg font-semibold mb-4">Notes (Optional)</h2>
             {% include 'components/textarea.html.twig' with {
                 name: 'notes',
+                value: '',
                 placeholder: 'How are you feeling? What\'s on your mind? Any particular reason for your current mood?',
                 rows: 4
             } %}

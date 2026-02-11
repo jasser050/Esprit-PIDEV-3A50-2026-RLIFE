@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stress Assessment Quiz{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+        <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-4">
+            <i data-lucide="clipboard-check" class="w-10 h-10 text-white"></i>
+        </div>
+        <h1 class="text-4xl font-black text-secondary-900 dark:text-white mb-3">Stress Assessment</h1>
+        <p class="text-lg text-secondary-500 dark:text-secondary-400 max-w-2xl mx-auto">
+            Take this quick assessment to understand your current stress level and receive personalized recommendations.
+        </p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="card p-6">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Question <span id="currentQuestion">1</span> of {{ questions|length }}</span>
+            <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300" id="progressPercent">0%</span>
+        </div>
+        <div class="h-3 bg-secondary-200 dark:bg-secondary-700 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form id="quizForm" method="post" action="{{ path('app_wellbeing_quiz_submit') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_quiz') }}">
+        
+        <div class="space-y-6">
+            {% for question in questions %}
+            <div class="question-card card p-6 md:p-8 {{ loop.first ? '' : 'hidden' }}" data-question="{{ loop.index }}">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                        {{ loop.index }}
+                    </div>
+                    <h3 class="text-xl font-semibold text-secondary-900 dark:text-white leading-relaxed">
+                        {{ question.questionText }}
+                    </h3>
+                </div>
+
+                <div class="space-y-3 ml-14">
+                    {% for value, label in {0: 'Not at all', 1: 'Several days', 2: 'More than half the days', 3: 'Nearly every day'} %}
+                    <label class="flex items-center gap-4 p-4 rounded-xl border-2 border-secondary-200 dark:border-secondary-700 hover:border-amber-400 dark:hover:border-amber-500 cursor-pointer transition-all group">
+                        <input type="radio" name="answers[{{ question.id }}]" value="{{ value }}" 
+                               class="w-5 h-5 text-amber-500 focus:ring-amber-500"
+                               onchange="updateProgress()">
+                        <span class="text-secondary-700 dark:text-secondary-300 group-hover:text-amber-600 transition-colors">{{ label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between mt-8">
+            <button type="button" id="prevBtn" class="btn btn-secondary hidden" onclick="changeQuestion(-1)">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Previous
+            </button>
+            <button type="button" id="nextBtn" class="btn btn-primary ml-auto" onclick="changeQuestion(1)">
+                Next
+                <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
+            </button>
+            <button type="submit" id="submitBtn" class="btn btn-success hidden ml-auto">
+                <i data-lucide="check" class="w-5 h-5 mr-2"></i>
+                Submit Assessment
+            </button>
+        </div>
+    </form>
+
+    <!-- Tips Card -->
+    <div class="card p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-800">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center flex-shrink-0">
+                <i data-lucide="info" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg text-secondary-900 dark:text-white mb-2">About This Assessment</h3>
+                <p class="text-secondary-600 dark:text-secondary-400">
+                    This quiz helps identify your stress levels based on common symptoms. Your answers are private and used only to provide personalized recommendations. 
+                    If you're experiencing severe distress, please reach out to a mental health professional.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentQuestion = 1;
+const totalQuestions = {{ questions|length }};
+
+function updateProgress() {
+    const answered = document.querySelectorAll('input[type="radio"]:checked').length;
+    const percent = Math.round((answered / totalQuestions) * 100);
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressPercent').textContent = percent + '%';
+}
+
+function changeQuestion(direction) {
+    // Hide current question
+    document.querySelector(`.question-card[data-question="${currentQuestion}"]`).classList.add('hidden');
+    
+    // Update current question number
+    currentQuestion += direction;
+    
+    // Show new question
+    document.querySelector(`.question-card[data-question="${currentQuestion}"]`).classList.remove('hidden');
+    
+    // Update question number display
+    document.getElementById('currentQuestion').textContent = currentQuestion;
+    
+    // Update button visibility
+    document.getElementById('prevBtn').classList.toggle('hidden', currentQuestion === 1);
+    
+    if (currentQuestion === totalQuestions) {
+        document.getElementById('nextBtn').classList.add('hidden');
+        document.getElementById('submitBtn').classList.remove('hidden');
+    } else {
+        document.getElementById('nextBtn').classList.remove('hidden');
+        document.getElementById('submitBtn').classList.add('hidden');
+    }
+}
+
+// Initialize
+updateProgress();
+</script>
+{% endblock %}
