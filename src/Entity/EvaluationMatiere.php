@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: EvaluationMatiereRepository::class)]
 #[ORM\Table(name: 'evaluation_matiere')]
@@ -45,7 +45,7 @@ class EvaluationMatiere
 
 
     #[ORM\Column(name: 'date_evaluation', type: 'datetime')]
-    #[Assert\NotBlank(message: 'La date d\'évaluation est obligatoire')]
+#[Assert\NotBlank(message: "The evaluation date is required.")]
     #[Assert\Type(\DateTimeInterface::class)]
     private ?\DateTimeInterface $dateEvaluation = null;
 
@@ -78,6 +78,8 @@ class EvaluationMatiere
     #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'evaluation', orphanRemoval: true)]
     private Collection $evalMats;
 
+
+   
     public function __construct()
     {
         $this->evalMats = new ArrayCollection();

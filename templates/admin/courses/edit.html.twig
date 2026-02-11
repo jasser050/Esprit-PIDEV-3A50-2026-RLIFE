@@ -42,9 +42,22 @@
         <p class="text-slate-400 mt-1 animate-fade-in animation-delay-100">{{ matiere.code }}</p>
     </div>
 
+    <!-- Global Error Alert -->
+    <div id="globalErrorAlert" class="hidden mb-6 bg-red-500/10 border border-red-500/50 rounded-lg p-4 animate-shake">
+        <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <h3 class="text-red-400 font-medium">Please correct the following errors:</h3>
+                <ul id="globalErrorList" class="mt-2 text-sm text-red-300 space-y-1"></ul>
+            </div>
+        </div>
+    </div>
+
     <!-- Form Card with Glass Effect -->
     <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 shadow-2xl shadow-black/20 animate-slide-up">
-        {{ form_start(form, {'attr': {'class': 'space-y-8'}}) }}
+        {{ form_start(form, {'attr': {'class': 'space-y-8', 'id': 'editCourseForm', 'novalidate': 'novalidate'}}) }}
 
         <!-- Code & Name -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -54,16 +67,29 @@
                 </label>
                 {{ form_widget(form.code, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.code.vars.errors|length > 0 ? ' border-red-500' : ''),
-                        'placeholder': 'e.g., MATH101'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'e.g., MATH101',
+                        'data-field': 'code',
+                        'maxlength': '10'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.code.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.code) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.code) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Unique identifier for the course (2-10 characters)
                     </p>
                 {% endif %}
@@ -75,16 +101,29 @@
                 </label>
                 {{ form_widget(form.nomMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.nomMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
-                        'placeholder': 'e.g., Mathematics'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'e.g., Mathematics',
+                        'data-field': 'nomMatiere',
+                        'maxlength': '255'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.nomMatiere.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.nomMatiere) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.nomMatiere) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Full name of the course (3-255 characters)
                     </p>
                 {% endif %}
@@ -99,15 +138,27 @@
                 </label>
                 {{ form_widget(form.sectionMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600' ~ (form.sectionMatiere.vars.errors|length > 0 ? ' border-red-500' : '')
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
+                        'data-field': 'sectionMatiere'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.sectionMatiere.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.sectionMatiere) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.sectionMatiere) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Academic department or field of study
                     </p>
                 {% endif %}
@@ -119,15 +170,27 @@
                 </label>
                 {{ form_widget(form.typeMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600' ~ (form.typeMatiere.vars.errors|length > 0 ? ' border-red-500' : '')
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
+                        'data-field': 'typeMatiere'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.typeMatiere.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.typeMatiere) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.typeMatiere) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Teaching method: Lecture, Tutorial, or Practical
                     </p>
                 {% endif %}
@@ -142,19 +205,31 @@
                 </label>
                 {{ form_widget(form.coefficientMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.coefficientMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
                         'placeholder': 'e.g., 2',
                         'step': '0.5',
                         'min': '0.1',
-                        'max': '20'
+                        'max': '20',
+                        'data-field': 'coefficientMatiere'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.coefficientMatiere.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.coefficientMatiere) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.coefficientMatiere) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Weight of this course (0.1 to 20)
                     </p>
                 {% endif %}
@@ -166,19 +241,31 @@
                 </label>
                 {{ form_widget(form.heureMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.heureMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
                         'placeholder': 'e.g., 6',
                         'step': '0.5',
                         'min': '0',
-                        'max': '40'
+                        'max': '40',
+                        'data-field': 'heureMatiere'
                     }
                 }) }}
+                <div class="error-container mt-1 hidden">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
                 {% if form.heureMatiere.vars.errors|length > 0 %}
-                    <p class="mt-1 text-sm text-red-400">
-                        {{ form_errors(form.heureMatiere) }}
-                    </p>
+                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.heureMatiere) }}</span>
+                    </div>
                 {% else %}
-                    <p class="mt-1 text-sm text-slate-500">
+                    <p class="help-text mt-1 text-sm text-slate-500">
                         Weekly teaching hours (0 to 40)
                     </p>
                 {% endif %}
@@ -192,29 +279,51 @@
             </label>
             {{ form_widget(form.description, {
                 'attr': {
-                    'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600' ~ (form.description.vars.errors|length > 0 ? ' border-red-500' : ''),
+                    'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600',
                     'rows': '5',
                     'placeholder': 'Add a description for this course...',
-                    'maxlength': '500'
+                    'maxlength': '500',
+                    'data-field': 'description'
                 }
             }) }}
-            {% if form.description.vars.errors|length > 0 %}
-                <p class="mt-1 text-sm text-red-400">
-                    {{ form_errors(form.description) }}
-                </p>
-            {% else %}
-                <p class="mt-1 text-sm text-slate-500">
-                    Optional - Describe the course content and objectives (max 500 characters)
-                </p>
-            {% endif %}
+            <div class="flex items-center justify-between mt-1">
+                <div class="error-container hidden flex-1">
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+                {% if form.description.vars.errors|length > 0 %}
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>{{ form_errors(form.description) }}</span>
+                    </div>
+                {% else %}
+                    <p class="help-text text-sm text-slate-500">
+                        Optional - Describe the course content and objectives
+                    </p>
+                {% endif %}
+                <span id="charCount" class="text-sm text-slate-500">
+                    <span id="currentChars">0</span>/500
+                </span>
+            </div>
         </div>
 
         <!-- Actions -->
         <div class="flex flex-wrap gap-4 pt-6 border-t border-slate-700/50 animate-fade-in animation-delay-900">
             <button type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+                    id="submitBtn"
+                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100">
                 <i data-lucide="save" class="w-4 h-4"></i>
-                Save Changes
+                <span id="submitBtnText">Save Changes</span>
+                <svg id="submitSpinner" class="hidden animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
             </button>
 
             <a href="{{ path('app_admin_courses') }}"
@@ -267,10 +376,15 @@ select option {
     opacity: 1;
 }
 
-/* Style pour les champs en erreur */
-.border-red-500 {
+/* Error States */
+.field-error {
     border-color: #ef4444 !important;
     background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.field-error:focus {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
 .invalid-feedback,
@@ -465,6 +579,17 @@ input:-webkit-autofill:active {
     animation: slideUp 0.8s ease-out;
 }
 
+/* Shake Animation for Errors */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
 /* Smooth transitions */
 input, select, textarea, button, a {
     transition: all 0.2s ease-in-out;
@@ -481,6 +606,272 @@ input, select, textarea, button, a {
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    }
+
+    // Form validation
+    const form = document.getElementById('editCourseForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitBtnText = document.getElementById('submitBtnText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    const globalErrorAlert = document.getElementById('globalErrorAlert');
+    const globalErrorList = document.getElementById('globalErrorList');
+
+    // Validation rules
+    const validationRules = {
+        code: {
+            required: true,
+            minLength: 2,
+            maxLength: 10,
+            pattern: /^[A-Za-z0-9\-]+$/,
+            message: 'Course code must be 2-10 characters (letters, numbers, hyphens only)'
+        },
+        nomMatiere: {
+            required: true,
+            minLength: 3,
+            maxLength: 255,
+            message: 'Course name must be between 3 and 255 characters'
+        },
+        sectionMatiere: {
+            required: true,
+            message: 'Please select a section'
+        },
+        typeMatiere: {
+            required: true,
+            message: 'Please select a type'
+        },
+        coefficientMatiere: {
+            required: true,
+            min: 0.1,
+            max: 20,
+            message: 'Coefficient must be between 0.1 and 20'
+        },
+        heureMatiere: {
+            required: true,
+            min: 0,
+            max: 40,
+            message: 'Hours per week must be between 0 and 40'
+        },
+        description: {
+            required: false,
+            maxLength: 500,
+            message: 'Description must not exceed 500 characters'
+        }
+    };
+
+    // Get all form fields
+    const fields = {};
+    Object.keys(validationRules).forEach(fieldName => {
+        const field = form.querySelector(`[data-field="${fieldName}"]`);
+        if (field) {
+            fields[fieldName] = field;
+        }
+    });
+
+    // Character counter for description
+    const descriptionField = fields.description;
+    const charCountElement = document.getElementById('currentChars');
+    
+    if (descriptionField && charCountElement) {
+        // Set initial count
+        charCountElement.textContent = descriptionField.value.length;
+        
+        descriptionField.addEventListener('input', function() {
+            charCountElement.textContent = this.value.length;
+        });
+    }
+
+    // Validate single field
+    function validateField(fieldName, showError = true) {
+        const field = fields[fieldName];
+        const rules = validationRules[fieldName];
+        
+        if (!field || !rules) return true;
+
+        const value = field.value.trim();
+        const formGroup = field.closest('.form-group');
+        const errorContainer = formGroup.querySelector('.error-container');
+        const errorMessage = errorContainer ? errorContainer.querySelector('.error-message') : null;
+        const helpText = formGroup.querySelector('.help-text');
+
+        // Clear previous error state
+        field.classList.remove('field-error');
+        if (errorContainer) errorContainer.classList.add('hidden');
+        if (helpText) helpText.classList.remove('hidden');
+
+        // Required validation
+        if (rules.required && !value) {
+            if (showError) {
+                field.classList.add('field-error');
+                if (errorContainer && errorMessage) {
+                    errorMessage.textContent = rules.message || `${fieldName} is required`;
+                    errorContainer.classList.remove('hidden');
+                    if (helpText) helpText.classList.add('hidden');
+                }
+            }
+            return false;
+        }
+
+        // Skip other validations if field is empty and not required
+        if (!rules.required && !value) return true;
+
+        // Length validations
+        if (rules.minLength && value.length < rules.minLength) {
+            if (showError) {
+                field.classList.add('field-error');
+                if (errorContainer && errorMessage) {
+                    errorMessage.textContent = rules.message;
+                    errorContainer.classList.remove('hidden');
+                    if (helpText) helpText.classList.add('hidden');
+                }
+            }
+            return false;
+        }
+
+        if (rules.maxLength && value.length > rules.maxLength) {
+            if (showError) {
+                field.classList.add('field-error');
+                if (errorContainer && errorMessage) {
+                    errorMessage.textContent = rules.message;
+                    errorContainer.classList.remove('hidden');
+                    if (helpText) helpText.classList.add('hidden');
+                }
+            }
+            return false;
+        }
+
+        // Pattern validation
+        if (rules.pattern && !rules.pattern.test(value)) {
+            if (showError) {
+                field.classList.add('field-error');
+                if (errorContainer && errorMessage) {
+                    errorMessage.textContent = rules.message;
+                    errorContainer.classList.remove('hidden');
+                    if (helpText) helpText.classList.add('hidden');
+                }
+            }
+            return false;
+        }
+
+        // Number range validations
+        if (field.type === 'number') {
+            const numValue = parseFloat(value);
+            
+            if (isNaN(numValue)) {
+                if (showError) {
+                    field.classList.add('field-error');
+                    if (errorContainer && errorMessage) {
+                        errorMessage.textContent = 'Please enter a valid number';
+                        errorContainer.classList.remove('hidden');
+                        if (helpText) helpText.classList.add('hidden');
+                    }
+                }
+                return false;
+            }
+
+            if (rules.min !== undefined && numValue < rules.min) {
+                if (showError) {
+                    field.classList.add('field-error');
+                    if (errorContainer && errorMessage) {
+                        errorMessage.textContent = rules.message;
+                        errorContainer.classList.remove('hidden');
+                        if (helpText) helpText.classList.add('hidden');
+                    }
+                }
+                return false;
+            }
+
+            if (rules.max !== undefined && numValue > rules.max) {
+                if (showError) {
+                    field.classList.add('field-error');
+                    if (errorContainer && errorMessage) {
+                        errorMessage.textContent = rules.message;
+                        errorContainer.classList.remove('hidden');
+                        if (helpText) helpText.classList.add('hidden');
+                    }
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Validate all fields
+    function validateForm() {
+        let isValid = true;
+        const errors = [];
+
+        Object.keys(validationRules).forEach(fieldName => {
+            if (!validateField(fieldName, true)) {
+                isValid = false;
+                const rules = validationRules[fieldName];
+                errors.push(rules.message);
+            }
+        });
+
+        // Show/hide global error alert
+        if (!isValid) {
+            globalErrorList.innerHTML = errors.map(error => `<li>• ${error}</li>`).join('');
+            globalErrorAlert.classList.remove('hidden');
+            globalErrorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            globalErrorAlert.classList.add('hidden');
+        }
+
+        return isValid;
+    }
+
+    // Add blur event listeners for real-time validation
+    Object.keys(fields).forEach(fieldName => {
+        const field = fields[fieldName];
+        if (field) {
+            field.addEventListener('blur', function() {
+                validateField(fieldName, true);
+            });
+
+            // Clear error on input
+            field.addEventListener('input', function() {
+                const formGroup = field.closest('.form-group');
+                const errorContainer = formGroup.querySelector('.error-container');
+                
+                if (field.classList.contains('field-error')) {
+                    field.classList.remove('field-error');
+                    if (errorContainer) {
+                        errorContainer.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Validate form
+        if (!validateForm()) {
+            return false;
+        }
+
+        // Disable submit button and show spinner
+        submitBtn.disabled = true;
+        submitBtnText.textContent = 'Saving...';
+        submitSpinner.classList.remove('hidden');
+
+        // Submit form
+        setTimeout(() => {
+            form.submit();
+        }, 300);
+    });
+
+    // Initial validation on page load (to show server-side errors)
+    const hasServerErrors = document.querySelectorAll('.form-error-message, .invalid-feedback').length > 0;
+    if (hasServerErrors) {
+        globalErrorAlert.classList.remove('hidden');
+        const serverErrors = Array.from(document.querySelectorAll('.form-error-message, .invalid-feedback'))
+            .map(el => el.textContent.trim())
+            .filter(text => text.length > 0);
+        globalErrorList.innerHTML = serverErrors.map(error => `<li>• ${error}</li>`).join('');
     }
 });
 </script>

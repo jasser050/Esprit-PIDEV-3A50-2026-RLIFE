@@ -11,6 +11,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\DateTime;
+
+use Symfony\Component\Validator\Constraints\choice;
+use Symfony\Component\Validator\Constraints\length; // pour score pouvant être 0
 
 class MatiereType extends AbstractType
 {
@@ -18,122 +23,105 @@ class MatiereType extends AbstractType
     {
         $builder
             ->add('code', TextType::class, [
-                'label' => 'Course Code',
+                'label' => 'Code du cours',
                 'required' => true,
                 'attr' => [
                     'placeholder' => 'Ex: MATH101',
-                    'maxlength' => 10
+                    'maxlength' => 10,
+                    'class' => 'input input-bordered w-full',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'The course code is required'
-                    ]),
+                    new Assert\NotBlank(['message' => 'Le code du cours est obligatoire']),
                     new Assert\Length([
                         'min' => 2,
                         'max' => 10,
-                        'minMessage' => 'The code must contain at least {{ limit }} characters',
-                        'maxMessage' => 'The code must not exceed {{ limit }} characters'
+                        'minMessage' => 'Le code doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'Le code ne peut pas dépasser {{ limit }} caractères',
                     ]),
                     new Assert\Regex([
                         'pattern' => '/^[A-Z0-9-]+$/i',
-                        'message' => 'The code may contain only letters, numbers, and hyphens'
-                    ])
-                ]
+                        'message' => 'Le code ne peut contenir que des lettres, chiffres et tirets',
+                    ]),
+                ],
             ])
             ->add('nomMatiere', TextType::class, [
-                'label' => 'Course Name',
+                'label' => 'Nom du cours',
                 'required' => true,
                 'attr' => [
-                    'placeholder' => 'Ex: Mathematics',
-                    'maxlength' => 255
+                    'placeholder' => 'Ex: Mathématiques',
+                    'maxlength' => 255,
+                    'class' => 'input input-bordered w-full',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'The course name is required'
-                    ]),
+                    new Assert\NotBlank(['message' => 'Le nom du cours est obligatoire']),
                     new Assert\Length([
                         'min' => 3,
                         'max' => 255,
-                        'minMessage' => 'The name must contain at least {{ limit }} characters',
-                        'maxMessage' => 'The name must not exceed {{ limit }} characters'
+                        'minMessage' => 'Le nom doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'Le nom ne peut pas dépasser {{ limit }} caractères',
                     ]),
-                    new Assert\Regex([
-                        'pattern' => '/^[a-zA-Z0-9\s\'-]+$/u',
-                        'message' => 'The name contains invalid characters'
-                    ])
-                ]
+                ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
                 'attr' => [
-                    'placeholder' => 'Course description...',
+                    'placeholder' => 'Description du cours...',
                     'rows' => 4,
-                    'maxlength' => 500
+                    'maxlength' => 500,
+                    'class' => 'textarea textarea-bordered w-full',
                 ],
                 'constraints' => [
                     new Assert\Length([
                         'max' => 500,
-                        'maxMessage' => 'The description must not exceed {{ limit }} characters'
-                    ])
-                ]
+                        'maxMessage' => 'La description ne peut pas dépasser {{ limit }} caractères',
+                    ]),
+                ],
             ])
             ->add('coefficientMatiere', NumberType::class, [
                 'label' => 'Coefficient',
                 'required' => true,
                 'attr' => [
-                    'step' => '0.5',
-                    'min' => '0.1',
-                    'max' => '20'
+                    'min' => 0.1,
+                    'max' => 20,
+                    'step' => 0.5,
+                    'class' => 'input input-bordered w-full',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'The coefficient is required'
-                    ]),
-                    new Assert\Positive([
-                        'message' => 'The coefficient must be a positive number'
-                    ]),
+                    new Assert\NotBlank(['message' => 'the coefficient is required']),
+                    new Assert\Positive(['message' => 'Le coefficient doit être positif']),
                     new Assert\Range([
                         'min' => 0.1,
                         'max' => 20,
-                        'notInRangeMessage' => 'The coefficient must be between {{ min }} and {{ max }}'
+                        'notInRangeMessage' => 'Le coefficient doit être entre {{ min }} et {{ max }}',
                     ]),
-                    new Assert\Regex([
-                        'pattern' => '/^\d+(\.\d{1})?$/',
-                        'message' => 'The coefficient must have at most one decimal place'
-                    ])
-                ]
+                ],
             ])
             ->add('heureMatiere', NumberType::class, [
-                'label' => 'Hours per Week',
+                'label' => 'Heures par semaine',
                 'required' => true,
                 'attr' => [
-                    'step' => '0.5',
-                    'min' => '0',
-                    'max' => '40'
+                    'min' => 0,
+                    'max' => 40,
+                    'step' => 0.5,
+                    'class' => 'input input-bordered w-full',
                 ],
                 'constraints' => [
-                    new Assert\NotBlank([
-                        'message' => 'The number of hours is required'
-                    ]),
-                    new Assert\PositiveOrZero([
-                        'message' => 'The number of hours must be positive or zero'
-                    ]),
+                    new Assert\NotBlank(['message' => 'Le nombre d\'heures est obligatoire']),
+                    new Assert\PositiveOrZero(['message' => 'Le nombre d\'heures doit être zéro ou positif']),
                     new Assert\Range([
                         'min' => 0,
                         'max' => 40,
-                        'notInRangeMessage' => 'The number of hours must be between {{ min }} and {{ max }}'
+                        'notInRangeMessage' => 'Le nombre d\'heures doit être entre {{ min }} et {{ max }}',
                     ]),
-                    new Assert\Regex([
-                        'pattern' => '/^\d+(\.\d{1})?$/',
-                        'message' => 'The hours must have at most one decimal place'
-                    ])
-                ]
+                ],
             ])
             ->add('sectionMatiere', ChoiceType::class, [
                 'label' => 'Section',
-                'required' => true,
-                'placeholder' => 'Select a section',
+                'placeholder' => 'select a section',
+                'attr' => [
+                    'class' => 'form-control',
+                ],
                 'choices' => [
                     'Science' => 'Science',
                     'Literature' => 'Literature',
@@ -144,32 +132,34 @@ class MatiereType extends AbstractType
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'The section is required'
+                        'message' => 'La section est obligatoire',
                     ]),
                     new Assert\Choice([
                         'choices' => ['Science', 'Literature', 'Mathematics', 'Computer Science', 'Economics', 'Technology'],
-                        'message' => 'Invalid section. Please select a valid option.'
-                    ])
-                ]
+                        'message' => 'Section invalide. Veuillez sélectionner une option valide.',
+                    ]),
+                ],
             ])
             ->add('typeMatiere', ChoiceType::class, [
                 'label' => 'Type',
-                'required' => true,
-                'placeholder' => 'Select a type',
+                'placeholder' => 'Sélectionnez un type',
+                'attr' => [
+                    'class' => 'form-control',
+                ],
                 'choices' => [
-                    'Lecture' => 'Cours magistral',
-                    'Tutorial' => 'Travaux dirigés',
-                    'Practical Work' => 'Travaux pratiques',
+                    'Cours magistral' => 'Cours magistral',
+                    'TD' => 'Travaux dirigés',
+                    'TD' => 'Travaux pratiques',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'The course type is required'
+                        'message' => 'Le type de cours est obligatoire',
                     ]),
                     new Assert\Choice([
                         'choices' => ['Cours magistral', 'Travaux dirigés', 'Travaux pratiques'],
-                        'message' => 'Invalid course type. Please select a valid option.'
-                    ])
-                ]
+                        'message' => 'Type de cours invalide. Veuillez sélectionner une option valide.',
+                    ]),
+                ],
             ])
         ;
     }

@@ -1,131 +1,545 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit: {{ assignment.title }}{% endblock %}
+{% block title %}Edit Evaluation{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Assignments', href: path('app_assignments') },
-            { label: assignment.title, href: path('app_assignments_show', { id: assignment.id }) },
-            { label: 'Edit' }
-        ]
-    } %}
+<div class="container mx-auto p-6">
+    <div class="max-w-3xl mx-auto">
 
-    {% include 'components/page_header.html.twig' with {
-        title: 'Edit Assignment',
-        subtitle: 'Update assignment details'
-    } %}
+        <h1 class="text-3xl font-bold mb-6 text-primary">
+            Edit Evaluation
+        </h1>
 
-    <form action="{{ path('app_assignments_edit', { id: assignment.id }) }}" method="POST" class="card p-6">
-        <div class="space-y-6">
-            <!-- Title -->
-            {% include 'components/input.html.twig' with {
-                name: 'title',
-                label: 'Assignment Title',
-                value: assignment.title,
-                placeholder: 'e.g., Binary Tree Implementation',
-                required: true
-            } %}
+        <div class="mb-8">
+            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
+                ← Back to Evaluations
+            </a>
+        </div>
 
-            <!-- Course Selection -->
-            {% include 'components/select.html.twig' with {
-                name: 'course_id',
-                label: 'Course',
-                value: assignment.course_id,
-                required: true,
-                options: courses|map(c => { value: c.id, label: c.name ~ ' (' ~ c.code ~ ')' })
-            } %}
+        {# Flash messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
 
-            <!-- Due Date -->
-            {% include 'components/input.html.twig' with {
-                name: 'due_date',
-                label: 'Due Date',
-                type: 'date',
-                value: assignment.due_date|date('Y-m-d'),
-                required: true
-            } %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
 
-            <!-- Priority -->
-            {% include 'components/select.html.twig' with {
-                name: 'priority',
-                label: 'Priority',
-                value: assignment.priority,
-                options: [
-                    { value: 'high', label: 'High Priority' },
-                    { value: 'medium', label: 'Medium Priority' },
-                    { value: 'low', label: 'Low Priority' }
-                ]
-            } %}
+        {{ form_start(form, {
+            'attr': {'id': 'evaluation-form', 'novalidate': 'novalidate'},
+            'action': path('app_courses_edit', {'id': evaluation.idEval})
+        }) }}
 
-            <!-- Status -->
-            {% include 'components/select.html.twig' with {
-                name: 'status',
-                label: 'Status',
-                value: assignment.status,
-                options: [
-                    { value: 'pending', label: 'Pending' },
-                    { value: 'in_progress', label: 'In Progress' },
-                    { value: 'completed', label: 'Completed' }
-                ]
-            } %}
-
-            <!-- Progress -->
-            {% include 'components/input.html.twig' with {
-                name: 'progress',
-                label: 'Progress (%)',
-                type: 'number',
-                value: assignment.progress,
-                min: 0,
-                max: 100
-            } %}
-
-            <!-- Description -->
-            {% include 'components/textarea.html.twig' with {
-                name: 'description',
-                label: 'Description',
-                value: assignment.description,
-                placeholder: 'Describe the assignment requirements...',
-                rows: 4
-            } %}
-
-            <!-- Actions -->
-            <div class="flex items-center justify-between pt-4 border-t border-light-border dark:border-dark-border">
-                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                    Delete
-                </button>
-                <div class="flex items-center gap-3">
-                    <a href="{{ path('app_assignments_show', { id: assignment.id }) }}" class="btn btn-secondary">Cancel</a>
-                    <button type="submit" class="btn btn-primary">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        Save Changes
-                    </button>
+        {# Global form errors #}
+        {% if not form.vars.valid %}
+            <div class="alert alert-error mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h3 class="font-bold">Form validation errors</h3>
+                    <div class="text-sm">Please correct the errors highlighted below before submitting.</div>
                 </div>
             </div>
+        {% endif %}
+
+        {# Subject - readonly #}
+        <div class="form-control w-full mb-6">
+            <label class="label">
+                <span class="label-text font-semibold text-base">Subject</span>
+            </label>
+            <input type="text" 
+                class="input input-bordered w-full bg-gray-100 cursor-not-allowed" 
+                readonly
+                style="background-color: #f3f4f6 !important; color: #6b7280 !important;"
+                value="{% for evalMat in evaluation.evalMats %}{{ evalMat.matiere.nomMatiere }} ({{ evalMat.matiere.code }}) - Section {{ evalMat.matiere.sectionMatiere }}{% else %}No subject{% endfor %}">
+            <label class="label">
+                <span class="label-text-alt text-gray-500">
+                    Subject cannot be changed
+                </span>
+            </label>
         </div>
-    </form>
+
+        {# Scores #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Score obtained <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.scoreEval, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.scoreEval.vars.errors|length > 0 ? ' input-error' : ''),
+                        'style': 'background-color: white; color: black;',
+                        'step': '0.01'
+                    }
+                }) }}
+                {% if form.scoreEval.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.scoreEval) }}
+                        </span>
+                    </label>
+                {% endif %}
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">
+                        Must be zero or positive. Example: 0, 10, 50
+                    </span>
+                </label>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Maximum score <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.noteMaximaleEval, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.noteMaximaleEval.vars.errors|length > 0 ? ' input-error' : ''),
+                        'style': 'background-color: white; color: black;',
+                        'step': '0.01'
+                    }
+                }) }}
+                {% if form.noteMaximaleEval.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.noteMaximaleEval) }}
+                        </span>
+                    </label>
+                {% endif %}
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">
+                        Must be strictly positive. Example: 10, 20, 100
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        {# Date and Duration #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Evaluation date <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.dateEvaluation, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.dateEvaluation.vars.errors|length > 0 ? ' input-error' : ''),
+                        'style': 'background-color: white; color: black;',
+                        'type': 'date'
+                    }
+                }) }}
+                {% if form.dateEvaluation.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.dateEvaluation) }}
+                        </span>
+                    </label>
+                {% endif %}
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">
+                        When did the evaluation take place?
+                    </span>
+                </label>
+            </div>
+
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Duration (minutes) <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.dureeEvaluation, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.dureeEvaluation.vars.errors|length > 0 ? ' input-error' : ''),
+                        'style': 'background-color: white; color: black;',
+                        'type': 'number',
+                        'min': '1',
+                        'max': '600'
+                    }
+                }) }}
+                {% if form.dureeEvaluation.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.dureeEvaluation) }}
+                        </span>
+                    </label>
+                {% endif %}
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">
+                        Duration in minutes (1-600)
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        {# Priority #}
+        <div class="form-control w-full mb-8">
+            <label class="label">
+                <span class="label-text font-semibold text-base">
+                    Priority
+                </span>
+            </label>
+            {{ form_widget(form.prioriteE, {
+                'attr': {
+                    'class': 'select select-bordered w-full' ~ (form.prioriteE.vars.errors|length > 0 ? ' select-error' : ''),
+                    'style': 'background-color: white; color: black;'
+                }
+            }) }}
+            {% if form.prioriteE.vars.errors|length > 0 %}
+                <label class="label">
+                    <span class="label-text-alt text-error flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ form_errors(form.prioriteE) }}
+                    </span>
+                </label>
+            {% endif %}
+            <label class="label">
+                <span class="label-text-alt text-gray-500">
+                    Optional - How important is this evaluation?
+                </span>
+            </label>
+        </div>
+
+        {# Buttons #}
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
+                Cancel
+            </a>
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Update Evaluation
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-{% include 'components/modal.html.twig' with {
-    id: 'delete-modal',
-    title: 'Delete Assignment',
-    content: '<p class="text-light-muted dark:text-dark-muted">Are you sure you want to delete this assignment? This action cannot be undone.</p>',
-    footer: '<button type="button" class="btn btn-secondary" data-action="modal#close">Cancel</button>
-             <form action="' ~ path('app_assignments_delete', { id: assignment.id }) ~ '" method="POST" class="inline">
-                 <button type="submit" class="btn btn-danger">Delete Assignment</button>
-             </form>'
-} %}
+<style>
+/* Input and select with white background and black text */
+input.input,
+select.select,
+.input-bordered {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* Error styles */
+.input-error,
+.select-error {
+    border-color: #ef4444 !important; /* red */
+    background-color: #fef2f2 !important; /* light red */
+    color: #b91c1c !important; /* dark red text */
+}
+
+.input-error:focus,
+.select-error:focus {
+    border-color: #dc2626 !important;
+    outline: 2px solid rgba(239, 68, 68, 0.2);
+    outline-offset: 2px;
+}
+
+/* Label text alt for descriptions */
+.label-text-alt.text-gray-500 {
+    color: #6b7280; /* Tailwind gray-500 */
+}
+
+/* Animation for error messages */
+.label-text-alt.text-error {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* SVG icon spacing */
+.label-text-alt svg {
+    flex-shrink: 0;
+}
+
+/* Alert styles */
+.alert {
+    padding: 1rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 
 <script>
-function confirmDelete() {
-    document.getElementById('delete-modal').classList.remove('hidden');
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('evaluation-form');
+    const submitBtn = document.getElementById('submit-btn');
+
+    // Inputs to validate
+    const scoreInput = form.querySelector('input[name*="[scoreEval]"]');
+    const maxScoreInput = form.querySelector('input[name*="[noteMaximaleEval]"]');
+    const dateInput = form.querySelector('input[name*="[dateEvaluation]"]');
+    const durationInput = form.querySelector('input[name*="[dureeEvaluation]"]');
+
+    const inputs = [scoreInput, maxScoreInput, dateInput, durationInput].filter(input => input !== null);
+
+    // Add blur validation to all inputs
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+
+        input.addEventListener('input', function() {
+            // Remove error styling on input
+            this.classList.remove('input-error');
+            const errorContainer = this.parentNode.querySelector('.label-text-alt.text-error');
+            if (errorContainer && errorContainer.id && errorContainer.id.includes('-js-error')) {
+                errorContainer.parentElement.remove();
+            }
+        });
+    });
+
+    // Cross-field validation: score <= maxScore
+    if (scoreInput && maxScoreInput) {
+        scoreInput.addEventListener('blur', function() {
+            validateScoreVsMaxScore();
+        });
+        maxScoreInput.addEventListener('blur', function() {
+            validateScoreVsMaxScore();
+        });
+    }
+
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let errorMessage = '';
+
+        if (fieldName.includes('scoreEval')) {
+            if (value === '') {
+                errorMessage = 'The obtained score is required';
+            } else if (parseFloat(value) < 0) {
+                errorMessage = 'The score must be zero or positive';
+            }
+        } else if (fieldName.includes('noteMaximaleEval')) {
+            if (value === '') {
+                errorMessage = 'The maximum score is required';
+            } else if (parseFloat(value) <= 0) {
+                errorMessage = 'The maximum score must be strictly positive';
+            }
+        } else if (fieldName.includes('dureeEvaluation')) {
+            if (value === '') {
+                errorMessage = 'The duration is required';
+            } else if (parseInt(value) <= 0) {
+                errorMessage = 'The duration must be positive';
+            } else if (parseInt(value) > 600) {
+                errorMessage = 'The duration cannot exceed 600 minutes';
+            }
+        } else if (fieldName.includes('dateEvaluation')) {
+            if (value === '') {
+                errorMessage = 'The evaluation date is required';
+            }
+        }
+
+        if (errorMessage) {
+            showFieldError(field, errorMessage);
+        } else {
+            clearFieldError(field);
+        }
+    }
+
+    function validateScoreVsMaxScore() {
+        if (!scoreInput || !maxScoreInput) return;
+
+        const score = parseFloat(scoreInput.value);
+        const maxScore = parseFloat(maxScoreInput.value);
+
+        if (!isNaN(score) && !isNaN(maxScore) && score > maxScore) {
+            showFieldError(scoreInput, 'Score cannot be greater than maximum score');
+        } else {
+            // Clear this specific error if it exists
+            clearFieldError(scoreInput, 'Score cannot be greater than maximum score');
+        }
+    }
+
+    function showFieldError(field, errorMessage) {
+        if (!field) return;
+
+        field.classList.add('input-error');
+
+        const errorId = field.name.replace(/[\[\]]/g, '_') + '-js-error';
+        let existingError = document.getElementById(errorId);
+
+        if (!existingError) {
+            const errorLabel = document.createElement('label');
+            errorLabel.className = 'label';
+            errorLabel.innerHTML = `
+                <span id="${errorId}" class="label-text-alt text-error flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    ${errorMessage}
+                </span>
+            `;
+
+            const existingHelpLabel = field.parentNode.querySelector('.label:last-of-type');
+            if (existingHelpLabel) {
+                field.parentNode.insertBefore(errorLabel, existingHelpLabel);
+            } else {
+                field.parentNode.appendChild(errorLabel);
+            }
+        } else {
+            // Update error message if it already exists
+            existingError.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                ${errorMessage}
+            `;
+        }
+    }
+
+    function clearFieldError(field, specificMessage = null) {
+        if (!field) return;
+
+        const errorId = field.name.replace(/[\[\]]/g, '_') + '-js-error';
+        const existingError = document.getElementById(errorId);
+
+        if (existingError) {
+            if (specificMessage) {
+                // Only clear if the error message matches
+                if (existingError.textContent.includes(specificMessage)) {
+                    existingError.parentElement.remove();
+                    field.classList.remove('input-error');
+                }
+            } else {
+                // Clear all errors for this field
+                existingError.parentElement.remove();
+                field.classList.remove('input-error');
+            }
+        }
+    }
+
+    // Form submission validation
+    form.addEventListener('submit', function(event) {
+        console.log('Form submission started');
+        
+        let valid = true;
+
+        // Clear all previous JS errors
+        form.querySelectorAll('[id$="-js-error"]').forEach(el => {
+            el.parentElement.remove();
+        });
+        inputs.forEach(input => {
+            if (input) input.classList.remove('input-error');
+        });
+
+        // Validate score
+        if (!scoreInput || !scoreInput.value || parseFloat(scoreInput.value) < 0) {
+            showFieldError(scoreInput, scoreInput && !scoreInput.value ? 'The obtained score is required' : 'The score must be zero or positive');
+            valid = false;
+        }
+
+        // Validate max score
+        if (!maxScoreInput || !maxScoreInput.value || parseFloat(maxScoreInput.value) <= 0) {
+            showFieldError(maxScoreInput, maxScoreInput && !maxScoreInput.value ? 'The maximum score is required' : 'The maximum score must be strictly positive');
+            valid = false;
+        }
+
+        // Validate score <= maxScore
+        if (scoreInput && maxScoreInput && 
+            scoreInput.value && maxScoreInput.value &&
+            parseFloat(scoreInput.value) > parseFloat(maxScoreInput.value)) {
+            showFieldError(scoreInput, 'Score cannot be greater than maximum score');
+            valid = false;
+        }
+
+        // Validate date
+        if (!dateInput || !dateInput.value) {
+            showFieldError(dateInput, 'The evaluation date is required');
+            valid = false;
+        }
+
+        // Validate duration
+        if (!durationInput || !durationInput.value || 
+            parseInt(durationInput.value) <= 0 || parseInt(durationInput.value) > 600) {
+            let msg = 'The duration is required';
+            if (durationInput && durationInput.value) {
+                msg = parseInt(durationInput.value) <= 0 
+                    ? 'The duration must be positive' 
+                    : 'The duration cannot exceed 600 minutes';
+            }
+            showFieldError(durationInput, msg);
+            valid = false;
+        }
+
+        if (!valid) {
+            console.log('Validation failed - form not submitted');
+            event.preventDefault();
+            
+            // Scroll to first error
+            const firstError = form.querySelector('.input-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        } else {
+            console.log('Validation passed - submitting form');
+        }
+    });
+});
 </script>
+
 {% endblock %}
