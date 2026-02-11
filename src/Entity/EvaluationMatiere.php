@@ -3,8 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EvaluationMatiereRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EvaluationMatiereRepository::class)]
@@ -14,40 +13,36 @@ class EvaluationMatiere
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_eval', type: 'integer')]
+    #[ORM\Column(name: 'id_eval', type: Types::INTEGER)]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'evaluations')]
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\Column(name: 'score_eval', type: 'float')]
+    #[ORM\Column(name: 'score_eval', type: Types::FLOAT)]
     private ?float $scoreEval = null;
 
-    #[ORM\Column(name: 'note_maximale_eval', type: 'float')]
+    #[ORM\Column(name: 'note_maximale_eval', type: Types::FLOAT)]
     private ?float $noteMaximaleEval = null;
 
-    #[ORM\Column(name: 'date_evaluation', type: 'datetime')]
+    #[ORM\Column(name: 'date_evaluation', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateEvaluation = null;
 
-    #[ORM\Column(name: 'duree_evaluation', type: 'integer')]
+    #[ORM\Column(name: 'duree_evaluation', type: Types::INTEGER)]
     private ?int $dureeEvaluation = null;
 
-    #[ORM\Column(name: 'priorite_e', type: 'string', length: 50, nullable: true)]
-    private ?string $prioriteE = null;
+    #[ORM\Column(name: 'priorite_e', type: Types::STRING, length: 50, nullable: true)]
+    private ?string $priorite = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
-
-    #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'evaluation', orphanRemoval: true)]
-    private Collection $evalMats;
 
     public function __construct()
     {
-        $this->evalMats = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -67,7 +62,7 @@ class EvaluationMatiere
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?User $user): static
     {
         $this->user = $user;
         return $this;
@@ -78,7 +73,7 @@ class EvaluationMatiere
         return $this->scoreEval;
     }
 
-    public function setScoreEval(float $scoreEval): self
+    public function setScoreEval(float $scoreEval): static
     {
         $this->scoreEval = $scoreEval;
         return $this;
@@ -89,7 +84,7 @@ class EvaluationMatiere
         return $this->noteMaximaleEval;
     }
 
-    public function setNoteMaximaleEval(float $noteMaximaleEval): self
+    public function setNoteMaximaleEval(float $noteMaximaleEval): static
     {
         $this->noteMaximaleEval = $noteMaximaleEval;
         return $this;
@@ -100,7 +95,7 @@ class EvaluationMatiere
         return $this->dateEvaluation;
     }
 
-    public function setDateEvaluation(\DateTimeInterface $dateEvaluation): self
+    public function setDateEvaluation(\DateTimeInterface $dateEvaluation): static
     {
         $this->dateEvaluation = $dateEvaluation;
         return $this;
@@ -111,20 +106,20 @@ class EvaluationMatiere
         return $this->dureeEvaluation;
     }
 
-    public function setDureeEvaluation(int $dureeEvaluation): self
+    public function setDureeEvaluation(int $dureeEvaluation): static
     {
         $this->dureeEvaluation = $dureeEvaluation;
         return $this;
     }
 
-    public function getPrioriteE(): ?string
+    public function getPriorite(): ?string
     {
-        return $this->prioriteE;
+        return $this->priorite;
     }
 
-    public function setPrioriteE(?string $prioriteE): self
+    public function setPriorite(?string $priorite): static
     {
-        $this->prioriteE = $prioriteE;
+        $this->priorite = $priorite;
         return $this;
     }
 
@@ -133,7 +128,7 @@ class EvaluationMatiere
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
         return $this;
@@ -144,49 +139,9 @@ class EvaluationMatiere
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
         return $this;
-    }
-
-    /**
-     * @return Collection<int, EvalMat>
-     */
-    public function getEvalMats(): Collection
-    {
-        return $this->evalMats;
-    }
-
-    public function addEvalMat(EvalMat $evalMat): self
-    {
-        if (!$this->evalMats->contains($evalMat)) {
-            $this->evalMats->add($evalMat);
-            $evalMat->setEvaluation($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEvalMat(EvalMat $evalMat): self
-    {
-        if ($this->evalMats->removeElement($evalMat)) {
-            if ($evalMat->getEvaluation() === $this) {
-                $evalMat->setEvaluation(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Calculate percentage score
-     */
-    public function getPercentage(): ?float
-    {
-        if ($this->noteMaximaleEval && $this->noteMaximaleEval > 0) {
-            return ($this->scoreEval / $this->noteMaximaleEval) * 100;
-        }
-        return null;
     }
 }

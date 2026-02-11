@@ -78,58 +78,74 @@
         {% endif %}
     </div>
 
-    <!-- 2. Liste des projets -->
+    <!-- 2. Liste des projets (style backlog : en-tête bleu, bordures nettes, police grasse) -->
     {% if projects|length > 0 %}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for project in projects %}
-                <div class="card p-6 hover:shadow-md transition-all duration-200 hover:border-primary-500/50 group">
-                    <div class="flex items-start justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-secondary-900 dark:text-white group-hover:text-primary-600 transition-colors">
-                            {{ project.titre }}
-                        </h3>
-                        <span class="badge badge-pill
-                            {% if project.statut == 'En cours' %}badge-primary
-                            {% elseif project.statut == 'Terminé' %}badge-success
-                            {% elseif project.statut == 'En attente' %}badge-warning
-                            {% else %}badge-danger{% endif %}">
-                            {{ project.statut }}
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-4 line-clamp-3">
-                        {{ project.description|default('Aucune description') }}
-                    </p>
-
-                    <div class="text-xs text-secondary-500 dark:text-secondary-400 flex flex-wrap gap-4 mb-4">
-                        <span>
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 mr-1"></i>
-                            {{ project.dateDebut|date('d/m/Y') }} → {{ project.dateFin|date('d/m/Y') }}
-                        </span>
-                        {% if project.assignments|length > 0 %}
-                            <span>
-                                <i data-lucide="list-checks" class="w-3.5 h-3.5 mr-1"></i>
-                                {{ project.assignments|length }} tâche{{ project.assignments|length > 1 ? 's' : '' }}
-                            </span>
-                        {% endif %}
-                    </div>
-
-                    <div class="flex gap-2 mt-4">
-                        <a href="{{ path('app_project_show', {'id': project.id}) }}" class="btn btn-secondary flex-1 text-sm">
-                            <i data-lucide="eye" class="w-4 h-4 mr-1.5"></i>
-                            Voir
-                        </a>
-                        <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-ghost btn-icon-sm">
-                            <i data-lucide="edit-2" class="w-4 h-4"></i>
-                        </a>
-                        <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" class="inline" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ? Cette action est irréversible.');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
-                            <button type="submit" class="btn btn-ghost btn-icon-sm text-danger">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            {% endfor %}
+        <div class="card overflow-hidden shadow-lg">
+            <div class="overflow-x-auto">
+                <table class="table w-full">
+                    <thead class="bg-blue-600 text-white">
+                        <tr>
+                            <th class="py-4 px-6 text-left font-bold text-base">Projet</th>
+                            <th class="py-4 px-6 text-left font-bold text-base">Statut</th>
+                            <th class="py-4 px-6 text-left font-bold text-base">Date début</th>
+                            <th class="py-4 px-6 text-left font-bold text-base">Date fin</th>
+                            <th class="py-4 px-6 text-center font-bold text-base">Tâches</th>
+                            <th class="py-4 px-6 text-right font-bold text-base">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for project in projects %}
+                            <tr class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
+                                <td class="py-5 px-6">
+                                    <a href="{{ path('app_project_show', {'id': project.id}) }}" class="font-semibold text-lg text-secondary-900 dark:text-white hover:text-primary-600 transition-colors">
+                                        {{ project.titre }}
+                                    </a>
+                                    <p class="text-sm text-secondary-600 dark:text-secondary-400 mt-1 line-clamp-2">
+                                        {{ project.description|default('Aucune description') }}
+                                    </p>
+                                </td>
+                                <td class="py-5 px-6">
+                                    <span class="badge badge-pill text-sm px-4 py-2
+                                        {% if project.statut == 'En cours' %}badge-primary
+                                        {% elseif project.statut == 'Terminé' %}badge-success
+                                        {% elseif project.statut == 'En attente' %}badge-warning
+                                        {% else %}badge-danger{% endif %}">
+                                        {{ project.statut }}
+                                    </span>
+                                </td>
+                                <td class="py-5 px-6 text-secondary-700 dark:text-secondary-300">
+                                    {{ project.dateDebut ? project.dateDebut|date('d/m/Y') : '-' }}
+                                </td>
+                                <td class="py-5 px-6 text-secondary-700 dark:text-secondary-300">
+                                    {{ project.dateFin ? project.dateFin|date('d/m/Y') : '-' }}
+                                </td>
+                                <td class="py-5 px-6 text-center">
+                                    <span class="text-2xl font-bold text-primary-600">
+                                        {{ project.assignments|length }}
+                                    </span>
+                                </td>
+                                <td class="py-5 px-6 text-right space-x-4">
+                                    <a href="{{ path('app_collaboration_share_project', {'id': project.id}) }}" class="text-blue-600 hover:text-blue-800" title="Partager">
+                                        <i data-lucide="share-2" class="w-6 h-6"></i>
+                                    </a>
+                                    <a href="{{ path('app_project_show', {'id': project.id}) }}" class="text-primary-600 hover:text-primary-800" title="Voir">
+                                        <i data-lucide="eye" class="w-6 h-6"></i>
+                                    </a>
+                                    <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="text-warning-600 hover:text-warning-800" title="Modifier">
+                                        <i data-lucide="edit-2" class="w-6 h-6"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" class="inline" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
+                                        <button type="submit" class="text-danger-600 hover:text-danger-800">
+                                            <i data-lucide="trash-2" class="w-6 h-6"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% else %}
         <!-- État vide -->

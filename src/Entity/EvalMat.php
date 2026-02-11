@@ -14,12 +14,12 @@ class EvalMat
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Matiere::class, inversedBy: 'evalMats')]
-    #[ORM\JoinColumn(name: 'matiere_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Matiere::class)]
+    #[ORM\JoinColumn(name: 'matiere_id', referencedColumnName: 'id_matiere', nullable: false, onDelete: 'CASCADE')]
     private ?Matiere $matiere = null;
 
-    #[ORM\ManyToOne(targetEntity: EvaluationMatiere::class, inversedBy: 'evalMats')]
-    #[ORM\JoinColumn(name: 'evaluation_id', nullable: false, referencedColumnName: 'id_eval', onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: EvaluationMatiere::class)]
+    #[ORM\JoinColumn(name: 'evaluation_id', referencedColumnName: 'id_eval', nullable: false, onDelete: 'CASCADE')]
     private ?EvaluationMatiere $evaluation = null;
 
     public function getId(): ?int
@@ -32,7 +32,7 @@ class EvalMat
         return $this->matiere;
     }
 
-    public function setMatiere(?Matiere $matiere): self
+    public function setMatiere(?Matiere $matiere): static
     {
         $this->matiere = $matiere;
         return $this;
@@ -43,7 +43,7 @@ class EvalMat
         return $this->evaluation;
     }
 
-    public function setEvaluation(?EvaluationMatiere $evaluation): self
+    public function setEvaluation(?EvaluationMatiere $evaluation): static
     {
         $this->evaluation = $evaluation;
         return $this;

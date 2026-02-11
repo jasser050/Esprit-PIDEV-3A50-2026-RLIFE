@@ -3,17 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Assignment;
+use App\Entity\Comment;
 use App\Entity\Project;
 use App\Form\AssignmentType;
+use App\Form\CommentType;
 use App\Repository\AssignmentRepository;
+use App\Repository\CommentRepository;
 use App\Service\AssignmentStatsService;
 use App\Service\AssignmentPdfService;
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+
 
 #[Route('/assignments')]
 #[IsGranted('ROLE_USER')]
@@ -31,7 +36,6 @@ class AssignmentController extends AbstractController
         $statut    = $request->query->getString('statut', '');
         $search    = $request->query->getString('search', '');
 
-        // Liste des champs autorisés pour le tri
         $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'priorite', 'statut', 'createdAt'];
 
         if (!in_array($sort, $allowedSortFields, true)) {
@@ -40,7 +44,6 @@ class AssignmentController extends AbstractController
 
         $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
 
-        // Récupération des assignments avec filtres
         $assignments = $assignmentRepository->findByUserWithFilters(
             user: $this->getUser(),
             sort: $sort,
@@ -50,7 +53,6 @@ class AssignmentController extends AbstractController
             search: $search
         );
 
-        // Statistiques
         $stats = $statsService->getAssignmentStats($this->getUser());
 
         return $this->render('pages/assignments/index.html.twig', [
@@ -71,7 +73,6 @@ class AssignmentController extends AbstractController
     ): Response {
         $assignment = new Assignment();
 
-        // Si on vient d'un projet
         if ($projectId = $request->query->get('project_id')) {
             $project = $entityManager->getRepository(Project::class)->find($projectId);
             if ($project && $project->getUser() === $this->getUser()) {
@@ -101,22 +102,52 @@ class AssignmentController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET'])]
-    public function show(
-        Assignment $assignment,
-        AssignmentStatsService $statsService
-    ): Response {
-        if ($assignment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
-        }
+   #[Route('/assignments/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
+public function show(
+    Assignment $assignment,
+    Request $request,
+    CommentRepository $commentRepository,
+    EntityManagerInterface $entityManager,
+    PusherService $pusherService
+): Response {
+    // Sécurité : vérifier que l'utilisateur a accès à cette tâche (propriétaire ou collaborateur ou projet partagé)
+    // (tu as déjà une logique similaire ailleurs, réutilise-la)
 
-        $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
+    // Charger les commentaires triés par date décroissante
+    $comments = $commentRepository->findByAssignment($assignment);
 
-        return $this->render('pages/assignments/show.html.twig', [
-            'assignment'      => $assignment,
-            'assignmentStats' => $assignmentStats,
-        ]);
+    // Formulaire pour ajouter un commentaire
+    $comment = new Comment();
+    $comment->setAssignment($assignment);
+    $comment->setUser($this->getUser());
+
+    $commentForm = $this->createForm(CommentType::class, $comment);
+    $commentForm->handleRequest($request);
+
+    if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+        $comment->setCreatedAt(new \DateTime());
+        $entityManager->persist($comment);
+        $entityManager->flush();
+
+        // Notification Pusher en temps réel
+        $pusherService->notifyNewComment(
+            $assignment->getId(),
+            $comment->getId(),
+            $comment->getUser()->getEmail(),
+            $comment->getContent(),
+            $comment->getCreatedAt()->format('d/m/Y H:i')
+        );
+
+        $this->addFlash('success', 'Commentaire ajouté !');
+        return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
     }
+
+    return $this->render('pages/assignments/show.html.twig', [
+        'assignment' => $assignment,
+        'comments' => $comments,
+        'commentForm' => $commentForm->createView(),
+    ]);
+}
 
     #[Route('/{id}/edit', name: 'app_assignments_edit', methods: ['GET', 'POST'])]
     public function edit(
@@ -189,16 +220,24 @@ class AssignmentController extends AbstractController
         return $pdfService->generateAssignmentListPdf($assignments, $this->getUser());
     }
 
+    /**
+     * Export d'une seule tâche en PDF avec ses statistiques
+     */
     #[Route('/{id}/export/pdf', name: 'app_assignments_export_single_pdf', methods: ['GET'])]
     public function exportSinglePdf(
         Assignment $assignment,
+        AssignmentStatsService $statsService,           // ← Ajouté ici
         AssignmentPdfService $pdfService
     ): Response {
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
-        return $pdfService->generateSingleAssignmentPdf($assignment);
+        // Calcul des statistiques (exactement comme dans show())
+        $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
+
+        // Passage des DEUX paramètres au service PDF
+        return $pdfService->generateSingleAssignmentPdf($assignment, $assignmentStats);
     }
 
     #[Route('/stats/data', name: 'app_assignments_stats_data', methods: ['GET'])]
