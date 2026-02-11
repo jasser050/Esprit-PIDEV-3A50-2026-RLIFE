@@ -22,22 +22,10 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class AdminDeckController extends AbstractController
 {
     #[Route('', name: 'app_admin_decks', methods: ['GET'])]
-    public function index(DeckRepository $deckRepository): Response
+    public function index(): Response
     {
-        $decks = $deckRepository->findBy([], ['dateCreation' => 'DESC']);
-
-        // Calculate stats
-        $totalDecks = count($decks);
-        $totalFlashcards = 0;
-        foreach ($decks as $deck) {
-            $totalFlashcards += $deck->getFlashcards()->count();
-        }
-
-        return $this->render('admin/decks/index.html.twig', [
-            'decks' => $decks,
-            'total_decks' => $totalDecks,
-            'total_flashcards' => $totalFlashcards,
-        ]);
+        // Redirect to the new revision page (correct deck management page)
+        return $this->redirectToRoute('app_admin_revision');
     }
 
     #[Route('/new', name: 'app_admin_deck_new', methods: ['GET', 'POST'])]
@@ -97,11 +85,23 @@ class AdminDeckController extends AbstractController
             }
 
             $this->addFlash('success', sprintf('Deck "%s" created successfully!', $deck->getTitre()));
-            return $this->redirectToRoute('app_admin_decks');
+            return $this->redirectToRoute('app_admin_revision');
         }
 
         return $this->render('admin/decks/new.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/{id}/show', name: 'app_admin_deck_show', methods: ['GET'])]
+    public function show(Deck $deck, FlashcardRepository $flashcardRepository): Response
+    {
+        // Get all flashcards for this deck
+        $flashcards = $flashcardRepository->findBy(['deck' => $deck]);
+
+        return $this->render('admin/deck/show.html.twig', [
+            'deck' => $deck,
+            'flashcards' => $flashcards,
         ]);
     }
 
@@ -171,7 +171,7 @@ class AdminDeckController extends AbstractController
             }
 
             $this->addFlash('success', sprintf('Deck "%s" updated successfully!', $deck->getTitre()));
-            return $this->redirectToRoute('app_admin_decks');
+            return $this->redirectToRoute('app_admin_revision');
         }
 
         return $this->render('admin/decks/edit.html.twig', [
@@ -228,7 +228,7 @@ class AdminDeckController extends AbstractController
         }
 
         $this->addFlash('success', sprintf('Deck "%s" deleted successfully!', $deckTitle));
-        return $this->redirectToRoute('app_admin_decks');
+        return $this->redirectToRoute('app_admin_revision');
     }
 
     // Flashcard management within decks
