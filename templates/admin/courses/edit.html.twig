@@ -49,115 +49,164 @@
         <!-- Code & Name -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-200">
-                {{ form_label(form.code, 'Course Code', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Course Code <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.code, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., math02'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.code.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'placeholder': 'e.g., MATH101'
                     }
                 }) }}
-                {{ form_errors(form.code, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.code.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.code) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Unique identifier for the course (2-10 characters)
+                    </p>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-300">
-                {{ form_label(form.nomMatiere, 'Course Name', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Course Name <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.nomMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., Calculus II'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.nomMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'placeholder': 'e.g., Mathematics'
                     }
                 }) }}
-                {{ form_errors(form.nomMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.nomMatiere.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.nomMatiere) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Full name of the course (3-255 characters)
+                    </p>
+                {% endif %}
             </div>
         </div>
 
         <!-- Section & Type -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-400">
-                {{ form_label(form.sectionMatiere, 'Section', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Section <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.sectionMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600' ~ (form.sectionMatiere.vars.errors|length > 0 ? ' border-red-500' : '')
                     }
                 }) }}
-                {{ form_errors(form.sectionMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.sectionMatiere.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.sectionMatiere) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Academic department or field of study
+                    </p>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-500">
-                {{ form_label(form.typeMatiere, 'Type', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Type <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.typeMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600' ~ (form.typeMatiere.vars.errors|length > 0 ? ' border-red-500' : '')
                     }
                 }) }}
-                {{ form_errors(form.typeMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.typeMatiere.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.typeMatiere) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Teaching method: Lecture, Tutorial, or Practical
+                    </p>
+                {% endif %}
             </div>
         </div>
 
         <!-- Coefficient & Hours -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-600">
-                {{ form_label(form.coefficientMatiere, 'Coefficient', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Coefficient <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.coefficientMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., 8'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.coefficientMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'placeholder': 'e.g., 2',
+                        'step': '0.5',
+                        'min': '0.1',
+                        'max': '20'
                     }
                 }) }}
-                {{ form_errors(form.coefficientMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.coefficientMatiere.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.coefficientMatiere) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Weight of this course (0.1 to 20)
+                    </p>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-700">
-                {{ form_label(form.heureMatiere, 'Hours per Week', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-                }) }}
+                <label class="block text-sm font-medium text-slate-300 mb-2">
+                    Hours per Week <span class="text-red-500">*</span>
+                </label>
                 {{ form_widget(form.heureMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., 6'
+                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600' ~ (form.heureMatiere.vars.errors|length > 0 ? ' border-red-500' : ''),
+                        'placeholder': 'e.g., 6',
+                        'step': '0.5',
+                        'min': '0',
+                        'max': '40'
                     }
                 }) }}
-                {{ form_errors(form.heureMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.heureMatiere.vars.errors|length > 0 %}
+                    <p class="mt-1 text-sm text-red-400">
+                        {{ form_errors(form.heureMatiere) }}
+                    </p>
+                {% else %}
+                    <p class="mt-1 text-sm text-slate-500">
+                        Weekly teaching hours (0 to 40)
+                    </p>
+                {% endif %}
             </div>
         </div>
 
         <!-- Description -->
         <div class="form-group animate-fade-in animation-delay-800">
-            {{ form_label(form.description, 'Description (Optional)', {
-                'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
-            }) }}
+            <label class="block text-sm font-medium text-slate-300 mb-2">
+                Description (Optional)
+            </label>
             {{ form_widget(form.description, {
                 'attr': {
-                    'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600',
+                    'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600' ~ (form.description.vars.errors|length > 0 ? ' border-red-500' : ''),
                     'rows': '5',
-                    'placeholder': 'Add a description for this course...'
+                    'placeholder': 'Add a description for this course...',
+                    'maxlength': '500'
                 }
             }) }}
-            {{ form_errors(form.description, {
-                'attr': {'class': 'text-red-400 text-sm mt-1'}
-            }) }}
+            {% if form.description.vars.errors|length > 0 %}
+                <p class="mt-1 text-sm text-red-400">
+                    {{ form_errors(form.description) }}
+                </p>
+            {% else %}
+                <p class="mt-1 text-sm text-slate-500">
+                    Optional - Describe the course content and objectives (max 500 characters)
+                </p>
+            {% endif %}
         </div>
 
         <!-- Actions -->
@@ -216,6 +265,12 @@ select option {
 ::placeholder {
     color: #64748b !important;
     opacity: 1;
+}
+
+/* Style pour les champs en erreur */
+.border-red-500 {
+    border-color: #ef4444 !important;
+    background-color: rgba(239, 68, 68, 0.1) !important;
 }
 
 .invalid-feedback,
