@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ course.name }}{% endblock %}
+{% block title %}Evaluation #{{ course.idEval }}{% endblock %}
 
 {% block body %}
 <div class="space-y-6">
@@ -8,117 +8,183 @@
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
             { label: 'Courses', href: path('app_courses') },
-            { label: course.name }
+            { label: 'Evaluation #' ~ course.idEval }
         ]
     } %}
 
-    {% include 'components/page_header.html.twig' with {
-        title: course.name,
-        subtitle: course.instructor ~ ' • ' ~ course.schedule,
-        badge: { text: course.code, variant: course.color },
-        actions: '<a href="' ~ path('app_courses_edit', { id: course.id }) ~ '" class="btn btn-secondary"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg> Edit</a>'
-    } %}
+    {# En-tête avec titre et actions #}
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Evaluation #{{ course.idEval }}
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {{ course.nomEval|default('Sans nom') }}
+            </p>
+        </div>
+        
+        {# Boutons d'action #}
+        <div class="flex gap-3">
+            <a href="{{ path('app_courses_edit', { id: course.idEval }) }}"
+               class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+            </a>
+            
+            <a href="{{ path('app_courses_pdf', { id: course.idEval }) }}"
+               target="_blank"
+               class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Exporter PDF
+            </a>
+        </div>
+    </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Course Info -->
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Course Information</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-sm text-light-muted dark:text-dark-muted">Room</p>
-                        <p class="font-medium">{{ course.room }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-light-muted dark:text-dark-muted">Credits</p>
-                        <p class="font-medium">{{ course.credits }} credits</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-light-muted dark:text-dark-muted">Schedule</p>
-                        <p class="font-medium">{{ course.schedule }}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm text-light-muted dark:text-dark-muted">Progress</p>
-                        <p class="font-medium">{{ course.progress }}% complete</p>
+    {# Carte principale - Informations de l'évaluation #}
+    <div class="card p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold">📊 Informations de l'évaluation</h2>
+            
+            {# Badge de réussite/échec #}
+            {% if percentage >= 60 %}
+                <span class="px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm font-semibold">
+                    ✓ Réussi
+                </span>
+            {% else %}
+                <span class="px-4 py-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm font-semibold">
+                    ✗ Échec
+                </span>
+            {% endif %}
+        </div>
+
+        {# Grille d'informations #}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📝 Score obtenu</p>
+                <p class="text-2xl font-bold">{{ course.scoreEval }} / {{ course.noteMaximaleEval }}</p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📈 Pourcentage</p>
+                <div class="flex items-center">
+                    <p class="text-2xl font-bold mr-3">{{ percentage|number_format(2) }}%</p>
+                    {# Barre de progression #}
+                    <div class="flex-1">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ percentage }}%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Assignments -->
-            <div class="card p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Assignments</h2>
-                    <a href="{{ path('app_assignments_new') }}?course_id={{ course.id }}" class="btn btn-primary btn-sm">Add Assignment</a>
-                </div>
-                <div class="space-y-3">
-                    {% for assignment in assignments %}
-                    <a href="{{ path('app_assignments_show', { id: assignment.id }) }}" class="flex items-center gap-4 p-4 rounded-xl bg-light-bg dark:bg-dark-bg hover:ring-2 hover:ring-primary-500/50 transition-all block">
-                        <div>
-                            {% if assignment.status == 'completed' %}
-                                <div class="w-6 h-6 rounded-full bg-success-500 flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                </div>
-                            {% else %}
-                                <div class="w-6 h-6 rounded-full border-2 border-light-border dark:border-dark-border"></div>
-                            {% endif %}
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium">{{ assignment.title }}</p>
-                            <p class="text-sm text-light-muted dark:text-dark-muted">Due: {{ assignment.due_date|date('M j, Y') }}</p>
-                        </div>
-                        <span class="badge badge-{{ assignment.priority == 'high' ? 'danger' : (assignment.priority == 'medium' ? 'warning' : 'success') }}">
-                            {{ assignment.priority }}
-                        </span>
-                    </a>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📅 Date</p>
+                <p class="text-xl font-bold">
+                    {% if course.dateEvaluation %}
+                        {{ course.dateEvaluation|date('d/m/Y à H:i') }}
                     {% else %}
-                    {% include 'components/empty_state.html.twig' with {
-                        title: 'No assignments yet',
-                        description: 'Add your first assignment for this course.',
-                        icon: '<svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
-                        action: { label: 'Add Assignment', href: path('app_assignments_new') ~ '?course_id=' ~ course.id }
-                    } %}
-                    {% endfor %}
-                </div>
+                        Non définie
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">⏱️ Durée</p>
+                <p class="text-xl font-bold">{{ course.dureeEvaluation }} minutes</p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">⚡ Priorité</p>
+                <p class="text-xl font-bold">
+                    {% if course.prioriteE %}
+                        <span class="px-3 py-1 rounded-full text-sm
+                            {% if course.prioriteE == 'Haute' %}
+                                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                            {% elseif course.prioriteE == 'Moyenne' %}
+                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                            {% else %}
+                                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                            {% endif %}
+                        ">
+                            {{ course.prioriteE }}
+                        </span>
+                    {% else %}
+                        <span class="text-gray-400">Non définie</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📚 Matières</p>
+                <p class="text-2xl font-bold">{{ course.evalMats|length }}</p>
             </div>
         </div>
+    </div>
 
-        <!-- Sidebar -->
-        <div class="space-y-6">
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-                <div class="space-y-2">
-                    <button class="w-full btn btn-secondary justify-start">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        Add Notes
-                    </button>
-                    <a href="{{ path('app_revisions_deck_new') }}?course_id={{ course.id }}" class="w-full btn btn-secondary justify-start">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                        </svg>
-                        Create Flashcards
-                    </a>
-                </div>
-            </div>
-
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Progress</h2>
-                <div class="relative w-32 h-32 mx-auto">
-                    <svg class="w-full h-full transform -rotate-90">
-                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" class="text-light-border dark:text-dark-border"/>
-                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" 
-                                stroke-dasharray="{{ 352 * course.progress / 100 }} 352"
-                                class="text-{{ course.color }}-500"/>
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-2xl font-bold">{{ course.progress }}%</span>
+    {# Matières associées #}
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">📚 Matières / Sections associées</h2>
+        
+        {% if course.evalMats is not empty %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for evalMat in course.evalMats %}
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800">
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
+                                {{ evalMat.matiere.code|default('N/A') }}
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                Coef: {{ evalMat.matiere.coefficientMatiere|default('N/A') }}
+                            </span>
+                        </div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">
+                            {{ evalMat.matiere.nomMatiere }}
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Section: {{ evalMat.matiere.sectionMatiere|default('Non classée') }}
+                        </p>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <div class="text-center py-8">
+                <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <p class="text-light-muted dark:text-dark-muted">Aucune matière associée à cette évaluation</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Actions supplémentaires #}
+    <div class="flex flex-wrap gap-3">
+        <a href="{{ path('app_courses') }}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Retour à la liste
+        </a>
+        
+        <form method="post" action="{{ path('app_courses_delete', { id: course.idEval }) }}" 
+              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?');"
+              class="inline">
+            <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+            </button>
+        </form>
     </div>
 </div>
 {% endblock %}

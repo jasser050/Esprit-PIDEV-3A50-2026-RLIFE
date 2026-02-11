@@ -69,13 +69,249 @@
     </div>
 </div>
 
-<!-- Recent Users Table -->
+<!-- Platform Statistics -->
+<div class="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:grid-cols-2 xl:grid-cols-4">
+    <!-- Total Courses -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-card-hover transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-accent-50 dark:bg-accent-900/20 flex items-center justify-center">
+                <i data-lucide="book-open" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-400 rounded-lg">Courses</span>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_courses }}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Total courses</p>
+        </div>
+    </div>
+
+    <!-- Total Assignments -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-card-hover transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-warning-50 dark:bg-warning-900/20 flex items-center justify-center">
+                <i data-lucide="clipboard-list" class="w-6 h-6 text-warning-600 dark:text-warning-400"></i>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-lg">Tasks</span>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_assignments }}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Total assignments</p>
+        </div>
+    </div>
+
+    <!-- Active Sessions -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-card-hover transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center">
+                <i data-lucide="activity" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-lg">Live</span>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ active_sessions }}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Active sessions</p>
+        </div>
+    </div>
+
+    <!-- Total Flashcards -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-card-hover transition-shadow">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-success-50 dark:bg-success-900/20 flex items-center justify-center">
+                <i data-lucide="layers" class="w-6 h-6 text-success-600 dark:text-success-400"></i>
+            </div>
+            <span class="px-2.5 py-1 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-lg">Cards</span>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ total_flashcards }}</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Total flashcards</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Users and Courses Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Recent Users Table -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Recent Users</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Latest registered accounts</p>
+                </div>
+                <a href="{{ path('app_admin_users') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors">
+                    <span>View all</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                    {% for user in recent_users|slice(0, 5) %}
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                                    {{ user.firstName|first ~ user.lastName|first }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-slate-900 dark:text-white">{{ user.fullName }}</p>
+                                    {% if user.isAdmin() %}
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-2xs font-semibold bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-400 rounded-md">
+                                        <i data-lucide="shield" class="w-3 h-3"></i>
+                                        Admin
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if user.isBanned %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-danger-100 dark:bg-danger-900/30 text-danger-700 dark:text-danger-400 rounded-lg">
+                                <i data-lucide="ban" class="w-3 h-3"></i>
+                                Banned
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-lg">
+                                <i data-lucide="check" class="w-3 h-3"></i>
+                                Active
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ user.createdAt|date('M d, Y') }}</p>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                                    <i data-lucide="users" class="w-6 h-6 text-slate-400"></i>
+                                </div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">No users found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Popular Courses -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Popular Courses</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Most created courses</p>
+                </div>
+                <a href="{{ path('app_admin_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors">
+                    <span>View all</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="p-4 space-y-2">
+            {% for course in popular_courses %}
+            <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white font-semibold text-sm">
+                    {{ course.code|slice(0, 2)|upper }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium text-slate-900 dark:text-white truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{{ course.nomMatiere }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ course.code }} • {{ course.sectionMatiere }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-lg">
+                        <i data-lucide="users-2" class="w-3 h-3"></i>
+                        {{ course.user_count }}
+                    </span>
+                </div>
+            </div>
+            {% else %}
+            <div class="py-12 text-center">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <i data-lucide="book-open" class="w-6 h-6 text-slate-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">No courses found</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Course Statistics by Section -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden mb-6">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+                    <i data-lucide="pie-chart" class="w-4 h-4 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Courses by Section</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Distribution across sections</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            {% for section_stat in courses_by_section %}
+            <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-primary-300 dark:hover:border-primary-700 transition-all">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-{{ section_stat.color }}-100 dark:bg-{{ section_stat.color }}-900/30 flex items-center justify-center">
+                        <i data-lucide="folder" class="w-5 h-5 text-{{ section_stat.color }}-600 dark:text-{{ section_stat.color }}-400"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-slate-900 dark:text-white truncate">{{ section_stat.section }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ section_stat.count }} courses</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-500 dark:text-slate-400">Users</span>
+                        <span class="font-semibold text-slate-900 dark:text-white">{{ section_stat.total_users }}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
+                        <div class="bg-{{ section_stat.color }}-500 h-2 rounded-full" style="width: {{ (section_stat.count / total_courses * 100)|round }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-4 py-8 text-center">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                        <i data-lucide="folder-open" class="w-6 h-6 text-slate-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">No sections found</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Full Recent Users Table -->
 <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
     <div class="p-6 border-b border-slate-200 dark:border-slate-800">
         <div class="flex items-center justify-between">
             <div>
-                <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Recent Users</h2>
-                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Latest registered accounts</p>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-white">All Recent Users</h2>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Complete list of recent registrations</p>
             </div>
             <a href="{{ path('app_admin_users') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-xl transition-colors">
                 <span>View all</span>

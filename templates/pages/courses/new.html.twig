@@ -1,97 +1,169 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New Course{% endblock %}
+{% block title %}Add an Evaluation{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Courses', href: path('app_courses') },
-            { label: 'New Course' }
-        ]
-    } %}
+<div class="container mx-auto p-6">
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-primary">Add a New Evaluation</h1>
 
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Course',
-        subtitle: 'Add a new course to your schedule'
-    } %}
+        <div class="mb-8">
+            <a href="{{ path('app_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Evaluations
+            </a>
+        </div>
 
-    <form action="{{ path('app_courses_new') }}" method="POST" class="card p-6">
-        <div class="space-y-6">
-            <!-- Course Name -->
-            {% include 'components/input.html.twig' with {
-                name: 'name',
-                label: 'Course Name',
-                placeholder: 'e.g., Data Structures & Algorithms',
-                required: true
-            } %}
-
-            <!-- Course Code -->
-            <div class="grid grid-cols-2 gap-4">
-                {% include 'components/input.html.twig' with {
-                    name: 'code',
-                    label: 'Course Code',
-                    placeholder: 'e.g., CS201',
-                    required: true
-                } %}
-
-                {% include 'components/input.html.twig' with {
-                    name: 'credits',
-                    label: 'Credits',
-                    type: 'number',
-                    placeholder: '3',
-                    required: true
-                } %}
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
             </div>
+        {% endfor %}
 
-            <!-- Instructor -->
-            {% include 'components/input.html.twig' with {
-                name: 'instructor',
-                label: 'Instructor',
-                placeholder: 'e.g., Dr. Sarah Chen',
-                required: true
-            } %}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
 
-            <!-- Schedule -->
-            {% include 'components/input.html.twig' with {
-                name: 'schedule',
-                label: 'Schedule',
-                placeholder: 'e.g., Mon, Wed 10:00 - 11:30'
-            } %}
+        {{ form_start(form, {'attr': {'id': 'evaluation-form'}}) }}
 
-            <!-- Room -->
-            {% include 'components/input.html.twig' with {
-                name: 'room',
-                label: 'Room',
-                placeholder: 'e.g., Tech Building 301'
-            } %}
+        {# ========== SUBJECT (FULL LIST) ========== #}
+        <div class="form-control w-full mb-4">
+            <label class="label">
+                <span class="label-text font-semibold">Subject <span class="text-error">*</span></span>
+            </label>
+            <select name="matiere_id" id="matiere-select" class="select select-bordered w-full" required>
+                <option value="">Select a subject</option>
+                {% for matiere in allMatieres %}
+                    <option value="{{ matiere.id }}">
+                        {{ matiere.nomMatiere }} ({{ matiere.code }}) - Section {{ matiere.sectionMatiere }}
+                    </option>
+                {% endfor %}
+            </select>
+            <label class="label">
+                <span class="label-text-alt text-info">Choose the subject for this evaluation</span>
+            </label>
+        </div>
 
-            <!-- Color -->
-            {% include 'components/select.html.twig' with {
-                name: 'color',
-                label: 'Color Theme',
-                options: [
-                    { value: 'primary', label: 'Indigo (Primary)' },
-                    { value: 'secondary', label: 'Teal (Secondary)' },
-                    { value: 'accent', label: 'Amber (Accent)' },
-                    { value: 'success', label: 'Green (Success)' },
-                    { value: 'warning', label: 'Orange (Warning)' },
-                    { value: 'danger', label: 'Red (Danger)' }
-                ]
-            } %}
-
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_courses') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Create Course
-                </button>
+        {# ========== SCORES ========== #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.scoreEval.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.scoreEval) }}
+                {{ form_errors(form.scoreEval) }}
+            </div>
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.noteMaximaleEval.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.noteMaximaleEval) }}
+                {{ form_errors(form.noteMaximaleEval) }}
             </div>
         </div>
-    </form>
+
+        {# ========== DATE AND DURATION ========== #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.dateEvaluation.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.dateEvaluation) }}
+                {{ form_errors(form.dateEvaluation) }}
+            </div>
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.dureeEvaluation.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.dureeEvaluation) }}
+                {{ form_errors(form.dureeEvaluation) }}
+            </div>
+        </div>
+
+        {# ========== PRIORITY ========== #}
+        <div class="form-control w-full mb-6">
+            <label class="label">
+                <span class="label-text font-semibold">{{ form.prioriteE.vars.label }}</span>
+            </label>
+            {{ form_widget(form.prioriteE) }}
+            {{ form_errors(form.prioriteE) }}
+            <label class="label">
+                <span class="label-text-alt text-info">Optional - Set the importance of this evaluation</span>
+            </label>
+        </div>
+
+        {# ========== BUTTONS ========== #}
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('app_courses') }}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Evaluation
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('evaluation-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const matiereSelect = document.getElementById('matiere-select');
+
+    // Validation before submission
+    form.addEventListener('submit', function(e) {
+        // Check that a subject is selected
+        if (!matiereSelect.value) {
+            e.preventDefault();
+            alert('⚠️ Please select a subject');
+            matiereSelect.focus();
+            matiereSelect.classList.add('select-error');
+            return false;
+        }
+
+        // Disable button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading loading-spinner"></span> Saving...';
+    });
+
+    // Remove error when the user selects a subject
+    matiereSelect.addEventListener('change', function() {
+        this.classList.remove('select-error');
+    });
+});
+</script>
+
+<style>
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.select-error {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+</style>
 {% endblock %}

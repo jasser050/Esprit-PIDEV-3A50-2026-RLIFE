@@ -1,0 +1,327 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Courses Management{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div class="container mx-auto px-4 py-8">
+        {# Header Section #}
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-white">My Courses</h1>
+                <p class="mt-2 text-slate-600 dark:text-slate-400">Manage your courses and subjects</p>
+            </div>
+            <div class="flex items-center gap-4">
+                {# Search Input #}
+                <div class="relative">
+                    <input type="text" 
+                           id="searchInput"
+                           placeholder="Search for a course..." 
+                           class="w-80 px-4 py-3 pl-10 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                </div>
+
+                {# Sort Buttons #}
+                <div class="flex gap-2">
+                    <button id="sortAsc" 
+                            class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all font-medium">
+                        A → Z
+                    </button>
+                    <button id="sortDesc" 
+                            class="px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all font-medium">
+                        Z → A
+                    </button>
+                </div>
+
+                {# Add Course Button #}
+                <a href="{{ path('app_admin_courses_new') }}"
+                   class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all font-medium">
+                    Add Course
+                </a>
+            </div>
+        </div>
+
+        {# Flash Messages #}
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="alert mb-4 p-4 rounded-xl {% if label == 'success' %}bg-emerald-500/10 text-emerald-600 border border-emerald-500/20{% elseif label == 'error' %}bg-red-500/10 text-red-600 border border-red-500/20{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# Statistics Cards #}
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {# Active Courses #}
+            <div class="bg-white dark:bg-slate-800 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-600 dark:text-indigo-400">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ matieres|length }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Active Courses</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Total Coefficients #}
+            <div class="bg-white dark:bg-slate-800 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-600 dark:text-emerald-400">
+                            <circle cx="12" cy="8" r="6"></circle>
+                            <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        {% set totalCoef = 0 %}
+                        {% for matiere in matieres %}
+                            {% set totalCoef = totalCoef + (matiere.coefficientMatiere ?? 0) %}
+                        {% endfor %}
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ totalCoef|number_format(1) }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Total Coefficients</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Hours per Week #}
+            <div class="bg-white dark:bg-slate-800 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-600 dark:text-amber-400">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        {% set totalHours = 0 %}
+                        {% for matiere in matieres %}
+                            {% set totalHours = totalHours + (matiere.heureMatiere ?? 0) %}
+                        {% endfor %}
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ totalHours|number_format(1) }}h</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Hours/week</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Sections #}
+            <div class="bg-white dark:bg-slate-800 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-purple-600 dark:text-purple-400">
+                            <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-slate-900 dark:text-white">{{ sections|length }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Sections</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Section Filter #}
+        <div class="flex items-center gap-3 mb-6 flex-wrap">
+            <a href="{{ path('app_admin_courses') }}" 
+               class="px-6 py-2.5 rounded-xl font-medium transition-all {% if current_section is null %}bg-indigo-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700{% endif %}">
+                All Courses
+            </a>
+            {% for section in sections %}
+                <a href="{{ path('app_admin_courses', {section: section}) }}" 
+                   class="px-6 py-2.5 rounded-xl font-medium transition-all {% if current_section == section %}bg-indigo-600 text-white{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700{% endif %}">
+                    {{ section }}
+                </a>
+            {% endfor %}
+        </div>
+
+        {# Courses Grid #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="coursesGrid">
+            {% for matiere in matieres %}
+                <div class="course-card bg-white dark:bg-slate-800 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:border-indigo-500 transition-all group"
+                     data-course-name="{{ matiere.nomMatiere|lower }}"
+                     data-course-code="{{ matiere.code|lower }}"
+                     data-course-section="{{ matiere.sectionMatiere|lower }}">
+                    
+                    {# Progress Bar #}
+                    <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mb-6 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500" 
+                             style="width: {{ random(30, 100) }}%"></div>
+                    </div>
+
+                    {# Course Header #}
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-slate-500 dark:text-slate-400 text-sm font-medium">{{ matiere.code }}</span>
+                                <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-medium rounded-md">
+                                    Coef. {{ matiere.coefficientMatiere|number_format(1) }}
+                                </span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                {{ matiere.nomMatiere }}
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">{{ matiere.sectionMatiere }}</p>
+                        </div>
+                    </div>
+
+                    {# Course Description #}
+                    {% if matiere.description %}
+                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                            {{ matiere.description|length > 100 ? matiere.description|slice(0, 100) ~ '...' : matiere.description }}
+                        </p>
+                    {% else %}
+                        <p class="text-slate-500 dark:text-slate-500 text-sm mb-4 italic">
+                            No description available
+                        </p>
+                    {% endif %}
+
+                    {# Course Meta #}
+                    <div class="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                            <span class="flex items-center gap-1">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                {{ matiere.heureMatiere|number_format(1) }}h/week
+                            </span>
+                            {% if matiere.typeMatiere %}
+                                <span class="flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                        <rect width="20" height="14" x="2" y="6" rx="2"></rect>
+                                    </svg>
+                                    {{ matiere.typeMatiere }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Action Buttons #}
+                    <div class="flex gap-2 mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <a href="{{ path('app_admin_courses_edit', {id: matiere.id}) }}" 
+                           class="flex-1 text-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors text-sm font-medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline mr-1">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path>
+                                <path d="m15 5 4 4"></path>
+                            </svg>
+                            Edit
+                        </a>
+                        <form method="post" 
+                              action="{{ path('app_admin_courses_delete', {id: matiere.id}) }}" 
+                              class="flex-1"
+                              onsubmit="return confirm('Are you sure you want to delete this course?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.id) }}">
+                            <button type="submit" 
+                                    class="w-full px-4 py-2 bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 rounded-lg transition-colors text-sm font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline mr-1">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-2 text-center py-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No courses found</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-4">Start by adding your first course</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# No Results Message #}
+        <div id="noResults" class="hidden text-center py-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No courses match your search</h3>
+            <p class="text-slate-500 dark:text-slate-400">Try adjusting your search terms</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const coursesGrid = document.getElementById('coursesGrid');
+    const noResults = document.getElementById('noResults');
+    const courseCards = Array.from(document.querySelectorAll('.course-card'));
+    
+    // 🔍 SEARCH FUNCTIONALITY
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            let visibleCount = 0;
+            
+            courseCards.forEach(card => {
+                const courseName = card.dataset.courseName || '';
+                const courseCode = card.dataset.courseCode || '';
+                const courseSection = card.dataset.courseSection || '';
+                
+                if (courseName.includes(searchTerm) || 
+                    courseCode.includes(searchTerm) || 
+                    courseSection.includes(searchTerm)) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide no results message
+            if (visibleCount === 0 && searchTerm !== '') {
+                noResults.classList.remove('hidden');
+                coursesGrid.classList.add('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                coursesGrid.classList.remove('hidden');
+            }
+        });
+    }
+
+    // 🔤 SORT FUNCTIONALITY A → Z
+    document.getElementById('sortAsc').addEventListener('click', function() {
+        sortCourses(true);
+    });
+
+    // 🔤 SORT FUNCTIONALITY Z → A
+    document.getElementById('sortDesc').addEventListener('click', function() {
+        sortCourses(false);
+    });
+
+    function sortCourses(ascending) {
+        const sorted = courseCards.sort((a, b) => {
+            const nameA = a.dataset.courseName || '';
+            const nameB = b.dataset.courseName || '';
+            
+            return ascending 
+                ? nameA.localeCompare(nameB)
+                : nameB.localeCompare(nameA);
+        });
+
+        // Re-append sorted cards to grid
+        sorted.forEach(card => coursesGrid.appendChild(card));
+    }
+});
+</script>
+{% endblock %}
