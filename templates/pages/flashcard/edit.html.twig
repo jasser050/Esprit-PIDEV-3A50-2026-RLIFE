@@ -5,100 +5,126 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    /* Validation visuelle en temps réel */
-    input:invalid:not(:placeholder-shown):not(:focus),
-    textarea:invalid:not(:placeholder-shown):not(:focus),
-    select:invalid:not(:focus) {
-        border-color: #ef4444 !important;
-        background-color: #fef2f2 !important;
-    }
-
-    input:valid:not(:placeholder-shown):not(:focus),
-    textarea:valid:not(:placeholder-shown):not(:focus),
-    select:valid:not(:focus) {
-        border-color: #10b981 !important;
-        background-color: #f0fdf4 !important;
-    }
-
-    .dark input:invalid:not(:placeholder-shown):not(:focus),
-    .dark textarea:invalid:not(:placeholder-shown):not(:focus),
-    .dark select:invalid:not(:focus) {
-        background-color: #7f1d1d !important;
-    }
-
-    .dark input:valid:not(:placeholder-shown):not(:focus),
-    .dark textarea:valid:not(:placeholder-shown):not(:focus),
-    .dark select:valid:not(:focus) {
-        background-color: #064e3b !important;
-    }
-
-    .field-error {
-        animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
+    /* Style UNIQUEMENT pour l'affichage des erreurs Symfony */
     .error-message {
         color: #ef4444;
         font-size: 0.875rem;
         margin-top: 0.5rem;
         font-weight: 500;
         display: block;
+        background-color: #fee2e2;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        border-left: 4px solid #ef4444;
     }
-
+    
+    .error-message:empty {
+        display: none;
+    }
+    
     .help-text {
         color: #64748b;
         font-size: 0.75rem;
         margin-top: 0.375rem;
         display: block;
     }
-
+    
     label.required::after {
         content: " *";
         color: #ef4444;
         font-weight: bold;
-        font-size: 1.1em;
     }
-
-    .char-counter {
-        font-size: 0.75rem;
-        color: #94a3b8;
-        text-align: right;
-        margin-top: 0.25rem;
+    
+    /* Boutons simples */
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: #e2e8f0;
+        color: #1e293b;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        text-decoration: none;
     }
-
-    .char-counter.warning {
-        color: #f59e0b;
+    
+    .dark .btn-back {
+        background: #334155;
+        color: #e2e8f0;
+    }
+    
+    .btn-save {
+        padding: 0.875rem 2rem;
+        background: linear-gradient(to right, #4f46e5, #7c3aed);
+        color: white;
         font-weight: 600;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+        cursor: pointer;
     }
-
-    .char-counter.danger {
-        color: #ef4444;
-        font-weight: 700;
+    
+    .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        background: #dc2626;
+        color: white;
+        font-weight: 500;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+    
+    /* Danger zone */
+    .danger-zone {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .dark .danger-zone {
+        background: #7f1d1d20;
+        border-color: #7f1d1d;
+    }
+    
+    /* Image preview */
+    .current-image {
+        margin-bottom: 1rem;
+    }
+    
+    .current-image img {
+        width: 100%;
+        height: 12rem;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .dark .current-image img {
+        border-color: #334155;
     }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8 text-slate-900 dark:text-white">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
         
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center gap-4 mb-6">
-                <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
-                   class="inline-flex items-center px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}" class="btn-back">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+                    </svg>
                     Back to deck
                 </a>
             </div>
             
             <h1 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-2">
-                <i data-lucide="edit-3" class="w-10 h-10 inline-block mr-3 text-indigo-600"></i>
                 Edit Flashcard
             </h1>
             
@@ -110,35 +136,26 @@
         <!-- Form Card -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
             <div class="p-6 lg:p-10">
-                {{ form_start(form, {'attr': {'class': 'space-y-7', 'id': 'flashcardForm', 'novalidate': 'novalidate'}}) }}
                 
-                <!-- Title -->
+                {# DÉSACTIVATION TOTALE de la validation HTML5 #}
+                {{ form_start(form, {'attr': {'class': 'space-y-7', 'novalidate': 'novalidate'}}) }}
+                
+                <!-- Titre -->
                 <div class="space-y-2">
                     {{ form_label(form.titre, 'Flashcard Title', {
                         'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.titre, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                            'placeholder': 'e.g., Definition of Pythagoras theorem, European Capitals...',
-                            'required': 'required',
-                            'minlength': '3',
-                            'maxlength': '255',
-                            'data-field': 'titre'
+                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition',
+                            'placeholder': 'e.g., Definition of Pythagoras theorem, European Capitals...'
                         }
                     }) }}
+                    
                     <p class="help-text">📌 Required – Min 3 characters – Max 255 characters</p>
-                    <div class="char-counter" data-counter="titre">
-                        <span class="current">{{ form.titre.vars.value|length }}</span> / 255 characters
-                    </div>
-                    {% if form.titre.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.titre.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-titre"></div>
+                    
+                    {{ form_errors(form.titre, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
                 <!-- Question -->
@@ -146,136 +163,91 @@
                     {{ form_label(form.question, 'Question / Front', {
                         'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.question, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm min-h-[130px]',
-                            'placeholder': 'Ask your question here...',
-                            'required': 'required',
-                            'minlength': '5',
-                            'maxlength': '2000',
-                            'data-field': 'question'
+                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition min-h-[130px]',
+                            'placeholder': 'Ask your question here...'
                         }
                     }) }}
+                    
                     <p class="help-text">📌 Required – Min 5 characters – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="question">
-                        <span class="current">{{ form.question.vars.value|length }}</span> / 2000 characters
-                    </div>
-                    {% if form.question.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.question.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-question"></div>
+                    
+                    {{ form_errors(form.question, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Answer -->
+                <!-- Réponse -->
                 <div class="space-y-2">
                     {{ form_label(form.reponse, 'Answer / Back', {
                         'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.reponse, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition shadow-sm min-h-[160px]',
-                            'placeholder': 'Write the complete answer here...',
-                            'required': 'required',
-                            'minlength': '1',
-                            'maxlength': '2000',
-                            'data-field': 'reponse'
+                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition min-h-[160px]',
+                            'placeholder': 'Write the complete answer here...'
                         }
                     }) }}
+                    
                     <p class="help-text">📌 Required – Min 1 character – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="reponse">
-                        <span class="current">{{ form.reponse.vars.value|length }}</span> / 2000 characters
-                    </div>
-                    {% if form.reponse.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.reponse.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-reponse"></div>
+                    
+                    {{ form_errors(form.reponse, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Description -->
+                <!-- Description (optionnel) -->
                 <div class="space-y-2">
                     {{ form_label(form.description, 'Description / Notes (optional)', {
                         'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300'}
                     }) }}
+                    
                     {{ form_widget(form.description, {
                         'attr': {
-                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition shadow-sm min-h-[110px]',
-                            'placeholder': 'Additional context, examples, common mistakes...',
-                            'maxlength': '2000',
-                            'data-field': 'description'
+                            'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition min-h-[110px]',
+                            'placeholder': 'Additional context, examples, common mistakes...'
                         }
                     }) }}
+                    
                     <p class="help-text">💡 Optional – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="description">
-                        <span class="current">{{ form.description.vars.value|length }}</span> / 2000 characters
-                    </div>
-                    {% if form.description.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.description.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-description"></div>
+                    
+                    {{ form_errors(form.description, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Difficulty Level + Status (Side by Side) -->
+                <!-- Niveau de difficulté + État -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Difficulty Level -->
                     <div class="space-y-2">
                         {{ form_label(form.niveauDifficulte, 'Difficulty Level', {
                             'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300 required'}
                         }) }}
+                        
                         {{ form_widget(form.niveauDifficulte, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                                'required': 'required',
-                                'data-field': 'niveauDifficulte'
+                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition'
                             }
                         }) }}
+                        
                         <p class="help-text">📌 Required – Between 1 (easy) and 5 (hard)</p>
-                        {% if form.niveauDifficulte.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.niveauDifficulte.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-niveauDifficulte"></div>
+                        
+                        {{ form_errors(form.niveauDifficulte, {'attr': {'class': 'error-message'}}) }}
                     </div>
 
-                    <!-- Status -->
                     <div class="space-y-2">
                         {{ form_label(form.etat, 'Status', {
                             'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300 required'}
                         }) }}
+                        
                         {{ form_widget(form.etat, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                                'required': 'required',
-                                'data-field': 'etat'
+                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition'
                             }
                         }) }}
+                        
                         <p class="help-text">📌 Required – Flashcard status</p>
-                        {% if form.etat.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.etat.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-etat"></div>
+                        
+                        {{ form_errors(form.etat, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- File Uploads -->
+                <!-- Fichiers -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <!-- Image -->
                     <div class="space-y-2">
@@ -283,38 +255,24 @@
                             'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300'}
                         }) }}
                         
-                        <!-- Current Image Preview -->
                         {% if flashcard.image %}
-                            <div class="mb-4">
+                            <div class="current-image">
                                 <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Current image:</p>
-                                <div class="relative w-full h-48 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-600">
-                                    <img src="{{ asset('uploads/flashcards/images/' ~ flashcard.image) }}" 
-                                         alt="Current image" 
-                                         class="w-full h-full object-cover">
-                                </div>
+                                <img src="{{ asset('uploads/flashcards/images/' ~ flashcard.image) }}" alt="Current image">
                             </div>
                         {% endif %}
                         
                         {{ form_widget(form.imageFile, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-indigo-300 shadow-sm',
-                                'accept': 'image/jpeg,image/png,image/webp,image/gif',
-                                'data-field': 'imageFile'
+                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-slate-700 dark:file:text-indigo-300',
+                                'accept': 'image/jpeg,image/png,image/webp,image/gif'
                             }
                         }) }}
+                        
                         <p class="help-text">💡 Optional – Max 5 MB – JPG, PNG, WEBP, GIF</p>
-                        <div id="imagePreview" class="file-preview mt-3 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg" style="display: none;">
-                            <strong>Selected file:</strong> <span id="imageName"></span>
-                            <br><small>Size: <span id="imageSize"></span></small>
-                        </div>
-                        {% if form.imageFile.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.imageFile.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-imageFile"></div>
+                        <p class="help-text">Select a new image to replace the current one.</p>
+                        
+                        {{ form_errors(form.imageFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
 
                     <!-- PDF -->
@@ -323,14 +281,16 @@
                             'label_attr': {'class': 'block text-base font-medium text-slate-700 dark:text-slate-300'}
                         }) }}
                         
-                        <!-- Current PDF Link -->
                         {% if flashcard.pdf %}
                             <div class="mb-4">
                                 <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Current PDF:</p>
                                 <a href="{{ asset('uploads/flashcards/pdfs/' ~ flashcard.pdf) }}" 
                                    target="_blank"
-                                   class="inline-flex items-center px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition">
-                                    <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
+                                   class="inline-flex items-center px-4 py-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg transition no-underline">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
                                     View PDF
                                 </a>
                             </div>
@@ -338,38 +298,33 @@
                         
                         {{ form_widget(form.pdfFile, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-slate-700 dark:file:text-purple-300 shadow-sm',
-                                'accept': 'application/pdf',
-                                'data-field': 'pdfFile'
+                                'class': 'w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-slate-700 dark:file:text-purple-300',
+                                'accept': 'application/pdf'
                             }
                         }) }}
+                        
                         <p class="help-text">💡 Optional – Max 10 MB – PDF only</p>
-                        <div id="pdfPreview" class="file-preview mt-3 p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg" style="display: none;">
-                            <strong>Selected file:</strong> <span id="pdfName"></span>
-                            <br><small>Size: <span id="pdfSize"></span></small>
-                        </div>
-                        {% if form.pdfFile.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.pdfFile.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-pdfFile"></div>
+                        <p class="help-text">Select a new PDF to replace the current one.</p>
+                        
+                        {{ form_errors(form.pdfFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- Action Buttons (at the bottom of the form) -->
+                <!-- Boutons d'action -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end mt-10 pt-8 border-t border-slate-200 dark:border-slate-700">
                     <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
-                       class="inline-flex items-center justify-center px-8 py-3.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition shadow-sm">
-                        <i data-lucide="x" class="w-5 h-5 mr-2"></i>
+                       class="inline-flex items-center justify-center px-8 py-3.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition no-underline">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                        </svg>
                         Cancel
                     </a>
 
-                    <button type="submit" id="submitBtn"
-                            class="inline-flex items-center justify-center px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-md">
-                        <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+                    <button type="submit" class="btn-save">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+                        </svg>
                         Save Changes
                     </button>
                 </div>
@@ -379,140 +334,34 @@
         </div>
 
         <!-- Danger Zone -->
-        <div class="mt-8">
-            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6">
-                <h3 class="text-xl font-bold text-red-800 dark:text-red-300 mb-4 flex items-center">
-                    <i data-lucide="alert-triangle" class="w-6 h-6 mr-2"></i>
-                    Danger Zone
-                </h3>
-                
-                <p class="text-red-700 dark:text-red-400 mb-6">
-                    This action is irreversible. All data associated with this flashcard will be permanently deleted.
-                </p>
-                
-                <form method="post" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}"
-                      onsubmit="return confirm('Are you absolutely sure you want to delete this flashcard? This action cannot be undone.');">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
-                    <button type="submit"
-                            class="inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition">
-                        <i data-lucide="trash-2" class="w-5 h-5 mr-2"></i>
-                        Delete this flashcard permanently
-                    </button>
-                </form>
-            </div>
+        <div class="mt-8 danger-zone">
+            <h3 class="text-xl font-bold text-red-800 dark:text-red-300 mb-4 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+                </svg>
+                Danger Zone
+            </h3>
+            
+            <p class="text-red-700 dark:text-red-400 mb-6">
+                This action is irreversible. All data associated with this flashcard will be permanently deleted.
+            </p>
+            
+            <form method="post" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
+                <button type="submit" class="btn-delete" onclick="return confirm('Are you absolutely sure you want to delete this flashcard? This action cannot be undone.');">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 4V3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v1"/>
+                    </svg>
+                    Delete this flashcard permanently
+                </button>
+            </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
+{# AUCUN BLOCK JAVASCRIPT - Validation 100% serveur #}
 {% block javascripts %}
 {{ parent() }}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('flashcardForm');
-    const submitBtn = document.getElementById('submitBtn');
-
-    // Character counter fields
-    const fields = {
-        titre: {
-            element: document.querySelector('[data-field="titre"]'),
-            maxLength: 255
-        },
-        question: {
-            element: document.querySelector('[data-field="question"]'),
-            maxLength: 2000
-        },
-        reponse: {
-            element: document.querySelector('[data-field="reponse"]'),
-            maxLength: 2000
-        },
-        description: {
-            element: document.querySelector('[data-field="description"]'),
-            maxLength: 2000
-        }
-    };
-
-    // Update character counter
-    function updateCharCounter(fieldName) {
-        const field = fields[fieldName];
-        if (!field || !field.element) return;
-
-        const counter = document.querySelector(`[data-counter="${fieldName}"] .current`);
-        const counterContainer = document.querySelector(`[data-counter="${fieldName}"]`);
-        
-        if (counter) {
-            const length = field.element.value.length;
-            counter.textContent = length;
-
-            if (field.maxLength) {
-                const percent = (length / field.maxLength) * 100;
-                counterContainer.classList.remove('warning', 'danger');
-                
-                if (percent >= 90) {
-                    counterContainer.classList.add('danger');
-                } else if (percent >= 75) {
-                    counterContainer.classList.add('warning');
-                }
-            }
-        }
-    }
-
-    // Initialize and attach event listeners
-    for (const fieldName in fields) {
-        const field = fields[fieldName];
-        if (!field.element) continue;
-
-        field.element.addEventListener('input', function() {
-            updateCharCounter(fieldName);
-        });
-
-        // Initialize counter
-        updateCharCounter(fieldName);
-    }
-
-    // Image file preview
-    const imageFile = document.querySelector('[data-field="imageFile"]');
-    if (imageFile) {
-        imageFile.addEventListener('change', function(e) {
-            const preview = document.getElementById('imagePreview');
-            const name = document.getElementById('imageName');
-            const size = document.getElementById('imageSize');
-
-            if (this.files.length > 0) {
-                const file = this.files[0];
-                name.textContent = file.name;
-                size.textContent = (file.size / 1024).toFixed(2) + ' KB';
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-    }
-
-    // PDF file preview
-    const pdfFile = document.querySelector('[data-field="pdfFile"]');
-    if (pdfFile) {
-        pdfFile.addEventListener('change', function(e) {
-            const preview = document.getElementById('pdfPreview');
-            const name = document.getElementById('pdfName');
-            const size = document.getElementById('pdfSize');
-
-            if (this.files.length > 0) {
-                const file = this.files[0];
-                name.textContent = file.name;
-                size.textContent = (file.size / 1024).toFixed(2) + ' KB';
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
-        });
-    }
-
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 mr-2 animate-spin"></i> Saving...';
-    });
-});
-</script>
+{# RIEN DU TOUT - Pas de Lucide, pas de JS, pas de validation #}
 {% endblock %}

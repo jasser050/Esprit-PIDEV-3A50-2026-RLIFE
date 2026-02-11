@@ -15,113 +15,77 @@ class DeckType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        // Détermine si on est en mode édition ou création
         $isEdit = $options['data'] && $options['data']->getIdDeck() !== null;
 
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Titre *',
-                'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Exemple : Biologie - Système nerveux...',
-                ],
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le titre est obligatoire']),
-                    new Assert\Length(['min' => 3, 'max' => 255]),
-                    new Assert\Regex([
-                        'pattern' => '/^[^\d].*$/',
-                        'message' => 'Le titre ne doit pas commencer par un chiffre',
-                    ]),
+                'label'    => 'Titre du Deck *',
+                'required' => false, // On laisse les contraintes de l'entité faire le travail
+                'attr'     => [
+                    'placeholder' => 'Exemple : Biologie - Système nerveux, Vocabulaire Espagnol A2...',
                 ],
             ])
-
             ->add('matiere', TextType::class, [
-                'label' => 'Matière *',
+                'label'    => 'Matière *',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Ex : Mathématiques',
-                ],
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'La matière est obligatoire']),
-                    new Assert\Length(['min' => 3, 'max' => 100]),
+                'attr'     => [
+                    'placeholder' => 'Exemple : Biologie, Anglais, Mathématiques...',
                 ],
             ])
-
             ->add('niveau', TextType::class, [
-                'label' => 'Niveau *',
+                'label'    => 'Niveau *',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Ex : 3ème, Bac, Terminale...',
-                ],
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'Le niveau est obligatoire']),
-                    new Assert\Length(['min' => 1, 'max' => 50]),
+                'attr'     => [
+                    'placeholder' => 'Exemple : Lycée, Licence, B1, Terminale...',
                 ],
             ])
-
             ->add('description', TextareaType::class, [
-                'label' => 'Description *',
+                'label'    => 'Description *',
                 'required' => false,
-                'attr' => [
-                    'class' => 'form-control',
-                    'rows' => 4,
-                    'placeholder' => 'Décrivez le contenu...',
-                ],
-                'constraints' => [
-                    new Assert\NotBlank(['message' => 'La description est obligatoire']),
-                    new Assert\Length(['max' => 2000]),
+                'attr'     => [
+                    'rows'        => 4,
+                    'placeholder' => 'Décrivez le contenu, les objectifs, les chapitres ou compétences abordées...',
                 ],
             ])
-
             ->add('imageFile', FileType::class, [
-                'label' => $isEdit ? 'Image de couverture' : 'Image de couverture *',
-                'mapped' => false,
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'label'     => $isEdit ? 'Image de couverture' : 'Image de couverture *',
+                'mapped'    => false,
+                'required'  => !$isEdit,
                 'constraints' => $isEdit ? [
-                    // En mode EDIT : image optionnelle (seulement si fournie)
                     new Assert\File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+                        'maxSize'          => '5M',
+                        'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
                         'mimeTypesMessage' => 'Format invalide (JPG, PNG, WEBP, GIF seulement)',
-                        'maxSizeMessage' => 'L\'image ne doit pas dépasser 5 Mo',
+                        'maxSizeMessage'   => 'L\'image ne doit pas dépasser 5 Mo',
                     ]),
                 ] : [
-                    // En mode CREATE : image obligatoire
                     new Assert\NotNull(['message' => 'L\'image est obligatoire']),
                     new Assert\File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+                        'maxSize'          => '5M',
+                        'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
                         'mimeTypesMessage' => 'Format invalide (JPG, PNG, WEBP, GIF seulement)',
-                        'maxSizeMessage' => 'L\'image ne doit pas dépasser 5 Mo',
+                        'maxSizeMessage'   => 'L\'image ne doit pas dépasser 5 Mo',
                     ]),
                 ],
             ])
-
             ->add('pdfFile', FileType::class, [
-                'label' => $isEdit ? 'Fichier PDF' : 'Fichier PDF *',
-                'mapped' => false,
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'label'     => $isEdit ? 'Fichier PDF' : 'Fichier PDF *',
+                'mapped'    => false,
+                'required'  => !$isEdit,
                 'constraints' => $isEdit ? [
-                    // En mode EDIT : PDF optionnel (seulement si fourni)
                     new Assert\File([
-                        'maxSize' => '10M',
-                        'mimeTypes' => ['application/pdf'],
+                        'maxSize'          => '10M',
+                        'mimeTypes'        => ['application/pdf'],
                         'mimeTypesMessage' => 'Format invalide (PDF seulement)',
-                        'maxSizeMessage' => 'Le PDF ne doit pas dépasser 10 Mo',
+                        'maxSizeMessage'   => 'Le PDF ne doit pas dépasser 10 Mo',
                     ]),
                 ] : [
-                    // En mode CREATE : PDF obligatoire
                     new Assert\NotNull(['message' => 'Le PDF est obligatoire']),
                     new Assert\File([
-                        'maxSize' => '10M',
-                        'mimeTypes' => ['application/pdf'],
+                        'maxSize'          => '10M',
+                        'mimeTypes'        => ['application/pdf'],
                         'mimeTypesMessage' => 'Format invalide (PDF seulement)',
-                        'maxSizeMessage' => 'Le PDF ne doit pas dépasser 10 Mo',
+                        'maxSizeMessage'   => 'Le PDF ne doit pas dépasser 10 Mo',
                     ]),
                 ],
             ]);
@@ -131,7 +95,6 @@ class DeckType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Deck::class,
-            'attr' => ['novalidate' => 'novalidate'],
         ]);
     }
 }

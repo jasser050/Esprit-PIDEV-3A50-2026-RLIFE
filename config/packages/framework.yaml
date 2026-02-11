@@ -1,10 +1,21 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
-
-    # Note that the session will be started ONLY if you read or write from it.
-    session: true
-
+    
+    # Session configuration
+    session:
+        handler_id: null
+        cookie_secure: auto
+        cookie_samesite: lax
+        
+    # Validation - ACTIVÉ !
+    validation:
+        enabled: true
+        email_validation_mode: html5
+        
+    # CSRF protection
+    csrf_protection: ~
+    
     #esi: true
     #fragments: true
 
@@ -13,3 +24,5 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+        validation:
+            not_compromised_password: false

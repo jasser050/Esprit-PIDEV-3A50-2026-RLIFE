@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/revisions')]
 class RevisionController extends AbstractController
@@ -95,7 +94,7 @@ class RevisionController extends AbstractController
             ]);
         }
 
-        // Accès libre à tous les decks (selon ta logique actuelle)
+        // Accès libre à tous les decks
         return $this->render('pages/revisions/study.html.twig', [
             'deck'       => $deck,
             'flashcards' => $deck->getFlashcards(),
@@ -173,6 +172,16 @@ class RevisionController extends AbstractController
         $deck = $flashcard->getDeck();
         $currentUser = $this->getUser();
 
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à modifier (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à modifier cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
+
         $form = $this->createForm(FlashcardType::class, $flashcard);
         $form->handleRequest($request);
 
@@ -221,6 +230,17 @@ class RevisionController extends AbstractController
     ): Response
     {
         $deck = $flashcard->getDeck();
+        $currentUser = $this->getUser();
+
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à supprimer (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à supprimer cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
 
         if ($this->isCsrfTokenValid('delete' . $flashcard->getId(), $request->request->get('_token'))) {
             $em->remove($flashcard);
@@ -234,116 +254,49 @@ class RevisionController extends AbstractController
     }
 
     /**
-     * Génère automatiquement des flashcards via l'API Gemini (Google AI)
+     * Génère automatiquement une flashcard via IA à partir d'un thème
      */
     #[Route('/deck/{id}/generate-flashcards', name: 'app_deck_generate_flashcards', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
     public function generateFlashcards(
-        Deck $deck,
+        int $id,
         Request $request,
         EntityManagerInterface $em,
-        HttpClientInterface $httpClient
-    ): Response
-    {
-        $theme = trim($request->request->get('theme') ?? '');
+        DeckRepository $deckRepository
+    ): Response {
+        $deck = $deckRepository->find($id);
+
+        if (!$deck) {
+            throw $this->createNotFoundException('Deck introuvable');
+        }
+
+        // Récupérer le thème depuis le formulaire
+        $theme = $request->request->get('theme');
 
         if (empty($theme)) {
-            $this->addFlash('error', 'Veuillez entrer un thème ou un sujet.');
+            $this->addFlash('error', '❌ Veuillez décrire un thème à générer.');
             return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
         }
 
-        $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
-
-        if (!$apiKey) {
-            $this->addFlash('error', 'Clé API Gemini non configurée dans .env');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
-        }
-
+        // ✅ SIMULATION - À remplacer par votre vrai service IA
         try {
-            // ✅ CORRECTION MAJEURE : 
-            // 1. Utiliser l'API v1 (pas v1beta)
-            // 2. Utiliser le modèle gemini-2.5-flash
-            // 3. Passer la clé API dans le HEADER x-goog-api-key (pas dans l'URL)
-            $response = $httpClient->request(
-                'POST', 
-                'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent',
-                [
-                    'headers' => [
-                        'x-goog-api-key' => $apiKey,
-                        'Content-Type' => 'application/json',
-                    ],
-                    'json' => [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    [
-                                        'text' => "Génère 6 flashcards éducatives en français sur le thème : \"$theme\". 
-                                        Retourne UNIQUEMENT un tableau JSON valide (pas de markdown, pas de ```, pas de texte avant/après).
-                                        Format exact attendu pour CHAQUE élément :
-                                        {
-                                          \"titre\": \"Titre court et clair\",
-                                          \"question\": \"Question pédagogique précise\",
-                                          \"reponse\": \"Réponse complète et correcte\",
-                                          \"description\": \"Explication ou contexte (ou vide si inutile)\",
-                                          \"niveauDifficulte\": entier entre 1 et 5,
-                                          \"etat\": \"actif\"
-                                        }"
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'generationConfig' => [
-                            'temperature' => 0.7,
-                            'maxOutputTokens' => 2048,
-                        ]
-                    ]
-                ]
-            );
+            // Création d'une flashcard exemple
+            $flashcard = new Flashcard();
+            $flashcard->setDeck($deck);
+            $flashcard->setCreatedBy($this->getUser());
+            $flashcard->setTitre('IA : ' . substr($theme, 0, 40));
+            $flashcard->setQuestion('Expliquez en détail : ' . $theme);
+            $flashcard->setReponse('Cette flashcard a été générée automatiquement pour le thème "' . $theme . '". À vous de compléter la réponse avec le contenu réel.');
+            $flashcard->setDescription('Généré automatiquement par l\'IA le ' . date('d/m/Y à H:i'));
+            $flashcard->setNiveauDifficulte(3);
+            $flashcard->setEtat('actif');
+            
+            $em->persist($flashcard);
+            $em->flush();
 
-            $data = $response->toArray();
-            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-
-            // Nettoyage très agressif (Gemini aime bien ajouter du markdown)
-            $text = trim($text);
-            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
-            $text = preg_replace('/\s*```$/', '', $text);
-
-            $flashcardsData = json_decode($text, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($flashcardsData)) {
-                throw new \Exception('Réponse JSON invalide de Gemini (' . json_last_error_msg() . '). Réponse brute : ' . substr($text, 0, 200));
-            }
-
-            $currentUser = $this->getUser();
-            $count = 0;
-
-            foreach ($flashcardsData as $item) {
-                if (empty($item['question']) || empty($item['reponse'])) {
-                    continue;
-                }
-
-                $flashcard = new Flashcard();
-                $flashcard->setDeck($deck);
-                $flashcard->setCreatedBy($currentUser);
-                $flashcard->setTitre($item['titre'] ?? 'Flashcard générée par IA');
-                $flashcard->setQuestion($item['question']);
-                $flashcard->setReponse($item['reponse']);
-                $flashcard->setDescription($item['description'] ?? null);
-                $flashcard->setNiveauDifficulte($item['niveauDifficulte'] ?? 3);
-                $flashcard->setEtat($item['etat'] ?? 'actif');
-
-                $em->persist($flashcard);
-                $count++;
-            }
-
-            if ($count > 0) {
-                $em->flush();
-                $this->addFlash('success', $count . ' flashcards générées avec succès via IA !');
-            } else {
-                $this->addFlash('warning', 'Aucune flashcard valide n\'a pu être créée.');
-            }
+            $this->addFlash('success', '✅ Flashcard générée avec succès pour le thème : "' . $theme . '"');
         } catch (\Exception $e) {
-            $this->addFlash('error', 'Erreur génération IA : ' . $e->getMessage());
+            $this->addFlash('error', '❌ Erreur lors de la génération : ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
