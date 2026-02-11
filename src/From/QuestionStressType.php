@@ -14,12 +14,21 @@ class QuestionStressType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('questionText', TextareaType::class, [
-                'label' => 'Question',
+            ->add('label', TextareaType::class, [
+                'label' => 'Question Text (English)',
+                'attr' => ['rows' => 3, 'placeholder' => 'Example: On a scale of 1 to 5, how stressed do you feel today?'],
             ])
-            ->add('weight', IntegerType::class, [
-                'label' => 'Weight (optional)',
-                'required' => false,
+            ->add('orderIndex', IntegerType::class, [
+                'label' => 'Order Index',
+                'attr' => ['min' => 1, 'placeholder' => '1 (first question)'],
+            ])
+            ->add('minValue', IntegerType::class, [
+                'label' => 'Minimum Value',
+                'attr' => ['min' => 1, 'placeholder' => '1 (default)'],
+            ])
+            ->add('maxValue', IntegerType::class, [
+                'label' => 'Maximum Value',
+                'attr' => ['max' => 5, 'placeholder' => '5 (default)'],
             ]);
     }
 

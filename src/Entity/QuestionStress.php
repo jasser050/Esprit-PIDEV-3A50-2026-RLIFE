@@ -14,20 +14,20 @@ class QuestionStress
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: QuizStress::class, inversedBy: 'questions')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]  # Nullable pour permettre questions sans quiz
     private ?QuizStress $quiz = null;
 
     #[ORM\Column(length: 255)]
     private string $label;
 
     #[ORM\Column]
-    private int $orderIndex = 1; // 1..10
+    private int $orderIndex = 1;
 
     #[ORM\Column]
-    private int $minValue = 0; // 0
+    private int $minValue = 1;  # Changé à 1
 
     #[ORM\Column]
-    private int $maxValue = 4; // 4
+    private int $maxValue = 5;  # Changé à 5
 
     public function getId(): ?int { return $this->id; }
 

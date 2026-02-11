@@ -1,11 +1,162 @@
 {% extends 'admin/base_admin.html.twig' %}
-{% block title %}New Question{% endblock %}
+
+{% block title %}New Stress Question | RLIFE{% endblock %}
+
+{% block page_title %}New Stress Question{% endblock %}
+
 {% block body %}
-<h1 class="text-xl font-bold text-white mb-4">New Question</h1>
-<div class="card p-5">
-  {{ form_start(form) }}
-  {{ form_widget(form) }}
-  <button class="btn btn-primary mt-4">Save</button>
-  {{ form_end(form) }}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white">Create New Stress Question</h1>
+                <p class="mt-1 text-sm text-gray-400">
+                    Add a new question to the stress assessment questionnaire
+                </p>
+            </div>
+            <a href="{{ path('app_admin_question_stress_index') }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to list
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl shadow-xl overflow-hidden">
+        <div class="p-6 border-b border-gray-700">
+            <h2 class="text-lg font-semibold text-white">Question Details</h2>
+            <p class="mt-1 text-sm text-gray-400">
+                All fields marked with * are required
+            </p>
+        </div>
+
+        <div class="p-6">
+            {{ form_start(form, {
+                'attr': {
+                    'class': 'space-y-6',
+                    'novalidate': 'novalidate'
+                }
+            }) }}
+
+            {# Question Text #}
+            <div class="space-y-2">
+                {{ form_label(form.label, null, {
+                    'label_attr': {'class': 'block text-sm font-medium text-gray-300'}
+                }) }}
+                <div class="relative">
+                    {{ form_widget(form.label, {
+                        'attr': {
+                            'class': 'block w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all',
+                            'rows': 3,
+                            'placeholder': 'Example: In the last month, how often have you felt nervous and stressed?'
+                        }
+                    }) }}
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span class="text-red-500 text-sm">*</span>
+                    </div>
+                </div>
+                {{ form_errors(form.label, {'attr': {'class': 'mt-1 text-sm text-red-400'}}) }}
+            </div>
+
+            {# Order Index #}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    {{ form_label(form.orderIndex, null, {
+                        'label_attr': {'class': 'block text-sm font-medium text-gray-300'}
+                    }) }}
+                    {{ form_widget(form.orderIndex, {
+                        'attr': {
+                            'class': 'block w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all',
+                            'min': '1',
+                            'placeholder': '1 - 20'
+                        }
+                    }) }}
+                    {{ form_errors(form.orderIndex, {'attr': {'class': 'mt-1 text-sm text-red-400'}}) }}
+                    <p class="mt-1 text-xs text-gray-500">Position in the questionnaire (1 = first)</p>
+                </div>
+
+                {# Min Value #}
+                <div class="space-y-2">
+                    {{ form_label(form.minValue, null, {
+                        'label_attr': {'class': 'block text-sm font-medium text-gray-300'}
+                    }) }}
+                    {{ form_widget(form.minValue, {
+                        'attr': {
+                            'class': 'block w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all',
+                            'placeholder': 'Usually 0'
+                        }
+                    }) }}
+                    {{ form_errors(form.minValue, {'attr': {'class': 'mt-1 text-sm text-red-400'}}) }}
+                </div>
+
+                {# Max Value #}
+                <div class="space-y-2">
+                    {{ form_label(form.maxValue, null, {
+                        'label_attr': {'class': 'block text-sm font-medium text-gray-300'}
+                    }) }}
+                    {{ form_widget(form.maxValue, {
+                        'attr': {
+                            'class': 'block w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all',
+                            'placeholder': 'Usually 4'
+                        }
+                    }) }}
+                    {{ form_errors(form.maxValue, {'attr': {'class': 'mt-1 text-sm text-red-400'}}) }}
+                </div>
+            </div>
+
+            {# Actions #}
+            <div class="pt-6 mt-8 border-t border-gray-700 flex justify-end gap-4">
+                <a href="{{ path('app_admin_question_stress_index') }}"
+                   class="px-6 py-3 text-sm font-medium text-gray-300 bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-700 transition-colors">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all shadow-md hover:shadow-lg">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Save Question
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {# Optional help card #}
+    <div class="mt-8 p-6 bg-gray-800/30 border border-gray-700/50 rounded-xl">
+        <h3 class="text-lg font-medium text-indigo-400 mb-3">Tips for good questions</h3>
+        <ul class="space-y-2 text-sm text-gray-300">
+            <li class="flex items-start">
+                <span class="text-indigo-400 mr-2">•</span>
+                Use clear, simple language understandable by everyone
+            </li>
+            <li class="flex items-start">
+                <span class="text-indigo-400 mr-2">•</span>
+                Prefer questions about the last 4 weeks / last month
+            </li>
+            <li class="flex items-start">
+                <span class="text-indigo-400 mr-2">•</span>
+                Use a 5-point scale (0 = Never → 4 = Very often) by default
+            </li>
+            <li class="flex items-start">
+                <span class="text-indigo-400 mr-2">•</span>
+                Number questions logically (1, 2, 3...)
+            </li>
+        </ul>
+    </div>
 </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Optional: subtle hover effect on inputs */
+        input:focus, textarea:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+    </style>
 {% endblock %}

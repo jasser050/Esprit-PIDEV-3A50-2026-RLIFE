@@ -1,69 +1,44 @@
-{% extends 'pages/base.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}Stress Quiz{% endblock %}
+{% block title %}Stress Assessment{% endblock %}
 
 {% block body %}
-  <div class="space-y-6">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">Stress Quiz</h1>
-        <p class="text-slate-500">Réponds à toutes les questions (0 → 4)</p>
-      </div>
-    </div>
+<div class="container mx-auto px-4 py-12 max-w-4xl">
+    <h1 class="text-4xl font-bold text-center mb-10">Stress Assessment</h1>
 
-    <form id="stressQuizForm" class="space-y-4">
-      {% for q in questions %}
-        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/40">
-          <p class="font-semibold mb-3">{{ loop.index }}. {{ q.questionText }}</p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-5 gap-2">
-            {% for v in 0..4 %}
-              <label class="px-3 py-2 rounded-lg border cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800">
-                <input type="radio" name="q{{ q.id }}" value="{{ v }}" required>
-                <span class="ml-2">{{ v }}</span>
-              </label>
-            {% endfor %}
-          </div>
+    {% if questions|length == 0 %}
+        <div class="alert alert-warning text-center">
+            No questions available at the moment.
         </div>
-      {% endfor %}
+    {% else %}
+        <form method="POST" action="{{ path('app_wellbeing_quiz_submit') }}" class="space-y-10">
+            {% for question in questions %}
+                <div class="card bg-base-200 shadow-xl p-6 rounded-2xl">
+                    <h2 class="text-2xl font-semibold mb-6">
+                        {{ loop.index }}. {{ question.label }}
+                    </h2>
 
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+                    <div class="flex flex-wrap justify-center gap-6 md:gap-10">
+                        {% for value in question.minValue..question.maxValue %}
+                            <label class="cursor-pointer flex flex-col items-center">
+                                <input type="radio"
+                                       name="answers[{{ question.id }}]"
+                                       value="{{ value }}"
+                                       class="radio radio-lg radio-primary"
+                                       required />
+                                <span class="mt-2 text-xl font-medium">{{ value }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
 
-    <div id="resultBox" class="hidden p-4 rounded-xl border"></div>
-  </div>
-
-  <!-- <script>
-  document.getElementById('stressQuizForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const answers = {};
-    {% for q in questions %}
-      const selected = document.querySelector('input[name="q{{ q.id }}"]:checked');
-      answers["{{ q.id }}"] = selected ? parseInt(selected.value, 10) : 0;
-    {% endfor %}
-
-    // On submit vers API (id=1 par exemple, ou tu peux gérer “quiz actif”)
-    const quizId = 1;
-
-    const res = await fetch(`/api/stress-quiz/${quizId}/submit`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ answers })
-    });
-
-    const box = document.getElementById('resultBox');
-    box.classList.remove('hidden');
-
-    if (!res.ok) {
-      box.className = "p-4 rounded-xl border border-danger-300 bg-danger-50 text-danger-800";
-      box.textContent = "Erreur lors de l'envoi du quiz.";
-      return;
-    }
-
-    const data = await res.json();
-    box.className = "p-4 rounded-xl border border-success-300 bg-success-50 text-success-800";
-    box.innerHTML = `<div class="font-semibold">Score: ${data.score}/40</div><div class="mt-2">${data.recommendation}</div>`;
-  });
-  </script> -->
+            <div class="text-center mt-12">
+                <button type="submit" class="btn btn-primary btn-lg px-12">
+                    Submit my answers
+                </button>
+            </div>
+        </form>
+    {% endif %}
+</div>
 {% endblock %}

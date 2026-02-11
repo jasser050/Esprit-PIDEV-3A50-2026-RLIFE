@@ -1,38 +1,11 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}QuestionStress{% endblock %}
-
-{% block body %}
-    <h1>QuestionStress</h1>
-
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ question_stress.id }}</td>
-            </tr>
-            <tr>
-                <th>Label</th>
-                <td>{{ question_stress.label }}</td>
-            </tr>
-            <tr>
-                <th>OrderIndex</th>
-                <td>{{ question_stress.orderIndex }}</td>
-            </tr>
-            <tr>
-                <th>MinValue</th>
-                <td>{{ question_stress.minValue }}</td>
-            </tr>
-            <tr>
-                <th>MaxValue</th>
-                <td>{{ question_stress.maxValue }}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_question_stress_index') }}">back to list</a>
-
-    <a href="{{ path('app_question_stress_edit', {'id': question_stress.id}) }}">edit</a>
-
-    {{ include('question_stress/_delete_form.html.twig') }}
-{% endblock %}
+<!-- Update <tr> blocks -->
+<tr>
+    <th>Question Text</th>  <!-- English -->
+    <td>{{ question_stress.label }}</td>  <!-- Changed to label -->
+</tr>
+<tr>
+    <th>Order Index</th>  <!-- English -->
+    <td>{{ question_stress.orderIndex }}</td>
+</tr>
+<!-- Add minValue and maxValue if needed -->
+<!-- Remove old fields like questionTextQues, questionNumberQues -->

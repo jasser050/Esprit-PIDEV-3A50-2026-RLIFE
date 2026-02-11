@@ -1,52 +1,47 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}  <!-- Assume this exists; if not, create it extending 'base.html.twig' -->
 
-{% block title %}Recommendations Stress{% endblock %}
-{% block page_title %}Recommendations Stress{% endblock %}
+{% block title %}Stress Recommendations{% endblock %}
+{% block page_title %}Stress Recommendations{% endblock %}
 
 {% block body %}
 <div class="space-y-6">
-    <div>
-        <h2 class="text-2xl font-bold">Recommendations</h2>
-        <p class="text-slate-500 dark:text-slate-400">Manage recommendations generated for stress levels</p>
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-semibold">Recommendations</h2>  <!-- English -->
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage recommendations (CRUD)</p>
+        </div>
+        <!-- Add "New Recommendation" button if needed -->
     </div>
-
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm">
-            <thead class="bg-slate-50 dark:bg-slate-800/50">
-                <tr class="text-left">
-                    <th class="p-4">ID</th>
-                    <th class="p-4">Level</th>
-                    <th class="p-4 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
+    <table class="w-full text-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>  <!-- English -->
+                <th>Content</th>
+                <th>Level</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for item in items %}
-                <tr class="border-t border-slate-100 dark:border-slate-800">
-                    <td class="p-4">{{ item.id }}</td>
-                    <td class="p-4">{{ item.level }}</td>
-                    <td class="p-4 text-right">
-                        <form method="post"
-                              action="{{ path('app_admin_recommendation_stress_delete', {id: item.id}) }}"
-                              class="inline"
-                              onsubmit="return confirm('Delete this recommendation?');">
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.content|slice(0, 50) }}...</td>  <!-- Truncate long content -->
+                    <td>{{ item.level }}</td>
+                    <td>
+                        <!-- Edit/Delete buttons -->
+                        <a href="{{ path('app_admin_recommendation_stress_edit', {id: item.id}) }}">Edit</a>
+                        <form method="post" action="{{ path('app_admin_recommendation_stress_delete', {id: item.id}) }}" onsubmit="return confirm('Delete?');">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
-                            <button class="px-3 py-2 rounded-lg bg-danger-100 text-danger-700 dark:bg-danger-900/30 dark:text-danger-200 hover:bg-danger-200 dark:hover:bg-danger-900/50">
-                                Delete
-                            </button>
+                            <button>Delete</button>
                         </form>
                     </td>
                 </tr>
             {% else %}
-                <tr>
-                    <td class="p-4 text-slate-500 dark:text-slate-400" colspan="3">No recommendations found.</td>
-                </tr>
+                <tr><td colspan="5">No recommendations found.</td></tr>
             {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <p class="text-xs text-slate-500">
-        ⚠️ Si tu vois “Unknown column title/content”, ton Entity ne correspond pas à la DB → fais migrations.
-    </p>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
