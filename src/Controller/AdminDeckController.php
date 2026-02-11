@@ -15,15 +15,252 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 #[Route('/admin/deck')]
 #[IsGranted('ROLE_ADMIN')]
 class AdminDeckController extends AbstractController
 {
-    #[Route('', name: 'app_admin_deck_index', methods: ['GET'])]
-    public function index(): Response
+    #[Route('', name: 'app_admin_revision', methods: ['GET'])]
+    public function index(Request $request, DeckRepository $deckRepository): Response
     {
-        return $this->redirectToRoute('app_admin_revision');
+        // Récupération des paramètres de recherche et filtres
+        $search = $request->query->get('search', '');
+        $subject = $request->query->get('subject', 'all');
+        $level = $request->query->get('level', 'all');
+        $dateFrom = $request->query->get('dateFrom', '');
+        $dateTo = $request->query->get('dateTo', '');
+        $progress = $request->query->get('progress', 'all');
+        $sort = $request->query->get('sort', 'date-desc');
+
+        // Construction de la requête avec QueryBuilder
+        $qb = $deckRepository->createQueryBuilder('d')
+            ->where('d.user = :user')
+            ->setParameter('user', $this->getUser());
+
+        // Filtrage par recherche textuelle
+        if (!empty($search)) {
+            $qb->andWhere('LOWER(d.titre) LIKE :search 
+                       OR LOWER(d.matiere) LIKE :search 
+                       OR LOWER(d.niveau) LIKE :search 
+                       OR LOWER(d.description) LIKE :search')
+               ->setParameter('search', '%' . strtolower($search) . '%');
+        }
+
+        // Filtrage par matière
+        if ($subject !== 'all') {
+            $qb->andWhere('LOWER(d.matiere) = :subject')
+               ->setParameter('subject', strtolower($subject));
+        }
+
+        // Filtrage par niveau
+        if ($level !== 'all') {
+            $qb->andWhere('LOWER(d.niveau) = :level')
+               ->setParameter('level', strtolower($level));
+        }
+
+        // Filtrage par date
+        if (!empty($dateFrom)) {
+            $qb->andWhere('d.dateCreation >= :dateFrom')
+               ->setParameter('dateFrom', new \DateTime($dateFrom));
+        }
+
+        if (!empty($dateTo)) {
+            $qb->andWhere('d.dateCreation <= :dateTo')
+               ->setParameter('dateTo', new \DateTime($dateTo . ' 23:59:59'));
+        }
+
+        // Tri
+        switch ($sort) {
+            case 'date':
+                $qb->orderBy('d.dateCreation', 'ASC');
+                break;
+            case 'date-desc':
+                $qb->orderBy('d.dateCreation', 'DESC');
+                break;
+            case 'title':
+                $qb->orderBy('d.titre', 'ASC');
+                break;
+            case 'title-desc':
+                $qb->orderBy('d.titre', 'DESC');
+                break;
+            case 'cards':
+                // Pour trier par nombre de cartes, on doit joindre les flashcards
+                $qb->leftJoin('d.flashcards', 'f')
+                   ->groupBy('d.idDeck')
+                   ->orderBy('COUNT(f.idFlashcard)', 'ASC');
+                break;
+            default:
+                $qb->orderBy('d.dateCreation', 'DESC');
+        }
+
+        $decks = $qb->getQuery()->getResult();
+
+        // Si filtrage par progression (nécessite un traitement PHP car c'est calculé)
+        if ($progress !== 'all') {
+            $decks = array_filter($decks, function($deck) use ($progress) {
+                // Ici vous devrez calculer la progression réelle
+                // Pour l'exemple, on utilise des données fictives
+                $deckProgress = rand(0, 100); // À remplacer par votre logique
+                
+                if ($progress === '100') {
+                    return $deckProgress == 100;
+                }
+                
+                [$min, $max] = explode('-', $progress);
+                return $deckProgress >= (int)$min && $deckProgress <= (int)$max;
+            });
+        }
+
+        return $this->render('admin/revision.html.twig', [
+            'decks' => $decks,
+            'currentFilters' => [
+                'search' => $search,
+                'subject' => $subject,
+                'level' => $level,
+                'dateFrom' => $dateFrom,
+                'dateTo' => $dateTo,
+                'progress' => $progress,
+                'sort' => $sort,
+            ]
+        ]);
+    }
+
+    /**
+     * Export PDF des decks
+     */
+    #[Route('/export-pdf', name: 'app_admin_deck_pdf', methods: ['GET'])]
+    public function exportPdf(Request $request, DeckRepository $deckRepository): Response
+    {
+        // Récupération des mêmes filtres que l'index
+        $search = $request->query->get('search', '');
+        $subject = $request->query->get('subject', 'all');
+        $level = $request->query->get('level', 'all');
+        $dateFrom = $request->query->get('dateFrom', '');
+        $dateTo = $request->query->get('dateTo', '');
+        $sort = $request->query->get('sort', 'date-desc');
+
+        // Même logique de filtrage que l'index
+        $qb = $deckRepository->createQueryBuilder('d')
+            ->where('d.user = :user')
+            ->setParameter('user', $this->getUser());
+
+        if (!empty($search)) {
+            $qb->andWhere('LOWER(d.titre) LIKE :search 
+                       OR LOWER(d.matiere) LIKE :search 
+                       OR LOWER(d.niveau) LIKE :search 
+                       OR LOWER(d.description) LIKE :search')
+               ->setParameter('search', '%' . strtolower($search) . '%');
+        }
+
+        if ($subject !== 'all') {
+            $qb->andWhere('LOWER(d.matiere) = :subject')
+               ->setParameter('subject', strtolower($subject));
+        }
+
+        if ($level !== 'all') {
+            $qb->andWhere('LOWER(d.niveau) = :level')
+               ->setParameter('level', strtolower($level));
+        }
+
+        if (!empty($dateFrom)) {
+            $qb->andWhere('d.dateCreation >= :dateFrom')
+               ->setParameter('dateFrom', new \DateTime($dateFrom));
+        }
+
+        if (!empty($dateTo)) {
+            $qb->andWhere('d.dateCreation <= :dateTo')
+               ->setParameter('dateTo', new \DateTime($dateTo . ' 23:59:59'));
+        }
+
+        // Tri
+        switch ($sort) {
+            case 'date':
+                $qb->orderBy('d.dateCreation', 'ASC');
+                break;
+            case 'date-desc':
+                $qb->orderBy('d.dateCreation', 'DESC');
+                break;
+            case 'title':
+                $qb->orderBy('d.titre', 'ASC');
+                break;
+            case 'title-desc':
+                $qb->orderBy('d.titre', 'DESC');
+                break;
+            default:
+                $qb->orderBy('d.dateCreation', 'DESC');
+        }
+
+        $decks = $qb->getQuery()->getResult();
+
+        // Configuration de Dompdf
+        $pdfOptions = new Options();
+        $pdfOptions->set('defaultFont', 'DejaVu Sans');
+        $pdfOptions->setIsHtml5ParserEnabled(true);
+        $pdfOptions->setIsRemoteEnabled(true);
+
+        $dompdf = new Dompdf($pdfOptions);
+
+        // Génération du HTML pour le PDF
+        $html = $this->renderView('admin/deck/pdf_export.html.twig', [
+            'decks' => $decks,
+            'date' => new \DateTime(),
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Génération du nom de fichier
+        $filename = sprintf('mes-decks-%s.pdf', (new \DateTime())->format('Y-m-d'));
+
+        // Retour de la réponse PDF
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => sprintf('attachment; filename="%s"', $filename),
+            ]
+        );
+    }
+
+    /**
+     * API JSON pour recherche AJAX (optionnel)
+     */
+    #[Route('/search-ajax', name: 'app_admin_deck_search_ajax', methods: ['GET'])]
+    public function searchAjax(Request $request, DeckRepository $deckRepository): JsonResponse
+    {
+        $search = $request->query->get('q', '');
+        
+        $qb = $deckRepository->createQueryBuilder('d')
+            ->where('d.user = :user')
+            ->setParameter('user', $this->getUser());
+
+        if (!empty($search)) {
+            $qb->andWhere('LOWER(d.titre) LIKE :search 
+                       OR LOWER(d.matiere) LIKE :search 
+                       OR LOWER(d.niveau) LIKE :search')
+               ->setParameter('search', '%' . strtolower($search) . '%');
+        }
+
+        $decks = $qb->setMaxResults(10)
+                    ->getQuery()
+                    ->getResult();
+
+        $results = [];
+        foreach ($decks as $deck) {
+            $results[] = [
+                'id' => $deck->getIdDeck(),
+                'titre' => $deck->getTitre(),
+                'matiere' => $deck->getMatiere(),
+                'niveau' => $deck->getNiveau(),
+            ];
+        }
+
+        return new JsonResponse($results);
     }
 
     #[Route('/new', name: 'app_admin_deck_new', methods: ['GET', 'POST'])]
@@ -136,7 +373,7 @@ class AdminDeckController extends AbstractController
     }
 
     /**
-     * ✨ NOUVELLE MÉTHODE : Afficher un deck avec ses flashcards
+     * ✨ Afficher un deck avec ses flashcards
      */
     #[Route('/{id_deck}/show', name: 'app_admin_deck_show', methods: ['GET'])]
     public function show(
@@ -189,7 +426,7 @@ class AdminDeckController extends AbstractController
                 ]);
             }
 
-            // Traitement des fichiers (optionnels en édition)
+            // Traitement des fichiers 
             $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/decks/';
 
             if (!is_dir($uploadDir)) {
