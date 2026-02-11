@@ -1,114 +1,169 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Add New Course Evaluation{% endblock %}
+{% block title %}Add an Evaluation{% endblock %}
 
 {% block body %}
 <div class="container mx-auto p-6">
     <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6 text-primary">Add New Course Evaluation</h1>
-       
+        <h1 class="text-3xl font-bold mb-6 text-primary">Add a New Evaluation</h1>
 
-
-        <!-- Header -->
         <div class="mb-8">
-            <div class="flex items-center gap-4 mb-4">
-                <a href="{{ path('app_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Back to courses
-                </a>
-            </div>
-            
-           
+            <a href="{{ path('app_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Evaluations
+            </a>
         </div>
 
-        {{ form_start(form) }}
+        {# Flash Messages #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
 
-        {# ---------------- SECTION SELECTION ---------------- #}
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'id': 'evaluation-form'}}) }}
+
+        {# ========== SUBJECT (FULL LIST) ========== #}
         <div class="form-control w-full mb-4">
-            <label class="label font-semibold">Section</label>
-            <select id="section-select" class="select select-bordered w-full" name="section">
-                <option value="">Choisir une section</option>
-                {% for section in sections %}
-                    <option value="{{ section }}">{{ section }}</option>
+            <label class="label">
+                <span class="label-text font-semibold">Subject <span class="text-error">*</span></span>
+            </label>
+            <select name="matiere_id" id="matiere-select" class="select select-bordered w-full" required>
+                <option value="">Select a subject</option>
+                {% for matiere in allMatieres %}
+                    <option value="{{ matiere.id }}">
+                        {{ matiere.nomMatiere }} ({{ matiere.code }}) - Section {{ matiere.sectionMatiere }}
+                    </option>
                 {% endfor %}
             </select>
+            <label class="label">
+                <span class="label-text-alt text-info">Choose the subject for this evaluation</span>
+            </label>
         </div>
 
-        {# ---------------- MATIÈRES FILTRÉES ---------------- #}
-        <div class="form-control w-full mb-4">
-            <label class="label font-semibold">Matières <span class="text-error">*</span></label>
-            <select id="matieres-select" class="select select-bordered w-full h-64" name="matieres[]" multiple required>
-                {# Initialement vide, sera rempli via JS côté client #}
-            </select>
-        </div>
-
-        {# ---------------- SCORE ---------------- #}
+        {# ========== SCORES ========== #}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control w-full">
-                {{ form_label(form.scoreEval) }}
-                {{ form_widget(form.scoreEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.scoreEval.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.scoreEval) }}
+                {{ form_errors(form.scoreEval) }}
             </div>
             <div class="form-control w-full">
-                {{ form_label(form.noteMaximaleEval) }}
-                {{ form_widget(form.noteMaximaleEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.noteMaximaleEval.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.noteMaximaleEval) }}
+                {{ form_errors(form.noteMaximaleEval) }}
             </div>
         </div>
 
-        {# ---------------- SCHEDULE ---------------- #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {# ========== DATE AND DURATION ========== #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div class="form-control w-full">
-                {{ form_label(form.dateEvaluation) }}
-                {{ form_widget(form.dateEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.dateEvaluation.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.dateEvaluation) }}
+                {{ form_errors(form.dateEvaluation) }}
             </div>
             <div class="form-control w-full">
-                {{ form_label(form.dureeEvaluation) }}
-                {{ form_widget(form.dureeEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
+                <label class="label">
+                    <span class="label-text font-semibold">{{ form.dureeEvaluation.vars.label }} <span class="text-error">*</span></span>
+                </label>
+                {{ form_widget(form.dureeEvaluation) }}
+                {{ form_errors(form.dureeEvaluation) }}
             </div>
         </div>
 
+        {# ========== PRIORITY ========== #}
         <div class="form-control w-full mb-6">
-            {{ form_label(form.prioriteE) }}
-            {{ form_widget(form.prioriteE, {'attr': {'class': 'select select-bordered w-full'}}) }}
+            <label class="label">
+                <span class="label-text font-semibold">{{ form.prioriteE.vars.label }}</span>
+            </label>
+            {{ form_widget(form.prioriteE) }}
+            {{ form_errors(form.prioriteE) }}
+            <label class="label">
+                <span class="label-text-alt text-info">Optional - Set the importance of this evaluation</span>
+            </label>
         </div>
 
+        {# ========== BUTTONS ========== #}
         <div class="flex justify-end gap-4">
-            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="{{ path('app_courses') }}" class="btn btn-ghost">Cancel</a>
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Evaluation
+            </button>
         </div>
 
         {{ form_end(form) }}
     </div>
 </div>
 
-{# ---------------- JS pour filtrer les matières côté client ---------------- #}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const sectionSelect = document.getElementById('section-select');
-    const matieresSelect = document.getElementById('matieres-select');
+    const form = document.getElementById('evaluation-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const matiereSelect = document.getElementById('matiere-select');
 
-    // Créer un dictionnaire JS avec toutes les matières regroupées par section
-    const matieresBySection = {
-        {% for section, matieres in matieresBySection %}
-            "{{ section }}": [
-                {% for matiere in matieres %}
-                    { id: "{{ matiere.id }}", nom: "{{ matiere.nomMatiere }} ({{ matiere.code }})" }{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ]{% if not loop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    sectionSelect.addEventListener('change', function() {
-        const selectedSection = this.value;
-        matieresSelect.innerHTML = '';
-
-        if (selectedSection && matieresBySection[selectedSection]) {
-            matieresBySection[selectedSection].forEach(matiere => {
-                const option = document.createElement('option');
-                option.value = matiere.id;
-                option.textContent = matiere.nom;
-                matieresSelect.appendChild(option);
-            });
+    // Validation before submission
+    form.addEventListener('submit', function(e) {
+        // Check that a subject is selected
+        if (!matiereSelect.value) {
+            e.preventDefault();
+            alert('⚠️ Please select a subject');
+            matiereSelect.focus();
+            matiereSelect.classList.add('select-error');
+            return false;
         }
+
+        // Disable button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading loading-spinner"></span> Saving...';
+    });
+
+    // Remove error when the user selects a subject
+    matiereSelect.addEventListener('change', function() {
+        this.classList.remove('select-error');
     });
 });
 </script>
+
+<style>
+.alert {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.select-error {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+</style>
 {% endblock %}

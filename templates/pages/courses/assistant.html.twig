@@ -1,0 +1,352 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AI Study Assistant{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+
+    <!-- Breadcrumbs -->
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Courses', href: path('app_courses') },
+            { label: 'AI Assistant' }
+        ]
+    } %}
+
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-4xl mb-4 shadow-lg animate-bounce">
+            🤖
+        </div>
+        <h1 class="text-4xl font-bold text-secondary-900 dark:text-white mb-2">
+            AI Study Assistant
+        </h1>
+        <p class="text-lg text-secondary-500 dark:text-secondary-400">
+            Tell me what you want to learn, and I'll help you find the best courses!
+        </p>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card p-6 md:p-8 relative">
+        <div class="relative">
+            <div class="relative">
+                <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400"></i>
+                <input 
+                    type="text" 
+                    id="assistantSearchInput"
+                    placeholder="e.g., Python for beginners, Calculus, English grammar..."
+                    class="input pl-12 text-lg"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <!-- Suggestions Zone -->
+            <div id="suggestions" class="absolute w-full mt-2 hidden z-50">
+                <div class="card shadow-2xl border-2 border-secondary-200 dark:border-secondary-700 overflow-hidden">
+                    <div id="suggestionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <button 
+            id="searchButton"
+            class="btn btn-primary w-full md:w-auto mt-4"
+        >
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+            Search Courses
+        </button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-primary-600 border-t-transparent"></div>
+        <p class="mt-4 text-secondary-600 dark:text-secondary-400 font-medium">Searching...</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="space-y-6"></div>
+</div>
+
+<style>
+    .suggestion-item {
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .dark .suggestion-item {
+        border-bottom-color: #374151;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-item:hover {
+        background: linear-gradient(to right, #eef2ff, #f3e8ff);
+    }
+    
+    .dark .suggestion-item:hover {
+        background: linear-gradient(to right, #312e81, #581c87);
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
+    const searchInput = document.getElementById('assistantSearchInput');
+    const searchButton = document.getElementById('searchButton');
+    const suggestions = document.getElementById('suggestions');
+    const suggestionsList = document.getElementById('suggestionsList');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    
+    console.log('Elements found:', {
+        searchInput: !!searchInput,
+        searchButton: !!searchButton,
+        loading: !!loading,
+        results: !!results
+    });
+    
+    console.log('searchInput details:', {
+        element: searchInput,
+        tagName: searchInput ? searchInput.tagName : 'null',
+        type: searchInput ? searchInput.type : 'null',
+        id: searchInput ? searchInput.id : 'null',
+        className: searchInput ? searchInput.className : 'null'
+    });
+
+    let debounceTimer;
+
+    // Real-time suggestions
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(debounceTimer);
+        
+        if (query.length < 2) {
+            suggestions.classList.add('hidden');
+            return;
+        }
+        
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/assistant/suggest?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    displaySuggestions(data.suggestions);
+                } else {
+                    suggestions.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }, 300);
+    });
+
+    // Display suggestions
+    function displaySuggestions(items) {
+    suggestionsList.innerHTML = items.map(item => `
+        <div class="suggestion-item" onclick="selectSuggestion('${item.text}')">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">${item.icon}</span>
+                <div>
+                    <div class="font-semibold text-secondary-900 dark:text-white">${item.text}</div>
+                    <div class="text-sm text-secondary-500 dark:text-secondary-400">${item.category}</div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    suggestions.classList.remove('hidden');
+    }
+
+    // Select a suggestion
+    window.selectSuggestion = function(text) {
+        searchInput.value = text;
+        suggestions.classList.add('hidden');
+        searchCourses();
+    }
+
+    // Search courses
+    searchButton.addEventListener('click', searchCourses);
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchCourses();
+        }
+    });
+
+    async function searchCourses() {
+        console.log('searchCourses called');
+        const input = document.getElementById('assistantSearchInput');
+        console.log('searchInput element:', input);
+        console.log('searchInput value:', input ? input.value : 'null');
+        
+        const query = input ? input.value.trim() : '';
+        console.log('Query after trim:', query);
+        
+        if (!query || query.length === 0) {
+            alert('Please enter what you want to learn');
+            console.log('Empty query - showing alert');
+            return;
+        }
+    
+        console.log('Query is valid, proceeding with search for:', query);
+        
+        suggestions.classList.add('hidden');
+        loading.classList.remove('hidden');
+        results.innerHTML = '';
+        
+        try {
+            console.log('Sending fetch request to /api/assistant/search');
+            const response = await fetch('/api/assistant/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            });
+            
+            console.log('Response received:', response.status);
+            const data = await response.json();
+            console.log('Data received:', data);
+            
+            loading.classList.add('hidden');
+            
+            if (data.success) {
+                displayResults(data);
+            } else {
+                results.innerHTML = `
+                    <div class="card p-8 text-center">
+                        <div class="text-6xl mb-4">😞</div>
+                        <p class="text-xl text-secondary-700 dark:text-secondary-300">Error: ${data.error}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            loading.classList.add('hidden');
+            results.innerHTML = `
+                <div class="card p-8 text-center">
+                    <div class="text-6xl mb-4">❌</div>
+                    <p class="text-xl text-secondary-700 dark:text-secondary-300">An error occurred: ${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Display results
+    function displayResults(data) {
+    let html = '';
+    
+    // Study tips
+    if (data.tips && data.tips.length > 0) {
+        html += `
+            <div class="card p-6 bg-gradient-to-br from-primary-50 to-accent-50 dark:from-primary-900/20 dark:to-accent-900/20 border-2 border-primary-200 dark:border-primary-800">
+                <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4 flex items-center gap-2">
+                    💡 Study Tips
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${data.tips.map(tip => `
+                        <div class="flex items-start gap-3 p-4 card">
+                            <span class="text-3xl flex-shrink-0">${tip.icon}</span>
+                            <div>
+                                <h4 class="font-semibold text-secondary-900 dark:text-white mb-1">${tip.title}</h4>
+                                <p class="text-sm text-secondary-600 dark:text-secondary-400">${tip.description}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Recommended courses
+    if (data.courses && data.courses.length > 0) {
+        html += `
+            <div class="card p-6">
+                <h3 class="text-2xl font-bold text-secondary-900 dark:text-white mb-6 flex items-center gap-2">
+                    📚 ${data.total} courses found for "${data.query}"
+                </h3>
+                <div class="grid grid-cols-1 gap-4">
+                    ${data.courses.map(course => `
+                        <a href="${course.link}" target="_blank" class="card card-hover p-5 group">
+                            <div class="flex items-start gap-4">
+                                ${course.thumbnail ? `
+                                    <img src="${course.thumbnail}" alt="${course.title}" class="w-32 h-32 rounded-lg object-cover flex-shrink-0">
+                                ` : `
+                                    <div class="w-32 h-32 rounded-lg bg-gradient-to-br from-primary-100 to-accent-100 dark:from-primary-900/30 dark:to-accent-900/30 flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="book-open" class="w-16 h-16 text-primary-600 dark:text-primary-400"></i>
+                                    </div>
+                                `}
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-lg font-bold text-secondary-900 dark:text-white mb-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                        ${course.title}
+                                    </h4>
+                                    ${course.snippet ? `
+                                        <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-3 line-clamp-2">
+                                            ${course.snippet}
+                                        </p>
+                                    ` : ''}
+                                    <div class="flex items-center gap-3 flex-wrap">
+                                        ${course.source ? `
+                                            <span class="badge badge-primary">
+                                                ${course.source}
+                                            </span>
+                                        ` : ''}
+                                        <span class="text-sm text-secondary-500 dark:text-secondary-400">${course.displayed_link}</span>
+                                        <span class="ml-auto text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                                            View 
+                                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    } else {
+        html += `
+            <div class="card p-12 text-center">
+                <i data-lucide="search-x" class="w-20 h-20 mx-auto mb-4 text-secondary-400"></i>
+                <h3 class="text-2xl font-bold text-secondary-900 dark:text-white mb-2">No courses found</h3>
+                <p class="text-secondary-600 dark:text-secondary-400">Try a different search</p>
+            </div>
+        `;
+    }
+    
+        results.innerHTML = html;
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.classList.add('hidden');
+        }
+    });
+
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}); // End of DOMContentLoaded
+</script>
+{% endblock %}

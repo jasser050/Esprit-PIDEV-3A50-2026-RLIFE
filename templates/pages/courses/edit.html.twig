@@ -1,111 +1,57 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit Course Evaluation{% endblock %}
+{% block title %}Modifier l’évaluation{% endblock %}
 
 {% block body %}
 <div class="container mx-auto p-6 max-w-3xl">
-    <h1 class="text-3xl font-bold mb-6 text-primary">Edit Course Evaluation</h1>
 
-    <a href="{{ path('app_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl mb-6">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to courses
-    </a>
+    <h1 class="text-3xl font-bold mb-6 text-primary">
+        ✏️ Modifier l’évaluation
+    </h1>
 
     {{ form_start(form) }}
 
-    {# ---------------- SECTION ---------------- #}
-    <div class="form-control w-full mb-4">
-        <label class="label font-semibold">Section</label>
-        <select id="section-select" class="select select-bordered w-full" name="section">
-            <option value="">Choisir une section</option>
-            {% for section in sections %}
-                <option value="{{ section }}">{{ section }}</option>
-            {% endfor %}
-        </select>
-    </div>
+    <div class="grid grid-cols-1 gap-4">
 
-    {# ---------------- MATIÈRES FILTRÉES ---------------- #}
-    <div class="form-control w-full mb-4">
-        <label class="label font-semibold">Matières <span class="text-error">*</span></label>
-        <select id="matieres-select" class="select select-bordered w-full h-64" name="matieres[]" multiple required>
-            {% for evalMat in form.vars.value.getEvalMats %}
-                <option value="{{ evalMat.matiere.id }}" selected>
-                    {{ evalMat.matiere.nomMatiere }} ({{ evalMat.matiere.code }})
-                </option>
-            {% endfor %}
-        </select>
-    </div>
+        {# Matière affichée seulement #}
+        <div>
+            <label class="block font-semibold mb-2">Matière</label>
 
-    {# ---------------- AUTRES CHAMPS ---------------- #}
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div class="form-control w-full">
-            {{ form_label(form.scoreEval) }}
-            {{ form_widget(form.scoreEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
+            <input type="text"
+                   class="input input-bordered w-full bg-gray-100 cursor-not-allowed"
+                   readonly
+                   value="
+                   {% for evalMat in evaluation.evalMats %}
+                       {{ evalMat.matiere.nomMatiere }}
+                   {% else %}
+                       Aucune matière
+                   {% endfor %}
+                   ">
         </div>
-        <div class="form-control w-full">
-            {{ form_label(form.noteMaximaleEval) }}
-            {{ form_widget(form.noteMaximaleEval, {'attr': {'class': 'input input-bordered w-full'}}) }}
-        </div>
+
+        {{ form_row(form.scoreEval) }}
+
+        {{ form_row(form.noteMaximaleEval) }}
+
+        {{ form_row(form.dateEvaluation) }}
+
+        {{ form_row(form.dureeEvaluation) }}
+
+        {{ form_row(form.prioriteE) }}
+
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div class="form-control w-full">
-            {{ form_label(form.dateEvaluation) }}
-            {{ form_widget(form.dateEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
-        </div>
-        <div class="form-control w-full">
-            {{ form_label(form.dureeEvaluation) }}
-            {{ form_widget(form.dureeEvaluation, {'attr': {'class': 'input input-bordered w-full'}}) }}
-        </div>
-    </div>
+    <div class="flex justify-between mt-8">
+        <a href="{{ path('app_courses') }}" class="btn btn-outline">
+            ⬅️ Retour
+        </a>
 
-    <div class="form-control w-full mb-6">
-        {{ form_label(form.prioriteE) }}
-        {{ form_widget(form.prioriteE, {'attr': {'class': 'select select-bordered w-full'}}) }}
-    </div>
-
-    <div class="flex justify-end gap-4">
-        <button type="submit" class="btn btn-primary">Update</button>
+        <button class="btn btn-primary">
+            💾 Enregistrer
+        </button>
     </div>
 
     {{ form_end(form) }}
+
 </div>
-
-{# ---------------- JS pour filtrer les matières ---------------- #}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sectionSelect = document.getElementById('section-select');
-    const matieresSelect = document.getElementById('matieres-select');
-
-    const matieresBySection = {
-        {% for section, matieres in matieresBySection %}
-            "{{ section }}": [
-                {% for matiere in matieres %}
-                    { id: "{{ matiere.id }}", nom: "{{ matiere.nomMatiere }} ({{ matiere.code }})" }{% if not loop.last %},{% endif %}
-                {% endfor %}
-            ]{% if not loop.last %},{% endif %}
-        {% endfor %}
-    };
-
-    sectionSelect.addEventListener('change', function() {
-        const selectedSection = this.value;
-        matieresSelect.innerHTML = '';
-
-        if (selectedSection && matieresBySection[selectedSection]) {
-            matieresBySection[selectedSection].forEach(matiere => {
-                const option = document.createElement('option');
-                option.value = matiere.id;
-                option.textContent = matiere.nom;
-                matieresSelect.appendChild(option);
-            });
-        }
-    });
-
-    // Facultatif : pré-sélectionner la section correspondant à la première matière
-    {% if form.vars.value.getEvalMats|length > 0 %}
-        const firstSection = "{{ form.vars.value.getEvalMats|first.matiere.sectionMatiere }}";
-        sectionSelect.value = firstSection;
-        sectionSelect.dispatchEvent(new Event('change'));
-    {% endif %}
-});
-</script>
 {% endblock %}

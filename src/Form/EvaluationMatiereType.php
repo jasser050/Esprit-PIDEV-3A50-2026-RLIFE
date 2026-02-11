@@ -3,143 +3,86 @@
 namespace App\Form;
 
 use App\Entity\EvaluationMatiere;
-use App\Entity\Matiere;
-use App\Repository\MatiereRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 
-
 class EvaluationMatiereType extends AbstractType
 {
-    private MatiereRepository $matiereRepository;
-
-    // Injection du repository
-    public function __construct(MatiereRepository $matiereRepository)
-    {
-        $this->matiereRepository = $matiereRepository;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $user = $options['user'] ?? null;
-
-         $sectionsRaw = $this->matiereRepository->createQueryBuilder('m')
-            ->select('DISTINCT m.sectionMatiere')
-            ->orderBy('m.sectionMatiere', 'ASC')
-            ->getQuery()
-            ->getScalarResult();
-
-        $sections = array_map(fn($s) => $s['sectionMatiere'], $sectionsRaw);
-
-        
-
-        // =====================
-        // MATIÈRES : filtrées selon la section
-        // =====================
-        $builder->add('matieres', EntityType::class, [
-            'class' => Matiere::class,
-            'choice_label' => 'nomMatiere',
-            'multiple' => true,
-            'expanded' => true,
-            'mapped' => false,
-            'choices' => [], // rempli dynamiquement via PRE_SUBMIT
-        ]);
-        $builder
-    ->add('matieres', EntityType::class, [
-        'class' => Matiere::class,
-        'choice_label' => 'nomMatiere',
-        'multiple' => true,
-        'mapped' => false,
-    ]);
-
-
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($user) {
-            $data = $event->getData();
-            $form = $event->getForm();
-
-            if (!isset($data['section'])) {
-                return;
-            }
-
-            $section = $data['section'];
-
-            $form->add('matieres', EntityType::class, [
-                'class' => Matiere::class,
-                'choice_label' => 'nomMatiere',
-                'multiple' => true,
-                'expanded' => true,
-                'mapped' => false,
-                'query_builder' => function (MatiereRepository $repo) use ($section, $user) {
-                    $qb = $repo->createQueryBuilder('m')
-                        ->where('m.sectionMatiere = :section')
-                        ->setParameter('section', $section)
-                        ->orderBy('m.nomMatiere', 'ASC');
-
-                    if ($user) {
-                        $qb->andWhere('m.user = :user')
-                           ->setParameter('user', $user);
-                    }
-
-                    return $qb;
-                },
-                'constraints' => [
-                    new Assert\Count([
-                        'min' => 1,
-                        'minMessage' => 'Please select at least one subject'
-                    ])
-                ]
-            ]);
-        });
-
-        // =====================
-        // AUTRES CHAMPS
-        // =====================
         $builder
             ->add('scoreEval', NumberType::class, [
-                'constraints' => [new Assert\NotBlank(), new Assert\PositiveOrZero()]
+                'label' => 'Score obtained',
+                'attr' => [
+                    'placeholder' => 'e.g. 15',
+                    'min' => 0,
+                    'step' => 0.01,
+                    'class' => 'input input-bordered w-full',
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'The obtained score is required']),
+                    new Assert\PositiveOrZero(['message' => 'The score must be positive or zero']),
+                ],
             ])
             ->add('noteMaximaleEval', NumberType::class, [
-                'constraints' => [new Assert\NotBlank(), new Assert\Positive()]
+                'label' => 'Maximum score',
+                'attr' => [
+                    'placeholder' => 'e.g. 20',
+                    'min' => 1,
+                    'max' => 1000,
+                    'step' => 0.01,
+                    'class' => 'input input-bordered w-full',
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'The maximum score is required']),
+                    new Assert\Positive(['message' => 'The maximum score must be strictly positive']),
+                ],
             ])
             ->add('dateEvaluation', DateTimeType::class, [
-                'widget' => 'single_text'
+                'label' => 'Evaluation date',
+                'widget' => 'single_text',
+                'attr' => ['class' => 'input input-bordered w-full'],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'The evaluation date is required']),
+                ],
             ])
             ->add('dureeEvaluation', IntegerType::class, [
-                'constraints' => [new Assert\Positive()]
+                'label' => 'Duration (in minutes)',
+                'attr' => [
+                    'placeholder' => 'e.g. 60',
+                    'min' => 1,
+                    'max' => 600,
+                    'class' => 'input input-bordered w-full',
+                ],
+                'constraints' => [
+                    new Assert\NotBlank(['message' => 'The duration is required']),
+                    new Assert\Positive(['message' => 'The duration must be positive']),
+                ],
             ])
             ->add('prioriteE', ChoiceType::class, [
+                'label' => 'Priority',
                 'choices' => [
                     'Low' => 'low',
                     'Medium' => 'medium',
                     'High' => 'high',
-                    'Urgent' => 'urgent'
+                    'Urgent' => 'urgent',
                 ],
-                'required' => false
-            
+                'placeholder' => 'Select a priority',
+                'required' => false,
+                'attr' => ['class' => 'select select-bordered w-full'],
             ]);
     }
 
-  public function configureOptions(OptionsResolver $resolver): void
-{
-    $resolver->setDefaults([
-        'data_class' => EvaluationMatiere::class,
-        'user' => null,        // option facultative
-        'sections' => [],      // <-- définir ici pour qu'elle soit reconnue
-    ]);
-
-    // Si tu veux rendre user et sections explicitement définissables
-    $resolver->setDefined(['user', 'sections']);
-}
-
-
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'data_class' => EvaluationMatiere::class,
+        ]);
+    }
 }

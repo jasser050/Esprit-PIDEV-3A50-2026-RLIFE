@@ -4,10 +4,10 @@ namespace App\Entity;
 
 use App\Repository\PlanningRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: PlanningRepository::class)]
-#[ORM\Table(name: 'planning')]
-#[ORM\HasLifecycleCallbacks]
 class Planning
 {
     #[ORM\Id]
@@ -15,59 +15,55 @@ class Planning
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
-    private ?User $user = null;
-
     #[ORM\ManyToOne(targetEntity: Seance::class)]
-    #[ORM\JoinColumn(name: 'seance_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: 'Session selection is required.')]
     private ?Seance $seance = null;
 
-    #[ORM\Column(name: 'date_debut', type: 'datetime')]
+    #[ORM\Column(type: "datetime")]
+    #[Assert\NotNull(message: 'Start date and time are required.')]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(name: 'date_fin', type: 'datetime')]
+    #[ORM\Column(type: "datetime")]
+    #[Assert\NotNull(message: 'End date and time are required.')]
     private ?\DateTimeInterface $dateFin = null;
 
-    #[ORM\Column(length: 50, options: ['default' => 'indigo'])]
-    private ?string $color = 'indigo';
+    // Ajoute d’autres propriétés selon ton modèle :
+    #[ORM\Column(type: "string", length: 20, nullable: true)]
+    private ?string $color = null;
 
-    #[ORM\Column(type: 'smallint', nullable: true)]
+    #[ORM\Column(type: "smallint", nullable: true)]
     private ?int $feedback = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $createdAt = null;
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime_immutable')]
-    private ?\DateTimeImmutable $updatedAt = null;
-
-    #[ORM\PrePersist]
-    public function onPrePersist(): void
+    #[Assert\Callback]
+    public function validate(ExecutionContextInterface $context): void
     {
-        $now = new \DateTimeImmutable();
-        $this->createdAt = $this->createdAt ?? $now;
-        $this->updatedAt = $this->updatedAt ?? $now;
+        // 1) Date fin > début
+        if ($this->dateDebut && $this->dateFin && $this->dateFin <= $this->dateDebut) {
+            $context->buildViolation('The end date/time must be after the start.')
+                ->atPath('dateFin')->addViolation();
+        }
+
+        // 2) Collision d’horaires dans la base (pas possible sans EntityManager ici, donc à faire côté controller)
+        // On te montre la version controller plus bas.
     }
 
-    #[ORM\PreUpdate]
-    public function onPreUpdate(): void
-    {
-        $this->updatedAt = new \DateTimeImmutable();
-    }
+    // GETTERS/SETTERS
 
     public function getId(): ?int { return $this->id; }
-
-    public function getUser(): ?User { return $this->user; }
-    public function setUser(?User $user): self { $this->user = $user; return $this; }
 
     public function getSeance(): ?Seance { return $this->seance; }
     public function setSeance(?Seance $seance): self { $this->seance = $seance; return $this; }
 
     public function getDateDebut(): ?\DateTimeInterface { return $this->dateDebut; }
-    public function setDateDebut(\DateTimeInterface $dateDebut): self { $this->dateDebut = $dateDebut; return $this; }
+    public function setDateDebut(?\DateTimeInterface $dateDebut): self { $this->dateDebut = $dateDebut; return $this; }
 
     public function getDateFin(): ?\DateTimeInterface { return $this->dateFin; }
-    public function setDateFin(\DateTimeInterface $dateFin): self { $this->dateFin = $dateFin; return $this; }
+    public function setDateFin(?\DateTimeInterface $dateFin): self { $this->dateFin = $dateFin; return $this; }
 
     public function getColor(): ?string { return $this->color; }
     public function setColor(?string $color): self { $this->color = $color; return $this; }
@@ -75,6 +71,11 @@ class Planning
     public function getFeedback(): ?int { return $this->feedback; }
     public function setFeedback(?int $feedback): self { $this->feedback = $feedback; return $this; }
 
-    public function getCreatedAt(): ?\DateTimeImmutable { return $this->createdAt; }
-    public function getUpdatedAt(): ?\DateTimeImmutable { return $this->updatedAt; }
+    public function getUser(): ?User { return $this->user; }
+    public function setUser(?User $user): self { $this->user = $user; return $this; }
+
+    public function __toString(): string
+    {
+        return $this->seance ? $this->seance->__toString() : 'Planning #' . ($this->id ?? '?');
+    }
 }

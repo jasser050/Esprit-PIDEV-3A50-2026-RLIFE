@@ -35,7 +35,7 @@ class TypeSeance
     }
 
     public function __toString(): string
-    {
-        return (string) ($this->name ?? ('Type #' . ($this->id ?? '')));
-    }
+{
+    return (string) $this->getName();
+}
 }
