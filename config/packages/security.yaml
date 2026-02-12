@@ -45,6 +45,7 @@ security:
         - { path: ^/revisions, roles: ROLE_USER }
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
+        - { path: ^/oauth/google, roles: PUBLIC_ACCESS }
 
 when@test:
     security:

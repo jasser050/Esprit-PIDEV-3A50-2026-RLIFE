@@ -35,6 +35,12 @@
             "./migrations/.gitignore"
         ]
     },
+    "google/apiclient": {
+        "version": "2.19",
+        "recipe": {
+            "version": "2.10"
+        }
+    },
     "symfony/console": {
         "version": "7.4",
         "recipe": {

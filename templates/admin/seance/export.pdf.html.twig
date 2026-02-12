@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Export Sessions</title>
+    <style>
+        body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 12px; color: #111; }
+        h1 { font-size: 18px; margin: 0 0 8px; }
+        .meta { font-size: 11px; color: #444; margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 6px 8px; vertical-align: top; }
+        th { background: #f3f3f3; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Session List</h1>
+
+    <div class="meta">
+        Generated on {{ generatedAt|date('Y-m-d H:i') }}<br>
+        {# Filters: q="{{ q|default('') }}", type="{{ typeId|default('') }}", sort="{{ sort|default('') }}", dir="{{ dir|default('') }}" #}
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 50px;">#</th>
+            <th>Title</th>
+            <th style="width: 140px;">Type</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in seances %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ attribute(s, 'titre') ?? '' }}</td>
+                <td>{{ attribute(s, 'typeSeance') ?? '' }}</td>
+                <td>{{ attribute(s, 'description') ?? '' }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No sessions found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

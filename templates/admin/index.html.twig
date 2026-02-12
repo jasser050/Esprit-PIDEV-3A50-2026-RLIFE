@@ -1,0 +1,283 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Planning{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Planning</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Manage your schedule and events</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_planning_new') }}" class="btn btn-primary">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                Add Event
+            </a>
+
+            <a href="{{ path('app_seance_index') }}" class="btn btn-primary">
+                <i data-lucide="file-plus" class="w-5 h-5"></i>
+                Manage Session
+            </a>
+
+            <a href="{{ path('app_type_seance_index') }}" class="btn btn-primary">
+                <i data-lucide="file-plus" class="w-5 h-5"></i>
+                Manage Types of Session
+            </a>
+            <a href="{{ path('app_planning_week', { date: today }) }}"
+   class="btn btn-secondary btn-sm"
+   title="Week view">
+    Week
+</a>
+{# 
+<a href="{{ path('app_planning_week', { date: date }) }}"
+   class="calendar-day-number {{ is_today ? 'today' : '' }}">
+   {{ day }}
+</a> #}
+
+            {# <a href="{{ path('app_google_connect') }}" class="btn btn-primary">
+                <i data-lucide="link-2" class="w-5 h-5"></i>
+                Connect Google Calendar
+            </a> #}
+        </div>
+    </div>
+
+    {% if conflicts is defined and conflicts|length > 0 %}
+        <div class="alert alert-warning">
+            <i data-lucide="alert-triangle" class="w-5 h-5 alert-icon"></i>
+            <div>
+                <p class="font-medium">Scheduling Conflicts Detected</p>
+                <p class="text-sm mt-0.5">You have {{ conflicts|length }} event(s) with time conflicts. Review your schedule.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Calendar -->
+        <div class="lg:col-span-3 card overflow-hidden">
+            <div class="p-5 border-b border-secondary-200 dark:border-secondary-800">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                            <i data-lucide="calendar" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold text-secondary-900 dark:text-white">
+                            {{ (current_year ~ '-' ~ current_month ~ '-01')|date('F Y') }}
+                        </h2>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        {% set prev_month = current_month == 1 ? 12 : current_month - 1 %}
+                        {% set prev_year = current_month == 1 ? current_year - 1 : current_year %}
+                        {% set next_month = current_month == 12 ? 1 : current_month + 1 %}
+                        {% set next_year = current_month == 12 ? current_year + 1 : current_year %}
+
+                        <a href="{{ path('app_planning', {month: prev_month, year: prev_year}) }}"
+                           class="btn btn-ghost btn-icon"
+                           title="Previous month">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </a>
+
+                        <a href="{{ path('app_planning') }}" class="btn btn-secondary btn-sm" title="Go to current month">
+                            Today
+                        </a>
+
+                        <a href="{{ path('app_planning', {month: next_month, year: next_year}) }}"
+                           class="btn btn-ghost btn-icon"
+                           title="Next month">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4">
+                <div class="calendar-grid">
+                    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                        <div class="calendar-cell-header">{{ day }}</div>
+                    {% endfor %}
+
+                    {% for i in 1..(first_day_of_week - 1) %}
+                        <div class="calendar-cell bg-secondary-50/50 dark:bg-secondary-900/30"></div>
+                    {% endfor %}
+
+                    {% for day in 1..days_in_month %}
+                        {% set date = current_year ~ '-' ~ (current_month < 10 ? '0' ~ current_month : current_month) ~ '-' ~ (day < 10 ? '0' ~ day : day) %}
+                        {% set day_events = events_by_date[date] ?? [] %}
+                        {% set is_today = date == today %}
+
+                        <div class="calendar-cell {{ is_today ? 'ring-2 ring-primary-500 ring-inset' : '' }}">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="calendar-day-number {{ is_today ? 'today' : '' }}">{{ day }}</span>
+                                {% if day_events|length > 0 %}
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary-500"></span>
+                                {% endif %}
+                            </div>
+
+                            <div class="space-y-0.5">
+                                {% for event in day_events|slice(0, 3) %}
+                                    {% if event.is_google|default(false) %}
+                                        <div class="calendar-event {{ event.ui.bg|default('bg-green-100 dark:bg-green-900/30') }} {{ event.ui.text|default('text-green-800 dark:text-green-200') }}"
+                                             title="Google Calendar">
+                                            {{ event.start_time }} {{ event.title }}
+                                        </div>
+                                    {% else %}
+                                        <a href="{{ path('app_planning_edit', {id: event.id}) }}"
+                                           class="calendar-event {{ event.ui.bg|default('') }} {{ event.ui.text|default('') }} {{ event.conflict ?? false ? 'ring-1 ring-danger-500' : '' }}">
+                                            {{ event.start_time }} {{ event.title }}
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if day_events|length > 3 %}
+                                    <div class="text-2xs text-secondary-500 dark:text-secondary-400 px-1">
+                                        +{{ day_events|length - 3 }} more
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-5">
+            <!-- Upcoming Events -->
+<div class="card overflow-hidden">
+    <div class="p-4 border-b border-secondary-200 dark:border-secondary-800">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="calendar-clock" class="w-5 h-5 text-accent-500"></i>
+                <h3 class="font-semibold text-secondary-900 dark:text-white">Upcoming</h3>
+            </div>
+
+            <span class="text-xs text-secondary-500 dark:text-secondary-400">
+                {{ upcoming_total|default(0) }}
+            </span>
+        </div>
+
+        <form method="get" action="{{ path('app_planning') }}" class="mt-3 grid grid-cols-1 gap-2">
+    <input type="hidden" name="month" value="{{ current_month }}">
+    <input type="hidden" name="year" value="{{ current_year }}">
+
+    <div class="flex gap-2">
+        <input
+            type="text"
+            name="up_q"
+            value="{{ upcoming_q|default('') }}"
+            placeholder="Search upcoming..."
+            class="input input-sm w-full"
+        >
+
+        <select name="up_sort" class="input input-sm" onchange="this.form.submit()">
+            <option value="date_asc"  {% if up_sort|default('date_asc') == 'date_asc' %}selected{% endif %}>Date ↑</option>
+            <option value="date_desc" {% if up_sort|default('date_asc') == 'date_desc' %}selected{% endif %}>Date ↓</option>
+            <option value="title_asc" {% if up_sort|default('date_asc') == 'title_asc' %}selected{% endif %}>Title A→Z</option>
+        </select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+        <input type="date" name="up_start" value="{{ up_start|default('') }}" class="input input-sm w-full">
+        <input type="date" name="up_end" value="{{ up_end|default('') }}" class="input input-sm w-full">
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="btn btn-primary btn-sm w-full">Apply</button>
+
+        <a class="btn btn-secondary btn-sm"
+           href="{{ path('app_planning', {month: current_month, year: current_year}) }}"
+           title="Reset">
+            Reset
+        </a>
+    </div>
+</form>
+    </div>
+
+    {# IMPORTANT: scroll vers le bas (comme WhatsApp), au lieu de monter #}
+   <div class="p-3 max-h-[70vh] overflow-y-auto flex flex-col gap-2">
+        {% for event in upcoming|default([]) %}
+            {% if event.is_google|default(false) %}
+                <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors">
+                    <div class="w-1 h-10 rounded-full {{ event.ui.bar|default('bg-green-500') }} flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-sm text-secondary-900 dark:text-white truncate">{{ event.title }}</p>
+                        <p class="text-xs text-secondary-500 dark:text-secondary-400 flex items-center gap-1 mt-0.5">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            {{ event.date|date('M j') }} at {{ event.start_time }}
+                            <span class="ml-2 text-green-600 dark:text-green-300">(Google)</span>
+                        </p>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ path('app_planning_edit', {id: event.id}) }}"
+                   class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors {{ event.conflict ?? false ? 'ring-1 ring-danger-500' : '' }}">
+                    <div class="w-1 h-10 rounded-full {{ event.ui.bar|default('bg-primary-500') }} flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-medium text-sm text-secondary-900 dark:text-white truncate">{{ event.title }}</p>
+                        <p class="text-xs text-secondary-500 dark:text-secondary-400 flex items-center gap-1 mt-0.5">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            {{ event.date|date('M j') }} at {{ event.start_time }}
+                        </p>
+                    </div>
+                </a>
+            {% endif %}
+        {% else %}
+            <div class="empty-state py-6">
+                <i data-lucide="calendar-off" class="w-8 h-8 text-secondary-300 dark:text-secondary-600"></i>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-2">
+                    {% if upcoming_q|default('') %}
+                        No results for "{{ upcoming_q }}"
+                    {% else %}
+                        No upcoming events
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card p-4">
+                <div class="flex items-center gap-3 mb-3">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-secondary-400"></i>
+                    <h3 class="font-semibold text-secondary-900 dark:text-white">This Month</h3>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-500 dark:text-secondary-400">Total Events</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">
+                            {{ events_by_date|reduce((carry, v) => carry + v|length, 0) }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-500 dark:text-secondary-400">Classes</span>
+                        <span class="badge badge-primary badge-pill">
+                            {{ events_by_date|reduce((carry, v) => carry + v|filter(e => e.type == 'class')|length, 0) }}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-500 dark:text-secondary-400">Exams</span>
+                        <span class="badge badge-danger badge-pill">
+                            {{ events_by_date|reduce((carry, v) => carry + v|filter(e => e.type == 'exam')|length, 0) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Sidebar -->
+    </div>
+    {% if google_events_count is defined %}
+        <div class="alert alert-info mb-4">
+            Google events loaded: {{ google_events_count }}
+            {% if google_load_error %}
+                <div class="text-sm mt-1">Google load error: {{ google_load_error }}</div>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
