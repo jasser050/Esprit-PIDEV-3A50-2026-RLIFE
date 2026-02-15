@@ -1,96 +1,573 @@
-{% extends 'admin/base_admin.html.twig' %}
+{% extends 'base.html.twig' %}
 
-{% block title %}Add New Course{% endblock %}
-{% block page_title %}New Course{% endblock %}
+{% block title %}Add a Course{% endblock %}
 
 {% block body %}
-<div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="mb-8">
-        <div class="flex items-center gap-4 mb-4">
-            <a href="{{ path('app_admin_courses') }}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                Back to Courses
+<div class="container mx-auto p-6">
+    <div class="max-w-3xl mx-auto">
+
+        <h1 class="text-3xl font-bold mb-6 text-primary">
+            Add a New Course
+        </h1>
+
+        <div class="mb-8">
+            <a href="{{ path('app_admin_courses') }}" class="btn btn-ghost">
+                ← Back to Courses
             </a>
         </div>
-        
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Add New Course</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-400">Create a new course in the system</p>
-    </div>
 
-    <!-- Form -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-        {{ form_start(form) }}
-        
-        <div class="space-y-6">
-            <!-- Code & Name -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    {{ form_label(form.code, 'Course Code', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.code, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white', 'placeholder': 'Ex: MATH101'}}) }}
-                    {{ form_errors(form.code) }}
-                </div>
+        {# ================= FLASH MESSAGES ================= #}
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
 
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'id': 'matiere-form', 'novalidate': 'novalidate'}}) }}
+
+        {# ================= GLOBAL ERRORS ================= #}
+        {% if not form.vars.valid %}
+            <div class="alert alert-error mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 <div>
-                    {{ form_label(form.nomMatiere, 'Course Name', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.nomMatiere, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white', 'placeholder': 'Ex: Mathematics'}}) }}
-                    {{ form_errors(form.nomMatiere) }}
+                    <h3 class="font-bold">Form validation errors</h3>
+                    <div class="text-sm">Please correct the errors highlighted below before submitting.</div>
                 </div>
             </div>
+        {% endif %}
 
-            <!-- Section & Type -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    {{ form_label(form.sectionMatiere, 'Section', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.sectionMatiere, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white'}}) }}
-                    {{ form_errors(form.sectionMatiere) }}
-                </div>
-
-                <div>
-                    {{ form_label(form.typeMatiere, 'Type', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.typeMatiere, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white'}}) }}
-                    {{ form_errors(form.typeMatiere) }}
-                </div>
+        {# ================= COURSE CODE AND NAME ================= #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            
+            {# Course Code #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Course Code <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.code, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.code.vars.errors|length > 0 ? ' input-error' : ''),
+                        'placeholder': 'Ex: MATH101'
+                    }
+                }) }}
+                {% if form.code.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.code) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">2-10 characters (letters, numbers, dashes)</span>
+                    </label>
+                {% endif %}
             </div>
 
-            <!-- Coefficient & Hours -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    {{ form_label(form.coefficientMatiere, 'Coefficient', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.coefficientMatiere, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white', 'step': '0.5'}}) }}
-                    {{ form_errors(form.coefficientMatiere) }}
-                </div>
-
-                <div>
-                    {{ form_label(form.heureMatiere, 'Hours per Week', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                    {{ form_widget(form.heureMatiere, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white', 'step': '0.5'}}) }}
-                    {{ form_errors(form.heureMatiere) }}
-                </div>
+            {# Course Name #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Course Name <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.nomMatiere, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.nomMatiere.vars.errors|length > 0 ? ' input-error' : ''),
+                        'placeholder': 'Ex: Mathematics'
+                    }
+                }) }}
+                {% if form.nomMatiere.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.nomMatiere) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">3-255 characters</span>
+                    </label>
+                {% endif %}
             </div>
 
-<!-- user celon de chaque user elle va ce modifier-->
+        </div>
 
+        {# ================= DESCRIPTION ================= #}
+        <div class="form-control w-full mb-6">
+            <label class="label">
+                <span class="label-text font-semibold text-base">Description</span>
+            </label>
+            {{ form_widget(form.description, {
+                'attr': {
+                    'class': 'textarea textarea-bordered w-full' ~ (form.description.vars.errors|length > 0 ? ' input-error' : ''),
+                    'placeholder': 'Course description...',
+                    'rows': 4
+                }
+            }) }}
+            {% if form.description.vars.errors|length > 0 %}
+                <label class="label">
+                    <span class="label-text-alt text-error flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {{ form_errors(form.description) }}
+                    </span>
+                </label>
+            {% else %}
+                <label class="label">
+                    <span class="label-text-alt text-gray-500">Optional - Max 500 characters</span>
+                </label>
+            {% endif %}
+        </div>
 
-            <!-- Description -->
-            <div>
-                {{ form_label(form.description, 'Description (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                {{ form_widget(form.description, {'attr': {'class': 'w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent text-slate-900 dark:text-white', 'rows': '4', 'placeholder': 'Course description...'}}) }}
-                {{ form_errors(form.description) }}
+        {# ================= COEFFICIENT AND HOURS ================= #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            
+            {# Coefficient #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Coefficient <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.coefficientMatiere, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.coefficientMatiere.vars.errors|length > 0 ? ' input-error' : ''),
+                        'placeholder': 'Ex: 2'
+                    }
+                }) }}
+                {% if form.coefficientMatiere.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.coefficientMatiere) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Between 0.1 and 20</span>
+                    </label>
+                {% endif %}
             </div>
 
-            <!-- Actions -->
-            <div class="flex items-center gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-xl transition-colors">
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                    Create Course
-                </button>
-                <a href="{{ path('app_admin_courses') }}" class="inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors">
-                    Cancel
-                </a>
+            {# Hours per Week #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Hours per Week <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.heureMatiere, {
+                    'attr': {
+                        'class': 'input input-bordered w-full' ~ (form.heureMatiere.vars.errors|length > 0 ? ' input-error' : ''),
+                        'placeholder': 'Ex: 4'
+                    }
+                }) }}
+                {% if form.heureMatiere.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.heureMatiere) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Between 0 and 40 hours</span>
+                    </label>
+                {% endif %}
             </div>
+
+        </div>
+
+        {# ================= SECTION AND TYPE ================= #}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            
+            {# Section #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Section <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.sectionMatiere, {
+                    'attr': {
+                        'class': 'select select-bordered w-full' ~ (form.sectionMatiere.vars.errors|length > 0 ? ' select-error' : '')
+                    }
+                }) }}
+                {% if form.sectionMatiere.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.sectionMatiere) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Select the course section</span>
+                    </label>
+                {% endif %}
+            </div>
+
+            {# Type #}
+            <div class="form-control w-full">
+                <label class="label">
+                    <span class="label-text font-semibold text-base">
+                        Type <span class="text-error">*</span>
+                    </span>
+                </label>
+                {{ form_widget(form.typeMatiere, {
+                    'attr': {
+                        'class': 'select select-bordered w-full' ~ (form.typeMatiere.vars.errors|length > 0 ? ' select-error' : '')
+                    }
+                }) }}
+                {% if form.typeMatiere.vars.errors|length > 0 %}
+                    <label class="label">
+                        <span class="label-text-alt text-error flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ form_errors(form.typeMatiere) }}
+                        </span>
+                    </label>
+                {% else %}
+                    <label class="label">
+                        <span class="label-text-alt text-gray-500">Select the course type</span>
+                    </label>
+                {% endif %}
+            </div>
+
+        </div>
+
+        {# ================= BUTTONS ================= #}
+        <div class="flex justify-end gap-4">
+            <a href="{{ path('app_admin_courses') }}" class="btn btn-ghost">
+                Cancel
+            </a>
+            <button type="submit" id="submit-btn" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Course
+            </button>
         </div>
 
         {{ form_end(form) }}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const form = document.getElementById('matiere-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Récupération de tous les champs
+    const codeInput = document.querySelector('input[name*="[code]"]');
+    const nomInput = document.querySelector('input[name*="[nomMatiere]"]');
+    const descriptionInput = document.querySelector('textarea[name*="[description]"]');
+    const coefficientInput = document.querySelector('input[name*="[coefficientMatiere]"]');
+    const heureInput = document.querySelector('input[name*="[heureMatiere]"]');
+    const sectionSelect = document.querySelector('select[name*="[sectionMatiere]"]');
+    const typeSelect = document.querySelector('select[name*="[typeMatiere]"]');
+
+    // Validation en temps réel pour les champs texte et nombre
+    const inputs = [codeInput, nomInput, descriptionInput, coefficientInput, heureInput];
+    
+    inputs.forEach(input => {
+        if (input) {
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('input', function() {
+                this.classList.remove('input-error');
+                const errorSpan = this.parentNode.querySelector('.label-text-alt.text-error');
+                if (errorSpan && errorSpan.id && errorSpan.id.includes('-js-error')) {
+                    errorSpan.parentElement.remove();
+                }
+            });
+        }
+    });
+
+    // Validation pour les selects
+    [sectionSelect, typeSelect].forEach(select => {
+        if (select) {
+            select.addEventListener('change', function() {
+                this.classList.remove('select-error');
+                const errorSpan = this.parentNode.querySelector('.label-text-alt.text-error');
+                if (errorSpan && errorSpan.id && errorSpan.id.includes('-js-error')) {
+                    errorSpan.parentElement.remove();
+                }
+            });
+        }
+    });
+
+    function validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let errorMessage = '';
+
+        // Validation du code
+        if (fieldName.includes('[code]')) {
+            if (value === '') {
+                errorMessage = 'Le code du cours est obligatoire';
+            } else if (value.length < 2) {
+                errorMessage = 'Le code doit contenir au moins 2 caractères';
+            } else if (value.length > 10) {
+                errorMessage = 'Le code ne peut pas dépasser 10 caractères';
+            } else if (!/^[A-Z0-9-]+$/i.test(value)) {
+                errorMessage = 'Le code ne peut contenir que des lettres, chiffres et tirets';
+            }
+        }
+        
+        // Validation du nom
+        else if (fieldName.includes('[nomMatiere]')) {
+            if (value === '') {
+                errorMessage = 'Le nom du cours est obligatoire';
+            } else if (value.length < 3) {
+                errorMessage = 'Le nom doit contenir au moins 3 caractères';
+            } else if (value.length > 255) {
+                errorMessage = 'Le nom ne peut pas dépasser 255 caractères';
+            }
+        }
+        {% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">{{ message }}</div>
+{% endfor %}
+        
+        // Validation de la description
+        else if (fieldName.includes('[description]')) {
+            if (value.length > 500) {
+                errorMessage = 'La description ne peut pas dépasser 500 caractères';
+            }
+        }
+       {% for message in app.flashes('success') %}
+    <div class="alert alert-success mb-4">
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+        
+        // Validation du coefficient
+        else if (fieldName.includes('[coefficientMatiere]')) {
+            if (value === '') {
+                errorMessage = 'Le coefficient est obligatoire';
+            } else {
+                const num = parseFloat(value);
+                if (isNaN(num) || num <= 0) {
+                    errorMessage = 'Le coefficient doit être positif';
+                } else if (num < 0.1 || num > 20) {
+                    errorMessage = 'Le coefficient doit être entre 0.1 et 20';
+                }
+            }
+        }
+        {% for message in app.flashes('success') %}
+    <div class="alert alert-success mb-4">
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
+        
+        // Validation des heures
+        else if (fieldName.includes('[heureMatiere]')) {
+            if (value === '') {
+                errorMessage = 'Le nombre d\'heures est obligatoire';
+            } else {
+                const num = parseFloat(value);
+                if (isNaN(num) || num < 0) {
+                    errorMessage = 'Le nombre d\'heures doit être zéro ou positif';
+                } else if (num > 40) {
+                    errorMessage = 'Le nombre d\'heures ne peut pas dépasser 40';
+                }
+            }
+        }
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">{{ message }}</div>
+{% endfor %}
+        if (errorMessage) {
+            field.classList.add('input-error');
+            
+            const errorId = fieldName.replace(/[\[\]]/g, '_') + '-js-error';
+            let existingError = document.getElementById(errorId);
+            
+            if (!existingError) {
+                const errorLabel = document.createElement('label');
+                errorLabel.className = 'label';
+                errorLabel.innerHTML = `
+                    <span id="${errorId}" class="label-text-alt text-error flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ${errorMessage}
+                    </span>
+                `;
+                
+                const existingHelpLabel = field.parentNode.querySelector('.label:last-of-type');
+                if (existingHelpLabel && existingHelpLabel.querySelector('.text-gray-500')) {
+                    existingHelpLabel.replaceWith(errorLabel);
+                } else {
+                    field.parentNode.appendChild(errorLabel);
+                }
+            }
+        } else {
+            field.classList.remove('input-error');
+            const errorId = fieldName.replace(/[\[\]]/g, '_') + '-js-error';
+            const existingError = document.getElementById(errorId);
+            if (existingError) {
+                existingError.parentElement.remove();
+            }
+        }
+    }
+
+    function validateSelect(select, errorMsg) {
+        if (!select.value || select.value === '') {
+            select.classList.add('select-error');
+            
+            const errorId = select.name.replace(/[\[\]]/g, '_') + '-js-error';
+            let existingError = document.getElementById(errorId);
+            
+            if (!existingError) {
+                const errorLabel = document.createElement('label');
+                errorLabel.className = 'label';
+                errorLabel.innerHTML = `
+                    <span id="${errorId}" class="label-text-alt text-error flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        ${errorMsg}
+                    </span>
+                `;
+                
+                const existingHelpLabel = select.parentNode.querySelector('.label:last-of-type');
+                if (existingHelpLabel && existingHelpLabel.querySelector('.text-gray-500')) {
+                    existingHelpLabel.replaceWith(errorLabel);
+                } else {
+                    select.parentNode.appendChild(errorLabel);
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    form.addEventListener('submit', function(e) {
+        let hasError = false;
+
+        // Validation de tous les champs input
+        inputs.forEach(input => {
+            if (input) {
+                validateField(input);
+                if (input.classList.contains('input-error')) {
+                    hasError = true;
+                }
+            }
+        });
+
+        // Validation des selects
+        if (sectionSelect && !validateSelect(sectionSelect, 'La section est obligatoire')) {
+            hasError = true;
+        }
+        
+        if (typeSelect && !validateSelect(typeSelect, 'Le type de cours est obligatoire')) {
+            hasError = true;
+        }
+
+        if (hasError) {
+            e.preventDefault();
+            
+            // Scroll vers la première erreur
+            const firstError = form.querySelector('.input-error, .select-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+            
+            return false;
+        }
+
+        // Si pas d'erreur, désactiver le bouton
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="loading loading-spinner"></span>
+            Saving...
+        `;
+    });
+});
+</script>
+
+<style>
+.input-error,
+.select-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+.input-error:focus,
+.select-error:focus {
+    border-color: #dc2626 !important;
+    outline: 2px solid rgba(239, 68, 68, 0.2);
+    outline-offset: 2px;
+}
+
+.textarea.input-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2 !important;
+}
+
+/* Animation pour les messages d'erreur */
+.label-text-alt.text-error {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styling pour les icônes d'erreur */
+.label-text-alt svg {
+    flex-shrink: 0;
+}
+</style>
+
 {% endblock %}

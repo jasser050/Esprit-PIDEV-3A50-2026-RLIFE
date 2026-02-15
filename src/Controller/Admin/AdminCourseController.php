@@ -135,52 +135,35 @@ class AdminCourseController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/delete', name: 'app_admin_courses_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Matiere $matiere, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        if (!$this->isCsrfTokenValid('delete' . $matiere->getId(), $request->request->get('_token'))) {
-            $this->addFlash('error', 'Invalid security token.');
-            return $this->redirectToRoute('app_admin_courses');
-        }
-
-        try {
-            $entityManager->remove($matiere);
-            $entityManager->flush();
-
-            $this->addFlash('success', sprintf('Course "%s" has been deleted.', $matiere->getNomMatiere()));
-        } catch (\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException $e) {
-            $this->addFlash('error', 'Cannot delete this course because it is linked to other data.');
-        }
-
-        return $this->redirectToRoute('app_admin_courses');
-    }
-
-    #[Route('/bulk-delete', name: 'app_admin_courses_bulk_delete', methods: ['POST'])]
-    public function bulkDelete(Request $request, EntityManagerInterface $entityManager, MatiereRepository $matiereRepository): Response
-    {
-        $ids = $request->request->all('ids');
-
-        if (empty($ids)) {
-            $this->addFlash('error', 'No courses selected.');
-            return $this->redirectToRoute('app_admin_courses');
-        }
-
-        $count = 0;
-        foreach ($ids as $id) {
-            $matiere = $matiereRepository->find($id);
-            if ($matiere) {
-                try {
-                    $entityManager->remove($matiere);
-                    $count++;
-                } catch (\Exception $e) {
-                    $this->addFlash('error', sprintf('Could not delete course "%s".', $matiere->getNomMatiere()));
-                }
-            }
-        }
-
-        $entityManager->flush();
-
-        $this->addFlash('success', sprintf('%d course(s) deleted successfully.', $count));
-        return $this->redirectToRoute('app_admin_courses');
-    }
+   // ── 1) Route GET : affiche la page de confirmation ─────────────────
+#[Route('/{id}/delete-confirm', name: 'app_admin_courses_delete_confirm', requirements: ['id' => '\d+'], methods: ['GET'])]
+public function deleteConfirm(Matiere $matiere): Response
+{
+    return $this->render('admin/courses/delete.html.twig', [
+        'matiere' => $matiere,
+    ]);
 }
+
+// ── 2) Route POST : supprime réellement (déjà présente, vérifier le name) ──
+#[Route('/{id}/delete', name: 'app_admin_courses_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+public function delete(Matiere $matiere, Request $request, EntityManagerInterface $entityManager): Response
+{
+    if (!$this->isCsrfTokenValid('delete' . $matiere->getId(), $request->request->get('_token'))) {
+        $this->addFlash('error', 'Invalid security token.');
+        return $this->redirectToRoute('app_admin_courses');
+    }
+
+    try {
+        $entityManager->remove($matiere);
+        $entityManager->flush();
+        $this->addFlash('success', sprintf('Course "%s" has been deleted.', $matiere->getNomMatiere()));
+    } catch (\Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException $e) {
+        $this->addFlash('error', 'Cannot delete this course because it is linked to other data.');
+    }
+
+    return $this->redirectToRoute('app_admin_courses');
+}
+
+}
+
+

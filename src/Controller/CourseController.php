@@ -305,68 +305,107 @@ public function show(
 }
 
 
+#[Route('/{id}/edit', name: 'app_courses_edit', methods: ['GET', 'POST'])]
+public function edit(
+    Request $request,
+    EvaluationMatiere $evaluation,
+    EntityManagerInterface $entityManager,
+    MatiereRepository $matiereRepository
+): Response {
 
-    #[Route('/{id}/edit', name: 'app_courses_edit', methods: ['GET', 'POST'])]
-    public function edit(
-        Request $request,
-        EvaluationMatiere $evaluation,
-        EntityManagerInterface $entityManager,
-        MatiereRepository $matiereRepository
-    ): Response {
-        $allMatieres = $matiereRepository->findAll();
-        
-        $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
-        $form->handleRequest($request);
+    $allMatieres = $matiereRepository->findAll();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $matiereId = $request->request->get('matiere_id');
-            
-            if ($matiereId) {
-                $matiere = $matiereRepository->find((int)$matiereId);
-                
-                if ($matiere) {
-                    foreach ($evaluation->getEvalMats() as $evalMat) {
-                        $entityManager->remove($evalMat);
-                    }
-                    
-                    $evalMat = new EvalMat();
-                    $evalMat->setEvaluation($evaluation);
-                    $evalMat->setMatiere($matiere);
-                    $entityManager->persist($evalMat);
-                }
+    $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        $matiereId = $request->request->get('matiere_id');
+
+        if ($matiereId) {
+
+            $matiere = $matiereRepository->find((int) $matiereId);
+
+            if (!$matiere) {
+                $this->addFlash('error', 'Matière invalide.');
+                return $this->redirectToRoute('app_courses_edit', [
+                    'id' => $evaluation->getId()
+                ]);
             }
 
-            $entityManager->flush();
+            // 🔥 Supprimer proprement les anciennes relations
+            foreach ($evaluation->getEvalMats() as $evalMat) {
+                $evaluation->removeEvalMat($evalMat);
+                $entityManager->remove($evalMat);
+            }
 
-            $this->addFlash('success', 'Évaluation mise à jour avec succès 🎉');
-            return $this->redirectToRoute('app_courses');
+            // 🔥 Ajouter la nouvelle relation
+            $evalMat = new EvalMat();
+            $evalMat->setEvaluation($evaluation);
+            $evalMat->setMatiere($matiere);
+
+            $evaluation->addEvalMat($evalMat);
+
+            $entityManager->persist($evalMat);
         }
 
-        return $this->render('pages/courses/edit.html.twig', [
-            'form' => $form->createView(),
-            'evaluation' => $evaluation,
-            'allMatieres' => $allMatieres,
-        ]);
-    }
-
-
-
-
-    #[Route('/{id}/delete', name: 'app_courses_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(
-        EvaluationMatiere $course,
-        EntityManagerInterface $entityManager
-    ): Response {
-        if ($course->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $entityManager->remove($course);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Course deleted successfully!');
+        $this->addFlash('success', 'Évaluation mise à jour avec succès 🎉');
+
         return $this->redirectToRoute('app_courses');
     }
+
+    return $this->render('pages/courses/edit.html.twig', [
+        'form' => $form->createView(),
+        'evaluation' => $evaluation,
+        'allMatieres' => $allMatieres,
+    ]);
+}
+
+
+
+
+
+   // Dans votre CourseController.php
+
+#[Route('/{id}/delete', name: 'app_evaluation_delete', requirements: ['id' => '\d+'], methods: ['GET'])]
+public function showDelete(EvaluationMatiere $evaluation): Response
+{
+    // Vérifier que l'évaluation appartient à l'utilisateur connecté
+    if ($evaluation->getUser() !== $this->getUser()) {
+        throw $this->createAccessDeniedException();
+    }
+
+    return $this->render('pages/courses/delete.html.twig', [
+        'evaluation' => $evaluation,
+    ]);
+}
+
+#[Route('/{id}/delete/confirm', name: 'app_evaluation_delete_confirm', requirements: ['id' => '\d+'], methods: ['POST'])]
+public function deleteConfirm(
+    EvaluationMatiere $evaluation,
+    EntityManagerInterface $entityManager,
+    Request $request
+): Response {
+    // Vérifier que l'évaluation appartient à l'utilisateur connecté
+    if ($evaluation->getUser() !== $this->getUser()) {
+        throw $this->createAccessDeniedException();
+    }
+
+    // Vérifier le token CSRF
+    if (!$this->isCsrfTokenValid('delete' . $evaluation->getIdEval(), $request->request->get('_token'))) {
+        $this->addFlash('error', 'Token CSRF invalide.');
+        return $this->redirectToRoute('app_courses');
+    }
+
+    // Supprimer l'évaluation
+    $entityManager->remove($evaluation);
+    $entityManager->flush();
+
+    $this->addFlash('success', 'L\'évaluation a été supprimée avec succès !');
+    return $this->redirectToRoute('app_courses');
+}
 
     #[Route('/{id}/pdf', name: 'app_courses_pdf', requirements: ['id' => '\d+'])]
     public function exportPdf(EvaluationMatiere $course): Response
