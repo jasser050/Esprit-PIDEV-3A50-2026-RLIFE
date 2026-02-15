@@ -2,6 +2,22 @@
 
 {% block title %}Sign in{% endblock %}
 
+{% block styles %}
+{{ parent() }}
+<style>
+    spline-viewer {
+        width: 100% !important;
+        height: 100% !important;
+        background: transparent !important;
+    }
+    
+    /* Ensure proper layering */
+    .spline-viewer {
+        z-index: 1 !important;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="min-h-screen flex" data-controller="theme password">
     <!-- Left Panel - Form -->
@@ -70,49 +86,28 @@
             </div>
 
             <!-- Login Form -->
-            <form action="{{ path('app_login') }}" method="POST" class="space-y-5">
+            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 
                 <!-- Email -->
                 <div>
-                    <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                        Email address
-                    </label>
+                    {{ form_label(form._username, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
                     <div class="relative">
-                        <input
-                            type="email"
-                            id="email"
-                            name="_username"
-                            value="{{ last_username|default('') }}"
-                            required
-                            autocomplete="email"
-                            placeholder="you@university.edu"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
-                        >
+                        {{ form_widget(form._username, {'attr': {'class': 'block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors'}}) }}
                     </div>
+                    {{ form_errors(form._username, {'attr': {'class': 'text-sm text-danger-600 dark:text-danger-400 mt-1'}}) }}
                 </div>
 
                 <!-- Password -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
-                        <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                            Password
-                        </label>
+                        {{ form_label(form._password, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}}) }}
                         <a href="#" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                             Forgot password?
                         </a>
                     </div>
                     <div class="relative" data-password-target="container">
-                        <input
-                            type="password"
-                            id="password"
-                            name="_password"
-                            required
-                            autocomplete="current-password"
-                            placeholder="Enter your password"
-                            data-password-target="input"
-                            class="block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
-                        >
+                        {{ form_widget(form._password, {'attr': {'class': 'block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors', 'data-password-target': 'input'}}) }}
                         <button
                             type="button"
                             data-password-target="toggle"
@@ -124,19 +119,13 @@
                             <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
                         </button>
                     </div>
+                    {{ form_errors(form._password, {'attr': {'class': 'text-sm text-danger-600 dark:text-danger-400 mt-1'}}) }}
                 </div>
 
                 <!-- Remember me -->
                 <div class="flex items-center gap-3">
-                    <input
-                        type="checkbox"
-                        id="remember"
-                        name="remember"
-                        class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
-                    >
-                    <label for="remember" class="text-sm text-slate-600 dark:text-slate-300">
-                        Remember me for 30 days
-                    </label>
+                    {{ form_widget(form.remember, {'attr': {'class': 'w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800'}}) }}
+                    {{ form_label(form.remember, null, {'label_attr': {'class': 'text-sm text-slate-600 dark:text-slate-300'}}) }}
                 </div>
 
                 <!-- Submit -->
@@ -147,7 +136,7 @@
                     Sign in
                     <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
-            </form>
+            {{ form_end(form) }}
 
             <!-- Divider -->
             <div class="relative my-8">
@@ -182,68 +171,86 @@
         </div>
     </div>
 
-    <!-- Right Panel - Brand -->
-    <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950">
-        <!-- Pattern overlay -->
-        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+    <!-- Right Panel - Spline 3D Animation with Marketing -->
+    <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
+        <!-- Spline 3D Background -->
+        <spline-viewer 
+            url="https://prod.spline.design/WgPMxQsSYOM7gzlt/scene.splinecode"
+            class="absolute inset-0 w-full h-full"
+            loading="lazy"
+        ></spline-viewer>
+        
+        <!-- Marketing Content Overlay -->
+        <div class="absolute inset-0 z-10 flex flex-col justify-center px-12 xl:px-16 bg-gradient-to-r from-primary-900/80 via-primary-800/60 to-transparent">
+            <!-- Backdrop blur -->
+            <div class="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+            
+            <div class="relative z-20">
+                <!-- Theme toggle -->
+                <button
+                    type="button"
+                    data-action="click->theme#toggle"
+                    class="absolute -top-4 -right-4 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+                    aria-label="Toggle theme"
+                >
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
 
-        <div class="relative z-10 flex flex-col justify-center px-12 xl:px-16">
-            <!-- Theme toggle -->
-            <button
-                type="button"
-                data-action="click->theme#toggle"
-                class="absolute top-6 right-6 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
-                aria-label="Toggle theme"
-            >
-                <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-            </button>
+                <!-- Marketing Content -->
+                <div class="max-w-md">
+                    <h2 class="text-3xl xl:text-4xl font-semibold text-white leading-tight mb-6 drop-shadow-lg">
+                        Study smarter, not harder with <span class="text-primary-300">RLIFE</span>
+                    </h2>
 
-            <!-- Content -->
-            <div class="max-w-md">
-                <h2 class="text-3xl xl:text-4xl font-semibold text-white leading-tight mb-6">
-                    Study smarter, not harder
-                </h2>
+                    <!-- Benefits list -->
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
+                            </div>
+                            <span class="text-white/90 drop-shadow-md">Track all your courses, assignments, and deadlines in one place</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
+                            </div>
+                            <span class="text-white/90 drop-shadow-md">Boost retention with smart flashcards and spaced repetition</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
+                            </div>
+                            <span class="text-white/90 drop-shadow-md">Stay balanced with wellbeing check-ins and stress tracking</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
+                            </div>
+                            <span class="text-white/90 drop-shadow-md">Set smart goals and track your progress with AI-powered insights</span>
+                        </li>
+                    </ul>
 
-                <!-- Benefits list -->
-                <ul class="space-y-4 mb-10">
-                    <li class="flex items-start gap-3">
-                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                    <!-- Testimonial card -->
+                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl">
+                        <div class="flex gap-1 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
+                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
                         </div>
-                        <span class="text-white/90">Track all your courses, assignments, and deadlines in one place</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
-                        </div>
-                        <span class="text-white/90">Boost retention with smart flashcards and spaced repetition</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
-                        </div>
-                        <span class="text-white/90">Stay balanced with wellbeing check-ins and stress tracking</span>
-                    </li>
-                </ul>
-
-                <!-- Testimonial card -->
-                <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
-                    <div class="flex gap-1 mb-3">
-                        {% for i in 1..5 %}
-                        <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                        {% endfor %}
-                    </div>
-                    <p class="text-white/90 mb-4 leading-relaxed">
-                        "RLIFE helped me go from feeling overwhelmed to actually enjoying my studies. The wellbeing features are a game-changer."
-                    </p>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm">
-                            AR
-                        </div>
-                        <div>
-                            <p class="font-semibold text-white text-sm">Alex Rodriguez</p>
-                            <p class="text-sm text-white/60">Psychology, UCLA</p>
+                        <p class="text-white/90 mb-4 leading-relaxed">
+                            "RLIFE helped me go from feeling overwhelmed to actually enjoying my studies. The wellbeing features are a game-changer."
+                        </p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm">
+                                AR
+                            </div>
+                            <div>
+                                <p class="font-semibold text-white text-sm">Alex Rodriguez</p>
+                                <p class="text-sm text-white/60">Psychology, UCLA</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -273,4 +280,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <!-- Spline 3D Viewer -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
 {% endblock %}
