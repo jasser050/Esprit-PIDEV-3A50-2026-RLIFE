@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\EvaluationMatiereRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EvaluationMatiereRepository::class)]
@@ -14,32 +15,32 @@ class EvaluationMatiere
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id_eval', type: 'integer')]
+    #[ORM\Column(name: 'id_eval')]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'evaluations')]
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\Column(name: 'score_eval', type: 'float')]
+    #[ORM\Column(name: 'score_eval')]
     private ?float $scoreEval = null;
 
-    #[ORM\Column(name: 'note_maximale_eval', type: 'float')]
+    #[ORM\Column(name: 'note_maximale_eval')]
     private ?float $noteMaximaleEval = null;
 
-    #[ORM\Column(name: 'date_evaluation', type: 'datetime')]
+    #[ORM\Column(name: 'date_evaluation', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateEvaluation = null;
 
-    #[ORM\Column(name: 'duree_evaluation', type: 'integer')]
+    #[ORM\Column(name: 'duree_evaluation')]
     private ?int $dureeEvaluation = null;
 
-    #[ORM\Column(name: 'priorite_e', type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(name: 'priorite_e', length: 50, nullable: true)]
     private ?string $prioriteE = null;
 
-    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
     #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'evaluation', orphanRemoval: true)]

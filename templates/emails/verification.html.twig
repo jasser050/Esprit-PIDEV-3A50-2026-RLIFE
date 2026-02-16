@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your RLIFE Account</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .email-header {
+            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .email-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .logo-container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .email-header h1 {
+            color: #ffffff !important;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .email-header p {
+            color: #ffffff !important;
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .email-body {
+            padding: 50px 40px;
+        }
+        
+        .greeting {
+            font-size: 24px;
+            color: #111827;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .message {
+            color: #374151;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .message strong {
+            color: #111827;
+        }
+        
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #667eea !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            padding: 18px 50px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            border: 2px solid #667eea;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+            background: #5568d3 !important;
+        }
+        
+        .features {
+            background: linear-gradient(135deg, #f6f8ff 0%, #f0f3ff 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 20px;
+        }
+        
+        .feature-text {
+            flex: 1;
+        }
+        
+        .feature-title {
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        
+        .feature-description {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 30px 0;
+        }
+        
+        .security-notice {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .security-notice-title {
+            color: #d97706;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+        }
+        
+        .security-notice-text {
+            color: #92400e;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .expiry-notice {
+            text-align: center;
+            color: #374151;
+            font-size: 14px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .expiry-notice strong {
+            color: #111827;
+        }
+        
+        .email-footer {
+            background: #111827;
+            color: #9ca3af;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f9fafb;
+            margin-bottom: 15px;
+        }
+        
+        .footer-text {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #d1d5db;
+        }
+        
+        .social-links {
+            margin: 20px 0;
+        }
+        
+        .social-link {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin: 0 5px;
+            line-height: 40px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .footer-links {
+            margin-top: 20px;
+        }
+        
+        .footer-link {
+            color: #d1d5db;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 13px;
+        }
+        
+        .footer-link:hover {
+            color: #f9fafb;
+        }
+        
+        .alternative-link {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .alternative-link-url {
+            color: #667eea;
+            word-break: break-all;
+            text-decoration: none;
+            display: block;
+            margin-top: 8px;
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header" style="background: #667eea; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 50px 40px; text-align: center;">
+            <div class="logo-container">
+                <div class="logo" style="width: 80px; height: 80px; background: white; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; color: #667eea; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);">R</div>
+                <h1 style="color: #ffffff !important; font-size: 32px; font-weight: 700; margin: 0 0 10px 0; text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);">Welcome to RLIFE! 🎉</h1>
+                <p style="color: #ffffff !important; font-size: 16px; margin: 0; text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);">You're one step away from organizing your student life</p>
+            </div>
+        </div>
+        
+        <!-- Body -->
+        <div class="email-body">
+            <div class="greeting">
+                Hey {{ user.firstName }}! 👋
+            </div>
+            
+            <div class="message">
+                We're <strong>super excited</strong> to have you join the RLIFE community! You've just taken the first step toward a more organized, productive, and stress-free student life.
+            </div>
+            
+            <div class="message">
+                To get started, please verify your email address by clicking the button below:
+            </div>
+            
+            <!-- CTA Button -->
+            <div class="cta-container" style="text-align: center; margin: 40px 0;">
+                <a href="{{ verificationUrl }}" class="cta-button" style="display: inline-block; background: #667eea !important; color: #ffffff !important; text-decoration: none !important; padding: 18px 50px; border-radius: 12px; font-size: 18px; font-weight: 600; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); border: 2px solid #667eea;">
+                    ✨ Verify My Account
+                </a>
+            </div>
+            
+            <div class="expiry-notice">
+                ⏱️ This link will expire in <strong>24 hours</strong> for security reasons
+            </div>
+            
+            <!-- Features -->
+            <div class="features">
+                <div class="feature-item">
+                    <div class="feature-icon">📚</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Course Management</div>
+                        <div class="feature-description">Organize all your courses, lectures, and study materials in one place</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">📅</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Smart Planning</div>
+                        <div class="feature-description">Never miss a deadline with intelligent reminders and scheduling</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Spaced Repetition</div>
+                        <div class="feature-description">Master any subject with AI-powered flashcards and study techniques</div>
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <div class="feature-icon">💚</div>
+                    <div class="feature-text">
+                        <div class="feature-title">Wellbeing Tracking</div>
+                        <div class="feature-description">Monitor your stress levels and maintain a healthy study-life balance</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Security Notice -->
+            <div class="security-notice">
+                <div class="security-notice-title">
+                    🔒 Security Notice
+                </div>
+                <div class="security-notice-text">
+                    If you didn't create an account with RLIFE, please ignore this email. Your email address will not be added to our system without verification.
+                </div>
+            </div>
+            
+            <div class="alternative-link" style="margin-top: 30px;">
+                <strong>If the button doesn't work, copy and paste this link into your browser:</strong>
+                <a href="{{ verificationUrl }}" class="alternative-link-url">{{ verificationUrl }}</a>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <div class="footer-logo">RLIFE</div>
+            <div class="footer-text">
+                Empowering students to achieve academic excellence
+            </div>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">f</a>
+                <a href="#" class="social-link">t</a>
+                <a href="#" class="social-link">in</a>
+                <a href="#" class="social-link">ig</a>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#" class="footer-link">Help Center</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+            </div>
+            
+            <div style="margin-top: 20px; font-size: 12px; color: #9ca3af;">
+                © {{ 'now'|date('Y') }} RLIFE. All rights reserved.
+            </div>
+        </div>
+    </div>
+</body>
+</html>

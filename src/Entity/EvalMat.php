@@ -11,11 +11,11 @@ class EvalMat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Matiere::class, inversedBy: 'evalMats')]
-    #[ORM\JoinColumn(name: 'matiere_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'matiere_id', referencedColumnName: 'id_matiere', nullable: false, onDelete: 'CASCADE')]
     private ?Matiere $matiere = null;
 
     #[ORM\ManyToOne(targetEntity: EvaluationMatiere::class, inversedBy: 'evalMats')]
