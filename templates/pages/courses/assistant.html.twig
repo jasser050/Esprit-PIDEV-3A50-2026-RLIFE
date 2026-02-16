@@ -34,7 +34,7 @@
                 <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400"></i>
                 <input 
                     type="text" 
-                    id="searchInput"
+                    id="assistantSearchInput"
                     placeholder="e.g., Python for beginners, Calculus, English grammar..."
                     class="input pl-12 text-lg"
                     autocomplete="off"
@@ -101,44 +101,62 @@
 </style>
 
 <script>
-const searchInput = document.getElementById('searchInput');
-const searchButton = document.getElementById('searchButton');
-const suggestions = document.getElementById('suggestions');
-const suggestionsList = document.getElementById('suggestionsList');
-const loading = document.getElementById('loading');
-const results = document.getElementById('results');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
+    const searchInput = document.getElementById('assistantSearchInput');
+    const searchButton = document.getElementById('searchButton');
+    const suggestions = document.getElementById('suggestions');
+    const suggestionsList = document.getElementById('suggestionsList');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    
+    console.log('Elements found:', {
+        searchInput: !!searchInput,
+        searchButton: !!searchButton,
+        loading: !!loading,
+        results: !!results
+    });
+    
+    console.log('searchInput details:', {
+        element: searchInput,
+        tagName: searchInput ? searchInput.tagName : 'null',
+        type: searchInput ? searchInput.type : 'null',
+        id: searchInput ? searchInput.id : 'null',
+        className: searchInput ? searchInput.className : 'null'
+    });
 
-let debounceTimer;
+    let debounceTimer;
 
-// Real-time suggestions
-searchInput.addEventListener('input', function() {
-    const query = this.value.trim();
-    
-    clearTimeout(debounceTimer);
-    
-    if (query.length < 2) {
-        suggestions.classList.add('hidden');
-        return;
-    }
-    
-    debounceTimer = setTimeout(async () => {
-        try {
-            const response = await fetch(`/api/assistant/suggest?q=${encodeURIComponent(query)}`);
-            const data = await response.json();
-            
-            if (data.suggestions && data.suggestions.length > 0) {
-                displaySuggestions(data.suggestions);
-            } else {
-                suggestions.classList.add('hidden');
-            }
-        } catch (error) {
-            console.error('Error:', error);
+    // Real-time suggestions
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(debounceTimer);
+        
+        if (query.length < 2) {
+            suggestions.classList.add('hidden');
+            return;
         }
-    }, 300);
-});
+        
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/assistant/suggest?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    displaySuggestions(data.suggestions);
+                } else {
+                    suggestions.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }, 300);
+    });
 
-// Display suggestions
-function displaySuggestions(items) {
+    // Display suggestions
+    function displaySuggestions(items) {
     suggestionsList.innerHTML = items.map(item => `
         <div class="suggestion-item" onclick="selectSuggestion('${item.text}')">
             <div class="flex items-center gap-3">
@@ -152,71 +170,84 @@ function displaySuggestions(items) {
     `).join('');
     
     suggestions.classList.remove('hidden');
-}
+    }
 
-// Select a suggestion
-function selectSuggestion(text) {
-    searchInput.value = text;
-    suggestions.classList.add('hidden');
-    searchCourses();
-}
-
-// Search courses
-searchButton.addEventListener('click', searchCourses);
-searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
+    // Select a suggestion
+    window.selectSuggestion = function(text) {
+        searchInput.value = text;
+        suggestions.classList.add('hidden');
         searchCourses();
     }
-});
 
-async function searchCourses() {
-    const query = searchInput.value.trim();
-    
-    if (!query) {
-        alert('Please enter what you want to learn');
-        return;
-    }
-    
-    suggestions.classList.add('hidden');
-    loading.classList.remove('hidden');
-    results.innerHTML = '';
-    
-    try {
-        const response = await fetch('/api/assistant/search', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ query: query })
-        });
+    // Search courses
+    searchButton.addEventListener('click', searchCourses);
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchCourses();
+        }
+    });
+
+    async function searchCourses() {
+        console.log('searchCourses called');
+        const input = document.getElementById('assistantSearchInput');
+        console.log('searchInput element:', input);
+        console.log('searchInput value:', input ? input.value : 'null');
         
-        const data = await response.json();
+        const query = input ? input.value.trim() : '';
+        console.log('Query after trim:', query);
         
-        loading.classList.add('hidden');
+        if (!query || query.length === 0) {
+            alert('Please enter what you want to learn');
+            console.log('Empty query - showing alert');
+            return;
+        }
+    
+        console.log('Query is valid, proceeding with search for:', query);
         
-        if (data.success) {
-            displayResults(data);
-        } else {
+        suggestions.classList.add('hidden');
+        loading.classList.remove('hidden');
+        results.innerHTML = '';
+        
+        try {
+            console.log('Sending fetch request to /api/assistant/search');
+            const response = await fetch('/api/assistant/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query: query })
+            });
+            
+            console.log('Response received:', response.status);
+            const data = await response.json();
+            console.log('Data received:', data);
+            
+            loading.classList.add('hidden');
+            
+            if (data.success) {
+                displayResults(data);
+            } else {
+                results.innerHTML = `
+                    <div class="card p-8 text-center">
+                        <div class="text-6xl mb-4">😞</div>
+                        <p class="text-xl text-secondary-700 dark:text-secondary-300">Error: ${data.error}</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            loading.classList.add('hidden');
             results.innerHTML = `
                 <div class="card p-8 text-center">
-                    <div class="text-6xl mb-4">😞</div>
-                    <p class="text-xl text-secondary-700 dark:text-secondary-300">Error: ${data.error}</p>
+                    <div class="text-6xl mb-4">❌</div>
+                    <p class="text-xl text-secondary-700 dark:text-secondary-300">An error occurred: ${error.message}</p>
                 </div>
             `;
         }
-    } catch (error) {
-        loading.classList.add('hidden');
-        results.innerHTML = `
-            <div class="card p-8 text-center">
-                <div class="text-6xl mb-4">❌</div>
-                <p class="text-xl text-secondary-700 dark:text-secondary-300">An error occurred</p>
-            </div>
-        `;
     }
-}
 
-// Display results
-function displayResults(data) {
+    // Display results
+    function displayResults(data) {
     let html = '';
     
     // Study tips
@@ -297,24 +328,25 @@ function displayResults(data) {
         `;
     }
     
-    results.innerHTML = html;
-    
-    // Re-initialize Lucide icons
+        results.innerHTML = html;
+        
+        // Re-initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.classList.add('hidden');
+        }
+    });
+
+    // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-}
-
-// Hide suggestions when clicking outside
-document.addEventListener('click', function(e) {
-    if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
-        suggestions.classList.add('hidden');
-    }
-});
-
-// Initialize Lucide icons
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-}
+}); // End of DOMContentLoaded
 </script>
 {% endblock %}

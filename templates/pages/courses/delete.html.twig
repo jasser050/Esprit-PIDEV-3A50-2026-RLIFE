@@ -1,0 +1,423 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Supprimer Évaluation{% endblock %}
+
+{% block body %}
+<!-- Animated Background -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <!-- Gradient Orbs -->
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-red-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-orange-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
+    <!-- Grid Pattern -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+</div>
+
+<div class="max-w-4xl mx-auto px-6 py-8 relative z-10">
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg border animate-slide-down {% if label == 'success' %}bg-green-900/20 border-green-700/50 text-green-300{% elseif label == 'error' %}bg-red-900/20 border-red-700/50 text-red-300{% else %}bg-blue-900/20 border-blue-700/50 text-blue-300{% endif %}">
+                <div class="flex items-center gap-3">
+                    {% if label == 'success' %}
+                        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% elseif label == 'error' %}
+                        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% else %}
+                        <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
+                    {% endif %}
+                    <span class="font-medium">{{ message }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ path('app_courses') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all hover:scale-105">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Retour
+        </a>
+
+        <h1 class="mt-6 text-3xl font-bold text-white animate-fade-in flex items-center gap-3">
+            <i data-lucide="trash-2" class="w-8 h-8 text-red-400"></i>
+            Supprimer l'évaluation
+        </h1>
+        <p class="text-slate-400 mt-1 animate-fade-in animation-delay-100">
+            Cette action est irréversible
+        </p>
+    </div>
+
+    <!-- Confirmation Card with Glass Effect -->
+    <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-red-700/30 p-8 shadow-2xl shadow-black/20 animate-slide-up">
+        
+        <!-- Warning Banner -->
+        <div class="mb-6 p-4 bg-red-900/30 border border-red-700/50 rounded-lg animate-pulse-subtle">
+            <div class="flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5"></i>
+                <div>
+                    <h3 class="text-red-300 font-semibold mb-1">Attention !</h3>
+                    <p class="text-red-200/80 text-sm">
+                        Vous êtes sur le point de supprimer définitivement cette évaluation. Cette action ne peut pas être annulée.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluation Details -->
+        <div class="space-y-4 mb-8">
+            <h3 class="text-lg font-semibold text-white flex items-center gap-2 animate-fade-in animation-delay-200">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                Détails de l'évaluation
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Matière -->
+                <div class="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50 animate-fade-in animation-delay-300">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <i data-lucide="book-open" class="w-4 h-4"></i>
+                        Matière
+                    </div>
+                    <div class="text-white font-medium">
+                        {% for evalMat in evaluation.evalMats %}
+                            {{ evalMat.matiere.nomMatiere }}
+                        {% else %}
+                            Aucune matière
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Score -->
+                <div class="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50 animate-fade-in animation-delay-400">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <i data-lucide="award" class="w-4 h-4"></i>
+                        Score
+                    </div>
+                    <div class="text-white font-medium">
+                        {{ evaluation.scoreEval }} / {{ evaluation.noteMaximaleEval }}
+                    </div>
+                </div>
+
+                <!-- Date -->
+                <div class="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50 animate-fade-in animation-delay-500">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        Date d'évaluation
+                    </div>
+                    <div class="text-white font-medium">
+                        {{ evaluation.dateEvaluation|date('d/m/Y') }}
+                    </div>
+                </div>
+
+                <!-- Durée -->
+                <div class="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50 animate-fade-in animation-delay-600">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        Durée
+                    </div>
+                    <div class="text-white font-medium">
+                        {{ evaluation.dureeEvaluation }} minutes
+                    </div>
+                </div>
+
+                <!-- Priorité -->
+                <div class="bg-slate-900/30 rounded-lg p-4 border border-slate-700/50 animate-fade-in animation-delay-700">
+                    <div class="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <i data-lucide="flag" class="w-4 h-4"></i>
+                        Priorité
+                    </div>
+                    <div class="text-white font-medium">
+                        {% if evaluation.prioriteE == 'haute' %}
+                            <span class="inline-flex items-center gap-1 text-red-400">
+                                <span class="w-2 h-2 bg-red-400 rounded-full"></span>
+                                Haute
+                            </span>
+                        {% elseif evaluation.prioriteE == 'moyenne' %}
+                            <span class="inline-flex items-center gap-1 text-orange-400">
+                                <span class="w-2 h-2 bg-orange-400 rounded-full"></span>
+                                Moyenne
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1 text-green-400">
+                                <span class="w-2 h-2 bg-green-400 rounded-full"></span>
+                                Basse
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Form -->
+        <form method="post" action="{{ path('app_evaluation_delete_confirm', {'id': evaluation.idEval}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ evaluation.idEval) }}">
+            
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-4 pt-6 border-t border-slate-700/50 animate-fade-in animation-delay-800">
+                <button type="submit" 
+                        class="px-8 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-lg shadow-lg shadow-red-600/30 hover:shadow-red-600/50 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    Supprimer définitivement
+                </button>
+
+                <a href="{{ path('app_courses') }}"
+                   class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="mt-6 p-4 bg-blue-900/20 border border-blue-700/30 rounded-lg animate-fade-in animation-delay-900">
+        <div class="flex items-start gap-3">
+            <i data-lucide="info" class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5"></i>
+            <div class="text-blue-200/80 text-sm">
+                <strong class="text-blue-300">Note :</strong> La suppression de cette évaluation supprimera également toutes les données associées (notes, statistiques, etc.).
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Animated Background - Blob Animation */
+@keyframes blob {
+    0%, 100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* Floating Particles */
+.particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 50%;
+    animation: float 15s infinite;
+}
+
+.particle:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 12s;
+}
+
+.particle:nth-child(2) {
+    width: 60px;
+    height: 60px;
+    left: 70%;
+    animation-delay: 2s;
+    animation-duration: 15s;
+    background: rgba(251, 146, 60, 0.3);
+}
+
+.particle:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    left: 40%;
+    animation-delay: 4s;
+    animation-duration: 18s;
+}
+
+.particle:nth-child(4) {
+    width: 50px;
+    height: 50px;
+    left: 80%;
+    animation-delay: 6s;
+    animation-duration: 14s;
+    background: rgba(236, 72, 153, 0.3);
+}
+
+.particle:nth-child(5) {
+    width: 70px;
+    height: 70px;
+    left: 25%;
+    animation-delay: 3s;
+    animation-duration: 16s;
+}
+
+.particle:nth-child(6) {
+    width: 90px;
+    height: 90px;
+    left: 55%;
+    animation-delay: 5s;
+    animation-duration: 13s;
+    background: rgba(220, 38, 38, 0.3);
+}
+
+.particle:nth-child(7) {
+    width: 65px;
+    height: 65px;
+    left: 15%;
+    animation-delay: 7s;
+    animation-duration: 17s;
+}
+
+.particle:nth-child(8) {
+    width: 75px;
+    height: 75px;
+    left: 90%;
+    animation-delay: 1s;
+    animation-duration: 19s;
+    background: rgba(249, 115, 22, 0.3);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Grid Pattern */
+.bg-grid-pattern {
+    background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+.animation-delay-700 { animation-delay: 0.7s; }
+.animation-delay-800 { animation-delay: 0.8s; }
+.animation-delay-900 { animation-delay: 0.9s; }
+
+/* Slide Up Animation */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+/* Slide Down Animation for Flash Messages */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-down {
+    animation: slideDown 0.5s ease-out;
+}
+
+/* Pulse Animation for Warning */
+@keyframes pulseSubtle {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}
+
+.animate-pulse-subtle {
+    animation: pulseSubtle 3s ease-in-out infinite;
+}
+
+/* Smooth transitions */
+button, a {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Icon color adjustments */
+i[data-lucide] {
+    color: inherit;
+}
+</style>
+
+<script>
+// Initialize Lucide icons after page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}

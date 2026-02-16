@@ -75,7 +75,8 @@
     </div>
 
     {# Test form #}
-    <form method="post" action="{{ path('iq_test_submit') }}" id="iqTestForm">
+    <form method="post" action="{{ path('iq_test_submit') }}" id="iqTestForm" data-turbo="false">
+        <input type="hidden" name="_token" value="{{ csrf_token('iq_test_submit') }}">
         <div class="space-y-5">
             {% for question in questions %}
                 <div class="card card-hover p-6 question-card transition-all duration-300" 

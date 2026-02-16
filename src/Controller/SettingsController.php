@@ -135,7 +135,18 @@ class SettingsController extends AbstractController
             return $this->redirectToRoute('app_settings');
         }
         
-        return $this->render('pages/settings/index.html.twig');
+        // Calculate statistics for the profile - Using count() for reliability
+        $totalProjects = count($user->getProjects());
+        $totalCourses = count($user->getMatieres());
+        $totalDecks = count($user->getDecks());
+        $totalAssignments = count($user->getAssignments());
+        
+        return $this->render('pages/settings/index.html.twig', [
+            'total_projects' => $totalProjects,
+            'total_courses' => $totalCourses,
+            'total_decks' => $totalDecks,
+            'total_assignments' => $totalAssignments,
+        ]);
     }
 
     #[Route('/delete', name: 'app_settings_delete', methods: ['POST'])]

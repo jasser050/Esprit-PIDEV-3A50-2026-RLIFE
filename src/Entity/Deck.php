@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: DeckRepository::class)]
 #[ORM\Table(name: 'deck')]
@@ -22,15 +24,41 @@ class Deck
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: 'Title is required')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Title must be at least {{ limit }} characters',
+        maxMessage: 'Title cannot exceed {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[^\d]/',
+        message: 'Title must not start with a digit'
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::STRING, length: 100)]
+    #[Assert\NotBlank(message: 'Subject is required')]
+    #[Assert\Length(
+        min: 3,
+        minMessage: 'Subject must be at least {{ limit }} characters'
+    )]
     private ?string $matiere = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: 'Level is required')]
+    #[Assert\Length(
+        min: 1,
+        max: 50,
+        minMessage: 'Level must be at least {{ limit }} character'
+    )]
     private ?string $niveau = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'Description cannot exceed {{ limit }} characters'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -38,6 +66,22 @@ class Deck
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $pdf = null;
+
+    #[Assert\File(
+        maxSize: '5M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+        mimeTypesMessage: 'Please upload a valid image (JPG, PNG, WEBP, GIF)',
+        maxSizeMessage: 'Image must not exceed 5 MB'
+    )]
+    private ?File $imageFile = null;
+
+    #[Assert\File(
+        maxSize: '10M',
+        mimeTypes: ['application/pdf'],
+        mimeTypesMessage: 'Please upload a valid PDF file',
+        maxSizeMessage: 'PDF must not exceed 10 MB'
+    )]
+    private ?File $pdfFile = null;
 
     #[ORM\Column(name: 'date_creation', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateCreation = null;
@@ -51,6 +95,10 @@ class Deck
     #[ORM\InverseJoinColumn(name: 'id_flashcard', referencedColumnName: 'id_flashcard')]
     private Collection $revisionFlashcards;
 
+    private ?int $cardCount = null;
+
+    private ?int $masteredCount = null;
+
     public function __construct()
     {
         $this->flashcards = new ArrayCollection();
@@ -61,6 +109,28 @@ class Deck
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile): self
+    {
+        $this->imageFile = $imageFile;
+        return $this;
+    }
+
+    public function getPdfFile(): ?File
+    {
+        return $this->pdfFile;
+    }
+
+    public function setPdfFile(?File $pdfFile): self
+    {
+        $this->pdfFile = $pdfFile;
+        return $this;
     }
 
     public function getUser(): ?User
@@ -201,6 +271,28 @@ class Deck
     {
         $this->revisionFlashcards->removeElement($flashcard);
 
+        return $this;
+    }
+
+    public function getCardCount(): ?int
+    {
+        return $this->cardCount;
+    }
+
+    public function setCardCount(?int $cardCount): static
+    {
+        $this->cardCount = $cardCount;
+        return $this;
+    }
+
+    public function getMasteredCount(): ?int
+    {
+        return $this->masteredCount;
+    }
+
+    public function setMasteredCount(?int $masteredCount): static
+    {
+        $this->masteredCount = $masteredCount;
         return $this;
     }
 }

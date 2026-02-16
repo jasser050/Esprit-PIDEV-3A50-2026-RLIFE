@@ -11,7 +11,7 @@
         </h1>
 
         <div class="mb-8">
-            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
+            <a href="{{ path('app_admin_courses') }}" class="btn btn-ghost">
                 ← Back to Courses
             </a>
         </div>
@@ -267,7 +267,7 @@
 
         {# ================= BUTTONS ================= #}
         <div class="flex justify-end gap-4">
-            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
+            <a href="{{ path('app_admin_courses') }}" class="btn btn-ghost">
                 Cancel
             </a>
             <button type="submit" id="submit-btn" class="btn btn-primary">
@@ -357,6 +357,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorMessage = 'Le nom ne peut pas dépasser 255 caractères';
             }
         }
+        {% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
+
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">{{ message }}</div>
+{% endfor %}
         
         // Validation de la description
         else if (fieldName.includes('[description]')) {
@@ -364,6 +371,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 errorMessage = 'La description ne peut pas dépasser 500 caractères';
             }
         }
+       {% for message in app.flashes('success') %}
+    <div class="alert alert-success mb-4">
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
         
         // Validation du coefficient
         else if (fieldName.includes('[coefficientMatiere]')) {
@@ -378,6 +391,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+        {% for message in app.flashes('success') %}
+    <div class="alert alert-success mb-4">
+        <span>{{ message }}</span>
+    </div>
+{% endfor %}
+
         
         // Validation des heures
         else if (fieldName.includes('[heureMatiere]')) {
@@ -392,7 +411,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         }
+{% for message in app.flashes('success') %}
+    <div class="alert alert-success">{{ message }}</div>
+{% endfor %}
 
+{% for message in app.flashes('error') %}
+    <div class="alert alert-error">{{ message }}</div>
+{% endfor %}
         if (errorMessage) {
             field.classList.add('input-error');
             

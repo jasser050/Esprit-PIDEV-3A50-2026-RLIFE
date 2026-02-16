@@ -1,0 +1,548 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ deck.titre }} - Study{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    /* Flashcard Search & Filter Styles */
+    .flashcard-search-container {
+        position: relative;
+        max-width: 100%;
+    }
+    
+    .flashcard-search-input {
+        width: 100%;
+        padding: 10px 40px 10px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+    
+    .flashcard-search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark .flashcard-search-input {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: white;
+    }
+    
+    .flashcard-search-button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+    
+    .flashcard-search-button:hover {
+        background-color: #f1f5f9;
+        color: #3b82f6;
+    }
+    
+    .dark .flashcard-search-button:hover {
+        background-color: #334155;
+        color: #60a5fa;
+    }
+    
+    .flashcard-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .flashcard-filter-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #64748b;
+    }
+    
+    .dark .flashcard-filter-label {
+        color: #94a3b8;
+    }
+    
+    .flashcard-filter-select {
+        padding: 7px 10px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        background-color: white;
+        cursor: pointer;
+        min-width: 130px;
+        transition: all 0.3s ease;
+    }
+    
+    .flashcard-filter-select:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .dark .flashcard-filter-select {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: white;
+    }
+    
+    .flashcard-sort-button {
+        padding: 7px 14px;
+        border-radius: 18px;
+        border: 2px solid #e2e8f0;
+        background-color: white;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .flashcard-sort-button:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+    }
+    
+    .flashcard-sort-button.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+    
+    .dark .flashcard-sort-button {
+        background-color: #1e293b;
+        border-color: #475569;
+        color: #cbd5e1;
+    }
+    
+    .dark .flashcard-sort-button:hover {
+        border-color: #60a5fa;
+        color: #60a5fa;
+    }
+    
+    .dark .flashcard-sort-button.active {
+        background-color: #60a5fa;
+        color: white;
+        border-color: #60a5fa;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="{{ path('app_revisions') }}" class="btn btn-ghost btn-sm">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ deck.titre }}</h1>
+                <p class="text-slate-500 dark:text-slate-400">{{ deck.matiere }} • {{ deck.niveau }}</p>
+            </div>
+        </div>
+        <a data-turbo="false" href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn btn-primary btn-sm">
+            <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+            Add Card
+        </a>
+    </div>
+
+    <!-- Deck Info - Compact -->
+    <div class="flex items-center gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+        <!-- Deck Icon/Image -->
+        <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {% if deck.image %}
+                <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}" class="w-full h-full object-cover">
+            {% else %}
+                <i data-lucide="layers" class="w-8 h-8 text-white"></i>
+            {% endif %}
+        </div>
+
+        <!-- Deck Details -->
+        <div class="flex-1 min-w-0">
+            {% if deck.description %}
+                <p class="text-sm text-slate-600 dark:text-slate-400 truncate">{{ deck.description }}</p>
+            {% endif %}
+            <div class="flex flex-wrap items-center gap-4 mt-2 text-xs text-slate-500">
+                <span class="flex items-center gap-1">
+                    <i data-lucide="credit-card" class="w-3.5 h-3.5"></i>
+                    {{ flashcards|length }} cards
+                </span>
+                <span class="flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                    {{ deck.dateCreation|date('M d, Y') }}
+                </span>
+                {% if deck.pdf %}
+                    <a href="{{ asset('uploads/decks/' ~ deck.pdf) }}" target="_blank" class="flex items-center gap-1 text-primary-600 hover:text-primary-700">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        View PDF
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Flashcard Generation -->
+    <div class="bg-gradient-to-br from-purple-50 to-primary-50 dark:from-purple-900/20 dark:to-primary-900/20 rounded-xl border border-purple-200 dark:border-purple-800 p-6">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-primary-600 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Generate Flashcards with AI</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Let AI create flashcards for you! Just enter a theme or topic.</p>
+                
+                <form method="POST" action="{{ path('app_deck_generate_flashcards', {id: deck.id}) }}" class="flex gap-3" data-turbo="false">
+                    <input type="hidden" name="_token" value="{{ csrf_token('generate' ~ deck.id) }}">
+                    <input 
+                        type="text" 
+                        name="theme" 
+                        placeholder="e.g., Photosynthesis, World War II, JavaScript Arrays..." 
+                        required
+                        class="flex-1 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-600"
+                    >
+                    <button type="submit" class="btn btn-primary whitespace-nowrap">
+                        <i data-lucide="wand-2" class="w-4 h-4 mr-2"></i>
+                        Generate 6 Cards
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard Search & Filter (only show if there are flashcards) -->
+    {% if flashcards is not empty %}
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
+        <!-- Search Bar -->
+        <div class="flashcard-search-container mb-4">
+            <input type="text" 
+                   id="flashcardSearch" 
+                   placeholder="Search flashcards by title, question, or answer..." 
+                   class="flashcard-search-input">
+            <button type="button" class="flashcard-search-button">
+                <i data-lucide="search" class="w-4 h-4"></i>
+            </button>
+        </div>
+        
+        <!-- Filters & Sorts -->
+        <div class="flex flex-wrap gap-4 items-end">
+            <!-- Filter by Status -->
+            <div class="flashcard-filter-group">
+                <label class="flashcard-filter-label">Status</label>
+                <select id="flashcardStatusFilter" class="flashcard-filter-select">
+                    <option value="all">All Status</option>
+                    <option value="actif">Active</option>
+                    <option value="brouillon">Draft</option>
+                    <option value="archive">Archived</option>
+                    <option value="inactif">Inactive</option>
+                </select>
+            </div>
+            
+            <!-- Filter by Difficulty -->
+            <div class="flashcard-filter-group">
+                <label class="flashcard-filter-label">Difficulty</label>
+                <select id="flashcardDifficultyFilter" class="flashcard-filter-select">
+                    <option value="all">All Levels</option>
+                    <option value="1">Level 1 (Easiest)</option>
+                    <option value="2">Level 2</option>
+                    <option value="3">Level 3</option>
+                    <option value="4">Level 4</option>
+                    <option value="5">Level 5 (Hardest)</option>
+                </select>
+            </div>
+            
+            <!-- Sort Options -->
+            <div class="flashcard-filter-group flex-1">
+                <label class="flashcard-filter-label">Sort by</label>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="flashcard-sort-button active" data-sort="default">
+                        <i data-lucide="hash" class="w-3.5 h-3.5"></i>
+                        Default
+                    </button>
+                    <button type="button" class="flashcard-sort-button" data-sort="title">
+                        <i data-lucide="arrow-up-a-z" class="w-3.5 h-3.5"></i>
+                        Title A-Z
+                    </button>
+                    <button type="button" class="flashcard-sort-button" data-sort="difficulty">
+                        <i data-lucide="trending-up" class="w-3.5 h-3.5"></i>
+                        Difficulty
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Reset Button -->
+            <button type="button" id="flashcardResetFilters" class="btn btn-ghost btn-sm">
+                <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i>
+                Reset
+            </button>
+        </div>
+        
+        <!-- Result Counter -->
+        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <p id="flashcardResultCounter" class="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Showing {{ flashcards|length }} flashcards
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Flashcards -->
+    {% if flashcards is empty %}
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-12 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <i data-lucide="credit-card" class="w-8 h-8 text-slate-400"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No flashcards yet</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-6">Add flashcards to start studying</p>
+            <a data-turbo="false" href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn btn-primary inline-flex">
+                <i data-lucide="plus" class="w-5 h-5 mr-1"></i>
+                Add First Card
+            </a>
+        </div>
+    {% else %}
+        <div id="flashcardsContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for flashcard in flashcards %}
+                <div class="flashcard-card bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden group hover:shadow-md transition-shadow"
+                     data-title="{{ flashcard.titre|lower }}"
+                     data-question="{{ flashcard.question|lower }}"
+                     data-answer="{{ flashcard.reponse|lower }}"
+                     data-status="{{ flashcard.etat }}"
+                     data-difficulty="{{ flashcard.niveauDifficulte }}"
+                     data-index="{{ loop.index }}">
+                    <!-- Card Header -->
+                    <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-medium text-slate-500">#{{ loop.index }}</span>
+                            {% if flashcard.titre %}
+                                <span class="text-sm font-medium text-slate-900 dark:text-white">{{ flashcard.titre }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded text-xs font-medium
+                                {% if flashcard.etat == 'maitrisee' %}bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400
+                                {% elseif flashcard.etat == 'en_cours' %}bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400
+                                {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+                                {{ flashcard.etat|replace({'a_apprendre': 'To Learn', 'en_cours': 'In Progress', 'maitrisee': 'Mastered'}) }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard Image -->
+                    {% if flashcard.image %}
+                    <div class="w-full h-48 overflow-hidden">
+                        <img src="{{ asset('uploads/flashcards/' ~ flashcard.image) }}" alt="{{ flashcard.titre ?: 'Flashcard image' }}" class="w-full h-full object-cover">
+                    </div>
+                    {% endif %}
+
+                    <!-- Question -->
+                    <div class="p-4">
+                        <div class="mb-4">
+                            <p class="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Question</p>
+                            <p class="text-slate-900 dark:text-white line-clamp-3">{{ flashcard.question }}</p>
+                        </div>
+
+                        <!-- Answer Preview -->
+                        <div class="p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg mb-4">
+                            <p class="text-xs font-medium text-primary-600 dark:text-primary-400 uppercase tracking-wide mb-1">Answer</p>
+                            <p class="text-slate-700 dark:text-slate-300 line-clamp-2 text-sm">{{ flashcard.reponse }}</p>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                            <a data-turbo="false" href="{{ path('app_flashcard_edit', {id: flashcard.id}) }}" class="btn btn-ghost btn-sm flex-1">
+                                <i data-lucide="edit-2" class="w-4 h-4 mr-1"></i>
+                                Edit
+                            </a>
+                            <form method="POST" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}" class="flex-1" onsubmit="return confirm('Delete this flashcard?');" data-turbo="false">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
+                                <button type="submit" class="btn btn-ghost btn-sm w-full text-danger-600 hover:text-danger-700 hover:bg-danger-50 dark:hover:bg-danger-900/20">
+                                    <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i>
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const flashcardSearch = document.getElementById('flashcardSearch');
+    const statusFilter = document.getElementById('flashcardStatusFilter');
+    const difficultyFilter = document.getElementById('flashcardDifficultyFilter');
+    const sortButtons = document.querySelectorAll('.flashcard-sort-button');
+    const resetButton = document.getElementById('flashcardResetFilters');
+    const flashcardCards = document.querySelectorAll('.flashcard-card');
+    const flashcardsContainer = document.getElementById('flashcardsContainer');
+    const resultCounter = document.getElementById('flashcardResultCounter');
+    
+    if (!flashcardCards.length) return; // Exit if no flashcards
+    
+    let currentState = {
+        search: '',
+        status: 'all',
+        difficulty: 'all',
+        sort: 'default'
+    };
+    
+    function filterFlashcards() {
+        let visibleCount = 0;
+        const visibleCards = [];
+        
+        flashcardCards.forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const question = card.getAttribute('data-question') || '';
+            const answer = card.getAttribute('data-answer') || '';
+            const status = card.getAttribute('data-status') || '';
+            const difficulty = card.getAttribute('data-difficulty') || '';
+            const index = parseInt(card.getAttribute('data-index')) || 0;
+            
+            // Check search
+            const searchMatch = currentState.search === '' || 
+                title.includes(currentState.search) ||
+                question.includes(currentState.search) ||
+                answer.includes(currentState.search);
+            
+            // Check status
+            const statusMatch = currentState.status === 'all' || status === currentState.status;
+            
+            // Check difficulty
+            const difficultyMatch = currentState.difficulty === 'all' || difficulty === currentState.difficulty;
+            
+            if (searchMatch && statusMatch && difficultyMatch) {
+                card.style.display = 'flex';
+                visibleCount++;
+                visibleCards.push({
+                    element: card,
+                    title: title,
+                    difficulty: parseInt(difficulty) || 0,
+                    index: index
+                });
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Sort visible cards
+        sortFlashcards(visibleCards);
+        
+        // Update counter
+        resultCounter.textContent = `Showing ${visibleCount} flashcard${visibleCount !== 1 ? 's' : ''}`;
+        
+        // Show/hide no results message
+        if (visibleCount === 0 && flashcardsContainer) {
+            const existingMessage = flashcardsContainer.parentElement.querySelector('.no-results-message');
+            if (!existingMessage) {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results-message bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-8 text-center mt-4';
+                noResultsDiv.innerHTML = `
+                    <i data-lucide="search" class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">No flashcards found</h3>
+                    <p class="text-slate-600 dark:text-slate-400 mb-4">Try adjusting your search or filters</p>
+                    <button onclick="document.getElementById('flashcardResetFilters').click()" class="btn btn-ghost btn-sm">
+                        <i data-lucide="x" class="w-4 h-4 mr-1"></i>
+                        Clear Filters
+                    </button>
+                `;
+                flashcardsContainer.parentElement.appendChild(noResultsDiv);
+                lucide.createIcons();
+            }
+            flashcardsContainer.style.display = 'none';
+        } else {
+            const existingMessage = flashcardsContainer.parentElement.querySelector('.no-results-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            flashcardsContainer.style.display = 'grid';
+        }
+    }
+    
+    function sortFlashcards(cards) {
+        cards.sort((a, b) => {
+            switch(currentState.sort) {
+                case 'title':
+                    return a.title.localeCompare(b.title);
+                case 'difficulty':
+                    return a.difficulty - b.difficulty;
+                case 'default':
+                default:
+                    return a.index - b.index;
+            }
+        });
+        
+        // Reorder cards in DOM
+        cards.forEach(card => {
+            flashcardsContainer.appendChild(card.element);
+        });
+    }
+    
+    function resetFilters() {
+        flashcardSearch.value = '';
+        statusFilter.value = 'all';
+        difficultyFilter.value = 'all';
+        
+        sortButtons.forEach(btn => btn.classList.remove('active'));
+        const defaultSort = document.querySelector('.flashcard-sort-button[data-sort="default"]');
+        if (defaultSort) defaultSort.classList.add('active');
+        
+        currentState = {
+            search: '',
+            status: 'all',
+            difficulty: 'all',
+            sort: 'default'
+        };
+        
+        filterFlashcards();
+    }
+    
+    // Event listeners
+    flashcardSearch.addEventListener('input', function() {
+        currentState.search = this.value.trim().toLowerCase();
+        filterFlashcards();
+    });
+    
+    statusFilter.addEventListener('change', function() {
+        currentState.status = this.value;
+        filterFlashcards();
+    });
+    
+    difficultyFilter.addEventListener('change', function() {
+        currentState.difficulty = this.value;
+        filterFlashcards();
+    });
+    
+    sortButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            sortButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            currentState.sort = this.getAttribute('data-sort');
+            filterFlashcards();
+        });
+    });
+    
+    resetButton.addEventListener('click', resetFilters);
+    
+    // Initialize
+    filterFlashcards();
+});
+</script>
+{% endblock %}

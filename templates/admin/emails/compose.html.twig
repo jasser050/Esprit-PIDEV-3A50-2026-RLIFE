@@ -1,0 +1,703 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Send Email{% endblock %}
+{% block page_title %}Send Email{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- TinyMCE CDN -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+{% endblock %}
+
+{% block body %}
+<!-- Page Header -->
+<div class="mb-8">
+    <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Compose Email</h1>
+        <p class="mt-2 text-slate-600 dark:text-slate-400">Send emails to users or admins</p>
+        <p class="mt-1 text-sm text-info-600 dark:text-info-400">
+            <i data-lucide="info" class="w-4 h-4 inline-block"></i>
+            Automatic emails: New users receive welcome emails | Banned users receive ban notifications
+        </p>
+    </div>
+</div>
+
+<!-- Warning Banner -->
+<div class="mb-6 p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-xl">
+    <div class="flex items-start gap-3">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-warning-600 dark:text-warning-400 flex-shrink-0 mt-0.5"></i>
+        <div>
+            <h3 class="font-semibold text-warning-900 dark:text-warning-200">Important Notice</h3>
+            <p class="mt-1 text-sm text-warning-700 dark:text-warning-300">
+                This will send an email to multiple users. Make sure your email configuration is correct and test the email before sending to all users.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Email Compose Form -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Email Details</h2>
+    </div>
+
+    <form method="POST" action="{{ path('app_admin_email_compose') }}" class="p-6">
+        <input type="hidden" name="_token" value="{{ csrf_token('send_email') }}">
+        
+        <!-- Recipient Type -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-3">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <i data-lucide="users" class="w-4 h-4 inline-block mr-1"></i>
+                    Recipients
+                </label>
+                <div id="recipientCount" class="text-sm font-semibold text-primary-600 dark:text-primary-400">
+                    <i data-lucide="user" class="w-4 h-4 inline-block mr-1"></i>
+                    <span id="countNumber">0</span> recipients will receive this email
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- All Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="all" class="peer sr-only recipient-radio" required onchange="updateRecipientCount('all')">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                <i data-lucide="users" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">All Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Everyone</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Active Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="active" class="peer sr-only recipient-radio" onchange="updateRecipientCount('active')">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-success-500 peer-checked:bg-success-50 dark:peer-checked:bg-success-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                                <i data-lucide="user-check" class="w-5 h-5 text-success-600 dark:text-success-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Active Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Not banned</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Banned Users -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="banned" class="peer sr-only recipient-radio" onchange="updateRecipientCount('banned')">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-danger-500 peer-checked:bg-danger-50 dark:peer-checked:bg-danger-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                                <i data-lucide="user-x" class="w-5 h-5 text-danger-600 dark:text-danger-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Banned Users</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Restricted</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Admins -->
+                <label class="relative">
+                    <input type="radio" name="recipient_type" value="admins" class="peer sr-only recipient-radio" onchange="updateRecipientCount('admins')">
+                    <div class="p-4 border-2 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer transition-all peer-checked:border-secondary-500 peer-checked:bg-secondary-50 dark:peer-checked:bg-secondary-900/20 hover:border-slate-300 dark:hover:border-slate-600">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-secondary-600 dark:text-secondary-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900 dark:text-white">Admins</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Staff only</p>
+                            </div>
+                        </div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Email Template Selection -->
+        <div class="mb-6">
+            <label for="template" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <i data-lucide="file-text" class="w-4 h-4 inline-block mr-1"></i>
+                Email Template (Optional)
+            </label>
+            <select 
+                id="template" 
+                onchange="loadTemplate(this.value)"
+                class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                <option value="">-- Select a template --</option>
+                <option value="welcome">Welcome to RLIFE</option>
+                <option value="announcement">General Announcement</option>
+                <option value="maintenance">System Maintenance Notice</option>
+                <option value="warning">Account Warning</option>
+                <option value="update">Platform Update</option>
+                <option value="event">Event Notification</option>
+            </select>
+            <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Select a template to auto-fill subject and message. You can customize them after.
+            </p>
+        </div>
+
+        <!-- Subject -->
+        <div class="mb-6">
+            <label for="subject" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <i data-lucide="type" class="w-4 h-4 inline-block mr-1"></i>
+                Subject
+            </label>
+            <input 
+                type="text" 
+                id="subject" 
+                name="subject" 
+                required
+                placeholder="Enter email subject..."
+                class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+        </div>
+
+        <!-- Message -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <i data-lucide="message-square" class="w-4 h-4 inline-block mr-1"></i>
+                    Message
+                </label>
+                <button type="button" onclick="toggleEditor()" id="editorToggle" 
+                        class="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg transition-colors">
+                    <i data-lucide="type" class="w-3 h-3 inline-block mr-1"></i>
+                    Enable Rich Text Editor
+                </button>
+            </div>
+            <textarea 
+                id="message" 
+                name="message" 
+                rows="10" 
+                required
+                placeholder="Write your message here..."
+                class="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-y"></textarea>
+            <div class="mt-2 flex items-center justify-between">
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    <i data-lucide="info" class="w-3 h-3 inline-block mr-1"></i>
+                    The message will be formatted with RLIFE branding and sent as HTML email. Use the rich text editor for advanced formatting.
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400" id="charCount">
+                    0 characters
+                </p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+            <button 
+                type="submit" 
+                name="send_test" 
+                value="1"
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-xl transition-colors">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                Send Test Email (to yourself)
+            </button>
+            
+            <button 
+                type="button"
+                onclick="confirmSendEmail(event)"
+                class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Send to Recipients
+            </button>
+
+            <a href="{{ path('app_admin_dashboard') }}" 
+               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Email Preview Modal -->
+<div id="previewModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                <i data-lucide="eye" class="w-5 h-5 inline-block mr-2"></i>
+                Email Preview
+            </h3>
+            <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+            <div class="mb-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    <strong>Subject:</strong> <span id="previewSubject" class="text-slate-900 dark:text-white">-</span>
+                </p>
+            </div>
+            
+            <div id="previewContent" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+                <!-- Email preview will be rendered here -->
+            </div>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+            <button onclick="closePreviewModal()" 
+                    class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-slate-200 dark:border-slate-800">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                <i data-lucide="alert-triangle" class="w-5 h-5 inline-block mr-2 text-warning-500"></i>
+                Confirm Email Sending
+            </h3>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="p-6">
+            <p class="text-slate-600 dark:text-slate-400 mb-4">
+                You are about to send this email to <strong id="confirmCount" class="text-primary-600 dark:text-primary-400">0</strong> recipients.
+            </p>
+            <p class="text-sm text-slate-500 dark:text-slate-500">
+                This action cannot be undone. Are you sure you want to proceed?
+            </p>
+        </div>
+        
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
+            <button onclick="closeConfirmModal()" 
+                    class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors">
+                Cancel
+            </button>
+            <button onclick="submitEmailForm()" 
+                    class="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-xl transition-colors">
+                <i data-lucide="send" class="w-4 h-4 inline-block mr-2"></i>
+                Yes, Send Email
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Email Preview Section -->
+<div class="mt-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+        <i data-lucide="eye" class="w-5 h-5 inline-block mr-2"></i>
+        Email Preview
+    </h3>
+    <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+        <div class="text-center mb-6 pb-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">RLIFE</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Student Life Management Platform</p>
+        </div>
+        <p class="text-slate-700 dark:text-slate-300 mb-4">Hello <strong>[User Name]</strong>,</p>
+        <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border-l-4 border-primary-500">
+            <p class="text-slate-600 dark:text-slate-400 italic">[Your message will appear here]</p>
+        </div>
+        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 text-center text-sm text-slate-500 dark:text-slate-400">
+            <p>This is an automated message from RLIFE Administration.</p>
+            <p class="mt-1">&copy; {{ "now"|date("Y") }} RLIFE. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Rich Text Editor Toggle
+let editorEnabled = false;
+let tinyMCEInstance = null;
+
+// Toggle schedule options
+function toggleScheduleOptions() {
+    const checkbox = document.getElementById('scheduleEmail');
+    const options = document.getElementById('scheduleOptions');
+    
+    if (checkbox.checked) {
+        options.classList.remove('hidden');
+        // Set minimum datetime to now
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('scheduled_at').min = now.toISOString().slice(0, 16);
+    } else {
+        options.classList.add('hidden');
+        document.getElementById('scheduled_at').value = '';
+    }
+    
+    // Reinitialize Lucide icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+// Recipient count updater
+async function updateRecipientCount(type) {
+    const countElement = document.getElementById('countNumber');
+    const recipientCountDiv = document.getElementById('recipientCount');
+    
+    try {
+        countElement.textContent = '...';
+        recipientCountDiv.classList.add('animate-pulse');
+        
+        const response = await fetch(`{{ path('app_admin_email_recipient_count') }}?type=${type}`);
+        const data = await response.json();
+        
+        countElement.textContent = data.count;
+        recipientCountDiv.classList.remove('animate-pulse');
+        
+        // Add animation
+        countElement.classList.add('scale-110');
+        setTimeout(() => {
+            countElement.classList.remove('scale-110');
+        }, 200);
+    } catch (error) {
+        console.error('Error fetching recipient count:', error);
+        countElement.textContent = '?';
+        recipientCountDiv.classList.remove('animate-pulse');
+    }
+}
+
+// Character counter
+document.addEventListener('DOMContentLoaded', function() {
+    const messageField = document.getElementById('message');
+    const charCount = document.getElementById('charCount');
+    
+    function updateCharCount() {
+        const text = editorEnabled && tinyMCEInstance ? tinyMCEInstance.getContent({format: 'text'}) : messageField.value;
+        const chars = text.length;
+        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+        charCount.textContent = `${chars} characters, ${words} words`;
+    }
+    
+    messageField.addEventListener('input', updateCharCount);
+    
+    // Update count every second if editor is enabled
+    setInterval(() => {
+        if (editorEnabled && tinyMCEInstance) {
+            updateCharCount();
+        }
+    }, 1000);
+});
+
+function toggleEditor() {
+    const toggleBtn = document.getElementById('editorToggle');
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    if (!editorEnabled) {
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: '#message',
+            height: 400,
+            menubar: false,
+            skin: isDark ? 'oxide-dark' : 'oxide',
+            content_css: isDark ? 'dark' : 'default',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | ' +
+                'bold italic forecolor backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | link image | code | help',
+            content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.6; }',
+            setup: function(editor) {
+                tinyMCEInstance = editor;
+            }
+        });
+        
+        toggleBtn.innerHTML = '<i data-lucide="x" class="w-3 h-3 inline-block mr-1"></i> Disable Rich Text Editor';
+        editorEnabled = true;
+    } else {
+        // Remove TinyMCE
+        if (tinyMCEInstance) {
+            tinyMCEInstance.remove();
+            tinyMCEInstance = null;
+        }
+        
+        toggleBtn.innerHTML = '<i data-lucide="type" class="w-3 h-3 inline-block mr-1"></i> Enable Rich Text Editor';
+        editorEnabled = false;
+    }
+    
+    // Reinitialize Lucide icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+// Email templates
+const emailTemplates = {
+    welcome: {
+        subject: "Welcome to RLIFE - Your Student Life Management Platform",
+        message: `Dear Student,
+
+Welcome to RLIFE! We're excited to have you join our platform.
+
+RLIFE is designed to help you manage your academic life more effectively. With our tools, you can:
+- Organize your study schedule and planning
+- Create and manage your projects and assignments
+- Use flashcards and decks for effective studying
+- Track your progress and evaluations
+
+To get started, simply log in to your account and explore the features available to you.
+
+If you have any questions or need assistance, don't hesitate to reach out to our support team.
+
+Best regards,
+The RLIFE Team`
+    },
+    announcement: {
+        subject: "Important Announcement from RLIFE",
+        message: `Dear RLIFE Users,
+
+We have an important announcement to share with you.
+
+[Please write your announcement here]
+
+Thank you for your attention.
+
+Best regards,
+The RLIFE Team`
+    },
+    maintenance: {
+        subject: "Scheduled Maintenance - RLIFE Platform",
+        message: `Dear RLIFE Users,
+
+We will be performing scheduled maintenance on the RLIFE platform.
+
+Date: [Date]
+Time: [Time]
+Duration: [Estimated duration]
+
+During this time, the platform may be temporarily unavailable. We apologize for any inconvenience this may cause.
+
+We're working to improve your experience and will have the platform back online as soon as possible.
+
+Thank you for your patience and understanding.
+
+Best regards,
+The RLIFE Team`
+    },
+    warning: {
+        subject: "Important: Account Activity Notice",
+        message: `Dear User,
+
+We're writing to inform you about some activity on your RLIFE account that requires your attention.
+
+[Describe the issue]
+
+Please review our Terms of Service and Community Guidelines to ensure your account remains in good standing.
+
+If you have any questions or believe this is an error, please contact our support team immediately.
+
+Best regards,
+The RLIFE Administration Team`
+    },
+    update: {
+        subject: "New Features and Updates on RLIFE",
+        message: `Dear RLIFE Users,
+
+We're excited to announce new features and updates to the RLIFE platform!
+
+What's New:
+- [Feature 1]
+- [Feature 2]
+- [Feature 3]
+
+Improvements:
+- [Improvement 1]
+- [Improvement 2]
+
+We're constantly working to enhance your experience. Visit the platform to explore these new features.
+
+Thank you for being part of the RLIFE community!
+
+Best regards,
+The RLIFE Team`
+    },
+    event: {
+        subject: "Event Notification - RLIFE",
+        message: `Dear RLIFE Users,
+
+We'd like to inform you about an upcoming event:
+
+Event: [Event Name]
+Date: [Date]
+Time: [Time]
+Location: [Location/Platform]
+
+[Event description and details]
+
+We hope to see you there!
+
+Best regards,
+The RLIFE Team`
+    }
+};
+
+// Preview Modal Functions
+function showPreviewModal() {
+    const subject = document.getElementById('subject').value || '[No Subject]';
+    const message = editorEnabled && tinyMCEInstance ? tinyMCEInstance.getContent() : document.getElementById('message').value;
+    
+    if (!message) {
+        alert('Please write a message first.');
+        return;
+    }
+    
+    // Update preview
+    document.getElementById('previewSubject').textContent = subject;
+    
+    // Format message with RLIFE branding
+    const previewHtml = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 28px;">RLIFE</h1>
+                <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">Student Life Management Platform</p>
+            </div>
+            <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+                <p style="margin-bottom: 20px;">Hello <strong>[User Name]</strong>,</p>
+                <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+                    ${message.replace(/\n/g, '<br>')}
+                </div>
+                <div style="text-align: center; margin-top: 30px; color: #6b7280; font-size: 14px;">
+                    <p style="margin: 5px 0;">This is an automated message from RLIFE Administration.</p>
+                    <p style="margin: 5px 0;">&copy; ${new Date().getFullYear()} RLIFE. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('previewContent').innerHTML = previewHtml;
+    document.getElementById('previewModal').classList.remove('hidden');
+    
+    // Initialize Lucide icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function closePreviewModal() {
+    document.getElementById('previewModal').classList.add('hidden');
+}
+
+// Confirmation Modal Functions
+function confirmSendEmail(event) {
+    event.preventDefault();
+    
+    const recipientType = document.querySelector('input[name="recipient_type"]:checked');
+    const subject = document.getElementById('subject').value;
+    const message = editorEnabled && tinyMCEInstance ? tinyMCEInstance.getContent({format: 'text'}) : document.getElementById('message').value;
+    
+    if (!recipientType) {
+        alert('Please select a recipient type.');
+        return;
+    }
+    
+    if (!subject || !message) {
+        alert('Please fill in both subject and message.');
+        return;
+    }
+    
+    const count = document.getElementById('countNumber').textContent;
+    document.getElementById('confirmCount').textContent = count;
+    document.getElementById('confirmModal').classList.remove('hidden');
+    
+    // Initialize Lucide icons
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+}
+
+function submitEmailForm() {
+    // If editor is enabled, sync content to textarea
+    if (editorEnabled && tinyMCEInstance) {
+        document.getElementById('message').value = tinyMCEInstance.getContent();
+    }
+    
+    document.querySelector('form').submit();
+}
+
+// Close modals on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closePreviewModal();
+        closeConfirmModal();
+    }
+});
+
+function loadTemplate(templateName) {
+    if (!templateName) return;
+    
+    const template = emailTemplates[templateName];
+    if (template) {
+        document.getElementById('subject').value = template.subject;
+        
+        // Set content in both regular textarea and TinyMCE if active
+        if (editorEnabled && tinyMCEInstance) {
+            tinyMCEInstance.setContent(template.message.replace(/\n/g, '<br>'));
+        } else {
+            document.getElementById('message').value = template.message;
+        }
+        
+        // Show a notification
+        const flash = document.createElement('div');
+        flash.className = 'fixed top-4 right-4 bg-success-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 animate-fade-in';
+        flash.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4 inline-block mr-2"></i>Template loaded! You can now customize it.';
+        document.body.appendChild(flash);
+        
+        // Initialize Lucide icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            flash.remove();
+        }, 3000);
+    }
+}
+</script>
+
+<style>
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+#countNumber {
+    display: inline-block;
+    transition: transform 0.2s ease-out;
+}
+
+#countNumber.scale-110 {
+    transform: scale(1.1);
+}
+</style>
+{% endblock %}

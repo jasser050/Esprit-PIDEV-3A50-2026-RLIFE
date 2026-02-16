@@ -78,13 +78,28 @@ class IQTestController extends AbstractController
         }
     }
 
-    #[Route('/submit', name: 'submit', methods: ['POST'])]
+    #[Route('/submit', name: 'submit', methods: ['GET', 'POST'])]
     public function submit(Request $request, IQTestService $iqTestService, SessionInterface $session): Response
     {
         $this->logger->info('IQ Test: Submit called', [
             'session_id' => $session->getId(),
-            'method' => $request->getMethod()
+            'method' => $request->getMethod(),
+            'has_post_data' => !empty($request->request->all())
         ]);
+        
+        // Redirect GET requests to test start
+        if ($request->getMethod() === 'GET') {
+            $this->addFlash('info', 'Please complete the test before viewing results.');
+            return $this->redirectToRoute('iq_test_start');
+        }
+        
+        // Validate CSRF token
+        $submittedToken = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('iq_test_submit', $submittedToken)) {
+            $this->logger->warning('IQ Test: Invalid CSRF token');
+            $this->addFlash('error', 'Invalid security token. Please try again.');
+            return $this->redirectToRoute('iq_test_index');
+        }
         
         // Get questions and start time from session
         $questions = $session->get('iq_test_questions');

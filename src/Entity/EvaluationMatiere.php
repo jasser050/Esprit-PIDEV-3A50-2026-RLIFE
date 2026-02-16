@@ -136,12 +136,12 @@ public function getIdEval(): ?int
     {
         return $this->dateEvaluation;
     }
+public function setDateEvaluation(?\DateTimeInterface $dateEvaluation): self
+{
+    $this->dateEvaluation = $dateEvaluation;
+    return $this;
+}
 
-    public function setDateEvaluation(\DateTimeInterface $dateEvaluation): self
-    {
-        $this->dateEvaluation = $dateEvaluation;
-        return $this;
-    }
 
     public function getDureeEvaluation(): ?int
     {

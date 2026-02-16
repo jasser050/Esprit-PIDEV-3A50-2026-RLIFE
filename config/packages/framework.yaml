@@ -1,30 +1,15 @@
+# see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
-    
-    # Configuration des sessions (nécessaire pour CSRF)
-    session:
-        handler_id: null
-        cookie_secure: auto
-        cookie_samesite: lax
-        storage_factory_id: session.storage.factory.native
-    
-    # Property Info
-    property_info:
-        enabled: true
-    
-    # Configuration HTTP
-    http_method_override: true
-    
-    # Gestion des formulaires
-    form: true
-    
-    # Validation
-    validation:
-        email_validation_mode: html5
-    
-    # Assets
-    assets: true
-    
-    # PHP Errors
-    php_errors:
-        log: true
+
+    # Note that the session will be started ONLY if you read or write from it.
+    session: true
+
+    #esi: true
+    #fragments: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file

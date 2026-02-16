@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Projets</title>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #3b82f6;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #3b82f6;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        .header .info {
+            color: #666;
+            font-size: 11px;
+        }
+        .stats {
+            display: table;
+            width: 100%;
+            margin-bottom: 25px;
+            border-collapse: collapse;
+        }
+        .stat-item {
+            display: table-cell;
+            width: 25%;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+        }
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3b82f6;
+            display: block;
+        }
+        .stat-item .label {
+            color: #666;
+            font-size: 11px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #3b82f6;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 11px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 10px;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-primary { background-color: #3b82f6; }
+        .badge-success { background-color: #10b981; }
+        .badge-warning { background-color: #f59e0b; }
+        .badge-danger { background-color: #ef4444; }
+        .badge-secondary { background-color: #6b7280; }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+        .description {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Liste des Projets</h1>
+        <div class="info">
+            <strong>Généré pour :</strong> {{ user.email }}<br>
+            <strong>Date :</strong> {{ generatedAt|date('d/m/Y à H:i') }}
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <span class="number">{{ projects|length }}</span>
+            <span class="label">Total Projets</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #3b82f6;">
+                {{ projects|filter(p => p.statut == 'En cours')|length }}
+            </span>
+            <span class="label">En Cours</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #10b981;">
+                {{ projects|filter(p => p.statut == 'Terminé')|length }}
+            </span>
+            <span class="label">Terminés</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #f59e0b;">
+                {{ projects|filter(p => p.statut == 'En attente')|length }}
+            </span>
+            <span class="label">En Attente</span>
+        </div>
+    </div>
+
+    {% if projects|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 30%;">Titre</th>
+                    <th style="width: 20%;">Description</th>
+                    <th style="width: 12%;">Date Début</th>
+                    <th style="width: 12%;">Date Fin</th>
+                    <th style="width: 11%;">Statut</th>
+                    <th style="width: 10%;">Durée</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><strong>{{ project.titre }}</strong></td>
+                        <td class="description">
+                            {{ project.description|length > 80 ? project.description|slice(0, 80) ~ '...' : project.description }}
+                        </td>
+                        <td>{{ project.dateDebut|date('d/m/Y') }}</td>
+                        <td>{{ project.dateFin|date('d/m/Y') }}</td>
+                        <td>
+                            {% if project.statut == 'En cours' %}
+                                <span class="badge badge-primary">{{ project.statut }}</span>
+                            {% elseif project.statut == 'Terminé' %}
+                                <span class="badge badge-success">{{ project.statut }}</span>
+                            {% elseif project.statut == 'En attente' %}
+                                <span class="badge badge-warning">{{ project.statut }}</span>
+                            {% elseif project.statut == 'Annulé' %}
+                                <span class="badge badge-danger">{{ project.statut }}</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ project.statut }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% set duration = ((project.dateFin|date('U') - project.dateDebut|date('U')) / 86400)|round(0, 'floor') %}
+                            {{ duration }} jours
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 40px 0;">
+            Aucun projet à afficher
+        </p>
+    {% endif %}
+
+    <div class="footer">
+        Document généré automatiquement par le système de gestion de projets<br>
+        © {{ 'now'|date('Y') }} - Tous droits réservés
+    </div>
+</body>
+</html>

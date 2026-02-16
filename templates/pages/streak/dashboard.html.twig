@@ -1,0 +1,329 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}🔥 My Streaks{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">🔥 My Streaks</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track your progress and personal records</p>
+        </div>
+        <a href="{{ path('app_courses') }}" class="btn btn-secondary inline-flex items-center gap-2">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Back to Courses
+        </a>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                <i data-lucide="award" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ allBadges|length }}</div>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">🏅 Total Badges</p>
+            </div>
+        </div>
+        
+        <div class="card p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                <i data-lucide="trophy" class="w-6 h-6 text-success-600 dark:text-success-400"></i>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ globalStats.high_score.longest }}</div>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">🏆 Best Record</p>
+            </div>
+        </div>
+        
+        <div class="card p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+                <i data-lucide="flame" class="w-6 h-6 text-warning-600 dark:text-warning-400"></i>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ globalStats.high_score.current }}</div>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">🔥 Current Streak</p>
+            </div>
+        </div>
+        
+        <div class="card p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-900/30 flex items-center justify-center">
+                <i data-lucide="book-open" class="w-6 h-6 text-info-600 dark:text-info-400"></i>
+            </div>
+            <div>
+                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ streaksByMatiere|length }}</div>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">📚 Subjects</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Global Streaks -->
+    <div>
+        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">🌍 Global Streaks</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            
+            <!-- High Score Streak -->
+            <div class="card overflow-hidden bg-gradient-to-br from-orange-500 to-red-600 text-white">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl animate-bounce">{{ globalStats.high_score.status.emoji }}</div>
+                        <div>
+                            <h4 class="text-xl font-bold">High Scores (≥75%)</h4>
+                            <p class="text-white/90 text-sm">{{ globalStats.high_score.status.message }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-8 mb-4">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.high_score.current }}</div>
+                            <div class="text-sm text-white/80 mt-1">Current</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.high_score.longest }}</div>
+                            <div class="text-sm text-white/80 mt-1">Record</div>
+                        </div>
+                    </div>
+                    {% if globalStats.high_score.badges|length > 0 %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for badge in globalStats.high_score.badges %}
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
+                            {{ badge }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Perfect Score Streak -->
+            <div class="card overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl animate-bounce">{{ globalStats.perfect_score.status.emoji }}</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Perfect Scores (≥90%)</h4>
+                            <p class="text-white/90 text-sm">{{ globalStats.perfect_score.status.message }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-8 mb-4">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.perfect_score.current }}</div>
+                            <div class="text-sm text-white/80 mt-1">Current</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.perfect_score.longest }}</div>
+                            <div class="text-sm text-white/80 mt-1">Record</div>
+                        </div>
+                    </div>
+                    {% if globalStats.perfect_score.badges|length > 0 %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for badge in globalStats.perfect_score.badges %}
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
+                            {{ badge }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Progression Streak -->
+            <div class="card overflow-hidden bg-gradient-to-br from-green-500 to-teal-600 text-white">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl animate-bounce">{{ globalStats.progression.status.emoji }}</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Continuous Progress</h4>
+                            <p class="text-white/90 text-sm">{{ globalStats.progression.status.message }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-8 mb-4">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.progression.current }}</div>
+                            <div class="text-sm text-white/80 mt-1">Current</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.progression.longest }}</div>
+                            <div class="text-sm text-white/80 mt-1">Record</div>
+                        </div>
+                    </div>
+                    {% if globalStats.progression.badges|length > 0 %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for badge in globalStats.progression.badges %}
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
+                            {{ badge }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Urgent Priority Streak -->
+            <div class="card overflow-hidden bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-6xl animate-bounce">{{ globalStats.urgent_priority.status.emoji }}</div>
+                        <div>
+                            <h4 class="text-xl font-bold">Urgent Priorities</h4>
+                            <p class="text-white/90 text-sm">{{ globalStats.urgent_priority.status.message }}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-8 mb-4">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.urgent_priority.current }}</div>
+                            <div class="text-sm text-white/80 mt-1">Current</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-5xl font-bold">{{ globalStats.urgent_priority.longest }}</div>
+                            <div class="text-sm text-white/80 mt-1">Record</div>
+                        </div>
+                    </div>
+                    {% if globalStats.urgent_priority.badges|length > 0 %}
+                    <div class="flex flex-wrap gap-2">
+                        {% for badge in globalStats.urgent_priority.badges %}
+                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
+                            {{ badge }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Streaks by Subject -->
+    {% if streaksByMatiere|length > 0 %}
+    <div>
+        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">📚 Streaks by Subject</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {% for id, data in streaksByMatiere %}
+            <div class="card card-hover p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h5 class="font-bold text-lg text-secondary-900 dark:text-white">{{ data.matiere.nomMatiere }}</h5>
+                    <span class="badge badge-primary">{{ data.matiere.code }}</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <!-- High Score -->
+                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">High Scores:</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">
+                            {{ data.high_score.status.emoji }} {{ data.high_score.current }}
+                            <span class="text-xs text-secondary-500">(Record: {{ data.high_score.longest }})</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Perfect Score -->
+                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Perfect Scores:</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">
+                            {{ data.perfect_score.status.emoji }} {{ data.perfect_score.current }}
+                            <span class="text-xs text-secondary-500">(Record: {{ data.perfect_score.longest }})</span>
+                        </span>
+                    </div>
+                    
+                    <!-- Progression -->
+                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Progress:</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">
+                            {{ data.progression.status.emoji }} {{ data.progression.current }}
+                            <span class="text-xs text-secondary-500">(Record: {{ data.progression.longest }})</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Subject Badges -->
+                {% set matiereBadges = [] %}
+                {% for badge in data.high_score.badges %}
+                    {% set matiereBadges = matiereBadges|merge([badge]) %}
+                {% endfor %}
+                {% for badge in data.perfect_score.badges %}
+                    {% set matiereBadges = matiereBadges|merge([badge]) %}
+                {% endfor %}
+                {% for badge in data.progression.badges %}
+                    {% set matiereBadges = matiereBadges|merge([badge]) %}
+                {% endfor %}
+                
+                {% if matiereBadges|length > 0 %}
+                <div class="mt-4 pt-4 border-t border-secondary-200 dark:border-secondary-700">
+                    <div class="flex flex-wrap gap-2">
+                        {% for badge in matiereBadges %}
+                        <span class="badge badge-warning text-xs">{{ badge }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- All Badges -->
+    {% if allBadges|length > 0 %}
+    <div>
+        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">🏆 Badge Collection</h3>
+        <div class="card p-6">
+            <div class="flex flex-wrap gap-3">
+                {% for badge in allBadges %}
+                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                    <span>{{ badge.name }}</span>
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-xs font-bold">
+                        {{ badge.streak }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card p-8 text-center">
+        <i data-lucide="award" class="w-16 h-16 mx-auto mb-4 text-secondary-400"></i>
+        <h4 class="text-lg font-semibold text-secondary-900 dark:text-white mb-2">No badges yet</h4>
+        <p class="text-secondary-500 dark:text-secondary-400 mb-4">Keep getting good grades to unlock your first badges!</p>
+        <a href="{{ path('app_courses') }}" class="btn btn-primary inline-flex items-center gap-2">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Add Evaluation
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Motivation Message -->
+    <div class="card p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white">
+        <div class="flex items-center gap-4">
+            <div class="text-5xl">💪</div>
+            <div>
+                <h4 class="text-xl font-bold mb-1">Keep it up!</h4>
+                <p class="text-white/90">
+                    {% if globalStats.high_score.current >= 5 %}
+                        You're on fire! Keep this pace to unlock even more badges.
+                    {% elseif globalStats.high_score.current >= 3 %}
+                        Great work! A few more good grades to reach the next level.
+                    {% elseif globalStats.high_score.current >= 1 %}
+                        Good start! Keep getting good grades to build your streak.
+                    {% else %}
+                        Start your streak now with a grade > 75%!
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+    // Initialize Lucide Icons
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}

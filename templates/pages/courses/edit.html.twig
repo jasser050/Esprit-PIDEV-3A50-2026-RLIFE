@@ -3,261 +3,282 @@
 {% block title %}Edit Evaluation{% endblock %}
 
 {% block body %}
-<div class="container mx-auto p-6">
-    <div class="max-w-3xl mx-auto">
-
-        <h1 class="text-3xl font-bold mb-6 text-primary">
-            Edit Evaluation
-        </h1>
-
-        <div class="mb-8">
-            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
-                ← Back to Evaluations
-            </a>
-        </div>
-
-        {# Flash messages #}
-        {% for message in app.flashes('success') %}
-            <div class="alert alert-success mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-
-        {% for message in app.flashes('error') %}
-<div class="alert alert-error mb-4">
-    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span>{{ message }}</span>
+<!-- Animated Background -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <!-- Gradient Orbs -->
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particles-container">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    
+    <!-- Grid Pattern -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
 </div>
-{% endfor %}
 
-
-        {% for message in app.flashes('error') %}
-            <div class="alert alert-error mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-
-        {% for message in app.flashes('info') %}
-            <div class="alert alert-info mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-
-        {{ form_start(form, {'attr': {'id': 'evaluation-form', 'novalidate': 'novalidate'}}) }}
-
-        {# Global form errors #}
-        {% if not form.vars.valid %}
-            <div class="alert alert-error mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                    <h3 class="font-bold">Form validation errors</h3>
-                    <div class="text-sm">Please correct the errors highlighted below before submitting.</div>
+<div class="max-w-6xl mx-auto px-6 py-8 relative z-10">
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="mb-6 p-4 rounded-lg border animate-slide-down {% if label == 'success' %}bg-green-900/20 border-green-700/50 text-green-300{% elseif label == 'error' %}bg-red-900/20 border-red-700/50 text-red-300{% else %}bg-blue-900/20 border-blue-700/50 text-blue-300{% endif %}">
+                <div class="flex items-center gap-3">
+                    {% if label == 'success' %}
+                        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% elseif label == 'error' %}
+                        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% else %}
+                        <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
+                    {% endif %}
+                    <span class="font-medium">{{ message }}</span>
                 </div>
             </div>
-        {% endif %}
+        {% endfor %}
+    {% endfor %}
 
-        {# Subject - readonly (cannot be changed in edit mode) #}
-        <div class="form-control w-full mb-6">
-            <label class="label">
-                <span class="label-text font-semibold text-base">
-                    Subject
-                </span>
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ path('app_courses') }}"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all hover:scale-105">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            Retour
+        </a>
+
+        <h1 class="mt-6 text-3xl font-bold text-white animate-fade-in flex items-center gap-3">
+            <i data-lucide="edit-3" class="w-8 h-8"></i>
+            Modifier l'évaluation
+        </h1>
+        <p class="text-slate-400 mt-1 animate-fade-in animation-delay-100">
+            {% for evalMat in evaluation.evalMats %}
+                {{ evalMat.matiere.nomMatiere }}
+            {% else %}
+                Aucune matière
+            {% endfor %}
+        </p>
+    </div>
+
+    <!-- Form Card with Glass Effect -->
+    <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 shadow-2xl shadow-black/20 animate-slide-up">
+        {{ form_start(form, {'attr': {'class': 'space-y-8', 'novalidate': 'novalidate'}}) }}
+
+        <!-- Matière (Read-only) -->
+        <div class="form-group animate-fade-in animation-delay-200">
+            <label class="block text-sm font-medium text-slate-300 mb-2">
+                <i data-lucide="book-open" class="w-4 h-4 inline-block mr-1"></i>
+                Matière
             </label>
-            <input type="text" 
-                class="input input-bordered w-full bg-gray-100 cursor-not-allowed" 
-                readonly
-                style="background-color: #f3f4f6 !important; color: #6b7280 !important;"
-                value="{% for evalMat in evaluation.evalMats %}{{ evalMat.matiere.nomMatiere }} ({{ evalMat.matiere.code }}) - Section {{ evalMat.matiere.sectionMatiere }}{% else %}No subject{% endfor %}">
-            <label class="label">
-                <span class="label-text-alt text-gray-500">
-                    Subject cannot be changed
-                </span>
-            </label>
+            <div class="w-full px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-slate-400 flex items-center gap-2">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                {% for evalMat in evaluation.evalMats %}
+                    {{ evalMat.matiere.nomMatiere }}
+                {% else %}
+                    Aucune matière
+                {% endfor %}
+            </div>
         </div>
 
-        {# Scores #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-semibold text-base">
-                        Score obtained <span class="text-error">*</span>
-                    </span>
-                </label>
-                {{ form_widget(form.scoreEval, {
-                    'attr': {
-                        'class': 'input input-bordered w-full' ~ (form.scoreEval.vars.errors|length > 0 ? ' input-error' : ''),
-                        'style': 'background-color: white; color: black;'
-                    }
+        <!-- Score & Note Maximale -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="form-group animate-fade-in animation-delay-300">
+                {{ form_label(form.scoreEval, 'Score obtenu *', {
+                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
                 }) }}
+                <div class="relative">
+                    <i data-lucide="award" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    {{ form_widget(form.scoreEval, {
+                        'attr': {
+                            'class': (form.scoreEval.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                            'placeholder': 'ex: 15',
+                            'id': 'evaluation_scoreEval'
+                        }
+                    }) }}
+                </div>
                 {% if form.scoreEval.vars.errors|length > 0 %}
-                    <label class="label">
-                        <span class="label-text-alt text-error flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ form_errors(form.scoreEval) }}
-                        </span>
-                    </label>
-                {% endif %}
-                <label class="label">
-                    <span class="label-text-alt text-gray-500">
-                        Must be zero or positive. Example: 0, 10, 50
-                    </span>
-                </label>
-            </div>
-
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-semibold text-base">
-                        Maximum score <span class="text-error">*</span>
-                    </span>
-                </label>
-                {{ form_widget(form.noteMaximaleEval, {
-                    'attr': {
-                        'class': 'input input-bordered w-full' ~ (form.noteMaximaleEval.vars.errors|length > 0 ? ' input-error' : ''),
-                        'style': 'background-color: white; color: black;'
-                    }
-                }) }}
-                {% if form.noteMaximaleEval.vars.errors|length > 0 %}
-                    <label class="label">
-                        <span class="label-text-alt text-error flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ form_errors(form.noteMaximaleEval) }}
-                        </span>
-                    </label>
-                {% endif %}
-                <label class="label">
-                    <span class="label-text-alt text-gray-500">
-                        Must be strictly positive. Example: 10, 20, 100
-                    </span>
-                </label>
-            </div>
-        </div>
-
-        {# Date and Duration #}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-semibold text-base">
-                        Evaluation date <span class="text-error">*</span>
-                    </span>
-                </label>
-                {{ form_widget(form.dateEvaluation, {
-                    'attr': {
-                        'class': 'input input-bordered w-full' ~ (form.dateEvaluation.vars.errors|length > 0 ? ' input-error' : ''),
-                        'style': 'background-color: white; color: black;'
-                    }
-                }) }}
-                {% if form.dateEvaluation.vars.errors|length > 0 %}
-                    <label class="label">
-                        <span class="label-text-alt text-error flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ form_errors(form.dateEvaluation) }}
-                        </span>
-                    </label>
-                {% endif %}
-                <label class="label">
-                    <span class="label-text-alt text-gray-500">
-                        When did the evaluation take place?
-                    </span>
-                </label>
-            </div>
-
-            <div class="form-control w-full">
-                <label class="label">
-                    <span class="label-text font-semibold text-base">
-                        Duration (minutes) <span class="text-error">*</span>
-                    </span>
-                </label>
-                {{ form_widget(form.dureeEvaluation, {
-                    'attr': {
-                        'class': 'input input-bordered w-full' ~ (form.dureeEvaluation.vars.errors|length > 0 ? ' input-error' : ''),
-                        'style': 'background-color: white; color: black;'
-                    }
-                }) }}
-                {% if form.dureeEvaluation.vars.errors|length > 0 %}
-                    <label class="label">
-                        <span class="label-text-alt text-error flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {{ form_errors(form.dureeEvaluation) }}
-                        </span>
-                    </label>
-                {% endif %}
-                <label class="label">
-                    <span class="label-text-alt text-gray-500">
-                        Duration in minutes (1-600)
-                    </span>
-                </label>
-            </div>
-        </div>
-
-        {# Priority #}
-        <div class="form-control w-full mb-8">
-            <label class="label">
-                <span class="label-text font-semibold text-base">
-                    Priority
-                </span>
-            </label>
-            {{ form_widget(form.prioriteE, {
-                'attr': {
-                    'class': 'select select-bordered w-full' ~ (form.prioriteE.vars.errors|length > 0 ? ' select-error' : ''),
-                    'style': 'background-color: white; color: black;'
-                }
-            }) }}
-            {% if form.prioriteE.vars.errors|length > 0 %}
-                <label class="label">
-                    <span class="label-text-alt text-error flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
                         </svg>
-                        {{ form_errors(form.prioriteE) }}
-                    </span>
-                </label>
-            {% endif %}
-            <label class="label">
-                <span class="label-text-alt text-gray-500">
-                    Optional - How important is this evaluation?
-                </span>
-            </label>
+                        {{ form_errors(form.scoreEval) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Doit être zéro ou positif</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group animate-fade-in animation-delay-400">
+                {{ form_label(form.noteMaximaleEval, 'Note maximale *', {
+                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
+                }) }}
+                <div class="relative">
+                    <i data-lucide="target" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    {{ form_widget(form.noteMaximaleEval, {
+                        'attr': {
+                            'class': (form.noteMaximaleEval.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                            'placeholder': 'ex: 20',
+                            'id': 'evaluation_noteMaximaleEval'
+                        }
+                    }) }}
+                </div>
+                {% if form.noteMaximaleEval.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.noteMaximaleEval) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Doit être strictement positif</span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
-        {# Buttons #}
-        <div class="flex justify-end gap-4">
-            <a href="{{ path('app_courses') }}" class="btn btn-ghost">
-                Cancel
-            </a>
-            <button type="submit" id="submit-btn" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Update Evaluation
+        <!-- Date & Durée -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="form-group animate-fade-in animation-delay-500">
+                {{ form_label(form.dateEvaluation, 'Date d\'évaluation *', {
+                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
+                }) }}
+                <div class="relative">
+                    <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    {{ form_widget(form.dateEvaluation, {
+                        'attr': {
+                            'class': (form.dateEvaluation.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
+                            'id': 'evaluation_dateEvaluation'
+                        }
+                    }) }}
+                </div>
+                {% if form.dateEvaluation.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.dateEvaluation) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Date de l'évaluation</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group animate-fade-in animation-delay-600">
+                {{ form_label(form.dureeEvaluation, 'Durée (minutes) *', {
+                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
+                }) }}
+                <div class="relative">
+                    <i data-lucide="clock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    {{ form_widget(form.dureeEvaluation, {
+                        'attr': {
+                            'class': (form.dureeEvaluation.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                            'placeholder': 'ex: 120',
+                            'id': 'evaluation_dureeEvaluation'
+                        }
+                    }) }}
+                </div>
+                {% if form.dureeEvaluation.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.dureeEvaluation) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Nombre entre 1 et 600 minutes</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Priorité -->
+        <div class="form-group animate-fade-in animation-delay-700">
+            {{ form_label(form.prioriteE, 'Priorité', {
+                'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
+            }) }}
+            <div class="relative">
+                <i data-lucide="flag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                {{ form_widget(form.prioriteE, {
+                    'attr': {
+                        'class': (form.prioriteE.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
+                        'id': 'evaluation_prioriteE'
+                    }
+                }) }}
+            </div>
+            {% if form.prioriteE.vars.errors|length > 0 %}
+                <div class="error-alert">
+                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    {{ form_errors(form.prioriteE) }}
+                </div>
+            {% else %}
+                <div class="info-hint">
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Sélectionner une priorité</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap gap-4 pt-6 border-t border-slate-700/50 animate-fade-in animation-delay-800">
+            <button type="submit" 
+                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Enregistrer
             </button>
+
+            <a href="{{ path('app_courses') }}"
+               class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+                <i data-lucide="x" class="w-4 h-4"></i>
+                Annuler
+            </a>
         </div>
 
         {{ form_end(form) }}
@@ -265,166 +286,552 @@
 </div>
 
 <style>
-/* Input and select with white background and black text */
-input.input,
-select.select,
-.input-bordered {
-    background-color: white !important;
-    color: black !important;
+/* Form Inputs Styling */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    color: #ffffff !important;
+    background-color: rgba(15, 23, 42, 0.5) !important;
 }
 
-/* Error styles */
-.input-error,
-.select-error {
-    border-color: #ef4444 !important; /* red */
-    background-color: #fef2f2 !important; /* light red */
-    color: #b91c1c !important; /* dark red text */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    background-color: rgba(15, 23, 42, 0.7) !important;
 }
 
-.input-error:focus,
-.select-error:focus {
-    border-color: #dc2626 !important;
-    outline: 2px solid rgba(239, 68, 68, 0.2);
-    outline-offset: 2px;
+/* Error Field Styling - Red border on error fields */
+.field-error {
+    border-color: #ef4444 !important;
+    background-color: rgba(254, 226, 226, 0.05) !important;
 }
 
-/* Label text alt for descriptions */
-.label-text-alt.text-gray-500 {
-    color: #6b7280; /* Tailwind gray-500 */
+.field-error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
-/* Animation for error messages */
-.label-text-alt.text-error {
-    animation: slideIn 0.3s ease-out;
+/* Valid Field Styling - Green border on valid fields */
+.field-valid {
+    border-color: #10b981 !important;
 }
 
-/* SVG icon spacing */
-.label-text-alt svg {
-    flex-shrink: 0;
+.field-valid:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
 }
 
-/* Alert styles */
-.alert {
-    padding: 1rem;
-    border-radius: 0.5rem;
+/* Error Alert Styling */
+.error-alert {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
 }
 
-.alert-success {
-    background-color: #d1fae5;
-    color: #065f46;
-    border: 1px solid #6ee7b7;
+.error-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    stroke: currentColor;
 }
 
-.alert-error {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
+.error-alert ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.alert-info {
-    background-color: #dbeafe;
-    color: #1e40af;
-    border: 1px solid #93c5fd;
+.error-alert li {
+    margin: 0;
 }
 
-@keyframes slideIn {
+/* Info Hint Styling */
+.info-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    stroke: currentColor;
+}
+
+/* Date input styling */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem !important;
+}
+
+select option {
+    background-color: #1e293b;
+    color: #ffffff;
+}
+
+::placeholder {
+    color: #64748b !important;
+    opacity: 1;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgba(15, 23, 42, 0.5) inset !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Animated Background - Blob Animation */
+@keyframes blob {
+    0%, 100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+/* Floating Particles */
+.particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 50%;
+    animation: float 15s infinite;
+}
+
+.particle:nth-child(1) {
+    width: 80px;
+    height: 80px;
+    left: 10%;
+    animation-delay: 0s;
+    animation-duration: 12s;
+}
+
+.particle:nth-child(2) {
+    width: 60px;
+    height: 60px;
+    left: 70%;
+    animation-delay: 2s;
+    animation-duration: 15s;
+    background: rgba(99, 102, 241, 0.3);
+}
+
+.particle:nth-child(3) {
+    width: 100px;
+    height: 100px;
+    left: 40%;
+    animation-delay: 4s;
+    animation-duration: 18s;
+}
+
+.particle:nth-child(4) {
+    width: 50px;
+    height: 50px;
+    left: 80%;
+    animation-delay: 6s;
+    animation-duration: 14s;
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.particle:nth-child(5) {
+    width: 70px;
+    height: 70px;
+    left: 25%;
+    animation-delay: 3s;
+    animation-duration: 16s;
+}
+
+.particle:nth-child(6) {
+    width: 90px;
+    height: 90px;
+    left: 55%;
+    animation-delay: 5s;
+    animation-duration: 13s;
+    background: rgba(168, 85, 247, 0.3);
+}
+
+.particle:nth-child(7) {
+    width: 65px;
+    height: 65px;
+    left: 15%;
+    animation-delay: 7s;
+    animation-duration: 17s;
+}
+
+.particle:nth-child(8) {
+    width: 75px;
+    height: 75px;
+    left: 90%;
+    animation-delay: 1s;
+    animation-duration: 19s;
+    background: rgba(79, 70, 229, 0.3);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Grid Pattern */
+.bg-grid-pattern {
+    background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+.animation-delay-100 { animation-delay: 0.1s; }
+.animation-delay-200 { animation-delay: 0.2s; }
+.animation-delay-300 { animation-delay: 0.3s; }
+.animation-delay-400 { animation-delay: 0.4s; }
+.animation-delay-500 { animation-delay: 0.5s; }
+.animation-delay-600 { animation-delay: 0.6s; }
+.animation-delay-700 { animation-delay: 0.7s; }
+.animation-delay-800 { animation-delay: 0.8s; }
+.animation-delay-900 { animation-delay: 0.9s; }
+
+/* Slide Up Animation */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out;
+}
+
+/* Slide Down Animation for Flash Messages */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-down {
+    animation: slideDown 0.5s ease-out;
+}
+
+/* Smooth transitions */
+input, select, textarea, button, a {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover effects for form groups */
+.form-group:hover label {
+    color: #a5b4fc;
+}
+
+/* Icon color adjustments */
+i[data-lucide] {
+    color: inherit;
+}
 </style>
 
 <script>
+// Initialize Lucide icons after page load
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('evaluation-form');
-    const submitBtn = document.getElementById('submit-btn');
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 
-    // Inputs to validate
-    const inputs = form.querySelectorAll('input[type="number"], input[type="datetime-local"]');
-
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            validateField(this);
-        });
-        input.addEventListener('input', function() {
-            this.classList.remove('input-error');
-            const errorContainer = this.parentNode.querySelector('.label-text-alt.text-error');
-            if (errorContainer && errorContainer.id && errorContainer.id.includes('-js-error')) {
-                errorContainer.parentElement.remove();
+    // Real-time validation rules
+    const validationRules = {
+        'evaluation_scoreEval': {
+            min: 0,
+            type: 'number',
+            errorMessages: {
+                min: 'Le score doit être zéro ou positif',
+                type: 'Le score doit être un nombre valide',
+                required: 'Le score est obligatoire'
             }
-        });
-    });
-
-    function validateField(field) {
-        const value = field.value.trim();
-        const fieldName = field.name;
-        let errorMessage = '';
-
-        if (fieldName.includes('scoreEval')) {
-            if (value === '') {
-                errorMessage = 'The obtained score is required';
-            } else if (parseFloat(value) < 0) {
-                errorMessage = 'The score must be zero or positive';
+        },
+        'evaluation_noteMaximaleEval': {
+            min: 0.01,
+            type: 'number',
+            errorMessages: {
+                min: 'La note maximale doit être strictement positive',
+                type: 'La note maximale doit être un nombre valide',
+                required: 'La note maximale est obligatoire'
             }
-        } else if (fieldName.includes('noteMaximaleEval')) {
-            if (value === '') {
-                errorMessage = 'The maximum score is required';
-            } else if (parseFloat(value) <= 0) {
-                errorMessage = 'The maximum score must be strictly positive';
+        },
+        'evaluation_dateEvaluation': {
+            errorMessages: {
+                required: 'La date d\'évaluation est obligatoire'
             }
-        } else if (fieldName.includes('dureeEvaluation')) {
-            if (value === '') {
-                errorMessage = 'The duration is required';
-            } else if (parseInt(value) <= 0) {
-                errorMessage = 'The duration must be positive';
-            } else if (parseInt(value) > 600) {
-                errorMessage = 'The duration cannot exceed 600 minutes';
+        },
+        'evaluation_dureeEvaluation': {
+            min: 1,
+            max: 600,
+            type: 'number',
+            errorMessages: {
+                min: 'La durée doit être au moins 1 minute',
+                max: 'La durée ne doit pas dépasser 600 minutes',
+                type: 'La durée doit être un nombre valide',
+                required: 'La durée est obligatoire'
             }
-        } else if (fieldName.includes('dateEvaluation')) {
-            if (value === '') {
-                errorMessage = 'The evaluation date is required';
+        },
+        'evaluation_prioriteE': {
+            errorMessages: {
+                required: 'La priorité est obligatoire'
             }
         }
+    };
 
-        if (errorMessage) {
-            field.classList.add('input-error');
+    // Function to validate a single field
+    function validateField(input) {
+        const fieldName = input.id;
+        const rules = validationRules[fieldName];
+        
+        if (!rules) return;
 
-            const errorId = fieldName.replace(/[\[\]]/g, '_') + '-js-error';
-            let existingError = document.getElementById(errorId);
+        const value = input.value.trim();
+        const parentGroup = input.closest('.form-group');
+        const existingError = parentGroup.querySelector('.error-alert');
+        const existingHint = parentGroup.querySelector('.info-hint');
+        let errorMessage = '';
 
-            if (!existingError) {
-                const errorLabel = document.createElement('label');
-                errorLabel.className = 'label';
-                errorLabel.innerHTML = `
-                    <span id="${errorId}" class="label-text-alt text-error flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        ${errorMessage}
-                    </span>
-                `;
+        // Remove existing error/hint
+        if (existingError) existingError.remove();
+        if (existingHint) existingHint.remove();
 
-                const existingHelpLabel = field.parentNode.querySelector('.label:last-of-type');
-                if (existingHelpLabel) {
-                    field.parentNode.insertBefore(errorLabel, existingHelpLabel);
-                } else {
-                    field.parentNode.appendChild(errorLabel);
+        // Required validation
+        if (input.hasAttribute('required') && !value) {
+            errorMessage = rules.errorMessages.required;
+        }
+
+        // Number validation
+        if (!errorMessage && rules.type === 'number' && value) {
+            const numValue = parseFloat(value);
+            
+            if (isNaN(numValue)) {
+                errorMessage = rules.errorMessages.type;
+            } else {
+                // Min validation
+                if (rules.min !== undefined && numValue < rules.min) {
+                    errorMessage = rules.errorMessages.min;
+                }
+                
+                // Max validation
+                if (rules.max !== undefined && numValue > rules.max) {
+                    errorMessage = rules.errorMessages.max;
                 }
             }
         }
+
+        // Date validation (basic check)
+        if (!errorMessage && input.type === 'date' && input.hasAttribute('required') && !value) {
+            errorMessage = rules.errorMessages.required;
+        }
+
+        // Show error or hint
+        if (errorMessage) {
+            input.classList.add('field-error');
+            input.classList.remove('field-valid');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-alert';
+            errorDiv.innerHTML = `
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>${errorMessage}</span>
+            `;
+            
+            // Insert after the input's parent div (which contains the icon)
+            const inputWrapper = input.parentElement;
+            inputWrapper.parentElement.appendChild(errorDiv);
+        } else if (value) {
+            input.classList.remove('field-error');
+            input.classList.add('field-valid');
+            
+            // Show hint if no error and field has value
+            const hintText = getHintText(fieldName);
+            if (hintText) {
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'info-hint';
+                hintDiv.innerHTML = `
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>${hintText}</span>
+                `;
+                
+                const inputWrapper = input.parentElement;
+                inputWrapper.parentElement.appendChild(hintDiv);
+            }
+        } else {
+            input.classList.remove('field-error');
+            input.classList.remove('field-valid');
+        }
     }
 
-    // PAS de validation au submit pour permettre la soumission du formulaire
-    // La validation Symfony côté serveur s'occupera des erreurs
+    // Get hint text for field
+    function getHintText(fieldName) {
+        const hints = {
+            'evaluation_scoreEval': 'Doit être zéro ou positif',
+            'evaluation_noteMaximaleEval': 'Doit être strictement positif',
+            'evaluation_dateEvaluation': 'Date de l\'évaluation',
+            'evaluation_dureeEvaluation': 'Nombre entre 1 et 600 minutes',
+            'evaluation_prioriteE': 'Sélectionner une priorité'
+        };
+        return hints[fieldName] || '';
+    }
+
+    // Add event listeners to all form fields
+    const formFields = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea');
+    
+    formFields.forEach(field => {
+        // Validate on input (real-time)
+        field.addEventListener('input', function() {
+            validateField(this);
+        });
+
+        // Validate on blur
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+
+        // Validate on change (for select and date)
+        field.addEventListener('change', function() {
+            validateField(this);
+        });
+    });
+
+    // Additional validation: Score cannot exceed Note Maximale
+    const scoreField = document.getElementById('evaluation_scoreEval');
+    const noteMaxField = document.getElementById('evaluation_noteMaximaleEval');
+    
+    if (scoreField && noteMaxField) {
+        function validateScoreAgainstMax() {
+            const score = parseFloat(scoreField.value);
+            const noteMax = parseFloat(noteMaxField.value);
+            
+            if (!isNaN(score) && !isNaN(noteMax) && score > noteMax) {
+                const parentGroup = scoreField.closest('.form-group');
+                const existingError = parentGroup.querySelector('.error-alert');
+                const existingHint = parentGroup.querySelector('.info-hint');
+                
+                if (existingError) existingError.remove();
+                if (existingHint) existingHint.remove();
+                
+                scoreField.classList.add('field-error');
+                scoreField.classList.remove('field-valid');
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-alert';
+                errorDiv.innerHTML = `
+                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>Le score ne peut pas dépasser la note maximale (${noteMax})</span>
+                `;
+                
+                scoreField.parentElement.parentElement.appendChild(errorDiv);
+            } else if (!isNaN(score)) {
+                validateField(scoreField);
+            }
+        }
+        
+        scoreField.addEventListener('input', validateScoreAgainstMax);
+        noteMaxField.addEventListener('input', validateScoreAgainstMax);
+        scoreField.addEventListener('blur', validateScoreAgainstMax);
+        noteMaxField.addEventListener('blur', validateScoreAgainstMax);
+    }
 });
 </script>
-
 {% endblock %}

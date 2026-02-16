@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des Tâches</title>
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: #4f46e5;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        .header .info {
+            color: #666;
+            font-size: 11px;
+        }
+        .stats {
+            display: table;
+            width: 100%;
+            margin-bottom: 25px;
+            border-collapse: collapse;
+        }
+        .stat-item {
+            display: table-cell;
+            width: 20%;
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #e5e7eb;
+        }
+        .stat-item .number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4f46e5;
+            display: block;
+        }
+        .stat-item .label {
+            color: #666;
+            font-size: 11px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #4f46e5;
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-size: 11px;
+        }
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 10px;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-primary { background-color: #4f46e5; }
+        .badge-success { background-color: #22c55e; }
+        .badge-warning { background-color: #f59e0b; }
+        .badge-danger { background-color: #ef4444; }
+        .badge-info { background-color: #3b82f6; }
+        .badge-secondary { background-color: #64748b; }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .priority-haute {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        .priority-moyenne {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .priority-basse {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 10px;
+        }
+        .description {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+        }
+        .project-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #f3f4f6;
+            border-radius: 3px;
+            font-size: 9px;
+            color: #4b5563;
+        }
+        .overdue {
+            color: #dc2626;
+            font-weight: bold;
+            font-size: 9px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📋 Liste des Tâches</h1>
+        <div class="info">
+            <strong>Généré pour :</strong> {{ user.email }}<br>
+            <strong>Date :</strong> {{ generatedAt|date('d/m/Y à H:i') }}
+        </div>
+    </div>
+
+    <div class="stats">
+        <div class="stat-item">
+            <span class="number">{{ assignments|length }}</span>
+            <span class="label">Total Tâches</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #f59e0b;">
+                {{ assignments|filter(a => a.statut == 'À faire')|length }}
+            </span>
+            <span class="label">À faire</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #4f46e5;">
+                {{ assignments|filter(a => a.statut == 'En cours')|length }}
+            </span>
+            <span class="label">En Cours</span>
+        </div>
+        <div class="stat-item">
+            <span class="number" style="color: #22c55e;">
+                {{ assignments|filter(a => a.statut == 'Terminé')|length }}
+            </span>
+            <span class="label">Terminées</span>
+        </div>
+        <div class="stat-item">
+            {% set now = date() %}
+            {% set overdue = 0 %}
+            {% for a in assignments %}
+                {% if a.dateFin < now and a.statut != 'Terminé' %}
+                    {% set overdue = overdue + 1 %}
+                {% endif %}
+            {% endfor %}
+            <span class="number" style="color: #ef4444;">{{ overdue }}</span>
+            <span class="label">En Retard</span>
+        </div>
+    </div>
+
+    {% if assignments|length > 0 %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 25%;">Tâche</th>
+                    <th style="width: 20%;">Description</th>
+                    <th style="width: 15%;">Projet</th>
+                    <th style="width: 10%;">Priorité</th>
+                    <th style="width: 10%;">Statut</th>
+                    <th style="width: 8%;">Début</th>
+                    <th style="width: 8%;">Échéance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set now = date() %}
+                {% for assignment in assignments %}
+                    {% set isOverdue = assignment.dateFin < now and assignment.statut != 'Terminé' %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            <strong>{{ assignment.titre }}</strong>
+                            {% if isOverdue %}
+                                <br><span class="overdue">⚠ EN RETARD</span>
+                            {% endif %}
+                        </td>
+                        <td class="description">
+                            {{ assignment.description|length > 80 ? assignment.description|slice(0, 80) ~ '...' : assignment.description }}
+                        </td>
+                        <td>
+                            <span class="project-tag">{{ assignment.project.titre }}</span>
+                        </td>
+                        <td>
+                            {% if assignment.priorite == 'Haute' %}
+                                <span class="priority-badge priority-haute">↑ {{ assignment.priorite }}</span>
+                            {% elseif assignment.priorite == 'Moyenne' %}
+                                <span class="priority-badge priority-moyenne">− {{ assignment.priorite }}</span>
+                            {% else %}
+                                <span class="priority-badge priority-basse">↓ {{ assignment.priorite }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if assignment.statut == 'En cours' %}
+                                <span class="badge badge-primary">{{ assignment.statut }}</span>
+                            {% elseif assignment.statut == 'Terminé' %}
+                                <span class="badge badge-success">{{ assignment.statut }}</span>
+                            {% elseif assignment.statut == 'À faire' %}
+                                <span class="badge badge-warning">{{ assignment.statut }}</span>
+                            {% else %}
+                                <span class="badge badge-danger">{{ assignment.statut }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ assignment.dateDebut|date('d/m/Y') }}</td>
+                        <td>
+                            {{ assignment.dateFin|date('d/m/Y') }}
+                            {% if isOverdue %}
+                                <br><span class="overdue">⚠</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {# Statistiques par priorité #}
+        <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #4f46e5;">📊 Répartition par Priorité</h3>
+            <div style="display: table; width: 100%;">
+                <div style="display: table-cell; width: 33.33%; text-align: center; padding: 10px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #ef4444;">
+                        {{ assignments|filter(a => a.priorite == 'Haute')|length }}
+                    </div>
+                    <div style="font-size: 10px; color: #666;">Haute</div>
+                </div>
+                <div style="display: table-cell; width: 33.33%; text-align: center; padding: 10px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #f59e0b;">
+                        {{ assignments|filter(a => a.priorite == 'Moyenne')|length }}
+                    </div>
+                    <div style="font-size: 10px; color: #666;">Moyenne</div>
+                </div>
+                <div style="display: table-cell; width: 33.33%; text-align: center; padding: 10px;">
+                    <div style="font-size: 20px; font-weight: bold; color: #3b82f6;">
+                        {{ assignments|filter(a => a.priorite == 'Basse')|length }}
+                    </div>
+                    <div style="font-size: 10px; color: #666;">Basse</div>
+                </div>
+            </div>
+        </div>
+
+        {# Légende #}
+        <div style="margin-top: 20px; padding: 10px; background: #fef3c7; border-left: 4px solid #f59e0b;">
+            <strong style="font-size: 11px;">💡 Légende :</strong>
+            <div style="margin-top: 5px; font-size: 10px;">
+                <span class="badge badge-warning" style="margin-right: 5px;">À faire</span>
+                Tâche non commencée
+                <span class="badge badge-primary" style="margin: 0 5px 0 10px;">En cours</span>
+                Tâche en progression
+                <span class="badge badge-success" style="margin: 0 5px 0 10px;">Terminé</span>
+                Tâche complétée
+                <span class="overdue" style="margin-left: 10px;">⚠ EN RETARD</span>
+                Échéance dépassée
+            </div>
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #666; padding: 40px 0;">
+            Aucune tâche à afficher
+        </p>
+    {% endif %}
+
+    <div class="footer">
+        Document généré automatiquement par le système de gestion de tâches<br>
+        © {{ 'now'|date('Y') }} - Tous droits réservés
+    </div>
+</body>
+</html>
