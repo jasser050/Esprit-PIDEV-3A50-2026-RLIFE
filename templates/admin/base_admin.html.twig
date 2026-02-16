@@ -262,13 +262,10 @@
 
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
-    {% endblock %}
-
-    <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', function() {
+        <script>
+            // Initialize Lucide icons
             lucide.createIcons();
-        });
-    </script>
+        </script>
+    {% endblock %}
 </body>
 </html>
