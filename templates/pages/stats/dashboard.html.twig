@@ -1,0 +1,329 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}📊 Advanced Statistics{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">📊 Advanced Statistics</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Detailed analysis of your performance</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ path('app_streak_dashboard') }}" class="btn btn-secondary">
+                🔥 Streaks
+            </a>
+            <a href="{{ path('app_courses') }}" class="btn btn-secondary">
+                ← Back to Courses
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-5">
+            <div class="text-3xl font-bold text-primary-600">{{ complete_stats.overall.total_evaluations }}</div>
+            <p class="text-sm text-secondary-500">Total Evaluations</p>
+        </div>
+        <div class="card p-5">
+            <div class="text-3xl font-bold text-success-600">{{ complete_stats.overall.average }}%</div>
+            <p class="text-sm text-secondary-500">Overall Average</p>
+        </div>
+        <div class="card p-5">
+            <div class="text-3xl font-bold text-warning-600">{{ complete_stats.overall.high_score_count }}</div>
+            <p class="text-sm text-secondary-500">High Scores (≥75%)</p>
+        </div>
+        <div class="card p-5">
+            <div class="text-3xl font-bold text-info-600">{{ complete_stats.overall.perfect_count }}</div>
+            <p class="text-sm text-secondary-500">Perfect Scores (≥90%)</p>
+        </div>
+    </div>
+    
+    <!-- AI Prediction -->
+    <div class="card overflow-hidden">
+        <div class="p-6 bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-bold mb-2">🤖 AI Score Prediction</h3>
+                    {% if prediction.prediction %}
+                        <div class="text-6xl font-bold mb-2">{{ prediction.prediction }}%</div>
+                        <p class="text-white/90 text-lg mb-2">
+                            {{ prediction.trend_emoji }} {{ prediction.message }}
+                        </p>
+                        <div class="flex gap-4 text-sm">
+                            <span>📊 Confidence: {{ prediction.confidence }}%</span>
+                            <span>📈 Slope: {{ prediction.slope }}</span>
+                            <span>🎯 Avg: {{ prediction.current_average }}%</span>
+                        </div>
+                    {% else %}
+                        <p class="text-lg">{{ prediction.message }}</p>
+                    {% endif %}
+                </div>
+                <div class="text-8xl">🔮</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Streak Evolution Chart -->
+    <div class="card p-6">
+        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">
+            📈 Streak Evolution (Last 30 Days)
+        </h3>
+        <canvas id="streakChart" height="80"></canvas>
+    </div>
+    
+    <!-- Performance by Period -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        
+        <!-- Monthly Performance -->
+        <div class="card p-6">
+            <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">
+                📅 Monthly Performance
+            </h3>
+            <canvas id="monthlyChart" height="200"></canvas>
+        </div>
+        
+        <!-- Weekly Performance -->
+        <div class="card p-6">
+            <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">
+                📆 Weekly Performance
+            </h3>
+            <canvas id="weeklyChart" height="200"></canvas>
+        </div>
+        
+    </div>
+    
+    <!-- Detailed Stats Table -->
+    <div class="card p-6">
+        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">
+            📋 Detailed Monthly Statistics
+        </h3>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-secondary-100 dark:bg-secondary-800">
+                    <tr>
+                        <th class="px-4 py-3 text-left">Period</th>
+                        <th class="px-4 py-3 text-center">Evaluations</th>
+                        <th class="px-4 py-3 text-center">Average</th>
+                        <th class="px-4 py-3 text-center">Min - Max</th>
+                        <th class="px-4 py-3 text-center">Success Rate</th>
+                        <th class="px-4 py-3 text-center">Perfect Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, stat in monthly_performance %}
+                    <tr class="border-b border-secondary-200 dark:border-secondary-700">
+                        <td class="px-4 py-3 font-semibold">{{ stat.label }}</td>
+                        <td class="px-4 py-3 text-center">{{ stat.count }}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="font-bold text-primary-600">{{ stat.average }}%</span>
+                        </td>
+                        <td class="px-4 py-3 text-center text-sm">
+                            {{ stat.min|round(1) }}% - {{ stat.max|round(1) }}%
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="badge badge-{{ stat.success_rate >= 75 ? 'success' : 'warning' }}">
+                                {{ stat.success_rate }}%
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="badge badge-{{ stat.perfect_rate >= 50 ? 'success' : 'secondary' }}">
+                                {{ stat.perfect_rate }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // ====== Streak Evolution Chart ======
+    fetch('{{ path('app_stats_chart_data') }}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('streakChart'), {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        {
+                            label: 'Streak Count',
+                            data: data.streaks,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Score %',
+                            data: data.percentages,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.3,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y;
+                                        if (context.datasetIndex === 1) {
+                                            label += '%';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Streak Count'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Score %'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        });
+    
+    // ====== Monthly Performance Chart ======
+    const monthlyData = {{ monthly_performance|json_encode|raw }};
+    const monthlyLabels = Object.values(monthlyData).map(d => d.label);
+    const monthlyAverages = Object.values(monthlyData).map(d => d.average);
+    const monthlySuccessRates = Object.values(monthlyData).map(d => d.success_rate);
+    
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: monthlyLabels,
+            datasets: [
+                {
+                    label: 'Average Score',
+                    data: monthlyAverages,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Success Rate',
+                    data: monthlySuccessRates,
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // ====== Weekly Performance Chart ======
+    const weeklyData = {{ weekly_performance|json_encode|raw }};
+    const weeklyLabels = Object.values(weeklyData).map(d => d.label).slice(-8); // Last 8 weeks
+    const weeklyAverages = Object.values(weeklyData).map(d => d.average).slice(-8);
+    
+    new Chart(document.getElementById('weeklyChart'), {
+        type: 'line',
+        data: {
+            labels: weeklyLabels,
+            datasets: [{
+                label: 'Weekly Average',
+                data: weeklyAverages,
+                borderColor: 'rgb(153, 102, 255)',
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Initialize Lucide Icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
+{% endblock %}
