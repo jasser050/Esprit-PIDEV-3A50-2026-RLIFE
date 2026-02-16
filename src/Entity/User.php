@@ -917,5 +917,268 @@ public function getStreaksByMatiere(): array
 // ==========================================
 // 🔥 SYSTÈME DE STREAK - FIN
 // ==========================================
+// ==========================================
+// 📊 STATISTIQUES AVANCÉES - DÉBUT
+// ==========================================
 
+/**
+ * 📈 Obtenir l'historique des streaks pour graphique
+ */
+public function getStreakHistory(int $days = 30): array
+{
+    $history = [];
+    $evaluations = $this->getEvaluationsOrderedByDate();
+    
+    $currentStreak = 0;
+    $startDate = new \DateTime();
+    $startDate->modify("-{$days} days");
+    
+    foreach ($evaluations as $eval) {
+        if ($eval->getDateEvaluation() >= $startDate) {
+            $dateStr = $eval->getDateEvaluation()->format('Y-m-d');
+            $percentage = $eval->getPercentage();
+            
+            if ($percentage >= 75) {
+                $currentStreak++;
+            } else {
+                $currentStreak = 0;
+            }
+            
+            $history[] = [
+                'date' => $dateStr,
+                'streak' => $currentStreak,
+                'percentage' => round($percentage, 2),
+                'score' => $eval->getScoreEval(),
+                'max' => $eval->getNoteMaximaleEval(),
+            ];
+        }
+    }
+    
+    return $history;
+}
+
+/**
+ * 📊 Statistiques par période (semaine, mois, année)
+ */
+public function getPerformanceByPeriod(string $period = 'month'): array
+{
+    $evaluations = $this->getEvaluationsOrderedByDate();
+    $stats = [];
+    
+    foreach ($evaluations as $eval) {
+        $date = $eval->getDateEvaluation();
+        
+        switch ($period) {
+            case 'week':
+                $key = $date->format('Y-W');
+                $label = 'Week ' . $date->format('W, Y');
+                break;
+            case 'month':
+                $key = $date->format('Y-m');
+                $label = $date->format('F Y');
+                break;
+            case 'year':
+                $key = $date->format('Y');
+                $label = $date->format('Y');
+                break;
+            default:
+                $key = $date->format('Y-m-d');
+                $label = $date->format('d/m/Y');
+        }
+        
+        if (!isset($stats[$key])) {
+            $stats[$key] = [
+                'label' => $label,
+                'total' => 0,
+                'count' => 0,
+                'success' => 0,
+                'perfect' => 0,
+                'evaluations' => [],
+            ];
+        }
+        
+        $percentage = $eval->getPercentage();
+        $stats[$key]['total'] += $percentage;
+        $stats[$key]['count']++;
+        $stats[$key]['evaluations'][] = $percentage;
+        
+        if ($percentage >= 75) {
+            $stats[$key]['success']++;
+        }
+        if ($percentage >= 90) {
+            $stats[$key]['perfect']++;
+        }
+    }
+    
+    // Calculer les moyennes et taux de réussite
+    foreach ($stats as $key => $data) {
+        $stats[$key]['average'] = round($data['total'] / $data['count'], 2);
+        $stats[$key]['success_rate'] = round(($data['success'] / $data['count']) * 100, 1);
+        $stats[$key]['perfect_rate'] = round(($data['perfect'] / $data['count']) * 100, 1);
+        
+        // Calculer min et max
+        $stats[$key]['min'] = min($data['evaluations']);
+        $stats[$key]['max'] = max($data['evaluations']);
+    }
+    
+    return $stats;
+}
+
+/**
+ * 🤖 Prédire la prochaine note basée sur la tendance (Régression linéaire simple)
+ */
+public function predictNextScore(?Matiere $matiere = null): array
+{
+    $evaluations = $this->getEvaluationsOrderedByDate($matiere);
+    
+    if ($evaluations->count() < 3) {
+        return [
+            'prediction' => null,
+            'confidence' => 0,
+            'trend' => 'insufficient_data',
+            'message' => 'Need at least 3 evaluations for prediction',
+            'slope' => 0,
+        ];
+    }
+    
+    // Prendre les dernières évaluations (maximum 10 pour ne pas surajuster)
+    $recentCount = min(10, $evaluations->count());
+    $recent = array_slice($evaluations->toArray(), -$recentCount);
+    $scores = array_map(fn($e) => $e->getPercentage(), $recent);
+    
+    // Régression linéaire simple : y = mx + b
+    $n = count($scores);
+    $sumX = 0;
+    $sumY = 0;
+    $sumXY = 0;
+    $sumX2 = 0;
+    
+    for ($i = 0; $i < $n; $i++) {
+        $x = $i + 1;
+        $y = $scores[$i];
+        $sumX += $x;
+        $sumY += $y;
+        $sumXY += $x * $y;
+        $sumX2 += $x * $x;
+    }
+    
+    // Calcul de la pente (m) et de l'ordonnée à l'origine (b)
+    $slope = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
+    $intercept = ($sumY - $slope * $sumX) / $n;
+    
+    // Prédiction pour la prochaine évaluation
+    $prediction = $slope * ($n + 1) + $intercept;
+    $prediction = max(0, min(100, $prediction)); // Limiter entre 0 et 100
+    
+    // Déterminer la tendance
+    $trend = 'stable';
+    $trendEmoji = '➡️';
+    $message = 'Your performance is stable';
+    
+    if ($slope > 2) {
+        $trend = 'improving';
+        $trendEmoji = '📈';
+        $message = 'Great! Your scores are improving';
+    } elseif ($slope < -2) {
+        $trend = 'declining';
+        $trendEmoji = '📉';
+        $message = 'Warning: Your scores are declining';
+    }
+    
+    // Calculer la confiance basée sur :
+    // 1. Nombre de données (plus = mieux)
+    // 2. Cohérence des données (variance faible = mieux)
+    $variance = 0;
+    $mean = array_sum($scores) / $n;
+    foreach ($scores as $score) {
+        $variance += pow($score - $mean, 2);
+    }
+    $variance = $variance / $n;
+    $stdDev = sqrt($variance);
+    
+    // Confiance : augmente avec le nombre de données, diminue avec la variance
+    $dataConfidence = min(100, $n * 10); // Max 100% avec 10 données
+    $varianceConfidence = max(0, 100 - ($stdDev * 2)); // Diminue si variance élevée
+    $confidence = round(($dataConfidence + $varianceConfidence) / 2, 1);
+    
+    return [
+        'prediction' => round($prediction, 1),
+        'confidence' => $confidence,
+        'trend' => $trend,
+        'trend_emoji' => $trendEmoji,
+        'message' => $message,
+        'slope' => round($slope, 2),
+        'data_points' => $n,
+        'current_average' => round($mean, 2),
+        'standard_deviation' => round($stdDev, 2),
+    ];
+}
+
+/**
+ * 📊 Obtenir les statistiques complètes
+ */
+public function getCompleteStatistics(): array
+{
+    return [
+        'overall' => [
+            'total_evaluations' => $this->evaluations->count(),
+            'average' => $this->calculateOverallAverage(),
+            'perfect_count' => $this->getPerfectScoresCount(),
+            'high_score_count' => $this->getHighScoresCount(),
+        ],
+        'by_month' => $this->getPerformanceByPeriod('month'),
+        'by_week' => $this->getPerformanceByPeriod('week'),
+        'history_30_days' => $this->getStreakHistory(30),
+        'prediction' => $this->predictNextScore(),
+    ];
+}
+
+/**
+ * Calculer la moyenne générale
+ */
+private function calculateOverallAverage(): float
+{
+    if ($this->evaluations->isEmpty()) {
+        return 0;
+    }
+    
+    $total = 0;
+    foreach ($this->evaluations as $eval) {
+        $total += $eval->getPercentage();
+    }
+    
+    return round($total / $this->evaluations->count(), 2);
+}
+
+/**
+ * Compter les notes parfaites (>= 90%)
+ */
+private function getPerfectScoresCount(): int
+{
+    $count = 0;
+    foreach ($this->evaluations as $eval) {
+        if ($eval->getPercentage() >= 90) {
+            $count++;
+        }
+    }
+    return $count;
+}
+
+/**
+ * Compter les bonnes notes (>= 75%)
+ */
+private function getHighScoresCount(): int
+{
+    $count = 0;
+    foreach ($this->evaluations as $eval) {
+        if ($eval->getPercentage() >= 75) {
+            $count++;
+        }
+    }
+    return $count;
+}
+
+// ==========================================
+// 📊 STATISTIQUES AVANCÉES - FIN
+// ==========================================
 }
