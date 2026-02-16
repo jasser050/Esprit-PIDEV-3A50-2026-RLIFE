@@ -144,7 +144,8 @@ public function deleteConfirm(Matiere $matiere): Response
     ]);
 }
 
-// ── 2) Route POST : supprime réellement (déjà présente, vérifier le name) ──
+
+
 #[Route('/{id}/delete', name: 'app_admin_courses_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
 public function delete(Matiere $matiere, Request $request, EntityManagerInterface $entityManager): Response
 {

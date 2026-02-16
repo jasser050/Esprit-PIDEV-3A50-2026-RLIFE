@@ -49,7 +49,7 @@ security:
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
-
+        - { path: ^/streak, roles: ROLE_USER }
 when@test:
     security:
         password_hashers:
