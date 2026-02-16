@@ -2,6 +2,11 @@
 
 {% block title %}Profile & Settings{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('avatar-climb') }}
+{% endblock %}
+
 {% block body %}
 <!-- Avatar Container for Settings Animation -->
 <div id="avatar-container" class="fixed inset-0 z-50 pointer-events-none"></div>
@@ -26,15 +31,22 @@
                 <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8">
                     <!-- Profile Picture - Perfect Size -->
                     <div class="relative shrink-0">
-                        <div class="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-slate-900 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                        <div id="profile-pic-wrapper" class="relative w-24 h-24 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-slate-900 hover:shadow-xl hover:scale-105 transition-all duration-300" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #ddd6fe 100%);">
                             {% if app.user.profilePic %}
                                 <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
-                                <span>{{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}</span>
+                                <!-- Initials (will be replaced by avatar) -->
+                                <span id="profile-initials" class="text-slate-700">{{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}</span>
                             {% endif %}
+                            
+                            <!-- 3D Avatar Animation Container (INSIDE profile pic) -->
+                            <div id="avatar-climb-container" 
+                                 data-gender="{{ app.user.gender ?? 'male' }}" 
+                                 class="absolute inset-0 z-10 pointer-events-none">
+                            </div>
                         </div>
                         <!-- Online Status Indicator -->
-                        <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white dark:border-slate-900 shadow-sm"></div>
+                        <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white dark:border-slate-900 shadow-sm z-30"></div>
                     </div>
                     
                     <!-- Profile Information -->
