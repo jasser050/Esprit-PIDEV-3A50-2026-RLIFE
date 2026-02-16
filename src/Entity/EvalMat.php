@@ -11,7 +11,7 @@ class EvalMat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: Matiere::class, inversedBy: 'evalMats')]

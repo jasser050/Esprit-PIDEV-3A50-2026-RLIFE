@@ -130,6 +130,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $updatedAt = null;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $avatarType = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isVerified = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $verificationToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $verificationTokenExpiresAt = null;
+
     /**
      
      */
@@ -1665,4 +1677,56 @@ private function getMotivationalQuote(float $average): string
 // ==========================================
 // 🤖 AI STUDY COACH - FIN
 // ==========================================
+
+    public function getAvatarType(): ?string
+    {
+        return $this->avatarType;
+    }
+
+    public function setAvatarType(?string $avatarType): self
+    {
+        $this->avatarType = $avatarType;
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+        return $this;
+    }
+
+    public function getVerificationToken(): ?string
+    {
+        return $this->verificationToken;
+    }
+
+    public function setVerificationToken(?string $verificationToken): self
+    {
+        $this->verificationToken = $verificationToken;
+        return $this;
+    }
+
+    public function getVerificationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->verificationTokenExpiresAt;
+    }
+
+    public function setVerificationTokenExpiresAt(?\DateTimeImmutable $verificationTokenExpiresAt): self
+    {
+        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
+        return $this;
+    }
+
+    public function isVerificationTokenExpired(): bool
+    {
+        if (!$this->verificationTokenExpiresAt) {
+            return true;
+        }
+        return $this->verificationTokenExpiresAt < new \DateTimeImmutable();
+    }
 }

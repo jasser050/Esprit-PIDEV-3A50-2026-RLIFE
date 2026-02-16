@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Entity\UserSettings;
 use App\Form\RegistrationFormType;
+use App\Form\LoginFormType;
+use App\Service\EmailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,8 +27,12 @@ class PublicController extends AbstractController
     }
 
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
+        // Create the form with PHP validation
+        $form = $this->createForm(LoginFormType::class);
+        $form->handleRequest($request);
+        
         // Get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // Last username entered by the user
@@ -35,6 +41,7 @@ class PublicController extends AbstractController
         return $this->render('pages/auth/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $error,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -46,7 +53,7 @@ class PublicController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, EmailService $emailService, MailerInterface $mailer): Response
     {
         $errors = [];
         $validFields = [];
@@ -148,9 +155,19 @@ class PublicController extends AbstractController
                     $user->setUsername($username);
                     $user->setGender($gender);
                     
+                    // Assign avatar based on gender
+                    $avatarType = $gender === 'female' ? 'female_avatar_1' : 'male_avatar_1';
+                    $user->setAvatarType($avatarType);
+                    
                     // Hash password
                     $hashedPassword = $passwordHasher->hashPassword($user, $password);
                     $user->setPassword($hashedPassword);
+                    
+                    // Generate verification token
+                    $verificationToken = bin2hex(random_bytes(32));
+                    $user->setVerificationToken($verificationToken);
+                    $user->setVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
+                    $user->setIsVerified(false);
                     
                     // Create user settings with preferences
                     $settings = new UserSettings();
@@ -170,21 +187,17 @@ class PublicController extends AbstractController
                     $entityManager->persist($settings);
                     $entityManager->flush();
                     
-                    // Send automatic welcome email
+                    // Send verification email
                     try {
-                        $welcomeEmail = (new Email())
-                            ->from('jasserbalti555@gmail.com')
-                            ->to($user->getEmail())
-                            ->subject('Welcome to RLIFE - Your Student Life Management Platform')
-                            ->html($this->getWelcomeEmailHtml($user));
+                        $verificationUrl = $this->generateUrl('app_verify_email', ['token' => $verificationToken], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
+                        $emailService->sendVerificationEmail($user, $verificationUrl);
                         
-                        $mailer->send($welcomeEmail);
+                        $this->addFlash('success', 'Account created! Please check your email to verify your account.');
                     } catch (\Exception $e) {
-                        // Log error but don't block registration
+                        $this->addFlash('warning', 'Account created, but we couldn\'t send the verification email. Please contact support.');
                     }
                     
-                    $this->addFlash('success', 'Account created successfully! Please log in.');
-                    return $this->redirectToRoute('app_login');
+                    return $this->redirectToRoute('app_login', ['registered' => 'true', 'email' => $email]);
                 } catch (\Exception $e) {
                     $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
                 }

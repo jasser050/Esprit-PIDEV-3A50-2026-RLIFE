@@ -3,6 +3,9 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
+<!-- Avatar Container for Dashboard Animation -->
+<div id="avatar-container" class="fixed inset-0 z-50 pointer-events-none"></div>
+
 <div class="space-y-6 animate-fade-in">
     <!-- Welcome Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -367,4 +370,8 @@
         </a>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
 {% endblock %}
