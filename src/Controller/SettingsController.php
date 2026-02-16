@@ -136,10 +136,13 @@ class SettingsController extends AbstractController
         }
         
         // Calculate statistics for the profile - Using count() for reliability
-        $totalProjects = count($user->getProjects());
+        // Only count modules that exist in user branch
         $totalCourses = count($user->getMatieres());
-        $totalDecks = count($user->getDecks());
-        $totalAssignments = count($user->getAssignments());
+        
+        // Set other stats to 0 for now (these modules will be added later from integration)
+        $totalProjects = 0;
+        $totalDecks = 0;
+        $totalAssignments = 0;
         
         return $this->render('pages/settings/index.html.twig', [
             'total_projects' => $totalProjects,
