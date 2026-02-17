@@ -19,9 +19,9 @@
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex" data-controller="theme password">
+<div class="min-h-screen flex dark" data-controller="theme password">
     <!-- Left Panel - Form -->
-    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-white dark:bg-slate-900">
+    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900">
         <div class="w-full max-w-[440px] mx-auto">
             <!-- Logo and back link -->
             <div class="mb-8">
@@ -144,7 +144,7 @@
                     <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">or continue with</span>
+                    <span class="px-4 bg-slate-900 text-slate-400">or continue with</span>
                 </div>
             </div>
 
@@ -167,7 +167,7 @@
                     <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">or use Face ID</span>
+                    <span class="px-4 bg-slate-900 text-slate-400">or use Face ID</span>
                 </div>
             </div>
 
@@ -272,94 +272,199 @@
         </div>
     </div>
 
-    <!-- Right Panel - Spline 3D Animation with Marketing -->
+    <!-- Right Panel - Spline 3D -->
     <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
-        <!-- Spline 3D Background -->
-        <spline-viewer 
+
+        <!-- Spline: full bleed -->
+        <spline-viewer
             url="https://prod.spline.design/WgPMxQsSYOM7gzlt/scene.splinecode"
             class="absolute inset-0 w-full h-full"
             loading="lazy"
         ></spline-viewer>
-        
-        <!-- Marketing Content Overlay -->
-        <div class="absolute inset-0 z-10 flex flex-col justify-center px-12 xl:px-16 bg-gradient-to-r from-primary-900/80 via-primary-800/60 to-transparent">
-            <!-- Backdrop blur -->
-            <div class="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-            
-            <div class="relative z-20">
-                <!-- Theme toggle -->
-                <button
-                    type="button"
-                    data-action="click->theme#toggle"
-                    class="absolute -top-4 -right-4 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
-                    aria-label="Toggle theme"
-                >
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
 
-                <!-- Marketing Content -->
-                <div class="max-w-md">
-                    <h2 class="text-3xl xl:text-4xl font-semibold text-white leading-tight mb-6 drop-shadow-lg">
-                        Study smarter, not harder with <span class="text-primary-300">RLIFE</span>
-                    </h2>
+        <!-- Left-edge seamless blend with the form panel -->
+        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10"></div>
 
-                    <!-- Benefits list -->
-                    <ul class="space-y-4 mb-10">
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
-                            </div>
-                            <span class="text-white/90 drop-shadow-md">Track all your courses, assignments, and deadlines in one place</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
-                            </div>
-                            <span class="text-white/90 drop-shadow-md">Boost retention with smart flashcards and spaced repetition</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
-                            </div>
-                            <span class="text-white/90 drop-shadow-md">Stay balanced with wellbeing check-ins and stress tracking</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <div class="w-6 h-6 rounded-full bg-primary-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <i data-lucide="check" class="w-4 h-4 text-primary-200"></i>
-                            </div>
-                            <span class="text-white/90 drop-shadow-md">Set smart goals and track your progress with AI-powered insights</span>
-                        </li>
-                    </ul>
+        <!-- ══ TOP BAND ══ -->
+        <div class="absolute top-0 inset-x-0 z-20 px-10 pt-10 pb-32
+                    bg-gradient-to-b from-black/75 via-black/40 to-transparent
+                    pointer-events-none">
 
-                    <!-- Testimonial card -->
-                    <div class="p-6 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl">
-                        <div class="flex gap-1 mb-3">
-                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                            <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
-                        </div>
-                        <p class="text-white/90 mb-4 leading-relaxed">
-                            "RLIFE helped me go from feeling overwhelmed to actually enjoying my studies. The wellbeing features are a game-changer."
-                        </p>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm">
-                                AR
-                            </div>
-                            <div>
-                                <p class="font-semibold text-white text-sm">Alex Rodriguez</p>
-                                <p class="text-sm text-white/60">Psychology, UCLA</p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Award badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-6
+                        bg-gradient-to-r from-yellow-400/20 to-amber-500/15
+                        backdrop-blur-sm border border-yellow-400/35
+                        shadow-[0_0_20px_rgba(234,179,8,0.15)]">
+                <i data-lucide="award" class="w-4 h-4 text-yellow-400 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-yellow-200 tracking-wide">Rated #1 Student App Worldwide</span>
+                <span class="text-yellow-400 text-sm leading-none">✦</span>
+            </div>
+
+            <!-- Headline -->
+            <h2 class="text-4xl xl:text-5xl 2xl:text-6xl font-black text-white leading-[1.1] tracking-tight
+                       drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+                Study<br>
+                <span class="text-transparent bg-clip-text
+                             bg-gradient-to-r from-primary-300 via-purple-300 to-pink-400
+                             drop-shadow-none">smarter.</span><br>
+                <span class="text-white/90">Live</span>
+                <span class="text-transparent bg-clip-text
+                             bg-gradient-to-r from-pink-300 to-primary-300"> better.</span>
+            </h2>
+
+            <!-- Subtitle with coloured keywords -->
+            <p class="mt-5 text-sm xl:text-base text-white/55 max-w-[280px] leading-relaxed">
+                All your
+                <span class="text-primary-300 font-semibold">courses</span>,
+                <span class="text-purple-300 font-semibold">habits</span> &amp;
+                <span class="text-pink-300 font-semibold">wellbeing</span>
+                — one beautiful place.
+            </p>
+        </div>
+
+        <!-- ══ RIGHT SIDE STAT CARDS ══ -->
+        <div class="absolute right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none
+                    flex flex-col gap-3">
+
+            <!-- Rating -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl min-w-[165px]
+                        bg-gradient-to-r from-yellow-400/15 to-amber-500/8
+                        backdrop-blur-md border border-yellow-400/30
+                        shadow-[0_0_24px_rgba(234,179,8,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-yellow-400/35 to-amber-500/35
+                            border border-yellow-400/30">
+                    <i data-lucide="star" class="w-5 h-5 text-yellow-400"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-white leading-none">
+                        4.9<span class="text-yellow-400">★</span>
+                    </p>
+                    <p class="text-[10px] font-semibold text-yellow-200/60 mt-0.5 tracking-widest uppercase">App rating</p>
                 </div>
             </div>
 
-            <!-- Decorative elements -->
-            <div class="absolute bottom-12 right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-            <div class="absolute top-24 right-24 w-20 h-20 bg-secondary-500/20 rounded-full blur-xl"></div>
+            <!-- Exam success -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
+                        bg-gradient-to-r from-purple-500/15 to-pink-500/8
+                        backdrop-blur-md border border-purple-400/30
+                        shadow-[0_0_24px_rgba(168,85,247,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-purple-400/35 to-pink-500/35
+                            border border-purple-400/30">
+                    <i data-lucide="target" class="w-5 h-5 text-purple-300"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
+                               bg-gradient-to-r from-purple-300 to-pink-300">98%</p>
+                    <p class="text-[10px] font-semibold text-purple-200/60 mt-0.5 tracking-widest uppercase">Exam success</p>
+                </div>
+            </div>
+
+            <!-- Free forever -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
+                        bg-gradient-to-r from-emerald-500/15 to-teal-500/8
+                        backdrop-blur-md border border-emerald-400/30
+                        shadow-[0_0_24px_rgba(52,211,153,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-emerald-400/35 to-teal-500/35
+                            border border-emerald-400/30">
+                    <i data-lucide="gift" class="w-5 h-5 text-emerald-300"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
+                               bg-gradient-to-r from-emerald-300 to-teal-300">Free</p>
+                    <p class="text-[10px] font-semibold text-emerald-200/60 mt-0.5 tracking-widest uppercase">Forever plan</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ BOTTOM BAND ══ -->
+        <div class="absolute bottom-0 inset-x-0 z-20 px-10 pb-10 pt-32
+                    bg-gradient-to-t from-black/75 via-black/40 to-transparent
+                    pointer-events-none">
+
+            <!-- Feature cards -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+
+                <!-- AI Insights -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-primary-500/15 to-primary-900/10
+                            backdrop-blur-sm border border-primary-400/25
+                            shadow-[0_4px_20px_rgba(99,102,241,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-primary-400/40 to-primary-600/40
+                                border border-primary-400/30
+                                shadow-[0_0_16px_rgba(99,102,241,0.25)]">
+                        <i data-lucide="brain" class="w-6 h-6 text-primary-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">AI Insights</p>
+                    <p class="text-[11px] text-primary-300/70 mt-1 leading-tight">Personalised tips</p>
+                </div>
+
+                <!-- All Courses -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-purple-500/15 to-purple-900/10
+                            backdrop-blur-sm border border-purple-400/25
+                            shadow-[0_4px_20px_rgba(168,85,247,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-purple-400/40 to-purple-600/40
+                                border border-purple-400/30
+                                shadow-[0_0_16px_rgba(168,85,247,0.25)]">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6 text-purple-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">All Courses</p>
+                    <p class="text-[11px] text-purple-300/70 mt-1 leading-tight">One dashboard</p>
+                </div>
+
+                <!-- Wellbeing -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-pink-500/15 to-pink-900/10
+                            backdrop-blur-sm border border-pink-400/25
+                            shadow-[0_4px_20px_rgba(236,72,153,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-pink-400/40 to-pink-600/40
+                                border border-pink-400/30
+                                shadow-[0_0_16px_rgba(236,72,153,0.25)]">
+                        <i data-lucide="heart-pulse" class="w-6 h-6 text-pink-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">Wellbeing</p>
+                    <p class="text-[11px] text-pink-300/70 mt-1 leading-tight">Mood &amp; habits</p>
+                </div>
+            </div>
+
+            <!-- Social proof -->
+            <div class="flex items-center gap-3.5">
+                <div class="flex -space-x-2.5">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">A</div>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">B</div>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">C</div>
+                </div>
+                <div>
+                    <p class="text-sm font-black text-white leading-none">50,000+ students</p>
+                    <p class="text-xs text-white/40 mt-0.5">already organised their semester</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme toggle -->
+        <div class="absolute top-6 right-6 z-30">
+            <button
+                type="button"
+                data-action="click->theme#toggle"
+                class="p-2.5 rounded-xl bg-black/25 hover:bg-black/40 backdrop-blur-sm
+                       text-white/70 hover:text-white transition-all border border-white/10"
+                aria-label="Toggle theme"
+            >
+                <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+            </button>
         </div>
     </div>
 
