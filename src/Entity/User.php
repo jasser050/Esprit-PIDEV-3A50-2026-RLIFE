@@ -97,6 +97,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $verificationTokenExpiresAt = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $faceDescriptor = null;
+
     /**
      
      */
@@ -541,5 +544,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return true;
         }
         return $this->verificationTokenExpiresAt < new \DateTimeImmutable();
+    }
+
+    public function getFaceDescriptor(): ?array
+    {
+        return $this->faceDescriptor;
+    }
+
+    public function setFaceDescriptor(?array $faceDescriptor): static
+    {
+        $this->faceDescriptor = $faceDescriptor;
+        return $this;
+    }
+
+    public function hasFaceRegistered(): bool
+    {
+        return $this->faceDescriptor !== null && count($this->faceDescriptor) > 0;
     }
 }

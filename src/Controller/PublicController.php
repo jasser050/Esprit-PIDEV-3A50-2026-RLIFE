@@ -109,7 +109,7 @@ class PublicController extends AbstractController
                 $verificationToken = bin2hex(random_bytes(32));
                 $user->setVerificationToken($verificationToken);
                 $user->setVerificationTokenExpiresAt(new \DateTimeImmutable('+24 hours'));
-                $user->setIsVerified(false);
+                $user->setIsVerified(true);
                 
                 // Create user settings with preferences
                 $settings = new UserSettings();
@@ -124,6 +124,15 @@ class PublicController extends AbstractController
                 
                 $user->setSettings($settings);
                 
+                // Save face descriptor if provided
+                $faceDescriptorRaw = $request->request->get('face_descriptor');
+                if ($faceDescriptorRaw) {
+                    $faceDescriptor = json_decode($faceDescriptorRaw, true);
+                    if (is_array($faceDescriptor) && count($faceDescriptor) > 0) {
+                        $user->setFaceDescriptor($faceDescriptor);
+                    }
+                }
+
                 // Save user
                 $entityManager->persist($user);
                 $entityManager->persist($settings);
