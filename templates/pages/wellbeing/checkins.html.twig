@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+﻿{% extends 'base.html.twig' %}
+=======
 {% extends 'base.html.twig' %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 {% block title %}Check-in History - Wellbeing{% endblock %}
 
@@ -13,7 +17,14 @@
 
     {% include 'components/page_header.html.twig' with {
         title: 'Check-in History',
+<<<<<<< HEAD
         subtitle: 'Track your mood, stress, and energy over time'
+=======
+        subtitle: 'Track your mood, stress, and energy over time',
+        actions: [
+            { label: 'New Check-in', url: path('app_wellbeing_checkin_new'), variant: 'primary', icon: '+' }
+        ]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     } %}
 
     <!-- Stats Summary -->
@@ -23,6 +34,7 @@
             <p class="text-sm text-light-muted dark:text-dark-muted">Total Check-ins</p>
         </div>
         <div class="card p-4 text-center">
+<<<<<<< HEAD
             <p class="text-2xl font-bold text-{{ avg_stress <= 4 ? 'success' : (avg_stress <= 6 ? 'warning' : 'danger') }}-600 dark:text-{{ avg_stress <= 4 ? 'success' : (avg_stress <= 6 ? 'warning' : 'danger') }}-400">{{ avg_stress }}/10</p>
             <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Stress</p>
         </div>
@@ -32,10 +44,22 @@
         </div>
         <div class="card p-4 text-center">
             <p class="text-2xl font-bold text-secondary-600 dark:text-secondary-400">{{ avg_sleep }}h</p>
+=======
+            <p class="text-2xl font-bold">{{ avg_stress }}/10</p>
+            <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Stress</p>
+        </div>
+        <div class="card p-4 text-center">
+            <p class="text-2xl font-bold">{{ avg_energy }}/10</p>
+            <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Energy</p>
+        </div>
+        <div class="card p-4 text-center">
+            <p class="text-2xl font-bold">{{ avg_sleep }}h</p>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             <p class="text-sm text-light-muted dark:text-dark-muted">Avg. Sleep</p>
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Actions Bar -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-2">
@@ -51,11 +75,14 @@
     </div>
 
     <!-- Check-ins List -->
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     <div class="card">
         {% if checkins|length > 0 %}
         <div class="overflow-x-auto">
             <table class="table">
                 <thead>
+<<<<<<< HEAD
                     <tr>
                         <th>Date</th>
                         <th>Mood</th>
@@ -75,11 +102,11 @@
                         <td>
                             <div class="flex items-center gap-2">
                                 <span class="text-xl">
-                                    {% if checkin.mood == 'great' %}😊
-                                    {% elseif checkin.mood == 'good' %}🙂
-                                    {% elseif checkin.mood == 'okay' %}😐
-                                    {% elseif checkin.mood == 'stressed' %}😟
-                                    {% else %}😴{% endif %}
+                                    {% if checkin.mood == 'great' %}&#x1F60A;
+                                    {% elseif checkin.mood == 'good' %}&#x1F642;
+                                    {% elseif checkin.mood == 'okay' %}&#x1F610;
+                                    {% elseif checkin.mood == 'stressed' %}&#x1F61F;
+                                    {% else %}&#x1F634;{% endif %}
                                 </span>
                                 <span class="capitalize">{{ checkin.mood }}</span>
                             </div>
@@ -108,29 +135,84 @@
                         <td class="max-w-xs">
                             {% if checkin.note %}
                                 <span class="text-sm text-light-muted dark:text-dark-muted truncate block">{{ checkin.note }}</span>
+=======
+                <tr>
+                    <th>Date</th>
+                    <th>Mood</th>
+                    <th>Stress</th>
+                    <th>Energy</th>
+                    <th>Sleep</th>
+                    <th>Notes</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for checkin in checkins %}
+                    <tr>
+                        <td class="font-medium">{{ checkin.entryDateWell|date('M j, Y H:i') }}</td>
+
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xl">
+                                    {% if checkin.moodWell == 'great' %}😊
+                                    {% elseif checkin.moodWell == 'good' %}🙂
+                                    {% elseif checkin.moodWell == 'okay' %}😐
+                                    {% elseif checkin.moodWell == 'stressed' %}😟
+                                    {% else %}😴{% endif %}
+                                </span>
+                                <span class="capitalize">{{ checkin.moodWell }}</span>
+                            </div>
+                        </td>
+
+                        <td>{{ checkin.stressLevelWell }}/10</td>
+                        <td>{{ checkin.energyLevelWell }}/10</td>
+                        <td>{{ checkin.sleepHoursWell }}h</td>
+
+                        <td class="max-w-xs">
+                            {% if checkin.noteWell %}
+                                <span class="text-sm text-light-muted dark:text-dark-muted truncate block">{{ checkin.noteWell }}</span>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                             {% else %}
                                 <span class="text-sm text-light-muted dark:text-dark-muted italic">No notes</span>
                             {% endif %}
                         </td>
+<<<<<<< HEAD
                         <td class="text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ path('app_wellbeing_checkin_edit', {id: checkin.id}) }}" class="btn btn-sm btn-secondary">
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </a>
-                                <form method="POST" action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}" onsubmit="return confirm('Are you sure you want to delete this check-in?');" class="inline">
+                                <form method="POST" action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}" data-confirm="Are you sure you want to delete this check-in?" class="inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_delete_' ~ checkin.id) }}">
                                     <button type="submit" class="btn btn-sm btn-danger">
                                         <i data-lucide="trash" class="w-4 h-4"></i>
                                     </button>
+=======
+
+                        <td class="text-right whitespace-nowrap">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ path('app_wellbeing_checkin_edit', {id: checkin.id}) }}" class="btn btn-secondary">Edit</a>
+
+                                <form method="POST"
+                                      action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}"
+                                      onsubmit="return confirm('Delete this check-in?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_delete_' ~ checkin.id) }}">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                                 </form>
                             </div>
                         </td>
                     </tr>
+<<<<<<< HEAD
                     {% endfor %}
+=======
+                {% endfor %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 </tbody>
             </table>
         </div>
         {% else %}
+<<<<<<< HEAD
             {% include 'components/empty_state.html.twig' with {
                 icon: 'clipboard',
                 title: 'No check-ins yet',
@@ -154,11 +236,11 @@
             {% for mood, count in mood_counts %}
             <div class="text-center">
                 <div class="text-3xl mb-2">
-                    {% if mood == 'great' %}😊
-                    {% elseif mood == 'good' %}🙂
-                    {% elseif mood == 'okay' %}😐
-                    {% elseif mood == 'stressed' %}😟
-                    {% else %}😴{% endif %}
+                    {% if mood == 'great' %}&#x1F60A;
+                    {% elseif mood == 'good' %}&#x1F642;
+                    {% elseif mood == 'okay' %}&#x1F610;
+                    {% elseif mood == 'stressed' %}&#x1F61F;
+                    {% else %}&#x1F634;{% endif %}
                 </div>
                 <p class="text-2xl font-bold">{{ count }}</p>
                 <p class="text-sm text-light-muted dark:text-dark-muted capitalize">{{ mood }}</p>
@@ -167,5 +249,13 @@
         </div>
     </div>
     {% endif %}
+=======
+            <div class="p-6 text-center">
+                <p class="text-light-muted dark:text-dark-muted">No check-ins yet.</p>
+                <a href="{{ path('app_wellbeing_checkin_new') }}" class="btn btn-primary mt-4">New Check-in</a>
+            </div>
+        {% endif %}
+    </div>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </div>
 {% endblock %}

@@ -70,7 +70,7 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 10%;">#</th>
+                <th style="width: 10%;">Pos</th> <!-- Changé de # à Pos pour éviter confusion -->
                 <th style="width: 60%;">Question</th>
                 <th style="width: 15%;">Status</th>
                 <th style="width: 15%;">Created</th>
@@ -79,7 +79,7 @@
         <tbody>
             {% for question in questions %}
             <tr>
-                <td>{{ question.questionNumber }}</td>
+                <td>{{ question.position }}</td>           <!-- ← Correction ici : position au lieu de questionNumber -->
                 <td>{{ question.questionText }}</td>
                 <td class="{{ question.isActive ? 'status-active' : 'status-inactive' }}">
                     {{ question.isActive ? '✓ Active' : '✗ Inactive' }}

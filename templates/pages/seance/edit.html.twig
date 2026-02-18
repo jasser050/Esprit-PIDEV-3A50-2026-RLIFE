@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Edit Session{% endblock %}
 
@@ -75,7 +75,7 @@
 
                         <form method="post"
                               action="{{ path('app_seance_delete', {id: seance.id}) }}"
-                              onsubmit="return confirm('Are you sure you want to delete this session?');"
+                              data-confirm="Are you sure you want to delete this session?"
                               class="mt-4 flex items-center justify-end">
 
                             <input type="hidden" name="_token"
@@ -93,3 +93,4 @@
     </div>
 </div>
 {% endblock %}
+

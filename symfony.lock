@@ -35,6 +35,7 @@
             "./migrations/.gitignore"
         ]
     },
+<<<<<<< HEAD
     "google/apiclient": {
         "version": "2.19",
         "recipe": {
@@ -61,15 +62,19 @@
             "version": "3.0",
             "ref": "8dd3ea817217453e14ab596317177465211e01d2"
         }
-    },
-    "stof/doctrine-extensions-bundle": {
-        "version": "1.15",
+=======
+    "lexik/jwt-authentication-bundle": {
+        "version": "2.18",
         "recipe": {
-            "repo": "github.com/symfony/recipes-contrib",
+            "repo": "github.com/symfony/recipes",
             "branch": "main",
-            "version": "1.2",
-            "ref": "e805aba9eff5372e2d149a9ff56566769e22819d"
-        }
+            "version": "2.5",
+            "ref": "e9481b233a11ef7e15fe055a2b21fd3ac1aa2bb7"
+        },
+        "files": [
+            "./config/packages/lexik_jwt_authentication.yaml"
+        ]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     },
     "symfony/console": {
         "version": "7.4",
@@ -128,6 +133,7 @@
             "./.editorconfig"
         ]
     },
+<<<<<<< HEAD
     "symfony/google-mailer": {
         "version": "6.4",
         "recipe": {
@@ -149,6 +155,8 @@
             "./config/packages/mailer.yaml"
         ]
     },
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     "symfony/maker-bundle": {
         "version": "1.65",
         "recipe": {

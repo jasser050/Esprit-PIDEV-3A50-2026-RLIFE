@@ -1,19 +1,34 @@
-{% extends 'base.html.twig' %}
+<<<<<<< HEAD
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Edit Event{% endblock %}
 
 {% block body %}
 <div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
+=======
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit: {{ event.title }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
             { label: 'Planning', href: path('app_planning') },
+<<<<<<< HEAD
             { label: 'Edit Event' }
+=======
+            { label: event.title },
+            { label: 'Edit' }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]
     } %}
 
     {% include 'components/page_header.html.twig' with {
         title: 'Edit Event',
+<<<<<<< HEAD
         subtitle: 'Update your event'
     } %}
 
@@ -28,36 +43,105 @@
                 options: seances|default([])|map(s => { value: s.id, label: s.titre ?? ('Seance #' ~ s.id) })
             } %}
 
+=======
+        subtitle: 'Update event details'
+    } %}
+
+    <form action="{{ path('app_planning_edit', { id: event.id }) }}" method="POST" class="card p-6">
+        <div class="space-y-6">
+            <!-- Event Title -->
+            {% include 'components/input.html.twig' with {
+                name: 'title',
+                label: 'Event Title',
+                value: event.title,
+                placeholder: 'e.g., CS101 Lecture, Study Session',
+                required: true
+            } %}
+
+            <!-- Event Type -->
+            {% include 'components/select.html.twig' with {
+                name: 'type',
+                label: 'Event Type',
+                value: event.type|default('class'),
+                required: true,
+                options: [
+                    { value: 'class', label: 'Class' },
+                    { value: 'study', label: 'Study Session' },
+                    { value: 'assignment', label: 'Assignment Work' },
+                    { value: 'exam', label: 'Exam' },
+                    { value: 'meeting', label: 'Meeting' },
+                    { value: 'personal', label: 'Personal' }
+                ]
+            } %}
+
+            <!-- Course (Optional) -->
+            {% include 'components/select.html.twig' with {
+                name: 'course_id',
+                label: 'Related Course (Optional)',
+                value: event.course_id|default(''),
+                options: [{ value: '', label: 'No specific course' }]|merge(courses|map(c => { value: c.id, label: c.name ~ ' (' ~ c.code ~ ')' }))
+            } %}
+
+            <!-- Date -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             {% include 'components/input.html.twig' with {
                 name: 'date',
                 label: 'Date',
                 type: 'date',
+<<<<<<< HEAD
                 value: planning.dateDebut ? planning.dateDebut|date('Y-m-d') : '',
+=======
+                value: event.date|date('Y-m-d'),
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 required: true
             } %}
 
             <div class="grid grid-cols-2 gap-4">
+<<<<<<< HEAD
+=======
+                <!-- Start Time -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 {% include 'components/input.html.twig' with {
                     name: 'start_time',
                     label: 'Start Time',
                     type: 'time',
+<<<<<<< HEAD
                     value: planning.dateDebut ? planning.dateDebut|date('H:i') : '',
                     required: true
                 } %}
 
+=======
+                    value: event.start_time,
+                    required: true
+                } %}
+
+                <!-- End Time -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 {% include 'components/input.html.twig' with {
                     name: 'end_time',
                     label: 'End Time',
                     type: 'time',
+<<<<<<< HEAD
                     value: planning.dateFin ? planning.dateFin|date('H:i') : '',
+=======
+                    value: event.end_time,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     required: true
                 } %}
             </div>
 
+<<<<<<< HEAD
             {% include 'components/select.html.twig' with {
                 name: 'color',
                 label: 'Color',
                 value: planning.color|default('indigo'),
+=======
+            <!-- Color -->
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color',
+                value: event.color,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 options: [
                     { value: 'indigo', label: 'Indigo (Primary)' },
                     { value: 'teal', label: 'Teal (Secondary)' },
@@ -70,6 +154,7 @@
                 ]
             } %}
 
+<<<<<<< HEAD
             <div class="space-y-2">
                 <label class="text-sm font-medium text-light-text dark:text-dark-text">
                     Feedback (Optional)
@@ -79,23 +164,23 @@
                     {% set fb = planning.feedback %}
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="1" class="accent-indigo-600" {{ fb == 1 ? 'checked' : '' }}>
-                        <span class="text-xl">😡</span>
+                        <span class="text-xl">ðŸ˜¡</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="2" class="accent-indigo-600" {{ fb == 2 ? 'checked' : '' }}>
-                        <span class="text-xl">😕</span>
+                        <span class="text-xl">ðŸ˜•</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="3" class="accent-indigo-600" {{ fb == 3 ? 'checked' : '' }}>
-                        <span class="text-xl">😐</span>
+                        <span class="text-xl">ðŸ˜</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="4" class="accent-indigo-600" {{ fb == 4 ? 'checked' : '' }}>
-                        <span class="text-xl">🙂</span>
+                        <span class="text-xl">ðŸ™‚</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="5" class="accent-indigo-600" {{ fb == 5 ? 'checked' : '' }}>
-                        <span class="text-xl">🤩</span>
+                        <span class="text-xl">ðŸ¤©</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="" class="accent-indigo-600" {{ fb is null ? 'checked' : '' }}>
@@ -126,7 +211,7 @@
 
                         <form action="{{ path('app_planning_delete', {id: planning.id}) }}"
                               method="POST"
-                              onsubmit="return confirm('Do you really want to delete this event?');"
+                              data-confirm="Do you really want to delete this event?"
                               class="mt-4 flex items-center justify-end">
                             <button type="submit" class="btn btn-secondary">
                                 <i data-lucide="trash" class="w-4 h-4 mr-2"></i>
@@ -140,4 +225,75 @@
 
     </div>
 </div>
+=======
+            <!-- Location -->
+            {% include 'components/input.html.twig' with {
+                name: 'location',
+                label: 'Location (Optional)',
+                value: event.location|default(''),
+                placeholder: 'e.g., Room 301, Library, Zoom'
+            } %}
+
+            <!-- Recurring -->
+            {% include 'components/select.html.twig' with {
+                name: 'recurring',
+                label: 'Repeat',
+                value: event.recurring|default('none'),
+                options: [
+                    { value: 'none', label: 'Does not repeat' },
+                    { value: 'daily', label: 'Daily' },
+                    { value: 'weekly', label: 'Weekly' },
+                    { value: 'biweekly', label: 'Every 2 weeks' },
+                    { value: 'monthly', label: 'Monthly' }
+                ]
+            } %}
+
+            <!-- Description -->
+            {% include 'components/textarea.html.twig' with {
+                name: 'description',
+                label: 'Notes (Optional)',
+                value: event.description|default(''),
+                placeholder: 'Add any additional notes...',
+                rows: 3
+            } %}
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-4 border-t border-light-border dark:border-dark-border">
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Delete
+                </button>
+                <div class="flex items-center gap-3">
+                    <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include 'components/modal.html.twig' with {
+    id: 'delete-modal',
+    title: 'Delete Event',
+    content: '<p class="text-light-muted dark:text-dark-muted">Are you sure you want to delete this event? This action cannot be undone.</p>',
+    footer: '<button type="button" class="btn btn-secondary" data-action="modal#close">Cancel</button>
+             <form action="' ~ path('app_planning_delete', { id: event.id }) ~ '" method="POST" class="inline">
+                 <button type="submit" class="btn btn-danger">Delete Event</button>
+             </form>'
+} %}
+
+<script>
+function confirmDelete() {
+    document.getElementById('delete-modal').classList.remove('hidden');
+}
+</script>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

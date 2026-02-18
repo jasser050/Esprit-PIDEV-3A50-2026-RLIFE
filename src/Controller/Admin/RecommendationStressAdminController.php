@@ -3,7 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\RecommendationStress;
+<<<<<<< HEAD
 use App\Form\RecommendationStressType;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use App\Repository\RecommendationStressRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,10 +18,33 @@ use Symfony\Component\Routing\Annotation\Route;
 class RecommendationStressAdminController extends AbstractController
 {
     #[Route('/', name: 'index', methods: ['GET'])]
-    public function index(RecommendationStressRepository $repo): Response
+<<<<<<< HEAD
+    public function index(RecommendationStressRepository $repo, Request $request): Response
     {
-        $recommendations = $repo->findAll();
-        
+        $search = trim((string) $request->query->get('search', ''));
+        $sort = (string) $request->query->get('sort', 'createdAt');
+        $order = strtoupper((string) $request->query->get('order', 'DESC'));
+
+        $qb = $repo->createQueryBuilder('r');
+
+        if ($search !== '') {
+            $qb->andWhere('r.title LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $allowedSortFields = ['id', 'title', 'createdAt'];
+        if (!in_array($sort, $allowedSortFields, true)) {
+            $sort = 'createdAt';
+        }
+
+        if (!in_array($order, ['ASC', 'DESC'], true)) {
+            $order = 'DESC';
+        }
+
+        $qb->orderBy('r.' . $sort, $order);
+
+        $recommendations = $qb->getQuery()->getResult();
+
         $stats = [
             'total' => count($recommendations),
             'low' => count(array_filter($recommendations, fn($r) => $r->getLevel() === 'low')),
@@ -29,6 +55,9 @@ class RecommendationStressAdminController extends AbstractController
         return $this->render('admin/recommendation_stress/index.html.twig', [
             'recommendations' => $recommendations,
             'stats' => $stats,
+            'search' => $search,
+            'sort' => $sort,
+            'order' => $order,
         ]);
     }
 
@@ -79,18 +108,33 @@ class RecommendationStressAdminController extends AbstractController
         return $this->render('admin/recommendation_stress/edit.html.twig', [
             'form' => $form,
             'recommendation' => $recommendation,
+=======
+    public function index(RecommendationStressRepository $repo): Response
+    {
+        return $this->render('admin/recommendation_stress/index.html.twig', [
+            'items' => $repo->findBy([], ['id' => 'DESC']),
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]);
     }
 
     #[Route('/{id}', name: 'delete', methods: ['POST'])]
+<<<<<<< HEAD
     public function delete(RecommendationStress $recommendation, Request $request, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$recommendation->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $recommendation->getId(), $request->request->get('_token'))) {
             $em->remove($recommendation);
             $em->flush();
             $this->addFlash('success', 'Recommendation deleted successfully!');
         }
 
+=======
+    public function delete(RecommendationStress $rec, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$rec->getId(), $request->request->get('_token'))) {
+            $em->remove($rec);
+            $em->flush();
+        }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         return $this->redirectToRoute('app_admin_recommendation_stress_index');
     }
 }

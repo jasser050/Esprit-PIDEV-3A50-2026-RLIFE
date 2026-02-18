@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\FlashcardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+<<<<<<< HEAD
 use App\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[ORM\Entity(repositoryClass: FlashcardRepository::class)]
 #[ORM\Table(name: 'flashcard')]
@@ -20,6 +23,7 @@ class Flashcard
 
     #[ORM\ManyToOne(targetEntity: Deck::class, inversedBy: 'flashcards')]
     #[ORM\JoinColumn(name: 'id_deck', referencedColumnName: 'id_deck', nullable: false, onDelete: 'CASCADE')]
+<<<<<<< HEAD
     #[Assert\NotNull(message: 'Le deck est obligatoire')]
     private ?Deck $deck = null;
 
@@ -83,6 +87,26 @@ class Flashcard
         choices: ['actif', 'brouillon', 'archive', 'inactif'],
         message: 'L\'état doit être : actif, brouillon, archive ou inactif'
     )]
+=======
+    private ?Deck $deck = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $titre = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $question = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $reponse = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $description = null;
+
+    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER)]
+    private ?int $niveauDifficulte = null;
+
+    #[ORM\Column(type: Types::STRING, length: 20)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $etat = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -100,7 +124,10 @@ class Flashcard
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
+<<<<<<< HEAD
         $this->etat = 'actif'; // Default value
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     #[ORM\PreUpdate]
@@ -130,7 +157,11 @@ class Flashcard
         return $this->titre;
     }
 
+<<<<<<< HEAD
     public function setTitre(?string $titre): static
+=======
+    public function setTitre(string $titre): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->titre = $titre;
         return $this;
@@ -174,7 +205,11 @@ class Flashcard
         return $this->niveauDifficulte;
     }
 
+<<<<<<< HEAD
     public function setNiveauDifficulte(?int $niveauDifficulte): static
+=======
+    public function setNiveauDifficulte(int $niveauDifficulte): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->niveauDifficulte = $niveauDifficulte;
         return $this;
@@ -185,7 +220,11 @@ class Flashcard
         return $this->etat;
     }
 
+<<<<<<< HEAD
     public function setEtat(?string $etat): static
+=======
+    public function setEtat(string $etat): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->etat = $etat;
         return $this;
@@ -234,6 +273,7 @@ class Flashcard
         $this->dateModification = $dateModification;
         return $this;
     }
+<<<<<<< HEAD
 
     public function getCreatedBy(): ?User
     {
@@ -245,4 +285,6 @@ class Flashcard
         $this->createdBy = $createdBy;
         return $this;
     }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

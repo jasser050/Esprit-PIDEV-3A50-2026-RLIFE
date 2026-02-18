@@ -6,9 +6,6 @@ use App\Repository\EvaluationMatiereRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: EvaluationMatiereRepository::class)]
 #[ORM\Table(name: 'evaluation_matiere')]
@@ -18,55 +15,30 @@ class EvaluationMatiere
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_eval', type: 'integer')]
+<<<<<<< HEAD
     private ?int $id_eval = null;
+=======
+    private ?int $id = null;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'evaluations')]
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-     #[ORM\Column(name: 'score_eval', type: 'float')]
-    #[Assert\NotBlank(message: 'La note obtenue est obligatoire')]
-    #[Assert\PositiveOrZero(message: 'La note doit être positive ou zéro')]
-    #[Assert\LessThanOrEqual(
-        propertyPath: 'noteMaximaleEval',
-        message: 'La note obtenue ne peut pas dépasser la note maximale'
-    )]
+    #[ORM\Column(name: 'score_eval', type: 'float')]
     private ?float $scoreEval = null;
 
     #[ORM\Column(name: 'note_maximale_eval', type: 'float')]
-    #[Assert\NotBlank(message: 'La note maximale est obligatoire')]
-    #[Assert\Positive(message: 'La note maximale doit être strictement positive')]
-    #[Assert\Range(
-        min: 1,
-        max: 1000,
-        notInRangeMessage: 'La note maximale doit être entre {{ min }} et {{ max }}'
-    )]
     private ?float $noteMaximaleEval = null;
 
-
     #[ORM\Column(name: 'date_evaluation', type: 'datetime')]
-#[Assert\NotBlank(message: "The evaluation date is required.")]
-    #[Assert\Type(\DateTimeInterface::class)]
     private ?\DateTimeInterface $dateEvaluation = null;
 
-
     #[ORM\Column(name: 'duree_evaluation', type: 'integer')]
-    #[Assert\NotBlank(message: 'La durée est obligatoire')]
-    #[Assert\Positive(message: 'La durée doit être positive')]
-    #[Assert\Range(
-        min: 1,
-        max: 600,
-        notInRangeMessage: 'La durée doit être entre {{ min }} et {{ max }} minutes'
-    )]
     private ?int $dureeEvaluation = null;
 
     #[ORM\Column(name: 'priorite_e', type: 'string', length: 50, nullable: true)]
-    #[Assert\Choice(
-        choices: ['low', 'medium', 'high', 'urgent'],
-        message: 'Priorité invalide. Choisissez parmi : low, medium, high, urgent'
-    )]
     private ?string $prioriteE = null;
-
 
     #[ORM\Column(name: 'created_at', type: 'datetime')]
     private ?\DateTimeInterface $createdAt = null;
@@ -74,17 +46,12 @@ class EvaluationMatiere
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    // ✅ CONTRAINTE ASSERT COUNT SUPPRIMÉE !
     #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'evaluation', orphanRemoval: true)]
     private Collection $evalMats;
 
-
-   
     public function __construct()
     {
         $this->evalMats = new ArrayCollection();
-        $this->matieres = new ArrayCollection(); 
-
         $this->createdAt = new \DateTime();
     }
 
@@ -94,9 +61,15 @@ class EvaluationMatiere
         $this->updatedAt = new \DateTime();
     }
 
+<<<<<<< HEAD
 public function getIdEval(): ?int
     {
         return $this->id_eval;
+=======
+    public function getId(): ?int
+    {
+        return $this->id;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     public function getUser(): ?User
@@ -136,12 +109,12 @@ public function getIdEval(): ?int
     {
         return $this->dateEvaluation;
     }
-public function setDateEvaluation(?\DateTimeInterface $dateEvaluation): self
-{
-    $this->dateEvaluation = $dateEvaluation;
-    return $this;
-}
 
+    public function setDateEvaluation(\DateTimeInterface $dateEvaluation): self
+    {
+        $this->dateEvaluation = $dateEvaluation;
+        return $this;
+    }
 
     public function getDureeEvaluation(): ?int
     {
@@ -194,27 +167,7 @@ public function setDateEvaluation(?\DateTimeInterface $dateEvaluation): self
     {
         return $this->evalMats;
     }
-public function getMatieres(): Collection
-    {
-        if ($this->matieres === null || $this->matieres->isEmpty()) {
-            $this->matieres = new ArrayCollection();
-            foreach ($this->evalMats as $evalMat) {
-                if ($evalMat->getMatiere()) {
-                    $this->matieres->add($evalMat->getMatiere());
-                }
-            }
-        }
-        return $this->matieres;
-    }
 
-    /**
-     * Setter pour le formulaire
-     */
-    public function setMatieres(?Collection $matieres): self
-    {
-        $this->matieres = $matieres;
-        return $this;
-    }
     public function addEvalMat(EvalMat $evalMat): self
     {
         if (!$this->evalMats->contains($evalMat)) {

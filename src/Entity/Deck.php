@@ -7,8 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+<<<<<<< HEAD
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[ORM\Entity(repositoryClass: DeckRepository::class)]
 #[ORM\Table(name: 'deck')]
@@ -24,6 +27,7 @@ class Deck
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
+<<<<<<< HEAD
     #[Assert\NotBlank(message: 'Title is required')]
     #[Assert\Length(
         min: 3,
@@ -59,6 +63,17 @@ class Deck
         max: 2000,
         maxMessage: 'Description cannot exceed {{ limit }} characters'
     )]
+=======
+    private ?string $titre = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100)]
+    private ?string $matiere = null;
+
+    #[ORM\Column(type: Types::STRING, length: 50)]
+    private ?string $niveau = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -67,6 +82,7 @@ class Deck
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $pdf = null;
 
+<<<<<<< HEAD
     #[Assert\File(
         maxSize: '5M',
         mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
@@ -83,6 +99,8 @@ class Deck
     )]
     private ?File $pdfFile = null;
 
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     #[ORM\Column(name: 'date_creation', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateCreation = null;
 
@@ -95,10 +113,13 @@ class Deck
     #[ORM\InverseJoinColumn(name: 'id_flashcard', referencedColumnName: 'id_flashcard')]
     private Collection $revisionFlashcards;
 
+<<<<<<< HEAD
     private ?int $cardCount = null;
 
     private ?int $masteredCount = null;
 
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     public function __construct()
     {
         $this->flashcards = new ArrayCollection();
@@ -111,6 +132,7 @@ class Deck
         return $this->id;
     }
 
+<<<<<<< HEAD
     public function getImageFile(): ?File
     {
         return $this->imageFile;
@@ -133,6 +155,8 @@ class Deck
         return $this;
     }
 
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     public function getUser(): ?User
     {
         return $this->user;
@@ -273,6 +297,7 @@ class Deck
 
         return $this;
     }
+<<<<<<< HEAD
 
     public function getCardCount(): ?int
     {
@@ -295,4 +320,6 @@ class Deck
         $this->masteredCount = $masteredCount;
         return $this;
     }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

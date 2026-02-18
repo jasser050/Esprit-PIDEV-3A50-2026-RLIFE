@@ -1,0 +1,29 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin • Wellbeing{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <div>
+        <h1 class="text-2xl font-semibold text-white">Wellbeing</h1>
+        <p class="text-slate-400 mt-1">Manage Stress Quiz, Questions and Recommendations</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <a href="{{ path('app_admin_question_stress_index') }}" class="card card-hover p-5 block">
+            <h3 class="font-semibold text-white">Questions</h3>
+            <p class="text-sm text-slate-400 mt-1">CRUD QuestionStress</p>
+        </a>
+
+        <a href="{{ path('app_admin_quiz_stress_index') }}" class="card card-hover p-5 block">
+            <h3 class="font-semibold text-white">Quizzes</h3>
+            <p class="text-sm text-slate-400 mt-1">CRUD QuizStress</p>
+        </a>
+
+        <a href="{{ path('app_admin_recommendation_stress_index') }}" class="card card-hover p-5 block">
+            <h3 class="font-semibold text-white">Recommendations</h3>
+            <p class="text-sm text-slate-400 mt-1">Manage RecommendationStress</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

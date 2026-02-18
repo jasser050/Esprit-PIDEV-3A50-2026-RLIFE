@@ -1,6 +1,7 @@
+<<<<<<< HEAD
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Question #{{ question_stress.questionNumber }}{% endblock %}
+{% block title %}Question #{{ question_stress.position }}{% endblock %}  {# Changé en position #}
 
 {% block body %}
 <div class="max-w-3xl mx-auto">
@@ -14,7 +15,7 @@
     <div class="card p-6 md:p-8">
         <div class="flex items-start justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Question #{{ question_stress.questionNumber }}</h1>
+                <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Question #{{ question_stress.position }}</h1>  {# Changé en position #}
                 <p class="text-secondary-500 mt-1">Created on {{ question_stress.createdAt|date('F j, Y') }}</p>
             </div>
             {% if question_stress.isActive %}
@@ -49,8 +50,9 @@
                 <i data-lucide="edit" class="w-5 h-5 mr-2 inline"></i>
                 Edit Question
             </a>
-            <form method="post" action="{{ path('app_admin_question_stress_delete', {id: question_stress.id}) }}" 
-                  onsubmit="return confirm('Are you sure you want to delete this question?');" class="inline ml-auto">
+            <form method="post" action="{{ path('app_admin_question_stress_delete', {id: question_stress.id}) }}"
+                  data-confirm="Are you sure you want to delete this question?"
+                  class="inline ml-auto">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ question_stress.id) }}">
                 <button type="submit" class="btn btn-danger">
                     <i data-lucide="trash" class="w-5 h-5 mr-2 inline"></i>
@@ -61,3 +63,16 @@
     </div>
 </div>
 {% endblock %}
+=======
+<!-- Update <tr> blocks -->
+<tr>
+    <th>Question Text</th>  <!-- English -->
+    <td>{{ question_stress.label }}</td>  <!-- Changed to label -->
+</tr>
+<tr>
+    <th>Order Index</th>  <!-- English -->
+    <td>{{ question_stress.orderIndex }}</td>
+</tr>
+<!-- Add minValue and maxValue if needed -->
+<!-- Remove old fields like questionTextQues, questionNumberQues -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

@@ -2,20 +2,29 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
 use App\Entity\Deck;
 use App\Entity\User;
 use App\Form\DeckType;
 use App\Repository\DeckRepository;
 use App\Service\AuditLogService;
+=======
+use App\Entity\User;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+<<<<<<< HEAD
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+=======
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -77,7 +86,11 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/ban', name: 'app_admin_user_ban', methods: ['POST'])]
+<<<<<<< HEAD
     public function banUser(User $user, Request $request, EntityManagerInterface $entityManager, AuditLogService $auditLog, MailerInterface $mailer): Response
+=======
+    public function banUser(User $user, Request $request, EntityManagerInterface $entityManager): Response
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $reason = $request->request->get('reason', 'Violation of terms of service');
         
@@ -87,6 +100,7 @@ class AdminController extends AbstractController
         
         $entityManager->flush();
         
+<<<<<<< HEAD
         // Log the action
         try {
             $auditLog->logUserBan($user, $reason);
@@ -108,12 +122,19 @@ class AdminController extends AbstractController
         }
         
         $this->addFlash('success', sprintf('User %s has been banned and notified by email.', $user->getEmail()));
+=======
+        $this->addFlash('success', sprintf('User %s has been banned.', $user->getEmail()));
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/unban', name: 'app_admin_user_unban', methods: ['POST'])]
+<<<<<<< HEAD
     public function unbanUser(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
+=======
+    public function unbanUser(User $user, EntityManagerInterface $entityManager): Response
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $user->setIsBanned(false);
         $user->setBannedAt(null);
@@ -121,6 +142,7 @@ class AdminController extends AbstractController
         
         $entityManager->flush();
         
+<<<<<<< HEAD
         // Log the action
         try {
             $auditLog->logUserUnban($user);
@@ -128,13 +150,19 @@ class AdminController extends AbstractController
             // Silently continue if audit log fails
         }
         
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         $this->addFlash('success', sprintf('User %s has been unbanned.', $user->getEmail()));
         
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/make-admin', name: 'app_admin_user_make_admin', methods: ['POST'])]
+<<<<<<< HEAD
     public function makeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
+=======
+    public function makeAdmin(User $user, EntityManagerInterface $entityManager): Response
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $roles = $user->getRoles();
         if (!in_array('ROLE_ADMIN', $roles, true)) {
@@ -142,6 +170,7 @@ class AdminController extends AbstractController
             $user->setRoles($roles);
             $entityManager->flush();
             
+<<<<<<< HEAD
             // Log the action
             try {
      $auditLog->logUserPromotion($user);
@@ -150,6 +179,8 @@ class AdminController extends AbstractController
         }
             
             
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             $this->addFlash('success', sprintf('User %s is now an admin.', $user->getEmail()));
         }
         
@@ -157,12 +188,17 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/remove-admin', name: 'app_admin_user_remove_admin', methods: ['POST'])]
+<<<<<<< HEAD
     public function removeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
+=======
+    public function removeAdmin(User $user, EntityManagerInterface $entityManager): Response
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $roles = array_filter($user->getRoles(), fn($role) => $role !== 'ROLE_ADMIN');
         $user->setRoles($roles);
         $entityManager->flush();
         
+<<<<<<< HEAD
         // Log the action
         
              try {
@@ -173,6 +209,8 @@ class AdminController extends AbstractController
 
         
         
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         $this->addFlash('success', sprintf('Admin role removed from %s.', $user->getEmail()));
         
         return $this->redirectToRoute('app_admin_users');
@@ -229,6 +267,7 @@ class AdminController extends AbstractController
             'university_stats' => $universityStats,
         ]);
     }
+<<<<<<< HEAD
 
     #[Route('/statistics/export', name: 'app_admin_statistics_export')]
     public function exportStatistics(EntityManagerInterface $entityManager): Response
@@ -434,4 +473,6 @@ class AdminController extends AbstractController
             </html>
         ', $user->getFirstName(), $reasonText, date('Y'));
     }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

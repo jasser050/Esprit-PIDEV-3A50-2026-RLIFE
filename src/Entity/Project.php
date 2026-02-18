@@ -46,6 +46,7 @@ class Project
     #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'project', orphanRemoval: true)]
     private Collection $assignments;
 
+<<<<<<< HEAD
     #[ORM\OneToMany(targetEntity: ProjectShare::class, mappedBy: 'project', orphanRemoval: true)]
     private Collection $shares;
 
@@ -53,6 +54,11 @@ class Project
     {
         $this->assignments = new ArrayCollection();
         $this->shares = new ArrayCollection();
+=======
+    public function __construct()
+    {
+        $this->assignments = new ArrayCollection();
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         $this->createdAt = new \DateTime();
     }
 
@@ -183,6 +189,7 @@ class Project
 
         return $this;
     }
+<<<<<<< HEAD
 
     /**
      * @return Collection<int, ProjectShare>
@@ -212,4 +219,6 @@ class Project
 
         return $this;
     }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }
