@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\QuestionStressRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuestionStressRepository::class)]
 #[ORM\Table(name: 'question_stress')]
@@ -15,14 +16,22 @@ class QuestionStress
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'question_number_ques')]
-    private ?int $questionNumber = null;
+    #[ORM\Column(name: 'position')]
+    #[Assert\Positive(message: 'La position doit être supérieure à 0.')]
+    private int $position = 0;
 
     #[ORM\Column(name: 'question_text_ques', type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le champ question est obligatoire et ne peut pas être vide.')]
+    #[Assert\Length(
+        min: 10,
+        max: 500,
+        minMessage: 'La question doit contenir au minimum {{ limit }} caractères.',
+        maxMessage: 'La question ne doit pas dépasser {{ limit }} caractères.'
+    )]
     private ?string $questionText = null;
 
     #[ORM\Column(name: 'is_active_ques')]
-    private ?bool $isActive = null;
+    private ?bool $isActive = false;
 
     #[ORM\Column(name: 'created_at_ques', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -35,14 +44,14 @@ class QuestionStress
         return $this->id;
     }
 
-    public function getQuestionNumber(): ?int
+    public function getPosition(): int
     {
-        return $this->questionNumber;
+        return $this->position;
     }
 
-    public function setQuestionNumber(int $questionNumber): static
+    public function setPosition(int $position): static
     {
-        $this->questionNumber = $questionNumber;
+        $this->position = $position;
         return $this;
     }
 

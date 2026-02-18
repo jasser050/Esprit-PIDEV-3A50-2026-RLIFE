@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Check-in History - Wellbeing{% endblock %}
 
@@ -75,11 +75,11 @@
                         <td>
                             <div class="flex items-center gap-2">
                                 <span class="text-xl">
-                                    {% if checkin.mood == 'great' %}😊
-                                    {% elseif checkin.mood == 'good' %}🙂
-                                    {% elseif checkin.mood == 'okay' %}😐
-                                    {% elseif checkin.mood == 'stressed' %}😟
-                                    {% else %}😴{% endif %}
+                                    {% if checkin.mood == 'great' %}&#x1F60A;
+                                    {% elseif checkin.mood == 'good' %}&#x1F642;
+                                    {% elseif checkin.mood == 'okay' %}&#x1F610;
+                                    {% elseif checkin.mood == 'stressed' %}&#x1F61F;
+                                    {% else %}&#x1F634;{% endif %}
                                 </span>
                                 <span class="capitalize">{{ checkin.mood }}</span>
                             </div>
@@ -117,7 +117,7 @@
                                 <a href="{{ path('app_wellbeing_checkin_edit', {id: checkin.id}) }}" class="btn btn-sm btn-secondary">
                                     <i data-lucide="edit" class="w-4 h-4"></i>
                                 </a>
-                                <form method="POST" action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}" onsubmit="return confirm('Are you sure you want to delete this check-in?');" class="inline">
+                                <form method="POST" action="{{ path('app_wellbeing_checkin_delete', {id: checkin.id}) }}" data-confirm="Are you sure you want to delete this check-in?" class="inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_delete_' ~ checkin.id) }}">
                                     <button type="submit" class="btn btn-sm btn-danger">
                                         <i data-lucide="trash" class="w-4 h-4"></i>
@@ -154,11 +154,11 @@
             {% for mood, count in mood_counts %}
             <div class="text-center">
                 <div class="text-3xl mb-2">
-                    {% if mood == 'great' %}😊
-                    {% elseif mood == 'good' %}🙂
-                    {% elseif mood == 'okay' %}😐
-                    {% elseif mood == 'stressed' %}😟
-                    {% else %}😴{% endif %}
+                    {% if mood == 'great' %}&#x1F60A;
+                    {% elseif mood == 'good' %}&#x1F642;
+                    {% elseif mood == 'okay' %}&#x1F610;
+                    {% elseif mood == 'stressed' %}&#x1F61F;
+                    {% else %}&#x1F634;{% endif %}
                 </div>
                 <p class="text-2xl font-bold">{{ count }}</p>
                 <p class="text-sm text-light-muted dark:text-dark-muted capitalize">{{ mood }}</p>

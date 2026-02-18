@@ -49,7 +49,10 @@ security:
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/question-stress/reorder$, roles: PUBLIC_ACCESS, methods: [POST] }
 
+        # Tes autres règles (garde-les en dessous)
+        - { path: ^/login, roles: PUBLIC_ACCESS }
 when@test:
     security:
         password_hashers:

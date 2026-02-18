@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Evaluation #{{ course.idEval }}{% endblock %}
 
@@ -12,7 +12,7 @@
         ]
     } %}
 
-    {# En-tête avec titre et actions #}
+    {# En-tÃªte avec titre et actions #}
     <div class="flex justify-between items-start">
         <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
@@ -46,19 +46,19 @@
         </div>
     </div>
 
-    {# Carte principale - Informations de l'évaluation #}
+    {# Carte principale - Informations de l'Ã©valuation #}
     <div class="card p-6">
         <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold">📊 Informations de l'évaluation</h2>
+            <h2 class="text-lg font-semibold">ðŸ“Š Informations de l'Ã©valuation</h2>
             
-            {# Badge de réussite/échec #}
+            {# Badge de rÃ©ussite/Ã©chec #}
             {% if percentage >= 60 %}
                 <span class="px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm font-semibold">
-                    ✓ Réussi
+                    âœ“ RÃ©ussi
                 </span>
             {% else %}
                 <span class="px-4 py-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm font-semibold">
-                    ✗ Échec
+                    âœ— Ã‰chec
                 </span>
             {% endif %}
         </div>
@@ -66,12 +66,12 @@
         {# Grille d'informations #}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📝 Score obtenu</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“ Score obtenu</p>
                 <p class="text-2xl font-bold">{{ course.scoreEval }} / {{ course.noteMaximaleEval }}</p>
             </div>
             
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📈 Pourcentage</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“ˆ Pourcentage</p>
                 <div class="flex items-center">
                     <p class="text-2xl font-bold mr-3">{{ percentage|number_format(2) }}%</p>
                     {# Barre de progression #}
@@ -84,23 +84,23 @@
             </div>
             
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📅 Date</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“… Date</p>
                 <p class="text-xl font-bold">
                     {% if course.dateEvaluation %}
-                        {{ course.dateEvaluation|date('d/m/Y à H:i') }}
+                        {{ course.dateEvaluation|date('d/m/Y Ã  H:i') }}
                     {% else %}
-                        Non définie
+                        Non dÃ©finie
                     {% endif %}
                 </p>
             </div>
             
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">⏱️ Durée</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">â±ï¸ DurÃ©e</p>
                 <p class="text-xl font-bold">{{ course.dureeEvaluation }} minutes</p>
             </div>
             
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">⚡ Priorité</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">âš¡ PrioritÃ©</p>
                 <p class="text-xl font-bold">
                     {% if course.prioriteE %}
                         <span class="px-3 py-1 rounded-full text-sm
@@ -115,21 +115,21 @@
                             {{ course.prioriteE }}
                         </span>
                     {% else %}
-                        <span class="text-gray-400">Non définie</span>
+                        <span class="text-gray-400">Non dÃ©finie</span>
                     {% endif %}
                 </p>
             </div>
             
             <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">📚 Matières</p>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“š MatiÃ¨res</p>
                 <p class="text-2xl font-bold">{{ course.evalMats|length }}</p>
             </div>
         </div>
     </div>
 
-    {# Matières associées #}
+    {# MatiÃ¨res associÃ©es #}
     <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-4">📚 Matières / Sections associées</h2>
+        <h2 class="text-lg font-semibold mb-4">ðŸ“š MatiÃ¨res / Sections associÃ©es</h2>
         
         {% if course.evalMats is not empty %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -147,7 +147,7 @@
                             {{ evalMat.matiere.nomMatiere }}
                         </p>
                         <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Section: {{ evalMat.matiere.sectionMatiere|default('Non classée') }}
+                            Section: {{ evalMat.matiere.sectionMatiere|default('Non classÃ©e') }}
                         </p>
                     </div>
                 {% endfor %}
@@ -158,23 +158,23 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
-                <p class="text-light-muted dark:text-dark-muted">Aucune matière associée à cette évaluation</p>
+                <p class="text-light-muted dark:text-dark-muted">Aucune matiÃ¨re associÃ©e Ã  cette Ã©valuation</p>
             </div>
         {% endif %}
     </div>
 
-    {# Actions supplémentaires #}
+    {# Actions supplÃ©mentaires #}
     <div class="flex flex-wrap gap-3">
         <a href="{{ path('app_courses') }}" 
            class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-200">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            Retour à la liste
+            Retour Ã  la liste
         </a>
         
         <form method="post" action="{{ path('app_courses_delete', { id: course.idEval }) }}" 
-              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?');"
+              data-confirm="ÃŠtes-vous sÃ»r de vouloir supprimer cette Ã©valuation ?"
               class="inline">
             <button type="submit" 
                     class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">

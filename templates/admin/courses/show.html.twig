@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}{{ matiere.nomMatiere }}{% endblock %}
 
@@ -7,7 +7,7 @@
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Matières', href: path('app_courses') },
+            { label: 'MatiÃ¨res', href: path('app_courses') },
             { label: matiere.nomMatiere }
         ]
     } %}
@@ -20,7 +20,7 @@
                 <span class="badge badge-primary">{{ matiere.code }}</span>
             </div>
             <p class="text-secondary-600 dark:text-secondary-400">
-                {{ matiere.sectionMatiere }} • {{ matiere.typeMatiere }}
+                {{ matiere.sectionMatiere }} â€¢ {{ matiere.typeMatiere }}
             </p>
         </div>
         
@@ -31,7 +31,7 @@
             </a>
             
             <!-- Bouton de suppression -->
-            <button type="button" onclick="confirmDelete()" class="btn bg-danger-600 hover:bg-danger-700 text-white">
+            <button type="submit" form="deleteForm" class="btn bg-danger-600 hover:bg-danger-700 text-white">
                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                 Supprimer
             </button>
@@ -42,7 +42,7 @@
         <div class="lg:col-span-2 space-y-6">
             <!-- Course Info -->
             <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Informations de la matière</h2>
+                <h2 class="text-lg font-semibold mb-4">Informations de la matiÃ¨re</h2>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-sm text-secondary-500 dark:text-secondary-400">Code</p>
@@ -78,7 +78,7 @@
                 {% endif %}
             </div>
 
-            <!-- Assignments Section (à personnaliser selon vos besoins) -->
+            <!-- Assignments Section (Ã  personnaliser selon vos besoins) -->
             <div class="card p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-lg font-semibold text-secondary-900 dark:text-white">Devoirs</h2>
@@ -95,7 +95,7 @@
                     </div>
                     <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-2">Aucun devoir</h3>
                     <p class="text-secondary-600 dark:text-secondary-400 mb-4">
-                        Ajoutez votre premier devoir pour cette matière.
+                        Ajoutez votre premier devoir pour cette matiÃ¨re.
                     </p>
                 </div>
             </div>
@@ -113,7 +113,7 @@
                     </button>
                     <button class="w-full btn btn-secondary justify-start">
                         <i data-lucide="layers" class="w-5 h-5"></i>
-                        Créer des flashcards
+                        CrÃ©er des flashcards
                     </button>
                     <button class="w-full btn btn-secondary justify-start">
                         <i data-lucide="calendar" class="w-5 h-5"></i>
@@ -157,29 +157,24 @@
                     </div>
                 </div>
                 <p class="text-center text-sm text-secondary-600 dark:text-secondary-400 mt-4">
-                    Commencez à travailler pour voir votre progression
+                    Commencez Ã  travailler pour voir votre progression
                 </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Formulaire de suppression caché -->
-<form id="deleteForm" method="post" action="{{ path('app_courses_delete', {id: matiere.idMatiere}) }}" class="hidden">
+<!-- Formulaire de suppression cachÃ© -->
+<form id="deleteForm"
+      method="post"
+      action="{{ path('app_courses_delete', {id: matiere.idMatiere}) }}"
+      data-confirm="Êtes-vous sûr de vouloir supprimer cette matière ? Cette action est irréversible."
+      class="hidden">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.idMatiere) }}">
 </form>
 
-<!-- Script de confirmation -->
-<script>
-function confirmDelete() {
-    if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer cette matière ?\n\nCette action supprimera définitivement :\n- La matière "{{ matiere.nomMatiere }}"\n- Toutes les notes associées\n- Tous les devoirs associés\n- Toutes les flashcards associées\n\nCette action est irréversible !')) {
-        document.getElementById('deleteForm').submit();
-    }
-}
-
-// Initialiser les icônes Lucide
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-}
-</script>
 {% endblock %}
+
+
+
+

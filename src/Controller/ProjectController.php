@@ -3,12 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Project;
+use App\Entity\ProjectShare;
+use App\Entity\User;
 use App\Form\ProjectType;
 use App\Form\ProjectFilterType;
 use App\Repository\ProjectRepository;
+use App\Repository\ProjectShareRepository;
 use App\Repository\AssignmentRepository;
+use App\Repository\UserRepository;
 use App\Service\ProjectPdfService;
 use App\Service\ProjectStatsService;
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -203,6 +208,100 @@ class ProjectController extends AbstractController
             'enAttente' => $stats['enAttente'],
             'enRetard' => $stats['enRetard'],
             'chartData' => $stats['chartData'],
+        ]);
+    }
+
+    #[Route('/{id}/share', name: 'app_project_share', methods: ['POST'])]
+    public function share(
+        Project $project,
+        Request $request,
+        UserRepository $userRepository,
+        ProjectShareRepository $shareRepository,
+        EntityManagerInterface $entityManager,
+        PusherService $pusherService
+    ): Response {
+        // Security check - only project owner can share
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $email = $request->request->get('email');
+        $role = $request->request->get('role', 'viewer');
+
+        $userToShare = $userRepository->findOneBy(['email' => $email]);
+
+        if (!$userToShare) {
+            $this->addFlash('error', 'User not found with this email.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        if ($userToShare === $this->getUser()) {
+            $this->addFlash('error', 'You cannot share with yourself.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        // Check if already shared
+        $existingShare = $shareRepository->findOneByProjectAndUser($project, $userToShare);
+        if ($existingShare) {
+            $this->addFlash('warning', 'This project is already shared with this user.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        // Create the share
+        $projectShare = new ProjectShare();
+        $projectShare->setProject($project);
+        $projectShare->setSharedWithUser($userToShare);
+        $projectShare->setSharedByUser($this->getUser());
+        $projectShare->setRole($role);
+
+        $entityManager->persist($projectShare);
+        $entityManager->flush();
+
+        // Send real-time notification via Pusher
+        $pusherService->notifyUserProjectShared(
+            $userToShare->getId(),
+            $project->getId(),
+            $project->getTitre(),
+            $this->getUser()->getFullName() ?? $this->getUser()->getEmail(),
+            $role
+        );
+
+        $this->addFlash('success', 'Project shared successfully!');
+        return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+    }
+
+    #[Route('/{projectId}/share/{shareId}/remove', name: 'app_project_remove_share', methods: ['POST'])]
+    public function removeShare(
+        int $projectId,
+        int $shareId,
+        ProjectShareRepository $shareRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $share = $shareRepository->find($shareId);
+
+        if (!$share || $share->getProject()->getId() !== $projectId) {
+            throw $this->createNotFoundException();
+        }
+
+        if ($share->getProject()->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $entityManager->remove($share);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Share removed successfully!');
+        return $this->redirectToRoute('app_project_show', ['id' => $projectId]);
+    }
+
+    #[Route('/shared-with-me', name: 'app_project_shared_with_me', methods: ['GET'])]
+    public function sharedWithMe(
+        ProjectShareRepository $shareRepository
+    ): Response {
+        $shares = $shareRepository->findBySharedWithUser($this->getUser());
+
+        return $this->render('pages/projects/shared_with_me.html.twig', [
+            'shares' => $shares,
         ]);
     }
 }

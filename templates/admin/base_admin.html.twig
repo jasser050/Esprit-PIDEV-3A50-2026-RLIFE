@@ -298,15 +298,133 @@
         </div>
     </div>
 
+    <!-- Global Delete Confirmation Modal -->
+    <div id="admin-confirm-modal" class="fixed inset-0 z-[100] hidden">
+        <div id="admin-confirm-overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-md"></div>
+        <div class="relative z-[101] flex min-h-screen items-center justify-center p-4">
+            <div class="w-full max-w-lg rounded-2xl border border-danger-500/40 bg-slate-900/95 p-7 shadow-2xl shadow-danger-900/40 ring-1 ring-danger-400/20">
+                <div class="mb-5 rounded-xl border border-danger-500/30 bg-danger-500/10 px-4 py-2">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-danger-300">Danger Zone</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 flex h-12 w-12 items-center justify-center rounded-xl bg-danger-500/20 text-danger-300 ring-1 ring-danger-400/40">
+                        <i data-lucide="alert-triangle" class="h-6 w-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white">Confirm Deletion</h3>
+                        <p id="admin-confirm-message" class="mt-2 text-base text-slate-200">Are you sure you want to continue?</p>
+                        <p class="mt-2 text-sm font-medium text-danger-300">This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="mt-7 flex justify-end gap-3">
+                    <button type="button" id="admin-confirm-cancel" class="btn btn-secondary px-5">Cancel</button>
+                    <button type="button" id="admin-confirm-ok" class="btn btn-danger px-6">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
 
     <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
-        });
+        // Centralized icon init (works with Turbo + dynamic DOM updates)
+        function adminInitIcons() {
+            if (typeof window.initIcons === 'function') {
+                window.initIcons();
+                return;
+            }
+            if (typeof window.lucide !== 'undefined') {
+                window.lucide.createIcons();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', adminInitIcons);
+        document.addEventListener('turbo:load', adminInitIcons);
+        document.addEventListener('turbo:render', adminInitIcons);
+        document.addEventListener('turbo:frame-load', adminInitIcons);
+
+        (function() {
+            let pendingForm = null;
+
+            function getModalElements() {
+                const modal = document.getElementById('admin-confirm-modal');
+                if (!modal) return null;
+
+                return {
+                    modal,
+                    message: document.getElementById('admin-confirm-message'),
+                    cancelBtn: document.getElementById('admin-confirm-cancel'),
+                    okBtn: document.getElementById('admin-confirm-ok'),
+                    overlay: document.getElementById('admin-confirm-overlay')
+                };
+            }
+
+            function openConfirmModal(form) {
+                const els = getModalElements();
+                if (!els) return;
+
+                pendingForm = form;
+                const text = form.getAttribute('data-confirm') || 'Are you sure you want to continue?';
+                if (els.message) {
+                    els.message.textContent = text;
+                }
+
+                els.modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                adminInitIcons();
+            }
+
+            function closeConfirmModal() {
+                const els = getModalElements();
+                if (!els) return;
+
+                els.modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                pendingForm = null;
+            }
+
+            document.addEventListener('submit', function(event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                if (!form.hasAttribute('data-confirm')) return;
+
+                event.preventDefault();
+                openConfirmModal(form);
+            });
+
+            document.addEventListener('click', function(event) {
+                const els = getModalElements();
+                if (!els) return;
+
+                if (event.target === els.overlay || (event.target instanceof HTMLElement && event.target.closest('#admin-confirm-cancel'))) {
+                    closeConfirmModal();
+                    return;
+                }
+
+                if (event.target === els.okBtn || (event.target instanceof HTMLElement && event.target.closest('#admin-confirm-ok'))) {
+                    if (!pendingForm) {
+                        closeConfirmModal();
+                        return;
+                    }
+
+                    const formToSubmit = pendingForm;
+                    closeConfirmModal();
+                    // Use native submit to force full-page reload after delete.
+                    formToSubmit.submit();
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeConfirmModal();
+                }
+            });
+        })();
     </script>
 </body>
 </html>

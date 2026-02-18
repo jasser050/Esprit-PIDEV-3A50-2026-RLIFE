@@ -46,9 +46,13 @@ class Project
     #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'project', orphanRemoval: true)]
     private Collection $assignments;
 
+    #[ORM\OneToMany(targetEntity: ProjectShare::class, mappedBy: 'project', orphanRemoval: true)]
+    private Collection $shares;
+
     public function __construct()
     {
         $this->assignments = new ArrayCollection();
+        $this->shares = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -174,6 +178,35 @@ class Project
         if ($this->assignments->removeElement($assignment)) {
             if ($assignment->getProject() === $this) {
                 $assignment->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProjectShare>
+     */
+    public function getShares(): Collection
+    {
+        return $this->shares;
+    }
+
+    public function addShare(ProjectShare $share): static
+    {
+        if (!$this->shares->contains($share)) {
+            $this->shares->add($share);
+            $share->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShare(ProjectShare $share): static
+    {
+        if ($this->shares->removeElement($share)) {
+            if ($share->getProject() === $this) {
+                $share->setProject(null);
             }
         }
 

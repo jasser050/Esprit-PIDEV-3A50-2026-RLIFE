@@ -5,9 +5,12 @@ namespace App\Entity;
 use App\Repository\RecommendationStressRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: RecommendationStressRepository::class)]
 #[ORM\Table(name: 'recommendation_stress')]
+#[UniqueEntity(fields: ['title'], message: 'Ce titre existe déjà. Veuillez choisir un titre unique.')]
 class RecommendationStress
 {
     #[ORM\Id]
@@ -16,9 +19,25 @@ class RecommendationStress
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire.')]
+    #[Assert\Length(
+        min: 10,
+        max: 100,
+        minMessage: 'Le titre doit contenir au minimum {{ limit }} caractères.',
+        maxMessage: 'Le titre ne doit pas dépasser {{ limit }} caractères.'
+    )]
+    #[Assert\Regex(
+        pattern: '/^(?!\d+$).+$/',
+        message: 'Le titre ne peut pas contenir uniquement des chiffres.'
+    )]
     private ?string $title = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Le contenu est obligatoire.')]
+    #[Assert\Length(
+        min: 11,
+        minMessage: 'Le contenu doit contenir plus de 10 caractères.'
+    )]
     private ?string $content = null;
 
     #[ORM\Column(length: 30)]
