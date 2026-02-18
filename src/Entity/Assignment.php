@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\AssignmentRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,10 +30,10 @@ class Assignment
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
@@ -50,17 +48,9 @@ class Assignment
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'assignment', orphanRemoval: true)]
-    private Collection $comments;
-
-    #[ORM\OneToMany(targetEntity: AssignmentCollaborator::class, mappedBy: 'assignment', orphanRemoval: true)]
-    private Collection $collaborators;
-
     public function __construct()
     {
         $this->createdAt = new \DateTime();
-        $this->comments = new ArrayCollection();
-        $this->collaborators = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -68,10 +58,6 @@ class Assignment
     {
         $this->updatedAt = new \DateTime();
     }
-
-    // ────────────────────────────────────────────────
-    // Getters & Setters
-    // ────────────────────────────────────────────────
 
     public function getId(): ?int
     {
@@ -127,7 +113,7 @@ class Assignment
         return $this->dateDebut;
     }
 
-    public function setDateDebut(?\DateTimeInterface $dateDebut): static
+    public function setDateDebut(\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -138,7 +124,7 @@ class Assignment
         return $this->dateFin;
     }
 
-    public function setDateFin(?\DateTimeInterface $dateFin): static
+    public function setDateFin(\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;
@@ -185,66 +171,6 @@ class Assignment
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Comment>
-     */
-    public function getComments(): Collection
-    {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): static
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments->add($comment);
-            $comment->setAssignment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeComment(Comment $comment): static
-    {
-        if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
-            if ($comment->getAssignment() === $this) {
-                $comment->setAssignment(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AssignmentCollaborator>
-     */
-    public function getCollaborators(): Collection
-    {
-        return $this->collaborators;
-    }
-
-    public function addCollaborator(AssignmentCollaborator $collaborator): static
-    {
-        if (!$this->collaborators->contains($collaborator)) {
-            $this->collaborators->add($collaborator);
-            $collaborator->setAssignment($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCollaborator(AssignmentCollaborator $collaborator): static
-    {
-        if ($this->collaborators->removeElement($collaborator)) {
-            // set the owning side to null (unless already changed)
-            if ($collaborator->getAssignment() === $this) {
-                $collaborator->setAssignment(null);
-            }
-        }
-
         return $this;
     }
 }

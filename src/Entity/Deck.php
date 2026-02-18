@@ -17,48 +17,30 @@ class Deck
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_deck', type: Types::INTEGER)]
-    private ?int $id = null;
+    private ?int $idDeck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'decks')]
-    #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
-    #[Assert\NotBlank(message: 'Title is required')]
-    #[Assert\Length(
-        min: 3,
-        max: 255,
-        minMessage: 'Title must be at least {{ limit }} characters',
-        maxMessage: 'Title cannot exceed {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[^\d]/',
-        message: 'Title must not start with a digit'
-    )]
+    #[Assert\NotBlank(message: "Le titre est obligatoire")]
+    #[Assert\Length(min: 3, max: 255, minMessage: "Le titre doit contenir au moins 3 caractères", maxMessage: "Le titre ne peut pas dépasser 255 caractères")]
+    #[Assert\Regex(pattern: "/^[^\d].*$/", message: "Le titre ne doit pas commencer par un chiffre")]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::STRING, length: 100)]
-    #[Assert\NotBlank(message: 'Subject is required')]
-    #[Assert\Length(
-        min: 3,
-        minMessage: 'Subject must be at least {{ limit }} characters'
-    )]
+    #[Assert\NotBlank(message: "La matière est obligatoire")]
+    #[Assert\Length(min: 3, minMessage: "La matière doit contenir au moins 3 caractères")]
     private ?string $matiere = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
-    #[Assert\NotBlank(message: 'Level is required')]
-    #[Assert\Length(
-        min: 1,
-        max: 50,
-        minMessage: 'Level must be at least {{ limit }} character'
-    )]
+    #[Assert\NotBlank(message: "Le niveau est obligatoire")]
+    #[Assert\Length(min: 1, max: 50, minMessage: "Le niveau doit contenir au moins 1 caractère")]
     private ?string $niveau = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Assert\Length(
-        max: 2000,
-        maxMessage: 'Description cannot exceed {{ limit }} characters'
-    )]
+    #[Assert\Length(max: 2000, maxMessage: "La description ne peut pas dépasser 2000 caractères")]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -68,18 +50,18 @@ class Deck
     private ?string $pdf = null;
 
     #[Assert\File(
-        maxSize: '5M',
-        mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-        mimeTypesMessage: 'Please upload a valid image (JPG, PNG, WEBP, GIF)',
-        maxSizeMessage: 'Image must not exceed 5 MB'
+        maxSize: "5M",
+        mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+        mimeTypesMessage: "Veuillez uploader une image valide (JPG, PNG, WEBP, GIF)",
+        maxSizeMessage: "L'image ne doit pas dépasser 5 Mo"
     )]
     private ?File $imageFile = null;
 
     #[Assert\File(
-        maxSize: '10M',
-        mimeTypes: ['application/pdf'],
-        mimeTypesMessage: 'Please upload a valid PDF file',
-        maxSizeMessage: 'PDF must not exceed 10 MB'
+        maxSize: "10M",
+        mimeTypes: ["application/pdf"],
+        mimeTypesMessage: "Veuillez uploader un fichier PDF valide",
+        maxSizeMessage: "Le PDF ne doit pas dépasser 10 Mo"
     )]
     private ?File $pdfFile = null;
 
@@ -95,25 +77,16 @@ class Deck
     #[ORM\InverseJoinColumn(name: 'id_flashcard', referencedColumnName: 'id_flashcard')]
     private Collection $revisionFlashcards;
 
-    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'deck', orphanRemoval: true)]
-    private Collection $ratings;
-
-    private ?int $cardCount = null;
-
-    private ?int $masteredCount = null;
-
     public function __construct()
     {
         $this->flashcards = new ArrayCollection();
         $this->revisionFlashcards = new ArrayCollection();
-        $this->ratings = new ArrayCollection();
         $this->dateCreation = new \DateTime();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    // ────────────────────────────────────────────────
+    // Getters & Setters pour les fichiers (VALIDATION)
+    // ────────────────────────────────────────────────
 
     public function getImageFile(): ?File
     {
@@ -137,12 +110,21 @@ class Deck
         return $this;
     }
 
+    // ────────────────────────────────────────────────
+    // Getters & Setters pour les noms en base (STRING)
+    // ────────────────────────────────────────────────
+
+    public function getIdDeck(): ?int
+    {
+        return $this->idDeck;
+    }
+
     public function getUser(): ?User
     {
         return $this->user;
     }
 
-    public function setUser(?User $user): static
+    public function setUser(?User $user): self
     {
         $this->user = $user;
         return $this;
@@ -153,7 +135,8 @@ class Deck
         return $this->titre;
     }
 
-    public function setTitre(string $titre): static
+    // ✅ CORRECTION : Accepte null pour éviter l'erreur lors de la soumission du formulaire
+    public function setTitre(?string $titre): self
     {
         $this->titre = $titre;
         return $this;
@@ -164,7 +147,8 @@ class Deck
         return $this->matiere;
     }
 
-    public function setMatiere(string $matiere): static
+    // ✅ CORRECTION : Accepte null
+    public function setMatiere(?string $matiere): self
     {
         $this->matiere = $matiere;
         return $this;
@@ -175,7 +159,8 @@ class Deck
         return $this->niveau;
     }
 
-    public function setNiveau(string $niveau): static
+    // ✅ CORRECTION : Accepte null
+    public function setNiveau(?string $niveau): self
     {
         $this->niveau = $niveau;
         return $this;
@@ -186,7 +171,7 @@ class Deck
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription(?string $description): self
     {
         $this->description = $description;
         return $this;
@@ -197,7 +182,7 @@ class Deck
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage(?string $image): self
     {
         $this->image = $image;
         return $this;
@@ -208,7 +193,7 @@ class Deck
         return $this->pdf;
     }
 
-    public function setPdf(?string $pdf): static
+    public function setPdf(?string $pdf): self
     {
         $this->pdf = $pdf;
         return $this;
@@ -219,7 +204,7 @@ class Deck
         return $this->dateCreation;
     }
 
-    public function setDateCreation(\DateTimeInterface $dateCreation): static
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
     {
         $this->dateCreation = $dateCreation;
         return $this;
@@ -233,7 +218,7 @@ class Deck
         return $this->flashcards;
     }
 
-    public function addFlashcard(Flashcard $flashcard): static
+    public function addFlashcard(Flashcard $flashcard): self
     {
         if (!$this->flashcards->contains($flashcard)) {
             $this->flashcards->add($flashcard);
@@ -243,9 +228,10 @@ class Deck
         return $this;
     }
 
-    public function removeFlashcard(Flashcard $flashcard): static
+    public function removeFlashcard(Flashcard $flashcard): self
     {
         if ($this->flashcards->removeElement($flashcard)) {
+            // set the owning side to null (unless already changed)
             if ($flashcard->getDeck() === $this) {
                 $flashcard->setDeck(null);
             }
@@ -262,67 +248,19 @@ class Deck
         return $this->revisionFlashcards;
     }
 
-    public function addRevisionFlashcard(Flashcard $flashcard): static
+    public function addRevisionFlashcard(Flashcard $revisionFlashcard): self
     {
-        if (!$this->revisionFlashcards->contains($flashcard)) {
-            $this->revisionFlashcards->add($flashcard);
+        if (!$this->revisionFlashcards->contains($revisionFlashcard)) {
+            $this->revisionFlashcards->add($revisionFlashcard);
         }
 
         return $this;
     }
 
-    public function removeRevisionFlashcard(Flashcard $flashcard): static
+    public function removeRevisionFlashcard(Flashcard $revisionFlashcard): self
     {
-        $this->revisionFlashcards->removeElement($flashcard);
+        $this->revisionFlashcards->removeElement($revisionFlashcard);
 
-        return $this;
-    }
-
-    public function getRatings(): Collection
-    {
-        return $this->ratings;
-    }
-
-    public function addRating(Rating $rating): static
-    {
-        if (!$this->ratings->contains($rating)) {
-            $this->ratings->add($rating);
-            $rating->setDeck($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRating(Rating $rating): static
-    {
-        if ($this->ratings->removeElement($rating)) {
-            if ($rating->getDeck() === $this) {
-                $rating->setDeck(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getCardCount(): ?int
-    {
-        return $this->cardCount;
-    }
-
-    public function setCardCount(?int $cardCount): static
-    {
-        $this->cardCount = $cardCount;
-        return $this;
-    }
-
-    public function getMasteredCount(): ?int
-    {
-        return $this->masteredCount;
-    }
-
-    public function setMasteredCount(?int $masteredCount): static
-    {
-        $this->masteredCount = $masteredCount;
         return $this;
     }
 }

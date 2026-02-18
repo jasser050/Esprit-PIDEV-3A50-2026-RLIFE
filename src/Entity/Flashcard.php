@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\FlashcardRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
@@ -25,10 +24,10 @@ class Flashcard
     private ?Deck $deck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true)]
     private ?User $createdBy = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]  // ✅ CORRIGÉ
     #[Assert\NotBlank(message: 'Le titre est obligatoire')]
     #[Assert\Length(
         min: 3,
@@ -42,7 +41,7 @@ class Flashcard
     )]
     private ?string $titre = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]  // ✅ CORRIGÉ
     #[Assert\NotBlank(message: 'La question est obligatoire')]
     #[Assert\Length(
         min: 5,
@@ -52,7 +51,7 @@ class Flashcard
     )]
     private ?string $question = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]  // ✅ CORRIGÉ
     #[Assert\NotBlank(message: 'La réponse est obligatoire')]
     #[Assert\Length(
         min: 1,
@@ -62,14 +61,14 @@ class Flashcard
     )]
     private ?string $reponse = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]  // ✅ OK (optionnel)
     #[Assert\Length(
         max: 2000,
         maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères'
     )]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: false)]  // ✅ CORRIGÉ
     #[Assert\NotNull(message: 'Le niveau de difficulté est obligatoire')]
     #[Assert\Range(
         min: 1,
@@ -78,7 +77,7 @@ class Flashcard
     )]
     private ?int $niveauDifficulte = null;
 
-    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: false)]  // ✅ CORRIGÉ
     #[Assert\NotBlank(message: 'L\'état est obligatoire')]
     #[Assert\Choice(
         choices: ['actif', 'brouillon', 'archive', 'inactif'],
@@ -86,10 +85,10 @@ class Flashcard
     )]
     private ?string $etat = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]  // ✅ OK (optionnel)
     private ?string $image = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]  // ✅ OK (optionnel)
     private ?string $pdf = null;
 
     #[ORM\Column(name: 'date_creation', type: Types::DATETIME_MUTABLE)]
@@ -98,14 +97,10 @@ class Flashcard
     #[ORM\Column(name: 'date_modification', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateModification = null;
 
-    #[ORM\OneToMany(targetEntity: FlashcardTranslation::class, mappedBy: 'flashcard', orphanRemoval: true)]
-    private Collection $translations;
-
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
         $this->etat = 'actif';
-        $this->translations = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -114,166 +109,30 @@ class Flashcard
         $this->dateModification = new \DateTime();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function getDeck(): ?Deck
-    {
-        return $this->deck;
-    }
-
-    public function setDeck(?Deck $deck): static
-    {
-        $this->deck = $deck;
-        return $this;
-    }
-
-    public function getTitre(): ?string
-    {
-        return $this->titre;
-    }
-
-    public function setTitre(?string $titre): static
-    {
-        $this->titre = $titre;
-        return $this;
-    }
-
-    public function getQuestion(): ?string
-    {
-        return $this->question;
-    }
-
-    public function setQuestion(string $question): static
-    {
-        $this->question = $question;
-        return $this;
-    }
-
-    public function getReponse(): ?string
-    {
-        return $this->reponse;
-    }
-
-    public function setReponse(string $reponse): static
-    {
-        $this->reponse = $reponse;
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): static
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    public function getNiveauDifficulte(): ?int
-    {
-        return $this->niveauDifficulte;
-    }
-
-    public function setNiveauDifficulte(?int $niveauDifficulte): static
-    {
-        $this->niveauDifficulte = $niveauDifficulte;
-        return $this;
-    }
-
-    public function getEtat(): ?string
-    {
-        return $this->etat;
-    }
-
-    public function setEtat(?string $etat): static
-    {
-        $this->etat = $etat;
-        return $this;
-    }
-
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    public function setImage(?string $image): static
-    {
-        $this->image = $image;
-        return $this;
-    }
-
-    public function getPdf(): ?string
-    {
-        return $this->pdf;
-    }
-
-    public function setPdf(?string $pdf): static
-    {
-        $this->pdf = $pdf;
-        return $this;
-    }
-
-    public function getDateCreation(): ?\DateTimeInterface
-    {
-        return $this->dateCreation;
-    }
-
-    public function setDateCreation(\DateTimeInterface $dateCreation): static
-    {
-        $this->dateCreation = $dateCreation;
-        return $this;
-    }
-
-    public function getDateModification(): ?\DateTimeInterface
-    {
-        return $this->dateModification;
-    }
-
-    public function setDateModification(?\DateTimeInterface $dateModification): static
-    {
-        $this->dateModification = $dateModification;
-        return $this;
-    }
-
-    public function getCreatedBy(): ?User
-    {
-        return $this->createdBy;
-    }
-
-    public function setCreatedBy(?User $createdBy): static
-    {
-        $this->createdBy = $createdBy;
-        return $this;
-    }
-
-    public function getTranslations(): Collection
-    {
-        return $this->translations;
-    }
-
-    public function addTranslation(FlashcardTranslation $translation): static
-    {
-        if (!$this->translations->contains($translation)) {
-            $this->translations->add($translation);
-            $translation->setFlashcard($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTranslation(FlashcardTranslation $translation): static
-    {
-        if ($this->translations->removeElement($translation)) {
-            if ($translation->getFlashcard() === $this) {
-                $translation->setFlashcard(null);
-            }
-        }
-
-        return $this;
-    }
+    // Getters et setters (inchangés)...
+    public function getId(): ?int { return $this->id; }
+    public function getDeck(): ?Deck { return $this->deck; }
+    public function setDeck(?Deck $deck): static { $this->deck = $deck; return $this; }
+    public function getCreatedBy(): ?User { return $this->createdBy; }
+    public function setCreatedBy(?User $createdBy): static { $this->createdBy = $createdBy; return $this; }
+    public function getTitre(): ?string { return $this->titre; }
+    public function setTitre(?string $titre): static { $this->titre = $titre; return $this; }
+    public function getQuestion(): ?string { return $this->question; }
+    public function setQuestion(string $question): static { $this->question = $question; return $this; }
+    public function getReponse(): ?string { return $this->reponse; }
+    public function setReponse(string $reponse): static { $this->reponse = $reponse; return $this; }
+    public function getDescription(): ?string { return $this->description; }
+    public function setDescription(?string $description): static { $this->description = $description; return $this; }
+    public function getNiveauDifficulte(): ?int { return $this->niveauDifficulte; }
+    public function setNiveauDifficulte(?int $niveauDifficulte): static { $this->niveauDifficulte = $niveauDifficulte; return $this; }
+    public function getEtat(): ?string { return $this->etat; }
+    public function setEtat(?string $etat): static { $this->etat = $etat; return $this; }
+    public function getImage(): ?string { return $this->image; }
+    public function setImage(?string $image): static { $this->image = $image; return $this; }
+    public function getPdf(): ?string { return $this->pdf; }
+    public function setPdf(?string $pdf): static { $this->pdf = $pdf; return $this; }
+    public function getDateCreation(): ?\DateTimeInterface { return $this->dateCreation; }
+    public function setDateCreation(\DateTimeInterface $dateCreation): static { $this->dateCreation = $dateCreation; return $this; }
+    public function getDateModification(): ?\DateTimeInterface { return $this->dateModification; }
+    public function setDateModification(?\DateTimeInterface $dateModification): static { $this->dateModification = $dateModification; return $this; }
 }

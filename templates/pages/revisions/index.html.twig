@@ -10,7 +10,7 @@
         position: relative;
         max-width: 100%;
     }
-
+    
     .search-input {
         width: 100%;
         padding: 12px 48px 12px 16px;
@@ -20,19 +20,19 @@
         transition: all 0.3s ease;
         background-color: white;
     }
-
+    
     .search-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
+    
     .search-input.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
+    
     .search-button {
         position: absolute;
         right: 12px;
@@ -46,17 +46,17 @@
         border-radius: 8px;
         transition: all 0.3s ease;
     }
-
+    
     .search-button:hover {
         background-color: #f1f5f9;
         color: #3b82f6;
     }
-
+    
     .search-button.dark:hover {
         background-color: #334155;
         color: #60a5fa;
     }
-
+    
     /* Filtres et tris */
     .controls-container {
         display: flex;
@@ -64,36 +64,30 @@
         gap: 16px;
         margin-top: 16px;
     }
-
+    
     .filters-row {
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
         align-items: center;
     }
-
+    
     .filter-group {
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
-
+    
     .filter-label {
         font-size: 14px;
         font-weight: 500;
         color: #64748b;
     }
-
-    .filter-label.dark,
-    label.filter-label.dark {
+    
+    .filter-label.dark {
         color: #94a3b8;
     }
-
-    .dark .filter-label,
-    .dark label.filter-label {
-        color: #94a3b8;
-    }
-
+    
     .filter-select {
         padding: 8px 12px;
         border: 2px solid #e2e8f0;
@@ -104,46 +98,30 @@
         min-width: 150px;
         transition: all 0.3s ease;
     }
-
+    
     .filter-select:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
-    .filter-select.dark,
-    select.filter-select.dark {
+    
+    .filter-select.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
-    .filter-select.dark:focus,
-    select.filter-select.dark:focus {
+    
+    .filter-select.dark:focus {
         border-color: #60a5fa;
     }
-
-    /* Dark mode for filter select */
-    .dark .filter-select,
-    .dark select.filter-select {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-
-    .dark .filter-select option,
-    .dark select.filter-select option {
-        background-color: #1e293b;
-        color: white;
-    }
-
+    
     /* Recherche par date */
     .date-search-container {
         display: flex;
         gap: 8px;
         align-items: center;
     }
-
+    
     .date-input {
         padding: 8px 12px;
         border: 2px solid #e2e8f0;
@@ -152,39 +130,26 @@
         width: 150px;
         transition: all 0.3s ease;
     }
-
+    
     .date-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
-    .date-input.dark,
-    input.date-input.dark {
+    
+    .date-input.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
-    /* Dark mode for date inputs */
-    .dark .date-input,
-    .dark input.date-input {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-
-    .dark .date-input::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-    }
-
+    
     /* Boutons de tri */
     .sort-buttons {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
     }
-
+    
     .sort-button {
         padding: 8px 16px;
         border-radius: 20px;
@@ -199,41 +164,41 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .sort-button:hover {
         border-color: #3b82f6;
         color: #3b82f6;
     }
-
+    
     .sort-button.active {
         background-color: #3b82f6;
         color: white;
         border-color: #3b82f6;
     }
-
+    
     .sort-button.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: #cbd5e1;
     }
-
+    
     .sort-button.dark:hover {
         border-color: #60a5fa;
         color: #60a5fa;
     }
-
+    
     .sort-button.dark.active {
         background-color: #60a5fa;
         color: white;
         border-color: #60a5fa;
     }
-
+    
     /* Boutons d'action */
     .action-buttons {
         display: flex;
         gap: 8px;
     }
-
+    
     .action-button {
         padding: 8px 16px;
         border-radius: 8px;
@@ -246,25 +211,25 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .action-button.reset {
         background-color: #f1f5f9;
         color: #64748b;
     }
-
+    
     .action-button.reset:hover {
         background-color: #e2e8f0;
     }
-
+    
     .action-button.reset.dark {
         background-color: #334155;
         color: #cbd5e1;
     }
-
+    
     .action-button.reset.dark:hover {
         background-color: #475569;
     }
-
+    
     /* Compteur de résultats */
     .results-info {
         display: flex;
@@ -274,21 +239,21 @@
         padding-top: 16px;
         border-top: 1px solid #e2e8f0;
     }
-
+    
     .results-info.dark {
         border-top-color: #475569;
     }
-
+    
     .deck-counter {
         color: #64748b;
         font-size: 14px;
         font-weight: 500;
     }
-
+    
     .deck-counter.dark {
         color: #94a3b8;
     }
-
+    
     .sort-indicator {
         color: #3b82f6;
         font-size: 14px;
@@ -297,29 +262,29 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .sort-indicator.dark {
         color: #60a5fa;
     }
-
+    
     /* Message "Aucun résultat" */
     .no-results {
         text-align: center;
         padding: 60px 20px;
         grid-column: 1 / -1;
     }
-
+    
     .no-results-icon {
         width: 80px;
         height: 80px;
         margin: 0 auto 20px;
         color: #cbd5e1;
     }
-
+    
     .no-results.dark .no-results-icon {
         color: #475569;
     }
-
+    
     /* Animation pour les cartes */
     @keyframes fadeIn {
         from {
@@ -331,26 +296,26 @@
             transform: translateY(0);
         }
     }
-
+    
     .deck-card {
         animation: fadeIn 0.3s ease-out;
     }
-
+    
     /* Responsive */
     @media (max-width: 768px) {
         .filters-row {
             flex-direction: column;
             align-items: stretch;
         }
-
+        
         .filter-select, .date-input {
             width: 100%;
         }
-
+        
         .date-search-container {
             flex-direction: column;
         }
-
+        
         .results-info {
             flex-direction: column;
             gap: 12px;
@@ -378,15 +343,15 @@
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-6">
         <!-- Barre de recherche principale -->
         <div class="search-container">
-            <input type="text"
-                   id="deckSearch"
-                   placeholder="Search decks by title, subject, level or description..."
+            <input type="text" 
+                   id="deckSearch" 
+                   placeholder="Search decks by title, subject, level or description..." 
                    class="search-input dark:search-input.dark">
             <button type="button" id="searchButton" class="search-button dark:search-button.dark">
                 <i data-lucide="search" class="w-5 h-5"></i>
             </button>
         </div>
-
+        
         <!-- Contrôles de filtrage et tri -->
         <div class="controls-container">
             <!-- Première ligne : Filtres -->
@@ -407,7 +372,7 @@
                         {% endfor %}
                     </select>
                 </div>
-
+                
                 <!-- Filtre par niveau -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark">Level</label>
@@ -424,7 +389,7 @@
                         {% endfor %}
                     </select>
                 </div>
-
+                
                 <!-- Filtre par date -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark">Date Created</label>
@@ -435,7 +400,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Deuxième ligne : Tris et actions -->
             <div class="filters-row">
                 <!-- Boutons de tri -->
@@ -460,7 +425,7 @@
                         </button>
                     </div>
                 </div>
-
+                
                 <!-- Boutons d'action -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark opacity-0">Actions</label>
@@ -473,7 +438,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Informations sur les résultats -->
         <div class="results-info dark:results-info.dark">
             <div id="resultCounter" class="deck-counter dark:deck-counter.dark">
@@ -515,7 +480,7 @@
 
                 {% for deck in decks %}
                     {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
-
+                    
                     <div class="deck-card bg-white rounded-2xl shadow-lg border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col"
                          style="border-color: {{ palette.border }};"
                          data-title="{{ deck.titre|lower }}"
@@ -523,7 +488,7 @@
                          data-niveau="{{ deck.niveau|lower }}"
                          data-description="{{ deck.description|lower }}"
                          data-date="{{ deck.dateCreation ? deck.dateCreation|date('Y-m-d') : '' }}">
-
+                        
                         <!-- Photo de couverture -->
                         <div class="h-32 overflow-hidden relative">
                             {% if deck.image %}
@@ -537,7 +502,7 @@
                                 </div>
                             {% endif %}
                         </div>
-
+                        
                         <!-- Header avec icône et date -->
                         <div class="p-5 pb-0">
                             <div class="flex items-start justify-between mb-4">
@@ -546,7 +511,7 @@
                                      style="background-color: rgba(255, 255, 255, 0.9); border: 2px solid {{ palette.border }};">
                                     <i data-lucide="layers" class="w-6 h-6" style="color: {{ palette.text }};"></i>
                                 </div>
-
+                                
                                 <!-- Date de création -->
                                 <span class="text-xs text-slate-500 font-medium">
                                     {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
@@ -579,7 +544,7 @@
                                     <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>
                                     {{ deck.flashcards|length }} cards
                                 </span>
-
+                                
                                 <!-- Cartes maîtrisées -->
                                 <span class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-green-100 text-green-700 border border-green-300 shadow-sm">
                                     <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
@@ -614,14 +579,14 @@
 
                             <!-- Boutons d'action principaux -->
                             <div class="flex flex-col gap-2">
-                                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                                <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
                                    class="inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition shadow-md text-white"
                                    style="background-color: {{ palette.text }};">
                                     <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
                                     Study this deck
                                 </a>
 
-                                <a data-turbo="false" href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
+                                <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
                                    class="inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition shadow-md border-2"
                                    style="background-color: {{ palette.bg }}; color: {{ palette.text }}; border-color: {{ palette.border }};">
                                     <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
@@ -670,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultCounter = document.getElementById('resultCounter');
     const sortIndicator = document.getElementById('sortIndicator');
     const noResultsTemplate = document.getElementById('noResultsTemplate');
-
+    
     // État courant
     let currentState = {
         search: '',
@@ -680,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dateTo: '',
         sort: 'date-desc'
     };
-
+    
     // Icônes pour l'indicateur de tri
     const sortIcons = {
         'date-desc': 'calendar',
@@ -688,58 +653,58 @@ document.addEventListener('DOMContentLoaded', function() {
         'title': 'arrow-up-a-z',
         'title-desc': 'arrow-down-z-a'
     };
-
+    
     const sortLabels = {
         'date-desc': 'Newest First',
         'date': 'Oldest First',
         'title': 'Title A-Z',
         'title-desc': 'Title Z-A'
     };
-
+    
     // Fonction pour vérifier si une date est dans l'intervalle
     function isDateInRange(dateString, from, to) {
         if (!dateString) return false;
-
+        
         const date = new Date(dateString);
         const fromDate = from ? new Date(from) : null;
         const toDate = to ? new Date(to) : null;
-
+        
         if (fromDate && date < fromDate) return false;
         if (toDate && date > toDate) return false;
-
+        
         return true;
     }
-
+    
     // Fonction pour filtrer les decks
     function filterDecks() {
         let visibleCount = 0;
         const visibleDecks = [];
-
+        
         deckCards.forEach(card => {
             const title = card.getAttribute('data-title') || '';
             const matiere = card.getAttribute('data-matiere') || '';
             const niveau = card.getAttribute('data-niveau') || '';
             const description = card.getAttribute('data-description') || '';
             const date = card.getAttribute('data-date') || '';
-
+            
             // Vérifier la recherche
-            const searchMatch = currentState.search === '' ||
+            const searchMatch = currentState.search === '' || 
                 title.includes(currentState.search) ||
                 matiere.includes(currentState.search) ||
                 niveau.includes(currentState.search) ||
                 description.includes(currentState.search);
-
+            
             // Vérifier le sujet
-            const subjectMatch = currentState.subject === 'all' ||
+            const subjectMatch = currentState.subject === 'all' || 
                 matiere === currentState.subject;
-
+            
             // Vérifier le niveau
-            const levelMatch = currentState.level === 'all' ||
+            const levelMatch = currentState.level === 'all' || 
                 niveau === currentState.level;
-
+            
             // Vérifier la date
             const dateMatch = isDateInRange(date, currentState.dateFrom, currentState.dateTo);
-
+            
             // Afficher ou cacher la carte
             if (searchMatch && subjectMatch && levelMatch && dateMatch) {
                 card.style.display = 'flex';
@@ -753,14 +718,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.display = 'none';
             }
         });
-
+        
         // Trier les decks visibles
         sortDecks(visibleDecks);
-
+        
         // Mettre à jour l'interface
         updateUI(visibleCount);
     }
-
+    
     // Fonction pour trier les decks
     function sortDecks(decks) {
         decks.sort((a, b) => {
@@ -777,7 +742,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return 0;
             }
         });
-
+        
         // Réorganiser les cartes dans le DOM
         const gridContainer = decksContainer.querySelector('.grid');
         if (gridContainer) {
@@ -786,12 +751,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-
+    
     // Fonction pour mettre à jour l'interface
     function updateUI(visibleCount) {
         // Mettre à jour le compteur
         resultCounter.textContent = `Showing ${visibleCount} deck${visibleCount !== 1 ? 's' : ''}`;
-
+        
         // Mettre à jour l'indicateur de tri
         const iconName = sortIcons[currentState.sort];
         sortIndicator.innerHTML = `
@@ -799,22 +764,22 @@ document.addEventListener('DOMContentLoaded', function() {
             Sorted by: ${sortLabels[currentState.sort]}
         `;
         lucide.create();
-
+        
         // Gérer l'affichage "Aucun résultat"
         const gridContainer = decksContainer.querySelector('.grid');
         if (gridContainer) {
             if (visibleCount === 0) {
                 gridContainer.style.display = 'none';
                 const noResults = noResultsTemplate.content.cloneNode(true);
-
+                
                 // Supprimer d'abord l'ancien message
                 const existingNoResults = decksContainer.querySelector('.no-results');
                 if (existingNoResults) {
                     existingNoResults.remove();
                 }
-
+                
                 decksContainer.appendChild(noResults);
-
+                
                 // Ajouter l'écouteur d'événement pour effacer tout
                 setTimeout(() => {
                     const clearSearchBtn = decksContainer.querySelector('#clearSearch');
@@ -831,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
+    
     // Fonction pour réinitialiser tous les filtres
     function resetAllFilters() {
         deckSearch.value = '';
@@ -839,12 +804,12 @@ document.addEventListener('DOMContentLoaded', function() {
         levelFilter.value = 'all';
         dateFrom.value = '';
         dateTo.value = '';
-
+        
         // Réactiver le tri par défaut
         sortButtons.forEach(btn => btn.classList.remove('active'));
         const defaultSort = document.querySelector('.sort-button[data-sort="date-desc"]');
         if (defaultSort) defaultSort.classList.add('active');
-
+        
         // Réinitialiser l'état
         currentState = {
             search: '',
@@ -854,78 +819,78 @@ document.addEventListener('DOMContentLoaded', function() {
             dateTo: '',
             sort: 'date-desc'
         };
-
+        
         // Réappliquer les filtres
         filterDecks();
     }
-
+    
     // Écouteurs d'événements
     // Recherche
     deckSearch.addEventListener('input', function() {
         currentState.search = this.value.trim().toLowerCase();
         filterDecks();
     });
-
+    
     searchButton.addEventListener('click', function() {
         currentState.search = deckSearch.value.trim().toLowerCase();
         filterDecks();
     });
-
+    
     deckSearch.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             currentState.search = this.value.trim().toLowerCase();
             filterDecks();
         }
     });
-
+    
     // Filtres
     subjectFilter.addEventListener('change', function() {
         currentState.subject = this.value;
         filterDecks();
     });
-
+    
     levelFilter.addEventListener('change', function() {
         currentState.level = this.value;
         filterDecks();
     });
-
+    
     dateFrom.addEventListener('change', function() {
         currentState.dateFrom = this.value;
         filterDecks();
     });
-
+    
     dateTo.addEventListener('change', function() {
         currentState.dateTo = this.value;
         filterDecks();
     });
-
+    
     // Tris
     sortButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Retirer la classe active de tous les boutons
             sortButtons.forEach(btn => btn.classList.remove('active'));
-
+            
             // Ajouter la classe active au bouton cliqué
             this.classList.add('active');
-
+            
             // Mettre à jour le tri courant
             currentState.sort = this.getAttribute('data-sort');
-
+            
             // Appliquer le tri
             filterDecks();
         });
     });
-
+    
     // Réinitialisation
     resetButton.addEventListener('click', resetAllFilters);
-
+    
     // Initialisation
     filterDecks();
-
+    
     // Mode sombre/clair
     const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const isDarkMode = darkModeMediaQuery.matches;
-
+    
     if (isDarkMode) {
         deckSearch.classList.add('dark');
         searchButton.classList.add('dark');
@@ -935,11 +900,6 @@ document.addEventListener('DOMContentLoaded', function() {
         dateTo.classList.add('dark');
         sortButtons.forEach(button => button.classList.add('dark'));
         resetButton.classList.add('dark');
-
-        // Add dark mode to labels
-        document.querySelectorAll('.filter-label').forEach(label => {
-            label.classList.add('dark');
-        });
     }
 });
 </script>

@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[Route('/revisions')]
 class RevisionController extends AbstractController
@@ -24,21 +23,6 @@ class RevisionController extends AbstractController
     public function index(DeckRepository $deckRepository): Response
     {
         $decks = $deckRepository->findAll();
-
-        foreach ($decks as $deck) {
-            $flashcards = $deck->getFlashcards();
-            $cardCount = count($flashcards);
-            $masteredCount = 0;
-
-            foreach ($flashcards as $flashcard) {
-                if ($flashcard->getEtat() === 'maitrisee') {
-                    $masteredCount++;
-                }
-            }
-
-            $deck->setCardCount($cardCount);
-            $deck->setMasteredCount($masteredCount);
-        }
 
         return $this->render('pages/revisions/index.html.twig', [
             'decks' => $decks,
@@ -64,7 +48,7 @@ class RevisionController extends AbstractController
                     $imageFile->move($uploadDir, $filename);
                     $deck->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Image upload error');
+                    $this->addFlash('error', 'Erreur upload image');
                 }
             }
 
@@ -74,7 +58,7 @@ class RevisionController extends AbstractController
                     $pdfFile->move($uploadDir, $filename);
                     $deck->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'PDF upload error');
+                    $this->addFlash('error', 'Erreur upload PDF');
                 }
             }
 
@@ -82,7 +66,7 @@ class RevisionController extends AbstractController
             $em->persist($deck);
             $em->flush();
 
-            $this->addFlash('success', 'Deck created successfully!');
+            $this->addFlash('success', 'Deck créé avec succès !');
             return $this->redirectToRoute('app_revisions');
         }
 
@@ -98,11 +82,11 @@ class RevisionController extends AbstractController
         $user = $this->getUser();
 
         if (!$user) {
-            $this->addFlash('error', 'You must be logged in.');
+            $this->addFlash('error', 'Vous devez être connecté.');
             return $this->redirectToRoute('app_revisions');
         }
 
-        // Admin can see all decks
+        // Admin voit tout
         if ($this->isGranted('ROLE_ADMIN')) {
             return $this->render('pages/revisions/study.html.twig', [
                 'deck'       => $deck,
@@ -110,7 +94,7 @@ class RevisionController extends AbstractController
             ]);
         }
 
-        // Users can access all decks (open access)
+        // Accès libre à tous les decks
         return $this->render('pages/revisions/study.html.twig', [
             'deck'       => $deck,
             'flashcards' => $deck->getFlashcards(),
@@ -129,7 +113,7 @@ class RevisionController extends AbstractController
         $deck = $deckRepository->find($deck_id);
 
         if (!$deck) {
-            throw $this->createNotFoundException('Deck not found');
+            throw $this->createNotFoundException('Deck introuvable');
         }
 
         $currentUser = $this->getUser();
@@ -150,7 +134,7 @@ class RevisionController extends AbstractController
                     $imageFile->move($uploadDir, $filename);
                     $flashcard->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Image upload error');
+                    $this->addFlash('error', 'Erreur upload image');
                 }
             }
 
@@ -160,15 +144,15 @@ class RevisionController extends AbstractController
                     $pdfFile->move($uploadDir, $filename);
                     $flashcard->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'PDF upload error');
+                    $this->addFlash('error', 'Erreur upload PDF');
                 }
             }
 
             $em->persist($flashcard);
             $em->flush();
 
-            $this->addFlash('success', 'Flashcard added successfully!');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+            $this->addFlash('success', 'Flashcard ajoutée avec succès !');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
         }
 
         return $this->render('pages/flashcard/new.html.twig', [
@@ -188,8 +172,15 @@ class RevisionController extends AbstractController
         $deck = $flashcard->getDeck();
         $currentUser = $this->getUser();
 
-        // Temporarily allow everyone to edit (for development)
-        // TODO: Add proper authorization check
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à modifier (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à modifier cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
 
         $form = $this->createForm(FlashcardType::class, $flashcard);
         $form->handleRequest($request);
@@ -203,7 +194,7 @@ class RevisionController extends AbstractController
                     $imageFile->move($uploadDir, $filename);
                     $flashcard->setImage($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'Image upload error');
+                    $this->addFlash('error', 'Erreur upload image');
                 }
             }
 
@@ -213,14 +204,14 @@ class RevisionController extends AbstractController
                     $pdfFile->move($uploadDir, $filename);
                     $flashcard->setPdf($filename);
                 } catch (FileException $e) {
-                    $this->addFlash('error', 'PDF upload error');
+                    $this->addFlash('error', 'Erreur upload PDF');
                 }
             }
 
             $em->flush();
 
-            $this->addFlash('success', 'Flashcard updated successfully!');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+            $this->addFlash('success', 'Flashcard modifiée avec succès !');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
         }
 
         return $this->render('pages/flashcard/edit.html.twig', [
@@ -239,132 +230,75 @@ class RevisionController extends AbstractController
     ): Response
     {
         $deck = $flashcard->getDeck();
+        $currentUser = $this->getUser();
 
-        // Temporarily allow everyone to delete (for development)
-        // TODO: Add proper authorization check
+        // ⚠️ TEMPORAIRE : Autoriser tout le monde à supprimer (développement uniquement)
+        // Commenté jusqu'à ce que la migration soit exécutée
+        /*
+        // Autorisé si admin OU créateur de la flashcard
+        if (!$this->isGranted('ROLE_ADMIN') && $flashcard->getCreatedBy()?->getId() !== $currentUser->getId()) {
+            $this->addFlash('warning', 'Vous n\'êtes pas autorisé à supprimer cette flashcard.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
+        }
+        */
 
         if ($this->isCsrfTokenValid('delete' . $flashcard->getId(), $request->request->get('_token'))) {
             $em->remove($flashcard);
             $em->flush();
-            $this->addFlash('success', 'Flashcard deleted successfully!');
+            $this->addFlash('success', 'Flashcard supprimée avec succès !');
         } else {
-            $this->addFlash('error', 'Invalid CSRF token.');
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
-        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
     }
 
     /**
-     * Automatically generates flashcards via the Gemini API (Google AI)
+     * Génère automatiquement une flashcard via IA à partir d'un thème
      */
     #[Route('/deck/{id}/generate-flashcards', name: 'app_deck_generate_flashcards', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
     public function generateFlashcards(
-        Deck $deck,
+        int $id,
         Request $request,
         EntityManagerInterface $em,
-        HttpClientInterface $httpClient
-    ): Response
-    {
-        $theme = trim($request->request->get('theme') ?? '');
+        DeckRepository $deckRepository
+    ): Response {
+        $deck = $deckRepository->find($id);
+
+        if (!$deck) {
+            throw $this->createNotFoundException('Deck introuvable');
+        }
+
+        // Récupérer le thème depuis le formulaire
+        $theme = $request->request->get('theme');
 
         if (empty($theme)) {
-            $this->addFlash('error', 'Please enter a theme or subject.');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+            $this->addFlash('error', '❌ Veuillez décrire un thème à générer.');
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
         }
 
-        $apiKey = $_ENV['GEMINI_API_KEY'] ?? null;
-
-        if (!$apiKey) {
-            $this->addFlash('error', 'Gemini API key not configured in .env');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
-        }
-
+        // ✅ SIMULATION - À remplacer par votre vrai service IA
         try {
-            // Using Gemini 2.5 Flash model with proper API v1 endpoint
-            // API key passed in header x-goog-api-key (not in URL)
-            $response = $httpClient->request(
-                'POST',
-                'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent',
-                [
-                    'headers' => [
-                        'x-goog-api-key' => $apiKey,
-                        'Content-Type' => 'application/json',
-                    ],
-                    'json' => [
-                        'contents' => [
-                            [
-                                'parts' => [
-                                    [
-                                        'text' => "Generate 6 educational flashcards in English on the theme: \"$theme\".
-                                        Return ONLY a valid JSON array (no markdown, no ```, no text before/after).
-                                        Exact format expected for EACH element:
-                                        {
-                                          \"titre\": \"Short and clear title\",
-                                          \"question\": \"Precise pedagogical question\",
-                                          \"reponse\": \"Complete and correct answer\",
-                                          \"description\": \"Explanation or context (or empty if unnecessary)\",
-                                          \"niveauDifficulte\": integer between 1 and 5,
-                                          \"etat\": \"actif\"
-                                        }"
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'generationConfig' => [
-                            'temperature' => 0.7,
-                            'maxOutputTokens' => 2048,
-                        ]
-                    ]
-                ]
-            );
+            // Création d'une flashcard exemple
+            $flashcard = new Flashcard();
+            $flashcard->setDeck($deck);
+            $flashcard->setCreatedBy($this->getUser());
+            $flashcard->setTitre('IA : ' . substr($theme, 0, 40));
+            $flashcard->setQuestion('Expliquez en détail : ' . $theme);
+            $flashcard->setReponse('Cette flashcard a été générée automatiquement pour le thème "' . $theme . '". À vous de compléter la réponse avec le contenu réel.');
+            $flashcard->setDescription('Généré automatiquement par l\'IA le ' . date('d/m/Y à H:i'));
+            $flashcard->setNiveauDifficulte(3);
+            $flashcard->setEtat('actif');
+            
+            $em->persist($flashcard);
+            $em->flush();
 
-            $data = $response->toArray();
-            $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
-
-            // Aggressive cleanup (Gemini likes to add markdown)
-            $text = trim($text);
-            $text = preg_replace('/^```(?:json)?\s*/i', '', $text);
-            $text = preg_replace('/\s*```$/', '', $text);
-
-            $flashcardsData = json_decode($text, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE || !is_array($flashcardsData)) {
-                throw new \Exception('Invalid JSON response from Gemini (' . json_last_error_msg() . '). Raw response: ' . substr($text, 0, 200));
-            }
-
-            $currentUser = $this->getUser();
-            $count = 0;
-
-            foreach ($flashcardsData as $item) {
-                if (empty($item['question']) || empty($item['reponse'])) {
-                    continue;
-                }
-
-                $flashcard = new Flashcard();
-                $flashcard->setDeck($deck);
-                $flashcard->setCreatedBy($currentUser);
-                $flashcard->setTitre($item['titre'] ?? 'AI-generated Flashcard');
-                $flashcard->setQuestion($item['question']);
-                $flashcard->setReponse($item['reponse']);
-                $flashcard->setDescription($item['description'] ?? null);
-                $flashcard->setNiveauDifficulte($item['niveauDifficulte'] ?? 3);
-                $flashcard->setEtat($item['etat'] ?? 'actif');
-
-                $em->persist($flashcard);
-                $count++;
-            }
-
-            if ($count > 0) {
-                $em->flush();
-                $this->addFlash('success', $count . ' flashcards generated successfully via AI!');
-            } else {
-                $this->addFlash('warning', 'No valid flashcards could be created.');
-            }
+            $this->addFlash('success', '✅ Flashcard générée avec succès pour le thème : "' . $theme . '"');
         } catch (\Exception $e) {
-            $this->addFlash('error', 'AI generation error: ' . $e->getMessage());
+            $this->addFlash('error', '❌ Erreur lors de la génération : ' . $e->getMessage());
         }
 
-        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getId()]);
+        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $deck->getIdDeck()]);
     }
 }

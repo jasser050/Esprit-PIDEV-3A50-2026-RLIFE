@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mes Decks</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+        h1 { color: #7c3aed; text-align: center; border-bottom: 2px solid #7c3aed; padding-bottom: 10px; }
+        .deck { border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; border-radius: 8px; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .title { font-size: 18px; font-weight: bold; color: #0f172a; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 11px; }
+        .progress { margin-top: 10px; }
+        .progress-bar { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; }
+        .progress-fill { height: 8px; background: #7c3aed; border-radius: 4px; }
+        .flashcard { background: #f8fafc; padding: 10px; margin-top: 8px; border-left: 3px solid #7c3aed; }
+        .footer { margin-top: 30px; text-align: center; color: #64748b; border-top: 1px solid #ddd; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>📚 Mes Decks de Révision</h1>
+    <p style="text-align: center;">Généré le {{ date|date('d/m/Y') }}</p>
+    
+    {% if decks is empty %}
+        <p style="text-align: center; color: #64748b;">Aucun deck à afficher</p>
+    {% else %}
+        {% for deck in decks %}
+            {% set deckCards = deck.flashcards|length %}
+            {% set masteredCards = deck.flashcards|filter(f => f.maitrisee is defined and f.maitrisee == true)|length %}
+            {% set deckProgress = deckCards > 0 ? (masteredCards / deckCards * 100)|round : 0 %}
+            
+            <div class="deck">
+                <div class="header">
+                    <span class="title">{{ deck.titre }}</span>
+                    <div>
+                        <span class="badge" style="background: #fef3c7;">{{ deck.matiere }}</span>
+                        <span class="badge" style="background: #dbeafe;">{{ deck.niveau }}</span>
+                        <span class="badge" style="background: #f1f5f9;">{{ deckCards }} cartes</span>
+                    </div>
+                </div>
+                
+                {% if deck.description %}
+                    <p style="color: #475569; margin: 10px 0;">{{ deck.description }}</p>
+                {% endif %}
+                
+                <div class="progress">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Progression</span>
+                        <span style="font-weight: bold;">{{ deckProgress }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ deckProgress }}%;"></div>
+                    </div>
+                </div>
+                
+                {% if deck.flashcards|length > 0 %}
+                    <p style="font-weight: bold; margin-top: 15px;">🃏 Flashcards :</p>
+                    {% for flashcard in deck.flashcards|slice(0, 5) %}
+                        <div class="flashcard">
+                            <div><strong>Q:</strong> {{ flashcard.question }}</div>
+                            <div><strong>R:</strong> {{ flashcard.reponse }}</div>
+                            {% if flashcard.maitrisee is defined %}
+                                <span style="font-size: 10px; color: {{ flashcard.maitrisee ? '#059669' : '#d97706' }};">
+                                    {{ flashcard.maitrisee ? '✓ Maîtrisée' : '📖 En cours' }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                    {% if deck.flashcards|length > 5 %}
+                        <p style="font-style: italic;">... et {{ deck.flashcards|length - 5 }} autre(s)</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="footer">
+        <p>StudyFlow • {{ decks|length }} deck(s)</p>
+    </div>
+</body>
+</html>
