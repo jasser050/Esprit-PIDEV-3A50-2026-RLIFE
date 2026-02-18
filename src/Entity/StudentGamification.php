@@ -85,6 +85,16 @@ class StudentGamification
         return $this;
     }
 
+    /**
+     * Ajoute des points et recalcule le niveau automatiquement
+     */
+    public function addPoints(int $amount): static
+    {
+        $this->points += $amount;
+        $this->updateLevel();
+        return $this;
+    }
+
     public function getLevel(): int
     {
         return $this->level;
@@ -94,6 +104,15 @@ class StudentGamification
     {
         $this->level = $level;
         return $this;
+    }
+
+    /**
+     * Calcule le niveau automatiquement selon les points
+     * Niveau 1 = 0-99 XP | Niveau 2 = 100-199 XP | etc.
+     */
+    public function updateLevel(): void
+    {
+        $this->level = (int) floor($this->points / 100) + 1;
     }
 
     public function getStreak(): int
@@ -118,15 +137,39 @@ class StudentGamification
         return $this;
     }
 
-    public function getBadges(): ?array
+    public function getBadges(): array
     {
-        return $this->badges;
+        return $this->badges ?? [];
     }
 
-    public function setBadges(?array $badges): static
+    public function setBadges(array $badges): static
     {
         $this->badges = $badges;
         return $this;
+    }
+
+    /**
+     * Ajoute un badge si l'étudiant ne l'a pas encore
+     */
+    public function addBadge(string $name): static
+    {
+        $existing = array_column($this->badges ?? [], 'name');
+        if (!in_array($name, $existing)) {
+            $this->badges[] = [
+                'name' => $name,
+                'date' => (new \DateTime())->format('Y-m-d'),
+            ];
+        }
+        return $this;
+    }
+
+    /**
+     * Vérifie si l'étudiant possède déjà un badge
+     */
+    public function hasBadge(string $name): bool
+    {
+        $existing = array_column($this->badges ?? [], 'name');
+        return in_array($name, $existing);
     }
 
     public function getTotalDecksCompleted(): int
