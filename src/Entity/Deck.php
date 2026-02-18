@@ -20,7 +20,7 @@ class Deck
     private ?int $idDeck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'decks')]
-    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
