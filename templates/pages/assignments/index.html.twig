@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {# templates/pages/assignments/index.html.twig #}
 {% extends 'base.html.twig' %}
 
@@ -216,6 +217,35 @@
             <div>
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.total }}</p>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Total</p>
+=======
+{% extends 'base.html.twig' %}
+
+{% block title %}Assignments{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Assignments</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track and manage your assignments</p>
+        </div>
+        <button class="btn btn-primary">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            New Assignment
+        </button>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-danger-600 dark:text-danger-400"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ assignments|filter(a => a.priority == 'high' and a.status != 'completed')|length }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">High Priority</p>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             </div>
         </div>
         <div class="card p-4 flex items-center gap-4">
@@ -223,8 +253,13 @@
                 <i data-lucide="clock" class="w-5 h-5 text-warning-600 dark:text-warning-400"></i>
             </div>
             <div>
+<<<<<<< HEAD
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.aFaire }}</p>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">To Do</p>
+=======
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ assignments|filter(a => a.status == 'pending')|length }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Pending</p>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             </div>
         </div>
         <div class="card p-4 flex items-center gap-4">
@@ -232,7 +267,11 @@
                 <i data-lucide="loader" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
             </div>
             <div>
+<<<<<<< HEAD
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.enCours }}</p>
+=======
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ assignments|filter(a => a.status == 'in_progress')|length }}</p>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">In Progress</p>
             </div>
         </div>
@@ -241,6 +280,7 @@
                 <i data-lucide="check-circle-2" class="w-5 h-5 text-success-600 dark:text-success-400"></i>
             </div>
             <div>
+<<<<<<< HEAD
                 <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.termines }}</p>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Completed</p>
             </div>
@@ -277,10 +317,165 @@
         </h3>
         <div class="h-72">
             <canvas id="prioriteChart"></canvas>
+=======
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ assignments|filter(a => a.status == 'completed')|length }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Completed</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Status:</span>
+                <a href="{{ path('app_assignments', {filter: 'all'}) }}"
+                   class="badge {{ current_filter == 'all' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    All
+                </a>
+                <a href="{{ path('app_assignments', {filter: 'pending'}) }}"
+                   class="badge {{ current_filter == 'pending' ? 'badge-warning' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i data-lucide="circle" class="w-3 h-3"></i>
+                    Pending
+                </a>
+                <a href="{{ path('app_assignments', {filter: 'in_progress'}) }}"
+                   class="badge {{ current_filter == 'in_progress' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i data-lucide="loader" class="w-3 h-3"></i>
+                    In Progress
+                </a>
+                <a href="{{ path('app_assignments', {filter: 'completed'}) }}"
+                   class="badge {{ current_filter == 'completed' ? 'badge-success' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i data-lucide="check" class="w-3 h-3"></i>
+                    Completed
+                </a>
+            </div>
+            <div class="flex items-center gap-2 sm:ml-auto">
+                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400">Sort:</span>
+                <a href="{{ path('app_assignments', {filter: current_filter, sort: 'due_date'}) }}"
+                   class="badge {{ current_sort == 'due_date' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i data-lucide="calendar" class="w-3 h-3"></i>
+                    Due Date
+                </a>
+                <a href="{{ path('app_assignments', {filter: current_filter, sort: 'priority'}) }}"
+                   class="badge {{ current_sort == 'priority' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-3 py-1 cursor-pointer hover:opacity-80 transition-opacity">
+                    <i data-lucide="flag" class="w-3 h-3"></i>
+                    Priority
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Table -->
+    <div class="card overflow-hidden">
+        <div class="table-container border-0">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="w-12"></th>
+                        <th>Assignment</th>
+                        <th>Course</th>
+                        <th>Due Date</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Progress</th>
+                        <th class="w-12"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr class="group">
+                        <td class="text-center">
+                            {% if assignment.status == 'completed' %}
+                                <div class="w-6 h-6 rounded-full bg-success-500 flex items-center justify-center mx-auto">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            {% elseif assignment.status == 'in_progress' %}
+                                <div class="w-6 h-6 rounded-full border-2 border-primary-500 border-t-transparent animate-spin mx-auto"></div>
+                            {% else %}
+                                <div class="w-6 h-6 rounded-full border-2 border-secondary-300 dark:border-secondary-600 mx-auto group-hover:border-primary-400 dark:group-hover:border-primary-500 transition-colors cursor-pointer"></div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="max-w-xs">
+                                <p class="font-medium text-secondary-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">{{ assignment.title }}</p>
+                                <p class="text-sm text-secondary-500 dark:text-secondary-400 truncate mt-0.5">{{ assignment.description }}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="inline-flex items-center gap-1.5 text-sm text-secondary-600 dark:text-secondary-400">
+                                <i data-lucide="book-open" class="w-3 h-3 text-secondary-400"></i>
+                                {{ assignment.course }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set today = "now"|date("Y-m-d") %}
+                            {% set due = assignment.due_date %}
+                            <div class="flex items-center gap-1.5">
+                                {% if due < today and assignment.status != 'completed' %}
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-danger-500"></i>
+                                    <span class="text-danger-600 dark:text-danger-400 font-medium">{{ assignment.due_date|date('M j') }}</span>
+                                {% elseif due == today %}
+                                    <i data-lucide="clock" class="w-4 h-4 text-warning-500"></i>
+                                    <span class="text-warning-600 dark:text-warning-400 font-medium">Today</span>
+                                {% else %}
+                                    <span class="text-secondary-600 dark:text-secondary-400">{{ assignment.due_date|date('M j') }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ assignment.priority == 'high' ? 'danger' : (assignment.priority == 'medium' ? 'warning' : 'success') }} badge-pill">
+                                {% if assignment.priority == 'high' %}
+                                    <i data-lucide="arrow-up" class="w-3 h-3"></i>
+                                {% elseif assignment.priority == 'medium' %}
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                {% else %}
+                                    <i data-lucide="arrow-down" class="w-3 h-3"></i>
+                                {% endif %}
+                                {{ assignment.priority|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ assignment.status == 'completed' ? 'success' : (assignment.status == 'in_progress' ? 'primary' : 'secondary') }} badge-pill">
+                                {{ assignment.status|replace({'_': ' '})|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2.5 min-w-[100px]">
+                                <div class="flex-1 progress-bar">
+                                    <div class="progress-bar-fill progress-bar-fill-{{ assignment.progress >= 100 ? 'success' : (assignment.progress >= 50 ? 'primary' : 'warning') }}" style="width: {{ assignment.progress }}%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400 w-10 text-right">{{ assignment.progress }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="btn btn-ghost btn-icon-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state py-12">
+                                <i data-lucide="clipboard-x" class="w-12 h-12 empty-state-icon"></i>
+                                <p class="empty-state-title">No assignments found</p>
+                                <p class="empty-state-description">Create your first assignment to start tracking your work</p>
+                                <button class="btn btn-primary mt-4">
+                                    <i data-lucide="plus" class="w-5 h-5"></i>
+                                    New Assignment
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         </div>
     </div>
 </div>
 {% endblock %}
+<<<<<<< HEAD
 
 {% block scripts %}
 {{ parent() }}
@@ -352,3 +547,5 @@
     }
 </script>
 {% endblock %}
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

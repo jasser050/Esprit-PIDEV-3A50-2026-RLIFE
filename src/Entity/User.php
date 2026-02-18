@@ -10,7 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+<<<<<<< HEAD
 use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -27,6 +30,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+<<<<<<< HEAD
     #[Assert\NotBlank(message: 'Email is required')]
     #[Assert\Email(message: 'Please enter a valid email address')]
     #[Assert\Length(
@@ -38,6 +42,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true, unique: true)]
     private ?string $googleId = null;
 
+=======
+    private ?string $email = null;
+
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     /**
      * @var list<string> The user roles
      */
@@ -51,6 +59,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+<<<<<<< HEAD
     #[Assert\NotBlank(message: 'First name is required')]
     #[Assert\Length(
         min: 2,
@@ -90,6 +99,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         pattern: '/^[a-zA-Z0-9_]+$/',
         message: 'Username can only contain letters, numbers and underscores'
     )]
+=======
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $lastName = null;
+
+    #[ORM\Column(length: 50)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $username = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -99,11 +116,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phoneNumber = null;
 
     #[ORM\Column(length: 10)]
+<<<<<<< HEAD
     #[Assert\NotBlank(message: 'Gender is required')]
     #[Assert\Choice(
         choices: ['male', 'female', 'other'],
         message: 'Please select a valid gender'
     )]
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $gender = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -534,6 +554,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getGoogleId(): ?string
     {
         return $this->googleId;
@@ -545,6 +566,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     /**
      * @return Collection<int, Project>
      */

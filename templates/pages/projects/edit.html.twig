@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}Edit {{ project.titre }}{% endblock %}
 
 {% block body %}
@@ -209,4 +210,128 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+=======
+{% block title %}Edit {{ project.name }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <!-- Breadcrumbs -->
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Projects', url: path('app_projects') },
+            { label: project.name, url: path('app_projects_show', { id: project.id }) },
+            { label: 'Edit' }
+        ]
+    } %}
+
+    <!-- Page Header -->
+    {% include 'components/page_header.html.twig' with {
+        title: 'Edit Project',
+        subtitle: project.name
+    } %}
+
+    <!-- Form -->
+    <form method="POST" class="max-w-2xl">
+        <div class="card p-6 space-y-6">
+            <!-- Project Name -->
+            {% include 'components/input.html.twig' with {
+                name: 'name',
+                label: 'Project Name',
+                value: project.name,
+                required: true
+            } %}
+
+            <!-- Course -->
+            {% include 'components/select.html.twig' with {
+                name: 'course_id',
+                label: 'Course',
+                required: true,
+                options: courses|map(c => { 
+                    value: c.id, 
+                    label: c.code ~ ' - ' ~ c.name,
+                    selected: c.name == project.course
+                })
+            } %}
+
+            <!-- Due Date -->
+            {% include 'components/input.html.twig' with {
+                name: 'due_date',
+                label: 'Due Date',
+                type: 'date',
+                value: project.due_date,
+                required: true
+            } %}
+
+            <!-- Color Theme -->
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color Theme',
+                options: [
+                    { value: 'primary', label: 'Indigo', selected: project.color == 'primary' },
+                    { value: 'secondary', label: 'Teal', selected: project.color == 'secondary' },
+                    { value: 'accent', label: 'Amber', selected: project.color == 'accent' },
+                    { value: 'success', label: 'Green', selected: project.color == 'success' },
+                    { value: 'warning', label: 'Orange', selected: project.color == 'warning' },
+                    { value: 'danger', label: 'Red', selected: project.color == 'danger' }
+                ]
+            } %}
+
+            <!-- Progress -->
+            <div>
+                <label class="block text-sm font-medium mb-2">Progress ({{ project.progress }}%)</label>
+                <input type="range" name="progress" min="0" max="100" value="{{ project.progress }}" 
+                       class="w-full h-2 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <!-- Team Members -->
+            <div>
+                <label class="block text-sm font-medium mb-2">Team Members</label>
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-3">One member per line</p>
+                {% include 'components/textarea.html.twig' with {
+                    name: 'members',
+                    value: project.members|join('\n'),
+                    rows: 3
+                } %}
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-between mt-6">
+            <button type="button" class="btn btn-danger btn-ghost" data-controller="modal" data-action="click->modal#open" data-modal-target-value="delete-modal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Delete Project
+            </button>
+            <div class="flex items-center gap-3">
+                <a href="{{ path('app_projects_show', { id: project.id }) }}" class="btn btn-ghost">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% include 'components/modal.html.twig' with {
+    id: 'delete-modal',
+    title: 'Delete Project',
+    content: '
+        <p class="text-light-muted dark:text-dark-muted mb-6">
+            Are you sure you want to delete <strong>' ~ project.name ~ '</strong>? 
+            This will also delete all associated tasks. This action cannot be undone.
+        </p>
+        <form method="POST" action="' ~ path('app_projects_delete', { id: project.id }) ~ '">
+            <div class="flex justify-end gap-3">
+                <button type="button" class="btn btn-ghost" data-action="click->modal#close">Cancel</button>
+                <button type="submit" class="btn btn-danger">Delete Project</button>
+            </div>
+        </form>
+    '
+} %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

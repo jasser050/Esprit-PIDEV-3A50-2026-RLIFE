@@ -15,7 +15,11 @@
                 </a>
 
                 <a href="{{ path('app_landing') }}" class="flex items-center gap-2.5 mb-2">
+<<<<<<< HEAD
                     <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
+=======
+                    <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-10 h-10 rounded-xl shadow-lg object-cover">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     <span class="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                 </a>
             </div>
@@ -73,7 +77,11 @@
             </div>
 
             <!-- Registration Form -->
+<<<<<<< HEAD
             <form action="{{ path('app_register') }}" method="POST" data-turbo="false" novalidate>
+=======
+            <form action="{{ path('app_register') }}" method="POST" data-turbo="false">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 <!-- Step 1: Account Details -->
                 <div data-wizard-target="step" class="space-y-5">
                     <!-- First Name -->
@@ -86,6 +94,7 @@
                                 type="text"
                                 id="first_name"
                                 name="first_name"
+<<<<<<< HEAD
                                 value="{{ old.first_name ?? '' }}"
                                 autocomplete="given-name"
                                 placeholder="John"
@@ -98,6 +107,13 @@
                                     <span>{{ errors.first_name }}</span>
                                 </div>
                             {% endif %}
+=======
+                                required
+                                autocomplete="given-name"
+                                placeholder="John"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            >
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         </div>
                         <div>
                             <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
@@ -107,6 +123,7 @@
                                 type="text"
                                 id="last_name"
                                 name="last_name"
+<<<<<<< HEAD
                                 value="{{ old.last_name ?? '' }}"
                                 autocomplete="family-name"
                                 placeholder="Doe"
@@ -119,6 +136,13 @@
                                     <span>{{ errors.last_name }}</span>
                                 </div>
                             {% endif %}
+=======
+                                required
+                                autocomplete="family-name"
+                                placeholder="Doe"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            >
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         </div>
                     </div>
 
@@ -131,6 +155,7 @@
                             type="text"
                             id="username"
                             name="username"
+<<<<<<< HEAD
                             value="{{ old.username ?? '' }}"
                             autocomplete="username"
                             placeholder="johndoe"
@@ -143,6 +168,13 @@
                                 <span>{{ errors.username }}</span>
                             </div>
                         {% endif %}
+=======
+                            required
+                            autocomplete="username"
+                            placeholder="johndoe"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     </div>
 
                     <!-- Email -->
@@ -151,6 +183,7 @@
                             Email address
                         </label>
                         <input
+<<<<<<< HEAD
                             type="text"
                             id="email"
                             name="email"
@@ -166,6 +199,17 @@
                                 <span>{{ errors.email }}</span>
                             </div>
                         {% endif %}
+=======
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            autocomplete="email"
+                            placeholder="you@university.edu"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Use your .edu email for free access</p>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     </div>
 
                     <!-- Password -->
@@ -173,10 +217,15 @@
                         <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Password
                         </label>
+<<<<<<< HEAD
+=======
+                        <div class="relative">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
+<<<<<<< HEAD
                                 autocomplete="new-password"
                                 placeholder="Create a strong password"
                                 class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
@@ -188,6 +237,49 @@
                                 <span>{{ errors.password }}</span>
                             </div>
                         {% endif %}
+=======
+                                required
+                                autocomplete="new-password"
+                                placeholder="Create a strong password"
+                                data-password-target="input"
+                                class="block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            >
+                            <button
+                                type="button"
+                                data-password-target="toggle"
+                                data-action="click->password#toggleVisibility"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                            >
+                                <i data-lucide="eye" class="w-5 h-5 icon-show"></i>
+                                <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
+                            </button>
+                        </div>
+
+                        
+                        <div class="mt-3">
+                            <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full w-0 transition-all duration-300" data-password-target="strength"></div>
+                            </div>
+                            <div class="mt-2 grid grid-cols-2 gap-2 text-xs" data-password-target="requirements">
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="length">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    8+ characters
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="lowercase">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Lowercase letter
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="uppercase">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Uppercase letter
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="number">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Number
+                                </span>
+                            </div>
+                        </div>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     </div>
 
                     <!-- Confirm Password -->
@@ -199,6 +291,7 @@
                             type="password"
                             id="confirm_password"
                             name="confirm_password"
+<<<<<<< HEAD
                             autocomplete="new-password"
                             placeholder="Confirm your password"
                             class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.confirm_password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'confirm_password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
@@ -230,6 +323,27 @@
                                 <span>{{ errors.terms }}</span>
                             </div>
                         {% endif %}
+=======
+                            required
+                            autocomplete="new-password"
+                            placeholder="Confirm your password"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
+                    </div>
+
+                    <!-- Terms -->
+                    <div class="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required
+                            class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
+                        >
+                        <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
+                            I agree to the <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
+                        </label>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     </div>
                 </div>
 
@@ -242,14 +356,22 @@
                         </label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="relative cursor-pointer">
+<<<<<<< HEAD
                                 <input type="radio" name="gender" value="male" class="peer sr-only" checked>
+=======
+                                <input type="radio" name="gender" value="male" class="peer sr-only" checked required>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
+<<<<<<< HEAD
                                 <input type="radio" name="gender" value="female" class="peer sr-only">
+=======
+                                <input type="radio" name="gender" value="female" class="peer sr-only" required>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>
