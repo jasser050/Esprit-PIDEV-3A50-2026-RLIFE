@@ -1,0 +1,527 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Rating Details - {{ deck.titre }}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── BACK BUTTON ── */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #f3f4f6;
+    color: #374151;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 24px;
+}
+.btn-back:hover { background: #3b82f6; color: white; }
+
+/* ── DECK HEADER ── */
+.detail-header {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+.deck-image-thumb {
+    width: 80px; height: 80px;
+    object-fit: cover; border-radius: 12px; flex-shrink: 0;
+}
+.deck-image-placeholder {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; flex-shrink: 0;
+}
+.detail-info h1 { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 8px; }
+.detail-meta { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.badge-matiere { background: #ede9fe; color: #7c3aed; }
+.badge-niveau  { background: #dbeafe; color: #1d4ed8; }
+
+/* ── SCORE SECTION ── */
+.score-section {
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+    border-radius: 16px; padding: 32px;
+    color: white; text-align: center; margin-bottom: 28px;
+}
+.score-big   { font-size: 72px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+.score-stars { font-size: 32px; margin-bottom: 12px; letter-spacing: 4px; }
+.score-label { font-size: 16px; opacity: 0.9; }
+
+/* ── CHARTS GRID ── */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+.chart-card {
+    background: white; border-radius: 12px; padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.chart-card h2 { font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 16px; }
+.chart-wrap {
+    position: relative; height: 220px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ── DISTRIBUTION BARS ── */
+.dist-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.dist-label { font-size: 14px; font-weight: 600; width: 40px; color: #374151; text-align: right; flex-shrink: 0; }
+.dist-bar-wrap { flex: 1; background: #f3f4f6; border-radius: 999px; height: 20px; overflow: hidden; }
+.dist-bar-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #f59e0b, #f97316);
+    transition: width 0.8s ease;
+    min-width: 0;
+}
+.dist-count { font-size: 13px; color: #6b7280; width: 80px; flex-shrink: 0; }
+
+/* ── CRITERIA CARDS ── */
+.criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+.crit-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    text-align: center;
+}
+.crit-icon  { font-size: 28px; margin-bottom: 8px; }
+.crit-name  { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.crit-score { font-size: 32px; font-weight: 800; color: #111827; line-height: 1; margin-bottom: 4px; }
+.crit-stars { font-size: 14px; color: #f59e0b; letter-spacing: 2px; }
+.crit-na    { font-size: 20px; color: #d1d5db; font-weight: 700; }
+
+/* ── TAGS ── */
+.tags-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+}
+.tags-section h2 { font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 16px; }
+.tags-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: #ede9fe;
+    color: #7c3aed;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tag-pill .tag-count {
+    background: #7c3aed;
+    color: white;
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ── REVIEWS LIST ── */
+.reviews-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    margin-bottom: 28px;
+}
+.reviews-section h2 { font-size: 16px; font-weight: 600; color: #111827; margin: 0 0 20px; }
+.review-item {
+    border: 1px solid #f1f5f9;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: box-shadow .2s;
+}
+.review-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.review-item:last-child { margin-bottom: 0; }
+.review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.review-user { display: flex; align-items: center; gap: 12px; }
+.review-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: white;
+    flex-shrink: 0;
+}
+.review-name { font-size: 14px; font-weight: 700; color: #111827; }
+.review-date { font-size: 12px; color: #9ca3af; margin-top: 2px; }
+.review-stars { font-size: 20px; color: #f59e0b; letter-spacing: 2px; }
+.review-star-empty { color: #e2e8f0; }
+.review-comment {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.65;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid #7c3aed;
+}
+.review-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.review-tag {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    font-size: 11px;
+    font-weight: 600;
+}
+.review-criteria { display: flex; gap: 10px; flex-wrap: wrap; }
+.review-crit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+.review-crit strong { color: #111827; }
+
+/* ── EMPTY STATE ── */
+.no-rating { text-align: center; padding: 60px 20px; color: #9ca3af; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+    .charts-grid { grid-template-columns: 1fr; }
+    .criteria-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+    .criteria-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+
+    {# ── Back button → Rating statistics list ── #}
+    <a href="{{ path('app_admin_ratings') }}" class="btn-back">
+        ← Back to rating statistics
+    </a>
+
+    {# ── Deck header ── #}
+    <div class="detail-header">
+        {% if deck.image %}
+            <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
+                 alt="{{ deck.titre }}"
+                 class="deck-image-thumb">
+        {% else %}
+            <div class="deck-image-placeholder">📚</div>
+        {% endif %}
+        <div class="detail-info">
+            <h1>{{ deck.titre }}</h1>
+            <div class="detail-meta">
+                <span class="badge badge-matiere">{{ deck.matiere }}</span>
+                <span class="badge badge-niveau">{{ deck.niveau }}</span>
+                <span style="font-size:13px;color:#6b7280;">
+                    {{ deck.flashcards|length }} flashcard{{ deck.flashcards|length > 1 ? 's' : '' }}
+                </span>
+                {% if deck.user %}
+                    <span style="font-size:13px;color:#6b7280;">
+                        👤 {{ deck.user.email }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if stats.total > 0 %}
+
+        {# ── Central score ── #}
+        <div class="score-section">
+            <div class="score-big">{{ stats.average|number_format(1) }}</div>
+            <div class="score-stars">
+                {% for i in 1..5 %}
+                    {% if i <= stats.average|round(0, 'floor') %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </div>
+            <div class="score-label">
+                Based on <strong>{{ stats.total }}</strong> rating{{ stats.total > 1 ? 's' : '' }}
+            </div>
+        </div>
+
+        {# ── Distribution + Donut ── #}
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h2>📊 Rating Distribution</h2>
+                {% for star in [5,4,3,2,1] %}
+                    {% set count = stats.distribution[star] ?? 0 %}
+                    {% set pct = stats.total > 0 ? ((count / stats.total) * 100)|round : 0 %}
+                    <div class="dist-row">
+                        <span class="dist-label">{{ star }}★</span>
+                        <div class="dist-bar-wrap">
+                            <div class="dist-bar-fill" style="width:{{ pct }}%;"></div>
+                        </div>
+                        <span class="dist-count">{{ count }} vote{{ count > 1 ? 's' : '' }} ({{ pct }}%)</span>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="chart-card">
+                <h2>🍩 Breakdown</h2>
+                <div class="chart-wrap">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {# ── Advanced criteria ── #}
+        {% if criteriaStats is defined and criteriaStats.count > 0 %}
+        <div style="margin-bottom:28px;">
+            <h2 style="font-size:16px;font-weight:700;color:#111827;margin-bottom:16px;">
+                📊 Average by Criteria
+                <span style="font-size:12px;font-weight:400;color:#9ca3af;">
+                    ({{ criteriaStats.count }} evaluation{{ criteriaStats.count > 1 ? 's' : '' }})
+                </span>
+            </h2>
+            <div class="criteria-grid">
+                <div class="crit-card">
+                    <div class="crit-icon">💡</div>
+                    <div class="crit-name">Clarity</div>
+                    {% if criteriaStats.clarity %}
+                        <div class="crit-score">{{ criteriaStats.clarity|number_format(1) }}</div>
+                        <div class="crit-stars">
+                            {% for i in 1..5 %}{{ i <= criteriaStats.clarity|round ? '★' : '☆' }}{% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="crit-na">—</div>
+                    {% endif %}
+                </div>
+                <div class="crit-card">
+                    <div class="crit-icon">📋</div>
+                    <div class="crit-name">Completeness</div>
+                    {% if criteriaStats.completeness %}
+                        <div class="crit-score">{{ criteriaStats.completeness|number_format(1) }}</div>
+                        <div class="crit-stars">
+                            {% for i in 1..5 %}{{ i <= criteriaStats.completeness|round ? '★' : '☆' }}{% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="crit-na">—</div>
+                    {% endif %}
+                </div>
+                <div class="crit-card">
+                    <div class="crit-icon">⚡</div>
+                    <div class="crit-name">Difficulty</div>
+                    {% if criteriaStats.difficulty %}
+                        <div class="crit-score">{{ criteriaStats.difficulty|number_format(1) }}</div>
+                        <div class="crit-stars">
+                            {% for i in 1..5 %}{{ i <= criteriaStats.difficulty|round ? '★' : '☆' }}{% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="crit-na">—</div>
+                    {% endif %}
+                </div>
+                <div class="crit-card">
+                    <div class="crit-icon">🎯</div>
+                    <div class="crit-name">Usefulness</div>
+                    {% if criteriaStats.usefulness %}
+                        <div class="crit-score">{{ criteriaStats.usefulness|number_format(1) }}</div>
+                        <div class="crit-stars">
+                            {% for i in 1..5 %}{{ i <= criteriaStats.usefulness|round ? '★' : '☆' }}{% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="crit-na">—</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {# ── Top Tags ── #}
+        {% if tagStats is defined and tagStats|length > 0 %}
+        <div class="tags-section">
+            <h2>🏷️ Most Mentioned Tags</h2>
+            <div class="tags-cloud">
+                {% for item in tagStats %}
+                    <span class="tag-pill">
+                        {{ item.tag }}
+                        <span class="tag-count">{{ item.count }}</span>
+                    </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# ── All reviews ── #}
+        {% if ratings is defined and ratings|length > 0 %}
+        <div class="reviews-section">
+            <h2>💬 All Reviews ({{ ratings|length }})</h2>
+
+            {% for rating in ratings %}
+                {% set colors = ['#7c3aed','#2563eb','#059669','#d97706','#dc2626','#0891b2','#7c3aed'] %}
+                {% set avatarColor = colors[loop.index0 % 7] %}
+                {% set userEmail = rating.user ? rating.user.email : 'Anonymous' %}
+                {% set userInitial = userEmail|slice(0,1)|upper %}
+
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <div class="review-avatar" style="background:{{ avatarColor }};">
+                                {{ userInitial }}
+                            </div>
+                            <div>
+                                <div class="review-name">{{ userEmail }}</div>
+                                <div class="review-date">
+                                    {{ rating.createdAt ? rating.createdAt|date('m/d/Y at H:i') : '—' }}
+                                    {% if rating.updatedAt and rating.updatedAt != rating.createdAt %}
+                                        · <em style="color:#9ca3af;">edited on {{ rating.updatedAt|date('m/d/Y') }}</em>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="review-stars">
+                            {% for i in 1..5 %}
+                                <span class="{{ i <= rating.stars ? '' : 'review-star-empty' }}">★</span>
+                            {% endfor %}
+                            <span style="font-size:13px;font-weight:700;color:#111827;margin-left:6px;">
+                                {{ rating.stars }}/5
+                            </span>
+                        </div>
+                    </div>
+
+                    {# Comment #}
+                    {% if rating.comment %}
+                        <div class="review-comment">
+                            "{{ rating.comment }}"
+                        </div>
+                    {% endif %}
+
+                    {# Tags #}
+                    {% if rating.tags and rating.tags|length > 0 %}
+                        <div class="review-tags">
+                            {% for tag in rating.tags %}
+                                <span class="review-tag">{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {# Criteria #}
+                    {% if rating.clarity or rating.completeness or rating.difficulty or rating.usefulness %}
+                        <div class="review-criteria">
+                            {% if rating.clarity %}
+                                <span class="review-crit">💡 Clarity: <strong>{{ rating.clarity }}/5</strong></span>
+                            {% endif %}
+                            {% if rating.completeness %}
+                                <span class="review-crit">📋 Completeness: <strong>{{ rating.completeness }}/5</strong></span>
+                            {% endif %}
+                            {% if rating.difficulty %}
+                                <span class="review-crit">⚡ Difficulty: <strong>{{ rating.difficulty }}/5</strong></span>
+                            {% endif %}
+                            {% if rating.usefulness %}
+                                <span class="review-crit">🎯 Usefulness: <strong>{{ rating.usefulness }}/5</strong></span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {# ── Chart.js data ── #}
+        <script>
+        const distributionData = {
+            labels: ['1★','2★','3★','4★','5★'],
+            values: [
+                {{ stats.distribution[1] ?? 0 }},
+                {{ stats.distribution[2] ?? 0 }},
+                {{ stats.distribution[3] ?? 0 }},
+                {{ stats.distribution[4] ?? 0 }},
+                {{ stats.distribution[5] ?? 0 }}
+            ]
+        };
+        </script>
+
+    {% else %}
+        {# ── No ratings yet ── #}
+        <div class="no-rating">
+            <div style="font-size:64px;margin-bottom:16px;">⭐</div>
+            <p style="font-size:18px;font-weight:600;color:#374151;margin-bottom:8px;">
+                No ratings yet for this deck
+            </p>
+            <p>Students haven't rated this deck yet.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('donutChart');
+    if (!canvas || typeof distributionData === 'undefined') return;
+
+    new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: distributionData.labels,
+            datasets: [{
+                data: distributionData.values,
+                backgroundColor: ['#ef4444','#f97316','#eab308','#22c55e','#3b82f6'],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 12, font: { size: 12 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = total > 0 ? ((ctx.parsed / total) * 100).toFixed(1) : 0;
+                            return ` ${ctx.parsed} vote(s) — ${pct}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

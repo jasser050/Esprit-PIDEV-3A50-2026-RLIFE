@@ -646,11 +646,9 @@ PROMPT;
             $newDeck->setUser($this->getUser());
             $newDeck->setTitre($originalDeck->getTitre() . ' (Copie)');
             $newDeck->setDescription($originalDeck->getDescription());
-            $newDeck->setCategorie($originalDeck->getCategorie());
             $newDeck->setImage($originalDeck->getImage());
             $newDeck->setPdf($originalDeck->getPdf());
             $newDeck->setDateCreation(new \DateTime());
-            $newDeck->setEmoji($originalDeck->getEmoji());
             $newDeck->setMatiere($originalDeck->getMatiere());
             $newDeck->setNiveau($originalDeck->getNiveau());
 
