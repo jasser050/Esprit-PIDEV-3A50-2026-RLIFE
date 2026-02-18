@@ -45,7 +45,6 @@ class RevisionController extends AbstractController
 
         return $this->render('pages/revisions/index.html.twig', [
             'decks'        => $decks,
-            'gamification' => $gamification,
         ]);
     }
 
