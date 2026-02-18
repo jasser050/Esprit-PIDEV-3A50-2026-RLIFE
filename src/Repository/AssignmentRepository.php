@@ -309,11 +309,11 @@ class AssignmentRepository extends ServiceEntityRepository
         $weeklyData = [];
         foreach ($result as $row) {
             $week = $row['createdAt']->format('Y-W');
-            
+
             if (!isset($weeklyData[$week])) {
                 $weeklyData[$week] = 0;
             }
-            
+
             $weeklyData[$week]++;
         }
 

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Session Types{% endblock %}
 
@@ -36,7 +36,7 @@
 
                             <form method="post"
                                   action="{{ path('app_type_seance_delete', {id: t.id}) }}"
-                                  onsubmit="return confirm('Delete this type?');">
+                                  data-confirm="Delete this type?">
                                 <button type="submit" class="btn btn-secondary">Delete</button>
                             </form>
                         </div>

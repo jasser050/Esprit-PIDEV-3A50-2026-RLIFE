@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Edit Event{% endblock %}
 
@@ -79,23 +79,23 @@
                     {% set fb = planning.feedback %}
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="1" class="accent-indigo-600" {{ fb == 1 ? 'checked' : '' }}>
-                        <span class="text-xl">😡</span>
+                        <span class="text-xl">ðŸ˜¡</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="2" class="accent-indigo-600" {{ fb == 2 ? 'checked' : '' }}>
-                        <span class="text-xl">😕</span>
+                        <span class="text-xl">ðŸ˜•</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="3" class="accent-indigo-600" {{ fb == 3 ? 'checked' : '' }}>
-                        <span class="text-xl">😐</span>
+                        <span class="text-xl">ðŸ˜</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="4" class="accent-indigo-600" {{ fb == 4 ? 'checked' : '' }}>
-                        <span class="text-xl">🙂</span>
+                        <span class="text-xl">ðŸ™‚</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="5" class="accent-indigo-600" {{ fb == 5 ? 'checked' : '' }}>
-                        <span class="text-xl">🤩</span>
+                        <span class="text-xl">ðŸ¤©</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="" class="accent-indigo-600" {{ fb is null ? 'checked' : '' }}>
@@ -126,7 +126,7 @@
 
                         <form action="{{ path('app_planning_delete', {id: planning.id}) }}"
                               method="POST"
-                              onsubmit="return confirm('Do you really want to delete this event?');"
+                              data-confirm="Do you really want to delete this event?"
                               class="mt-4 flex items-center justify-end">
                             <button type="submit" class="btn btn-secondary">
                                 <i data-lucide="trash" class="w-4 h-4 mr-2"></i>

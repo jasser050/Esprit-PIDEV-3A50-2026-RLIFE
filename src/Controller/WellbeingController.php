@@ -22,7 +22,7 @@ class WellbeingController extends AbstractController
     {
         // Get sort parameter
         $sort = $request->query->get('sort', 'entryDate');
-        
+
         // Define sort options
         $sortOptions = [
             'entryDate' => ['entryDate' => 'DESC'],
@@ -32,14 +32,14 @@ class WellbeingController extends AbstractController
             'energyLevel' => ['energyLevel' => 'ASC'],
             'energyLevel_desc' => ['energyLevel' => 'DESC'],
         ];
-        
+
         // Get order by or default to entryDate DESC
         $orderBy = $sortOptions[$sort] ?? ['entryDate' => 'DESC'];
-        
+
         $checkins = $repo->findBy([], $orderBy, 10);
-        
+
         $stats = $this->calculateStats($checkins);
-        
+
         // Calculate trend
         $trend = 'stable';
         if (count($checkins) >= 2) {
@@ -51,7 +51,7 @@ class WellbeingController extends AbstractController
                 $trend = 'declining';
             }
         }
-        
+
         // Mood distribution
         $moodCounts = [];
         foreach ($checkins as $checkin) {
@@ -77,26 +77,26 @@ class WellbeingController extends AbstractController
         $mood = $request->query->get('mood', '');
         $sort = $request->query->get('sort', 'entryDate');
         $order = $request->query->get('order', 'DESC');
-        
+
         $qb = $repo->createQueryBuilder('w');
-        
+
         if ($search) {
             $qb->andWhere('w.note LIKE :search OR w.mood LIKE :search')
                ->setParameter('search', '%' . $search . '%');
         }
-        
+
         if ($mood) {
             $qb->andWhere('w.mood = :mood')
                ->setParameter('mood', $mood);
         }
-        
+
         $allowedSortFields = ['entryDate', 'stressLevel', 'energyLevel', 'mood'];
         if (!in_array($sort, $allowedSortFields)) {
             $sort = 'entryDate';
         }
-        
+
         $qb->orderBy('w.' . $sort, $order);
-        
+
         $checkins = $qb->getQuery()->getResult();
         $stats = $this->calculateStats($checkins);
 
@@ -131,7 +131,7 @@ class WellbeingController extends AbstractController
 
             $em->persist($wb);
             $em->flush();
-            
+
             $this->addFlash('success', 'Check-in added successfully!');
             return $this->redirectToRoute('app_wellbeing_checkins');
         }
@@ -157,7 +157,7 @@ class WellbeingController extends AbstractController
             $checkin->setUpdatedAt(new \DateTime());
 
             $em->flush();
-            
+
             $this->addFlash('success', 'Check-in updated successfully!');
             return $this->redirectToRoute('app_wellbeing_checkins');
         }
@@ -185,11 +185,11 @@ class WellbeingController extends AbstractController
     {
         $checkins = $repo->findBy([], ['entryDate' => 'DESC']);
         $stats = $this->calculateStats($checkins);
-        
+
         $options = new Options();
         $options->set('defaultFont', 'DejaVu Sans');
         $dompdf = new Dompdf($options);
-        
+
         $html = $this->renderView('pages/wellbeing/pdf.html.twig', [
             'checkins' => $checkins,
             'avg_stress' => $stats['avg_stress'],
@@ -199,11 +199,11 @@ class WellbeingController extends AbstractController
             'start_date' => null,
             'end_date' => null,
         ]);
-        
+
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-        
+
         return new Response(
             $dompdf->output(),
             200,
@@ -220,11 +220,11 @@ class WellbeingController extends AbstractController
         if ($count === 0) {
             return ['avg_stress' => 0, 'avg_energy' => 0, 'avg_sleep' => 0];
         }
-        
+
         $avgStress = array_sum(array_map(fn($c) => $c->getStressLevel(), $checkins)) / $count;
         $avgEnergy = array_sum(array_map(fn($c) => $c->getEnergyLevel(), $checkins)) / $count;
         $avgSleep = array_sum(array_map(fn($c) => $c->getSleepHours(), $checkins)) / $count;
-        
+
         return [
             'avg_stress' => round($avgStress, 1),
             'avg_energy' => round($avgEnergy, 1),

@@ -158,19 +158,19 @@ console.log('🔴 Modal:', document.getElementById('delete-modal'));
 // Wait a moment for DOM to be fully ready
 setTimeout(function() {
   console.log('🟢 Starting delete modal setup...');
-  
+
   const deleteBtn = document.getElementById('delete-btn');
   const cancelBtn = document.getElementById('cancel-btn');
   const modalBackdrop = document.getElementById('modal-backdrop');
   const modal = document.getElementById('delete-modal');
-  
+
   console.log('🟢 Elements found:', {
     deleteBtn: !!deleteBtn,
-    cancelBtn: !!cancelBtn, 
+    cancelBtn: !!cancelBtn,
     modalBackdrop: !!modalBackdrop,
     modal: !!modal
   });
-  
+
   if (deleteBtn && modal) {
     deleteBtn.addEventListener('click', function(e) {
       e.preventDefault();
@@ -183,21 +183,21 @@ setTimeout(function() {
   } else {
     console.error('❌ Could not find delete button or modal!');
   }
-  
+
   if (cancelBtn && modal) {
     cancelBtn.addEventListener('click', function() {
       console.log('🟢 Cancel clicked');
       modal.classList.add('hidden');
     });
   }
-  
+
   if (modalBackdrop && modal) {
     modalBackdrop.addEventListener('click', function() {
       console.log('🟢 Backdrop clicked');
       modal.classList.add('hidden');
     });
   }
-  
+
   // ESC key
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
@@ -205,7 +205,7 @@ setTimeout(function() {
       modal.classList.add('hidden');
     }
   });
-  
+
   console.log('✅ All event listeners attached!');
 }, 100);
 </script>
@@ -217,20 +217,20 @@ setTimeout(function() {
 <script>
 (function() {
   'use strict';
-  
+
   console.log('🚀 Delete modal script loading...');
-  
+
   // Function to show modal
   function showDeleteModal() {
     console.log('✅ Delete button clicked');
     const modal = document.getElementById('delete-modal');
-    
+
     if (modal) {
       console.log('✅ Modal found:', modal);
       modal.classList.remove('hidden');
       console.log('✅ Modal classList:', modal.classList.value);
       console.log('✅ Modal display:', window.getComputedStyle(modal).display);
-      
+
       // Reinitialize icons
       setTimeout(() => {
         if (typeof lucide !== 'undefined') {
@@ -242,7 +242,7 @@ setTimeout(function() {
       console.error('❌ Modal not found!');
     }
   }
-  
+
   // Function to close modal
   function closeDeleteModal() {
     console.log('🔒 Closing modal');
@@ -252,20 +252,20 @@ setTimeout(function() {
       console.log('✅ Modal closed');
     }
   }
-  
+
   // Initialize when DOM is ready
   function initDeleteModal() {
     console.log('🔧 Initializing delete modal...');
-    
+
     // Get elements
     const deleteBtn = document.getElementById('delete-btn');
     const cancelBtn = document.getElementById('cancel-btn');
     const modalBackdrop = document.getElementById('modal-backdrop');
-    
+
     console.log('Delete button:', deleteBtn);
     console.log('Cancel button:', cancelBtn);
     console.log('Backdrop:', modalBackdrop);
-    
+
     // Attach event listeners
     if (deleteBtn) {
       deleteBtn.addEventListener('click', function(e) {
@@ -277,17 +277,17 @@ setTimeout(function() {
     } else {
       console.error('❌ Delete button not found!');
     }
-    
+
     if (cancelBtn) {
       cancelBtn.addEventListener('click', closeDeleteModal);
       console.log('✅ Cancel button listener attached');
     }
-    
+
     if (modalBackdrop) {
       modalBackdrop.addEventListener('click', closeDeleteModal);
       console.log('✅ Backdrop listener attached');
     }
-    
+
     // ESC key to close
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
@@ -295,16 +295,16 @@ setTimeout(function() {
       }
     });
     console.log('✅ ESC key listener attached');
-    
+
     // Initialize icons
     if (typeof lucide !== 'undefined') {
       lucide.createIcons();
       console.log('✅ Icons initialized');
     }
-    
+
     console.log('✅ Delete modal fully initialized');
   }
-  
+
   // Run initialization
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initDeleteModal);

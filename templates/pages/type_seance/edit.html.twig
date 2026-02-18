@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Edit Type{% endblock %}
 
@@ -48,7 +48,7 @@
 
                         <form method="post"
                               action="{{ path('app_type_seance_delete', {id: type.id}) }}"
-                              onsubmit="return confirm('Do you really want to delete this type?');"
+                              data-confirm="Do you really want to delete this type?"
                               class="mt-4 flex items-center justify-end">
                             <button class="btn btn-secondary" type="submit">
                                 <i data-lucide="trash" class="w-4 h-4 mr-2"></i>

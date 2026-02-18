@@ -69,6 +69,10 @@ class Assignment
         $this->updatedAt = new \DateTime();
     }
 
+    // ────────────────────────────────────────────────
+    // Getters & Setters
+    // ────────────────────────────────────────────────
+
     public function getId(): ?int
     {
         return $this->id;
@@ -147,18 +151,7 @@ class Assignment
 
     public function setPriorite(string $priorite): static
     {
-        $map = [
-            'high' => 'Haute',
-            'medium' => 'Moyenne',
-            'low' => 'Basse',
-            'haute' => 'Haute',
-            'moyenne' => 'Moyenne',
-            'basse' => 'Basse',
-        ];
-
-        $normalized = mb_strtolower(trim($priorite));
-        $this->priorite = $map[$normalized] ?? $priorite;
-
+        $this->priorite = $priorite;
         return $this;
     }
 
@@ -169,27 +162,7 @@ class Assignment
 
     public function setStatut(string $statut): static
     {
-        $map = [
-            'todo' => '� faire',
-            'to do' => '� faire',
-            'a faire' => '� faire',
-            '� faire' => '� faire',
-            'in_progress' => 'En cours',
-            'in progress' => 'En cours',
-            'en cours' => 'En cours',
-            'completed' => 'Termin�',
-            'done' => 'Termin�',
-            'termine' => 'Termin�',
-            'termin�' => 'Termin�',
-            'canceled' => 'Annul�',
-            'cancelled' => 'Annul�',
-            'annule' => 'Annul�',
-            'annul�' => 'Annul�',
-        ];
-
-        $normalized = mb_strtolower(trim($statut));
-        $this->statut = $map[$normalized] ?? $statut;
-
+        $this->statut = $statut;
         return $this;
     }
 
@@ -236,6 +209,7 @@ class Assignment
     public function removeComment(Comment $comment): static
     {
         if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
             if ($comment->getAssignment() === $this) {
                 $comment->setAssignment(null);
             }
@@ -265,6 +239,7 @@ class Assignment
     public function removeCollaborator(AssignmentCollaborator $collaborator): static
     {
         if ($this->collaborators->removeElement($collaborator)) {
+            // set the owning side to null (unless already changed)
             if ($collaborator->getAssignment() === $this) {
                 $collaborator->setAssignment(null);
             }

@@ -3,14 +3,17 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block body %}
+<!-- Avatar Container for Dashboard Animation -->
+<div id="avatar-container" class="fixed inset-0 z-50 pointer-events-none"></div>
+
 <div class="space-y-6 animate-fade-in">
     <!-- Welcome Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">
-                Good {{ "now"|date("G") < 12 ? "morning" : ("now"|date("G") < 17 ? "afternoon" : "evening") }}, {{ app.user.firstName }}
+                Good {{ "now"|date("G") < 12 ? "morning" : ("now"|date("G") < 17 ? "afternoon" : "evening") }}, Student
             </h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Voici ce qui se passe dans tes études aujourd'hui</p>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Here's what's happening with your studies today</p>
         </div>
         <div class="flex items-center gap-3">
             <div class="card p-3 flex items-center gap-3">
@@ -19,69 +22,10 @@
                 </div>
                 <div>
                     <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.current_streak }}</p>
-                    <p class="text-xs text-secondary-500 dark:text-secondary-400 font-medium">Jour(s) de streak</p>
+                    <p class="text-xs text-secondary-500 dark:text-secondary-400 font-medium">Day streak</p>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- PET BLOCK -->
-    <div class="card bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 p-6 rounded-2xl border border-purple-200 dark:border-purple-700 shadow-lg">
-        {% if app.user.mainPet %}
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <!-- Visuel Pet (3D placeholder ou emoji stylisé) -->
-                <div class="relative w-32 h-32 md:w-40 md:h-40">
-                    <div id="pet-3d-container"
-                         data-pet-type="{{ app.user.mainPet.type }}"
-                         data-hunger="{{ app.user.mainPet.hunger }}"
-                         class="absolute inset-0 rounded-full overflow-hidden bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-800/40 dark:to-pink-800/40 shadow-inner">
-                    </div>
-                </div>
-
-                <!-- Infos Pet -->
-                <div class="flex-1 text-center md:text-left">
-                    <h3 class="text-2xl md:text-3xl font-bold text-purple-700 dark:text-purple-300 mb-2">
-                        {{ app.user.mainPet.name }} • Level {{ app.user.mainPet.level }}
-                    </h3>
-                    <p class="text-lg mb-1">
-                        <span class="font-semibold">Hunger:</span> 
-                        {{ app.user.mainPet.hunger }}% — {{ app.user.mainPet.mood }}
-                    </p>
-                    <p class="text-xl font-bold text-purple-600 dark:text-purple-400 mb-4">
-                        Coins: {{ app.user.coins }}
-                    </p>
-                    <form method="post" action="{{ path('app_pet_feed') }}">
-                       
-                    </form>
-
-                    <div class="mt-4 p-4 rounded-xl bg-white/70 dark:bg-slate-900/40 border border-purple-200/60 dark:border-purple-700/50">
-                        <p class="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">How to earn coins for your pet</p>
-                        <ul class="text-sm text-slate-700 dark:text-slate-300 space-y-1">
-                            <li>Complete assignments before the deadline to get higher rewards.</li>
-                            <li>Finish projects and keep your task status updated regularly.</li>
-                            <li>Stay consistent with your learning streak and daily activity.</li>
-                            <li>Use coins in the pet page to feed and manage your companion.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="text-center py-8">
-                <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-purple-100 dark:bg-purple-800/30 flex items-center justify-center text-6xl shadow-inner">
-                    ❓
-                </div>
-                <h3 class="text-2xl font-bold text-secondary-900 dark:text-white mb-3">
-                    Unlock your companion!
-                </h3>
-                <p class="text-lg text-gray-600 dark:text-gray-400 mb-6 max-w-xl mx-auto">
-                    Create your first project to choose your pet and start earning coins while being productive.
-                </p>
-                <a href="{{ path('app_project_new') }}" class="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-lg transform hover:scale-105 transition-all">
-                    Create my first project
-                    <i data-lucide="arrow-right" class="w-5 h-5 ml-2"></i>
-                </a>
-            </div>
-        {% endif %}
     </div>
 
     <!-- Stats Cards -->
@@ -92,13 +36,14 @@
                 <div class="w-11 h-11 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
                     <i data-lucide="clock" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
                 </div>
-                <span class="badge badge-primary badge-pill">Cette semaine</span>
+                <span class="badge badge-primary badge-pill">This week</span>
             </div>
             <div class="mt-4">
                 <p class="text-3xl font-bold text-secondary-900 dark:text-white">{{ stats.assignments_due_soon }}</p>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Devoirs à rendre</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Assignments due</p>
             </div>
         </div>
+
         <!-- Completed -->
         <div class="card card-hover p-5">
             <div class="flex items-start justify-between">
@@ -109,9 +54,10 @@
             </div>
             <div class="mt-4">
                 <p class="text-3xl font-bold text-secondary-900 dark:text-white">{{ stats.assignments_completed_this_week }}</p>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Terminés</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Completed</p>
             </div>
         </div>
+
         <!-- Study Hours -->
         <div class="card card-hover p-5">
             <div class="flex items-start justify-between">
@@ -121,9 +67,10 @@
             </div>
             <div class="mt-4">
                 <p class="text-3xl font-bold text-secondary-900 dark:text-white">{{ stats.study_hours_this_week }}<span class="text-lg font-medium text-secondary-400">h</span></p>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Temps d'étude</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Study time</p>
             </div>
         </div>
+
         <!-- Cards Reviewed -->
         <div class="card card-hover p-5">
             <div class="flex items-start justify-between">
@@ -133,7 +80,7 @@
             </div>
             <div class="mt-4">
                 <p class="text-3xl font-bold text-secondary-900 dark:text-white">{{ stats.flashcards_reviewed_today }}</p>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Cartes révisées</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Cards reviewed</p>
             </div>
         </div>
     </div>
@@ -149,11 +96,11 @@
                             <i data-lucide="bar-chart-3" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
                         </div>
                         <div>
-                            <h2 class="font-semibold text-secondary-900 dark:text-white">Temps d'étude</h2>
-                            <p class="text-xs text-secondary-500 dark:text-secondary-400">Heures par jour cette semaine</p>
+                            <h2 class="font-semibold text-secondary-900 dark:text-white">Study Time</h2>
+                            <p class="text-xs text-secondary-500 dark:text-secondary-400">Hours per day this week</p>
                         </div>
                     </div>
-                    <span class="badge badge-primary badge-pill">Cette semaine</span>
+                    <span class="badge badge-primary badge-pill">This Week</span>
                 </div>
             </div>
             <div class="p-5">
@@ -161,9 +108,9 @@
                      data-controller="chart"
                      data-chart-type-value="line"
                      data-chart-data-value='{{ {
-                         "labels": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+                         "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
                          "datasets": [{
-                             "label": "Heures",
+                             "label": "Study Hours",
                              "data": [stats.study_hours_by_day.mon|default(2.5), stats.study_hours_by_day.tue|default(3.2), stats.study_hours_by_day.wed|default(4.1), stats.study_hours_by_day.thu|default(2.8), stats.study_hours_by_day.fri|default(3.5), stats.study_hours_by_day.sat|default(5.0), stats.study_hours_by_day.sun|default(4.2)],
                              "fill": true,
                              "colorKey": "primary"
@@ -173,6 +120,7 @@
                 </div>
             </div>
         </div>
+
         <!-- Weekly Progress Chart -->
         <div class="card overflow-hidden">
             <div class="p-5 border-b border-secondary-200 dark:border-secondary-800">
@@ -182,8 +130,8 @@
                             <i data-lucide="trending-up" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
                         </div>
                         <div>
-                            <h2 class="font-semibold text-secondary-900 dark:text-white">Progression hebdo</h2>
-                            <p class="text-xs text-secondary-500 dark:text-secondary-400">Tâches terminées vs en attente</p>
+                            <h2 class="font-semibold text-secondary-900 dark:text-white">Weekly Progress</h2>
+                            <p class="text-xs text-secondary-500 dark:text-secondary-400">Tasks completed vs pending</p>
                         </div>
                     </div>
                     <span class="badge badge-success badge-pill">+{{ stats.assignments_completed_this_week|default(3) }}</span>
@@ -194,13 +142,13 @@
                      data-controller="chart"
                      data-chart-type-value="bar"
                      data-chart-data-value='{{ {
-                         "labels": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"],
+                         "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
                          "datasets": [{
-                             "label": "Terminées",
+                             "label": "Completed",
                              "data": [stats.tasks_completed_by_day.mon|default(3), stats.tasks_completed_by_day.tue|default(5), stats.tasks_completed_by_day.wed|default(4), stats.tasks_completed_by_day.thu|default(6), stats.tasks_completed_by_day.fri|default(2), stats.tasks_completed_by_day.sat|default(4), stats.tasks_completed_by_day.sun|default(3)],
                              "colorKey": "success"
                          }, {
-                             "label": "En attente",
+                             "label": "Pending",
                              "data": [stats.tasks_pending_by_day.mon|default(2), stats.tasks_pending_by_day.tue|default(1), stats.tasks_pending_by_day.wed|default(3), stats.tasks_pending_by_day.thu|default(1), stats.tasks_pending_by_day.fri|default(4), stats.tasks_pending_by_day.sat|default(2), stats.tasks_pending_by_day.sun|default(2)],
                              "colorKey": "warning"
                          }]
@@ -221,9 +169,9 @@
                         <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
                             <i data-lucide="calendar" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
                         </div>
-                        <h2 class="font-semibold text-secondary-900 dark:text-white">Planning du jour</h2>
+                        <h2 class="font-semibold text-secondary-900 dark:text-white">Today's Schedule</h2>
                     </div>
-                    <a href="{{ path('app_planning') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">Voir tout</a>
+                    <a href="{{ path('app_planning') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">View all</a>
                 </div>
             </div>
             <div class="p-4 space-y-2">
@@ -249,8 +197,8 @@
                 {% else %}
                     <div class="empty-state py-8">
                         <i data-lucide="calendar-off" class="w-12 h-12 text-slate-300 dark:text-slate-600"></i>
-                        <p class="empty-state-title">Aucun événement aujourd'hui</p>
-                        <p class="empty-state-description">Ton emploi du temps est libre</p>
+                        <p class="empty-state-title">No events today</p>
+                        <p class="empty-state-description">Your schedule is clear for today</p>
                     </div>
                 {% endif %}
             </div>
@@ -264,9 +212,9 @@
                         <div class="w-9 h-9 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
                             <i data-lucide="clipboard-list" class="w-4 h-4 text-accent-600 dark:text-accent-400"></i>
                         </div>
-                        <h2 class="font-semibold text-secondary-900 dark:text-white">Tâches à venir</h2>
+                        <h2 class="font-semibold text-secondary-900 dark:text-white">Upcoming Tasks</h2>
                     </div>
-                    <a href="{{ path('app_assignments') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">Voir tout</a>
+                    <a href="{{ path('app_assignments') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">View all</a>
                 </div>
             </div>
             <div class="p-4 space-y-2">
@@ -297,8 +245,8 @@
                 {% else %}
                     <div class="empty-state py-8">
                         <i data-lucide="inbox" class="w-12 h-12 text-slate-300 dark:text-slate-600"></i>
-                        <p class="empty-state-title">Tout est à jour !</p>
-                        <p class="empty-state-description">Aucune tâche à venir</p>
+                        <p class="empty-state-title">All caught up!</p>
+                        <p class="empty-state-description">No upcoming assignments</p>
                     </div>
                 {% endfor %}
             </div>
@@ -311,7 +259,7 @@
                     <div class="w-9 h-9 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
                         <i data-lucide="activity" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
                     </div>
-                    <h2 class="font-semibold text-secondary-900 dark:text-white">Activité récente</h2>
+                    <h2 class="font-semibold text-secondary-900 dark:text-white">Recent Activity</h2>
                 </div>
             </div>
             <div class="p-4 space-y-3">
@@ -352,13 +300,13 @@
                         <i data-lucide="graduation-cap" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
                     </div>
                     <div>
-                        <h2 class="font-semibold text-secondary-900 dark:text-white">Progression des cours</h2>
-                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Suis ton parcours d'apprentissage</p>
+                        <h2 class="font-semibold text-secondary-900 dark:text-white">Course Progress</h2>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Track your learning journey</p>
                     </div>
                 </div>
                 <a href="{{ path('app_courses') }}" class="btn btn-secondary btn-sm">
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                    Voir tout
+                    View all
                 </a>
             </div>
         </div>
@@ -377,7 +325,7 @@
                     </div>
                     <div class="space-y-2">
                         <div class="flex items-center justify-between text-sm">
-                            <span class="text-secondary-500 dark:text-secondary-400">Progression</span>
+                            <span class="text-secondary-500 dark:text-secondary-400">Progress</span>
                             <span class="font-semibold text-secondary-900 dark:text-white">{{ course.progress }}%</span>
                         </div>
                         <div class="progress-bar">
@@ -396,98 +344,34 @@
             <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <i data-lucide="plus-circle" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
             </div>
-            <p class="font-medium text-secondary-900 dark:text-white">Ajouter un devoir</p>
-            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Suivre les nouvelles tâches</p>
+            <p class="font-medium text-secondary-900 dark:text-white">Add Assignment</p>
+            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Track new tasks</p>
         </a>
         <a href="{{ path('app_planning') }}?action=new" class="card card-interactive p-4 flex flex-col items-center text-center group">
             <div class="w-12 h-12 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <i data-lucide="calendar-plus" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
             </div>
-            <p class="font-medium text-secondary-900 dark:text-white">Planifier un événement</p>
-            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Organiser ton temps</p>
+            <p class="font-medium text-secondary-900 dark:text-white">Schedule Event</p>
+            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Plan your time</p>
         </a>
         <a href="{{ path('app_revisions') }}" class="card card-interactive p-4 flex flex-col items-center text-center group">
             <div class="w-12 h-12 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <i data-lucide="brain" class="w-6 h-6 text-success-600 dark:text-success-400"></i>
             </div>
-            <p class="font-medium text-secondary-900 dark:text-white">Commencer une révision</p>
-            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Réviser tes flashcards</p>
+            <p class="font-medium text-secondary-900 dark:text-white">Start Revision</p>
+            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Review flashcards</p>
         </a>
         <a href="{{ path('app_wellbeing') }}" class="card card-interactive p-4 flex flex-col items-center text-center group">
             <div class="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <i data-lucide="heart" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
             </div>
-            <p class="font-medium text-secondary-900 dark:text-white">Bilan bien-être</p>
-            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Comment te sens-tu ?</p>
+            <p class="font-medium text-secondary-900 dark:text-white">Wellness Check</p>
+            <p class="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">How are you feeling?</p>
         </a>
     </div>
 </div>
 {% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
-
-    <script>
-        (function initDashboardPet3D() {
-            const mount = document.getElementById('pet-3d-container');
-            if (!mount) return;
-
-            const localFallback = (type) => {
-                const emojiByType = {
-                    cat: '🐱',
-                    dog: '🐶',
-                    dragon: '🐉',
-                    fox: '🦊',
-                    bird: '🐦',
-                    hamster: '🐹'
-                };
-                const emoji = emojiByType[type] || '🐾';
-                if (!document.getElementById('dashboard-pet-fallback-style')) {
-                    const st = document.createElement('style');
-                    st.id = 'dashboard-pet-fallback-style';
-                    st.textContent = '@keyframes dashboardPetFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}';
-                    document.head.appendChild(st);
-                }
-                mount.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div style="font-size:52px; animation: dashboardPetFloat 1.7s ease-in-out infinite;">' + emoji + '</div></div>';
-            };
-
-            const draw = function() {
-                const type = (mount.dataset.petType || 'cat').toLowerCase();
-                if (!window.RLife3D || typeof window.RLife3D.renderPet !== 'function') {
-                    localFallback(type);
-                    return;
-                }
-                window.RLife3D.renderPet(mount, {
-                    type: type,
-                    hunger: {{ app.user.mainPet ? app.user.mainPet.hunger : 50 }},
-                    spin: 0.012,
-                    emissive: 0x312e81
-                });
-
-                // Safety net: fallback if nothing rendered.
-                setTimeout(() => {
-                    if (!mount.firstElementChild) {
-                        localFallback(type);
-                    }
-                }, 900);
-            };
-
-            const start = () => {
-                if (window.RLife3D && typeof window.RLife3D.ensureThree === 'function') {
-                    window.RLife3D.ensureThree(draw);
-                    return;
-                }
-                draw();
-            };
-
-            start();
-            document.addEventListener('turbo:load', start);
-
-            document.addEventListener('turbo:before-cache', function() {
-                if (window.RLife3D && typeof window.RLife3D.dispose === 'function') {
-                    window.RLife3D.dispose(mount);
-                }
-            });
-        })();
-    </script>
 {% endblock %}
-

@@ -1,0 +1,47 @@
+{% extends 'admin/base_admin.html.twig' %}  <!-- Assume this exists; if not, create it extending 'base.html.twig' -->
+
+{% block title %}Stress Recommendations{% endblock %}
+{% block page_title %}Stress Recommendations{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-semibold">Recommendations</h2>  <!-- English -->
+            <p class="text-sm text-slate-500 dark:text-slate-400">Manage recommendations (CRUD)</p>
+        </div>
+        <!-- Add "New Recommendation" button if needed -->
+    </div>
+    <table class="w-full text-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>  <!-- English -->
+                <th>Content</th>
+                <th>Level</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.title }}</td>
+                    <td>{{ item.content|slice(0, 50) }}...</td>  <!-- Truncate long content -->
+                    <td>{{ item.level }}</td>
+                    <td>
+                        <!-- Edit/Delete buttons -->
+                        <a href="{{ path('app_admin_recommendation_stress_edit', {id: item.id}) }}">Edit</a>
+                        <form method="post" action="{{ path('app_admin_recommendation_stress_delete', {id: item.id}) }}" onsubmit="return confirm('Delete?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+                            <button>Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">No recommendations found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

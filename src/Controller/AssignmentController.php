@@ -11,16 +11,13 @@ use App\Repository\AssignmentRepository;
 use App\Repository\CommentRepository;
 use App\Service\AssignmentStatsService;
 use App\Service\AssignmentPdfService;
-use App\Service\NotificationManager;
-use App\Service\RewardService; // ← AJOUT pour le système de récompenses
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use App\Repository\AssignmentCollaboratorRepository;
-use App\Repository\ProjectShareRepository;  
 
 #[Route('/assignments')]
 #[IsGranted('ROLE_USER')]
@@ -115,7 +112,7 @@ class AssignmentController extends AbstractController
         AssignmentStatsService $statsService,
         CommentRepository $commentRepository,
         EntityManagerInterface $entityManager,
-        NotificationManager $notificationManager,
+        PusherService $pusherService,
         AssignmentCollaboratorRepository $collaboratorRepository,
         ProjectShareRepository $shareRepository
     ): Response {
@@ -142,16 +139,14 @@ class AssignmentController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            $taskOwner = $comment->getAssignment()->getUser();
-            if ($taskOwner !== $this->getUser()) {
-                $notificationManager->createNotification(
-                    $taskOwner,
-                    'Nouveau commentaire',
-                    "{$this->getUser()->getFullName()} a commente la tache \"{$comment->getAssignment()->getTitre()}\"",
-                    'new_comment',
-                    $this->generateUrl('app_assignments_show', ['id' => $comment->getAssignment()->getId()])
-                );
-            }
+            // Send real-time notification via Pusher
+            $pusherService->notifyNewComment(
+                $assignment->getId(),
+                $comment->getId(),
+                $this->getUser()->getEmail(),
+                $comment->getContent(),
+                $comment->getCreatedAt()->format('Y-m-d H:i:s')
+            );
 
             $this->addFlash('success', 'Comment added successfully!');
             return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
@@ -172,8 +167,7 @@ class AssignmentController extends AbstractController
     public function edit(
         Request $request,
         Assignment $assignment,
-        EntityManagerInterface $entityManager,
-        RewardService $rewardService // ← AJOUT : injection du service de récompenses
+        EntityManagerInterface $entityManager
     ): Response {
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
@@ -186,9 +180,6 @@ class AssignmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
-            // AJOUT : Récompense coins si la tâche est terminée avant l'échéance
-            $rewardService->awardCoinsForAssignment($this->getUser(), $assignment);
 
             $this->addFlash('success', 'Task updated successfully!');
 
@@ -275,7 +266,8 @@ class AssignmentController extends AbstractController
     public function deleteComment(
         Comment $comment,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        PusherService $pusherService
     ): Response {
         // Security check - only comment author can delete
         if ($comment->getUser() !== $this->getUser()) {
@@ -289,10 +281,12 @@ class AssignmentController extends AbstractController
             $entityManager->remove($comment);
             $entityManager->flush();
 
+            // Notify via Pusher
+            $pusherService->notifyCommentDeleted($assignmentId, $commentId);
+
             $this->addFlash('success', 'Comment deleted successfully!');
         }
 
         return $this->redirectToRoute('app_assignments_show', ['id' => $assignmentId]);
     }
 }
-

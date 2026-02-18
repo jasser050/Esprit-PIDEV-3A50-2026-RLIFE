@@ -255,7 +255,7 @@ usort($upcomingFiltered, static function (array $a, array $b) use ($up_sort): in
             'upcoming_q' => $upcoming_q,
             'upcoming' => $upcomingFiltered,
             'upcoming_total' => count($upcomingAll),
-            
+
 
         ]);
     }
@@ -265,7 +265,7 @@ public function new(Request $request, EntityManagerInterface $em): Response
     $planning = new Planning();
     $form = $this->createForm(\App\Form\PlanningType::class, $planning);
     $form->handleRequest($request);
-    
+
 
     // Validation manuelle "Choose a session"
     if ($form->isSubmitted() && $form->isValid()) {

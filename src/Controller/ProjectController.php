@@ -11,10 +11,9 @@ use App\Repository\ProjectRepository;
 use App\Repository\ProjectShareRepository;
 use App\Repository\AssignmentRepository;
 use App\Repository\UserRepository;
-use App\Service\NotificationManager;
 use App\Service\ProjectPdfService;
 use App\Service\ProjectStatsService;
-use App\Service\RewardService; // ← AJOUT pour le système de récompenses
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,8 +70,7 @@ class ProjectController extends AbstractController
     #[Route('/new', name: 'app_project_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
-        EntityManagerInterface $entityManager,
-        RewardService $rewardService // ← AJOUT : injection du service de récompenses
+        EntityManagerInterface $entityManager
     ): Response {
         $project = new Project();
         $form = $this->createForm(ProjectType::class, $project);
@@ -83,9 +81,6 @@ class ProjectController extends AbstractController
 
             $entityManager->persist($project);
             $entityManager->flush();
-
-            // AJOUT : Assignation du Pet si c'est le premier projet de l'utilisateur
-            $rewardService->assignInitialPet($this->getUser());
 
             $this->addFlash('success', 'Project created successfully!');
 
@@ -102,14 +97,9 @@ class ProjectController extends AbstractController
     public function show(
         Project $project,
         AssignmentRepository $assignmentRepository,
-        ProjectStatsService $statsService,
-        ProjectShareRepository $shareRepository
+        ProjectStatsService $statsService
     ): Response {
-        $currentUser = $this->getUser();
-        $isOwner = $project->getUser()?->getId() === $currentUser?->getId();
-        $hasSharedAccess = $shareRepository->hasAccess($project, $currentUser);
-
-        if (!$isOwner && !$hasSharedAccess) {
+        if ($project->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
@@ -210,7 +200,7 @@ class ProjectController extends AbstractController
         ProjectStatsService $statsService
     ): Response {
         $stats = $statsService->getProjectStats($this->getUser());
-        
+
         return $this->json([
             'total' => $stats['total'],
             'enCours' => $stats['enCours'],
@@ -228,7 +218,7 @@ class ProjectController extends AbstractController
         UserRepository $userRepository,
         ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager,
-        NotificationManager $notificationManager
+        PusherService $pusherService
     ): Response {
         // Security check - only project owner can share
         if ($project->getUser() !== $this->getUser()) {
@@ -267,12 +257,13 @@ class ProjectController extends AbstractController
         $entityManager->persist($projectShare);
         $entityManager->flush();
 
-        $notificationManager->createNotification(
-            $userToShare,
-            'Nouveau projet partage',
-            "{$this->getUser()->getFullName()} vous a partage le projet \"{$project->getTitre()}\"",
-            'project_shared',
-            $this->generateUrl('app_project_shared_with_me')
+        // Send real-time notification via Pusher
+        $pusherService->notifyUserProjectShared(
+            $userToShare->getId(),
+            $project->getId(),
+            $project->getTitre(),
+            $this->getUser()->getFullName() ?? $this->getUser()->getEmail(),
+            $role
         );
 
         $this->addFlash('success', 'Project shared successfully!');
@@ -314,5 +305,3 @@ class ProjectController extends AbstractController
         ]);
     }
 }
-
-

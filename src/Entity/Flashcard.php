@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\FlashcardRepository;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
@@ -97,10 +98,14 @@ class Flashcard
     #[ORM\Column(name: 'date_modification', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateModification = null;
 
+    #[ORM\OneToMany(targetEntity: FlashcardTranslation::class, mappedBy: 'flashcard', orphanRemoval: true)]
+    private Collection $translations;
+
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
-        $this->etat = 'actif'; // Default value
+        $this->etat = 'actif';
+        $this->translations = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -243,6 +248,32 @@ class Flashcard
     public function setCreatedBy(?User $createdBy): static
     {
         $this->createdBy = $createdBy;
+        return $this;
+    }
+
+    public function getTranslations(): Collection
+    {
+        return $this->translations;
+    }
+
+    public function addTranslation(FlashcardTranslation $translation): static
+    {
+        if (!$this->translations->contains($translation)) {
+            $this->translations->add($translation);
+            $translation->setFlashcard($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTranslation(FlashcardTranslation $translation): static
+    {
+        if ($this->translations->removeElement($translation)) {
+            if ($translation->getFlashcard() === $this) {
+                $translation->setFlashcard(null);
+            }
+        }
+
         return $this;
     }
 }

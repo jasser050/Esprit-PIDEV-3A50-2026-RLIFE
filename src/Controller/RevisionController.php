@@ -29,13 +29,13 @@ class RevisionController extends AbstractController
             $flashcards = $deck->getFlashcards();
             $cardCount = count($flashcards);
             $masteredCount = 0;
-            
+
             foreach ($flashcards as $flashcard) {
                 if ($flashcard->getEtat() === 'maitrisee') {
                     $masteredCount++;
                 }
             }
-            
+
             $deck->setCardCount($cardCount);
             $deck->setMasteredCount($masteredCount);
         }
@@ -284,7 +284,7 @@ class RevisionController extends AbstractController
             // Using Gemini 2.5 Flash model with proper API v1 endpoint
             // API key passed in header x-goog-api-key (not in URL)
             $response = $httpClient->request(
-                'POST', 
+                'POST',
                 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent',
                 [
                     'headers' => [
@@ -296,7 +296,7 @@ class RevisionController extends AbstractController
                             [
                                 'parts' => [
                                     [
-                                        'text' => "Generate 6 educational flashcards in English on the theme: \"$theme\". 
+                                        'text' => "Generate 6 educational flashcards in English on the theme: \"$theme\".
                                         Return ONLY a valid JSON array (no markdown, no ```, no text before/after).
                                         Exact format expected for EACH element:
                                         {

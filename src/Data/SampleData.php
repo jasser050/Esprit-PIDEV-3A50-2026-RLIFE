@@ -91,7 +91,7 @@ class SampleData
     public static function getAssignments(): array
     {
         $today = new \DateTime();
-        
+
         return [
             [
                 'id' => 1,
@@ -210,7 +210,7 @@ class SampleData
     {
         $today = new \DateTime();
         $events = [];
-        
+
         // Regular class schedule
         $classSchedule = [
             ['name' => 'Data Structures', 'color' => 'primary', 'time' => '10:00', 'duration' => 90, 'days' => [1, 3]],
@@ -222,12 +222,12 @@ class SampleData
         ];
 
         $id = 1;
-        
+
         // Generate events for the next 14 days
         for ($i = 0; $i < 14; $i++) {
             $date = (clone $today)->modify("+{$i} days");
             $dayOfWeek = (int) $date->format('N');
-            
+
             foreach ($classSchedule as $class) {
                 if (in_array($dayOfWeek, $class['days'])) {
                     $events[] = [
@@ -345,14 +345,14 @@ class SampleData
             ['id' => 3, 'deck_id' => 1, 'front' => 'What is the difference between BFS and DFS?', 'back' => 'BFS explores level by level (uses queue), DFS explores depth first (uses stack)', 'mastered' => false],
             ['id' => 4, 'deck_id' => 1, 'front' => 'What is a hash collision?', 'back' => 'When two different keys hash to the same index', 'mastered' => true],
             ['id' => 5, 'deck_id' => 1, 'front' => 'Time complexity of inserting into a balanced BST?', 'back' => 'O(log n)', 'mastered' => false],
-            
+
             // Biology deck
             ['id' => 6, 'deck_id' => 2, 'front' => 'What is mitosis?', 'back' => 'Cell division resulting in two identical daughter cells', 'mastered' => true],
             ['id' => 7, 'deck_id' => 2, 'front' => 'What are the four phases of mitosis?', 'back' => 'Prophase, Metaphase, Anaphase, Telophase', 'mastered' => true],
             ['id' => 8, 'deck_id' => 2, 'front' => 'What is mRNA?', 'back' => 'Messenger RNA - carries genetic information from DNA to ribosomes', 'mastered' => false],
             ['id' => 9, 'deck_id' => 2, 'front' => 'What is the function of ribosomes?', 'back' => 'Protein synthesis - translating mRNA into proteins', 'mastered' => true],
             ['id' => 10, 'deck_id' => 2, 'front' => 'What is ATP?', 'back' => 'Adenosine triphosphate - the primary energy carrier in cells', 'mastered' => false],
-            
+
             // Calculus deck
             ['id' => 11, 'deck_id' => 3, 'front' => 'What is the gradient of a function?', 'back' => 'A vector of partial derivatives pointing in the direction of steepest ascent', 'mastered' => true],
             ['id' => 12, 'deck_id' => 3, 'front' => 'What is divergence?', 'back' => 'The scalar measure of a vector field\'s source or sink at a point', 'mastered' => false],
@@ -398,7 +398,7 @@ class SampleData
             ['id' => 6, 'project_id' => 1, 'title' => 'Create test data', 'status' => 'todo', 'assignee' => 'Mike L.'],
             ['id' => 7, 'project_id' => 1, 'title' => 'Performance testing', 'status' => 'todo', 'assignee' => 'Amine B.'],
             ['id' => 8, 'project_id' => 1, 'title' => 'Documentation', 'status' => 'todo', 'assignee' => 'Sarah K.'],
-            
+
             // Project 2 tasks
             ['id' => 9, 'project_id' => 2, 'title' => 'Setup React project', 'status' => 'done', 'assignee' => 'Amine B.'],
             ['id' => 10, 'project_id' => 2, 'title' => 'Design UI mockups', 'status' => 'in_progress', 'assignee' => 'John D.'],
@@ -413,7 +413,7 @@ class SampleData
     {
         $checkins = [];
         $today = new \DateTime();
-        
+
         for ($i = 9; $i >= 0; $i--) {
             $date = (clone $today)->modify("-{$i} days");
             $checkins[] = [
@@ -426,7 +426,7 @@ class SampleData
                 'notes' => '',
             ];
         }
-        
+
         return $checkins;
     }
 

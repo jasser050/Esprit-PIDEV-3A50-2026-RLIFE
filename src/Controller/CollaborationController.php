@@ -4,10 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Assignment;
 use App\Entity\AssignmentCollaborator;
+use App\Entity\Project;
 use App\Repository\AssignmentCollaboratorRepository;
 use App\Repository\ProjectShareRepository;
 use App\Repository\UserRepository;
-use App\Service\NotificationManager;
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class CollaborationController extends AbstractController
 {
+    // ============================================
+    // ASSIGNATION DE TÂCHE
+    // ============================================
+
     #[Route('/assignment/{id}/assign', name: 'app_collaboration_assign_task', methods: ['POST'])]
     public function assignTask(
         Assignment $assignment,
@@ -27,8 +32,9 @@ class CollaborationController extends AbstractController
         UserRepository $userRepository,
         AssignmentCollaboratorRepository $collaboratorRepository,
         ProjectShareRepository $shareRepository,
-        NotificationManager $notificationManager
+        PusherService $pusherService
     ): Response {
+        // Security check - only assignment owner can assign
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
@@ -46,18 +52,21 @@ class CollaborationController extends AbstractController
             return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
         }
 
+        // Verify project is shared with this user
         $project = $assignment->getProject();
         if (!$shareRepository->hasAccess($project, $userToAssign)) {
             $this->addFlash('error', 'You must first share the project with this user.');
             return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
         }
 
+        // Check if already assigned
         $existingCollab = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $userToAssign);
         if ($existingCollab) {
             $this->addFlash('warning', 'This task is already assigned to this user.');
             return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
         }
 
+        // Create the assignment
         $collaborator = new AssignmentCollaborator();
         $collaborator->setAssignment($assignment);
         $collaborator->setUser($userToAssign);
@@ -66,12 +75,12 @@ class CollaborationController extends AbstractController
         $entityManager->persist($collaborator);
         $entityManager->flush();
 
-        $notificationManager->createNotification(
-            $userToAssign,
-            'Nouvelle tache assignee',
-            "Vous avez ete assigne a la tache \"{$assignment->getTitre()}\" par {$this->getUser()->getFullName()}",
-            'task_assigned',
-            $this->generateUrl('app_assignments_show', ['id' => $assignment->getId()])
+        // Send real-time notification
+        $pusherService->notifyUserTaskAssigned(
+            $userToAssign->getId(),
+            $assignment->getId(),
+            $assignment->getTitre(),
+            $this->getUser()->getFullName() ?? $this->getUser()->getEmail()
         );
 
         $this->addFlash('success', 'Task assigned successfully!');
@@ -102,6 +111,10 @@ class CollaborationController extends AbstractController
         return $this->redirectToRoute('app_assignments_show', ['id' => $assignmentId]);
     }
 
+    // ============================================
+    // TÂCHES ASSIGNÉES À MOI
+    // ============================================
+
     #[Route('/assigned-tasks', name: 'app_collaboration_assigned_tasks', methods: ['GET'])]
     public function assignedTasks(AssignmentCollaboratorRepository $collaboratorRepository): Response
     {
@@ -112,4 +125,3 @@ class CollaborationController extends AbstractController
         ]);
     }
 }
-

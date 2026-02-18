@@ -1,4 +1,4 @@
-{# templates/pages/projects/index.html.twig #}
+﻿{# templates/pages/projects/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}My Projects{% endblock %}
@@ -44,7 +44,7 @@
                     <button type="submit" name="statut" value="En cours" class="badge {{ statut == 'En cours' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
                         <i data-lucide="loader" class="w-3.5 h-3.5"></i> In Progress
                     </button>
-                    <button type="submit" name="statut" value="Terminé" class="badge {{ statut == 'Terminé' ? 'badge-success' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <button type="submit" name="statut" value="TerminÃ©" class="badge {{ statut == 'TerminÃ©' ? 'badge-success' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
                         <i data-lucide="check" class="w-3.5 h-3.5"></i> Completed
                     </button>
                     <button type="submit" name="statut" value="En attente" class="badge {{ statut == 'En attente' ? 'badge-warning' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
@@ -73,7 +73,7 @@
         {% if search or statut %}
             <div class="text-sm bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                 {% if search %}Results for: <strong>{{ search }}</strong>{% endif %}
-                {% if statut %} • Status: <strong>{{ statut }}</strong>{% endif %}
+                {% if statut %} â€¢ Status: <strong>{{ statut }}</strong>{% endif %}
             </div>
         {% endif %}
     </div>
@@ -103,7 +103,7 @@
                         </div>
                         <span class="badge badge-pill
                             {% if project.statut == 'En cours' %}badge-primary
-                            {% elseif project.statut == 'Terminé' %}badge-success
+                            {% elseif project.statut == 'TerminÃ©' %}badge-success
                             {% elseif project.statut == 'En attente' %}badge-warning
                             {% else %}badge-danger{% endif %}">
                             {{ project.statut }}
@@ -117,7 +117,7 @@
                     <div class="text-xs text-secondary-500 dark:text-secondary-400 flex flex-wrap gap-4 mb-4">
                         <span>
                             <i data-lucide="calendar" class="w-3.5 h-3.5 mr-1"></i>
-                            {{ project.dateDebut|date('d/m/Y') }} → {{ project.dateFin|date('d/m/Y') }}
+                            {{ project.dateDebut|date('d/m/Y') }} â†’ {{ project.dateFin|date('d/m/Y') }}
                         </span>
                         {% if project.assignments|length > 0 %}
                             <span>
@@ -136,7 +136,7 @@
                             <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-ghost btn-icon-sm">
                                 <i data-lucide="edit-2" class="w-4 h-4"></i>
                             </a>
-                            <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" class="inline" ;">
+                            <form method="post" action="{{ path('app_project_delete', {'id': project.id}) }}" class="inline" data-confirm="Are you sure you want to delete this project? This action is irreversible.">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
                                 <button type="submit" class="btn btn-ghost btn-icon-sm text-danger">
                                     <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -148,7 +148,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <!-- État vide -->
+        <!-- Ã‰tat vide -->
         <div class="card p-12 text-center">
             <div class="flex flex-col items-center gap-4">
                 <i data-lucide="folder-x" class="w-16 h-16 text-secondary-400 dark:text-secondary-500"></i>
@@ -217,7 +217,7 @@
 
         <!-- Graphes -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Pie Chart - Répartition par statut -->
+            <!-- Pie Chart - RÃ©partition par statut -->
             <div class="card p-6">
                 <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="pie-chart" class="w-5 h-5 text-primary-600"></i>
@@ -228,7 +228,7 @@
                 </div>
             </div>
 
-            <!-- Bar Chart - Projets créés par année (exemple) -->
+            <!-- Bar Chart - Projets crÃ©Ã©s par annÃ©e (exemple) -->
             <div class="card p-6">
                 <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-primary-600"></i>
@@ -249,7 +249,7 @@
 <script>
     lucide.createIcons();
 
-    // Graphique 1 : Répartition par statut (Pie)
+    // Graphique 1 : RÃ©partition par statut (Pie)
     const statutCtx = document.getElementById('statutChart');
     if (statutCtx) {
         new Chart(statutCtx, {
@@ -280,7 +280,7 @@
         });
     }
 
-    // Graphique 2 : Projets par année (Bar) - exemple statique, adapte avec vraies données
+    // Graphique 2 : Projets par annÃ©e (Bar) - exemple statique, adapte avec vraies donnÃ©es
     const anneeCtx = document.getElementById('anneeChart');
     if (anneeCtx) {
         new Chart(anneeCtx, {
@@ -289,7 +289,7 @@
                 labels: ['2023', '2024', '2025', '2026'],
                 datasets: [{
                     label: 'Number of projects created',
-                    data: [3, 8, 12, 5], // ← Remplace par vraies données depuis le controller
+                    data: [3, 8, 12, 5], // â† Remplace par vraies donnÃ©es depuis le controller
                     backgroundColor: '#6366f1',
                     borderWidth: 1
                 }]

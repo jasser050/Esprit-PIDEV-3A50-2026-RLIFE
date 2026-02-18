@@ -105,7 +105,7 @@ class Project
         return $this->dateDebut;
     }
 
-    public function setDateDebut(?\DateTimeInterface $dateDebut): static
+    public function setDateDebut(\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -116,7 +116,7 @@ class Project
         return $this->dateFin;
     }
 
-    public function setDateFin(?\DateTimeInterface $dateFin): static
+    public function setDateFin(\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;
@@ -124,12 +124,12 @@ class Project
 
     public function getStatut(): ?string
     {
-        return $this->normalizeStatus((string) $this->statut);
+        return $this->statut;
     }
 
     public function setStatut(string $statut): static
     {
-        $this->statut = $this->normalizeStatus($statut);
+        $this->statut = $statut;
         return $this;
     }
 
@@ -211,30 +211,5 @@ class Project
         }
 
         return $this;
-    }
-
-    private function normalizeStatus(string $status): string
-    {
-        $normalized = mb_strtolower(trim($status));
-        $map = [
-            'pending' => 'En attente',
-            'en attente' => 'En attente',
-            'in_progress' => 'En cours',
-            'in progress' => 'En cours',
-            'en cours' => 'En cours',
-            'on_hold' => 'En pause',
-            'on hold' => 'En pause',
-            'en pause' => 'En pause',
-            'completed' => 'Terminé',
-            'done' => 'Terminé',
-            'termine' => 'Terminé',
-            'terminé' => 'Terminé',
-            'canceled' => 'Annulé',
-            'cancelled' => 'Annulé',
-            'annule' => 'Annulé',
-            'annulé' => 'Annulé',
-        ];
-
-        return $map[$normalized] ?? $status;
     }
 }

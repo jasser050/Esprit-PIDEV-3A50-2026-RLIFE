@@ -49,115 +49,219 @@
         <!-- Code & Name -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-200">
-                {{ form_label(form.code, 'Course Code', {
+                {{ form_label(form.code, 'Course Code *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.code, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., math02'
+                        'class': (form.code.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'Ex: MATH101'
                     }
                 }) }}
-                {{ form_errors(form.code, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.code.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.code) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>2-50 characters, alphanumeric only</span>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-300">
-                {{ form_label(form.nomMatiere, 'Course Name', {
+                {{ form_label(form.nomMatiere, 'Course Name *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.nomMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., Calculus II'
+                        'class': (form.nomMatiere.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'Ex: Mathematics'
                     }
                 }) }}
-                {{ form_errors(form.nomMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.nomMatiere.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.nomMatiere) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>3-255 characters</span>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Section & Type -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-400">
-                {{ form_label(form.sectionMatiere, 'Section', {
+                {{ form_label(form.sectionMatiere, 'Section *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.sectionMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
+                        'class': (form.sectionMatiere.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
                     }
                 }) }}
-                {{ form_errors(form.sectionMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.sectionMatiere.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.sectionMatiere) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Select a section</span>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-500">
-                {{ form_label(form.typeMatiere, 'Type', {
+                {{ form_label(form.typeMatiere, 'Type *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.typeMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
+                        'class': (form.typeMatiere.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600'
                     }
                 }) }}
-                {{ form_errors(form.typeMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.typeMatiere.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.typeMatiere) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Select a type</span>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Coefficient & Hours -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="form-group animate-fade-in animation-delay-600">
-                {{ form_label(form.coefficientMatiere, 'Coefficient', {
+                {{ form_label(form.coefficientMatiere, 'Coefficient *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.coefficientMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., 8'
+                        'class': (form.coefficientMatiere.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'Ex: 2'
                     }
                 }) }}
-                {{ form_errors(form.coefficientMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.coefficientMatiere.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.coefficientMatiere) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Number between 1 and 20</span>
+                    </div>
+                {% endif %}
             </div>
 
             <div class="form-group animate-fade-in animation-delay-700">
-                {{ form_label(form.heureMatiere, 'Hours per Week', {
+                {{ form_label(form.heureMatiere, 'Hours per Week *', {
                     'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
                 }) }}
                 {{ form_widget(form.heureMatiere, {
                     'attr': {
-                        'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                        'placeholder': 'e.g., 6'
+                        'class': (form.heureMatiere.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
+                        'placeholder': 'Ex: 4'
                     }
                 }) }}
-                {{ form_errors(form.heureMatiere, {
-                    'attr': {'class': 'text-red-400 text-sm mt-1'}
-                }) }}
+                {% if form.heureMatiere.vars.errors|length > 0 %}
+                    <div class="error-alert">
+                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        {{ form_errors(form.heureMatiere) }}
+                    </div>
+                {% else %}
+                    <div class="info-hint">
+                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span>Number between 1 and 40</span>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
         <!-- Description -->
         <div class="form-group animate-fade-in animation-delay-800">
-            {{ form_label(form.description, 'Description (Optional)', {
+            {{ form_label(form.description, 'Description', {
                 'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2'}
             }) }}
             {{ form_widget(form.description, {
                 'attr': {
-                    'class': 'w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600',
+                    'class': (form.description.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 min-h-[120px] transition-all hover:border-slate-600',
                     'rows': '5',
-                    'placeholder': 'Add a description for this course...'
+                    'placeholder': 'Course description...'
                 }
             }) }}
-            {{ form_errors(form.description, {
-                'attr': {'class': 'text-red-400 text-sm mt-1'}
-            }) }}
+            <div class="text-slate-500 text-sm mt-1">Optional - Max 500 characters</div>
+            {% if form.description.vars.errors|length > 0 %}
+                <div class="error-alert">
+                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    {{ form_errors(form.description) }}
+                </div>
+            {% endif %}
         </div>
 
         <!-- Actions -->
@@ -199,6 +303,71 @@ textarea:focus {
     background-color: rgba(15, 23, 42, 0.7) !important;
 }
 
+/* Error Field Styling - Red border on error fields */
+.field-error {
+    border-color: #ef4444 !important;
+    background-color: rgba(254, 226, 226, 0.05) !important;
+}
+
+.field-error:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Valid Field Styling - Green border on valid fields */
+.field-valid {
+    border-color: #10b981 !important;
+}
+
+.field-valid:focus {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Error Alert Styling - Matching the uploaded image */
+.error-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #ffffff;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.error-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    stroke: currentColor;
+}
+
+.error-alert ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.error-alert li {
+    margin: 0;
+}
+
+/* Info Hint Styling - For descriptions when no errors */
+.info-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+    stroke: currentColor;
+}
+
 select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -222,8 +391,10 @@ select option {
 .form-error-message {
     color: #f87171 !important;
     font-size: 0.875rem;
-    margin-top: 0.25rem;
-    display: block;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 input:-webkit-autofill,
@@ -426,6 +597,231 @@ input, select, textarea, button, a {
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    }
+
+    // Real-time validation rules
+    const validationRules = {
+        'matiere_code': {
+            minLength: 2,
+            maxLength: 50,
+            pattern: /^[a-zA-Z0-9_-]*$/,
+            errorMessages: {
+                minLength: 'Le code du cours doit contenir au moins 2 caractères',
+                maxLength: 'Le code du cours ne doit pas dépasser 50 caractères',
+                pattern: 'Le code du cours ne peut contenir que des lettres, chiffres, tirets et underscores',
+                required: 'Le code du cours est obligatoire'
+            }
+        },
+        'matiere_nomMatiere': {
+            minLength: 3,
+            maxLength: 255,
+            errorMessages: {
+                minLength: 'Le nom du cours doit contenir au moins 3 caractères',
+                maxLength: 'Le nom du cours ne doit pas dépasser 255 caractères',
+                required: 'Le nom du cours est obligatoire'
+            }
+        },
+        'matiere_sectionMatiere': {
+            errorMessages: {
+                required: 'La section est obligatoire'
+            }
+        },
+        'matiere_typeMatiere': {
+            errorMessages: {
+                required: 'Le type est obligatoire'
+            }
+        },
+        'matiere_coefficientMatiere': {
+            min: 1,
+            max: 20,
+            type: 'number',
+            errorMessages: {
+                min: 'Le coefficient doit être au moins 1',
+                max: 'Le coefficient ne doit pas dépasser 20',
+                type: 'Le coefficient doit être un nombre valide',
+                required: 'Le coefficient est obligatoire'
+            }
+        },
+        'matiere_heureMatiere': {
+            min: 1,
+            max: 40,
+            type: 'number',
+            errorMessages: {
+                min: 'Les heures doivent être au moins 1',
+                max: 'Les heures ne doivent pas dépasser 40',
+                type: 'Les heures doivent être un nombre valide',
+                required: 'Le nombre d\'heures est obligatoire'
+            }
+        },
+        'matiere_description': {
+            maxLength: 1000,
+            errorMessages: {
+                maxLength: 'La description ne doit pas dépasser 1000 caractères'
+            }
+        }
+    };
+
+    // Function to validate a single field
+    function validateField(input) {
+        const fieldName = input.id;
+        const rules = validationRules[fieldName];
+        
+        if (!rules) return;
+
+        const value = input.value.trim();
+        const parentGroup = input.closest('.form-group');
+        const existingError = parentGroup.querySelector('.error-alert');
+        const existingHint = parentGroup.querySelector('.info-hint');
+        let errorMessage = '';
+
+        // Remove existing error/hint
+        if (existingError) existingError.remove();
+        if (existingHint) existingHint.remove();
+
+        // Required validation
+        if (input.hasAttribute('required') && !value) {
+            errorMessage = rules.errorMessages.required;
+        }
+
+        // MinLength validation
+        if (!errorMessage && rules.minLength && value && value.length < rules.minLength) {
+            errorMessage = rules.errorMessages.minLength;
+        }
+
+        // MaxLength validation
+        if (!errorMessage && rules.maxLength && value.length > rules.maxLength) {
+            errorMessage = rules.errorMessages.maxLength;
+        }
+
+        // Pattern validation
+        if (!errorMessage && rules.pattern && value && !rules.pattern.test(value)) {
+            errorMessage = rules.errorMessages.pattern;
+        }
+
+        // Number validation
+        if (!errorMessage && rules.type === 'number' && value) {
+            const numValue = parseFloat(value);
+            
+            if (isNaN(numValue)) {
+                errorMessage = rules.errorMessages.type;
+            } else {
+                // Min validation
+                if (rules.min !== undefined && numValue < rules.min) {
+                    errorMessage = rules.errorMessages.min;
+                }
+                
+                // Max validation
+                if (rules.max !== undefined && numValue > rules.max) {
+                    errorMessage = rules.errorMessages.max;
+                }
+            }
+        }
+
+        // Show error or hint
+        if (errorMessage) {
+            input.classList.add('field-error');
+            input.classList.remove('field-valid');
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-alert';
+            errorDiv.innerHTML = `
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>${errorMessage}</span>
+            `;
+            input.parentElement.appendChild(errorDiv);
+        } else if (value) {
+            input.classList.remove('field-error');
+            input.classList.add('field-valid');
+            
+            // Show hint if no error and field has value
+            const hintText = getHintText(fieldName);
+            if (hintText) {
+                const hintDiv = document.createElement('div');
+                hintDiv.className = 'info-hint';
+                hintDiv.innerHTML = `
+                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span>${hintText}</span>
+                `;
+                input.parentElement.appendChild(hintDiv);
+            }
+        } else {
+            input.classList.remove('field-error');
+            input.classList.remove('field-valid');
+        }
+    }
+
+    // Get hint text for field
+    function getHintText(fieldName) {
+        const hints = {
+            'matiere_code': '2-50 characters, alphanumeric only',
+            'matiere_nomMatiere': '3-255 characters',
+            'matiere_sectionMatiere': 'Select a section',
+            'matiere_typeMatiere': 'Select a type',
+            'matiere_coefficientMatiere': 'Number between 1 and 20',
+            'matiere_heureMatiere': 'Number between 1 and 40'
+        };
+        return hints[fieldName] || '';
+    }
+
+    // Add event listeners to all form fields
+    const formFields = document.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+    
+    formFields.forEach(field => {
+        // Validate on input (real-time)
+        field.addEventListener('input', function() {
+            validateField(this);
+        });
+
+        // Validate on blur
+        field.addEventListener('blur', function() {
+            validateField(this);
+        });
+
+        // Validate on change (for select)
+        field.addEventListener('change', function() {
+            validateField(this);
+        });
+    });
+
+    // Character counter for description
+    const descriptionField = document.getElementById('matiere_description');
+    if (descriptionField) {
+        const createCharCounter = () => {
+            const parentGroup = descriptionField.closest('.form-group');
+            let counterDiv = parentGroup.querySelector('.char-counter');
+            
+            if (!counterDiv) {
+                counterDiv = document.createElement('div');
+                counterDiv.className = 'text-slate-500 text-sm mt-1 char-counter';
+                const existingHint = parentGroup.querySelector('.info-hint');
+                if (existingHint) {
+                    existingHint.remove();
+                }
+                descriptionField.parentElement.appendChild(counterDiv);
+            }
+            
+            const length = descriptionField.value.length;
+            counterDiv.textContent = `Optional - ${length}/1000 characters`;
+            
+            if (length > 1000) {
+                counterDiv.classList.add('text-red-400');
+                counterDiv.classList.remove('text-slate-500');
+            } else {
+                counterDiv.classList.remove('text-red-400');
+                counterDiv.classList.add('text-slate-500');
+            }
+        };
+        
+        descriptionField.addEventListener('input', createCharCounter);
+        createCharCounter();
     }
 });
 </script>

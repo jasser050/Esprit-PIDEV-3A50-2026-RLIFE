@@ -225,10 +225,10 @@
         }{% if not loop.last %},{% endif %}
         {% endfor %}
     ];
-    
+
     const ctx = document.getElementById('stressChart').getContext('2d');
     const isDark = document.documentElement.classList.contains('dark');
-    
+
     new Chart(ctx, {
         type: 'bar',
         data: {
