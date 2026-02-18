@@ -1,6 +1,5 @@
 {% extends 'base.html.twig' %}
 
-<<<<<<< HEAD
 {% block title %}Create New Deck{% endblock %}
 
 {% block body %}
@@ -25,7 +24,7 @@
 
         <div class="p-6">
             {{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'class': 'space-y-6'}}) }}
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Title -->
                 <div>
@@ -90,78 +89,5 @@
             {{ form_end(form) }}
         </div>
     </div>
-=======
-{% block title %}New Flashcard Deck{% endblock %}
-
-{% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Revisions', href: path('app_revisions') },
-            { label: 'New Deck' }
-        ]
-    } %}
-
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Flashcard Deck',
-        subtitle: 'Create a new deck to organize your flashcards'
-    } %}
-
-    <form action="{{ path('app_revisions_deck_new') }}" method="POST" class="card p-6">
-        <div class="space-y-6">
-            <!-- Deck Name -->
-            {% include 'components/input.html.twig' with {
-                name: 'name',
-                label: 'Deck Name',
-                placeholder: 'e.g., Data Structures, Organic Chemistry',
-                required: true
-            } %}
-
-            <!-- Related Course -->
-            {% include 'components/select.html.twig' with {
-                name: 'course_id',
-                label: 'Related Course',
-                required: true,
-                options: courses|map(c => { value: c.id, label: c.name ~ ' (' ~ c.code ~ ')' })
-            } %}
-
-            <!-- Color -->
-            {% include 'components/select.html.twig' with {
-                name: 'color',
-                label: 'Deck Color',
-                options: [
-                    { value: 'indigo', label: 'Indigo (Primary)' },
-                    { value: 'teal', label: 'Teal (Secondary)' },
-                    { value: 'amber', label: 'Amber (Accent)' },
-                    { value: 'blue', label: 'Blue' },
-                    { value: 'green', label: 'Green' },
-                    { value: 'red', label: 'Red' },
-                    { value: 'purple', label: 'Purple' },
-                    { value: 'pink', label: 'Pink' }
-                ]
-            } %}
-
-            <!-- Description -->
-            {% include 'components/textarea.html.twig' with {
-                name: 'description',
-                label: 'Description (Optional)',
-                placeholder: 'What topics does this deck cover?',
-                rows: 3
-            } %}
-
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_revisions') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Create Deck
-                </button>
-            </div>
-        </div>
-    </form>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </div>
 {% endblock %}

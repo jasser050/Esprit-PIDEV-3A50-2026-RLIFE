@@ -2,29 +2,20 @@
 
 namespace App\Controller;
 
-<<<<<<< HEAD
 use App\Entity\Deck;
 use App\Entity\User;
 use App\Form\DeckType;
 use App\Repository\DeckRepository;
 use App\Service\AuditLogService;
-=======
-use App\Entity\User;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-<<<<<<< HEAD
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-=======
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -35,7 +26,7 @@ class AdminController extends AbstractController
     {
         // Get statistics
         $userRepository = $entityManager->getRepository(User::class);
-        
+
         $totalUsers = $userRepository->count([]);
         $activeUsers = $userRepository->count(['isBanned' => false]);
         $bannedUsers = $userRepository->count(['isBanned' => true]);
@@ -45,10 +36,10 @@ class AdminController extends AbstractController
             ->setParameter('role', '%ROLE_ADMIN%')
             ->getQuery()
             ->getSingleScalarResult();
-        
+
         // Get recent users
         $recentUsers = $userRepository->findBy([], ['createdAt' => 'DESC'], 10);
-        
+
         return $this->render('admin/dashboard.html.twig', [
             'total_users' => $totalUsers,
             'active_users' => $activeUsers,
@@ -62,12 +53,12 @@ class AdminController extends AbstractController
     public function users(EntityManagerInterface $entityManager, Request $request): Response
     {
         $userRepository = $entityManager->getRepository(User::class);
-        
+
         // Get filter from query params
         $filter = $request->query->get('filter', 'all');
-        
+
         $queryBuilder = $userRepository->createQueryBuilder('u');
-        
+
         if ($filter === 'banned') {
             $queryBuilder->where('u.isBanned = true');
         } elseif ($filter === 'active') {
@@ -76,9 +67,9 @@ class AdminController extends AbstractController
             $queryBuilder->where('u.roles LIKE :role')
                 ->setParameter('role', '%ROLE_ADMIN%');
         }
-        
+
         $users = $queryBuilder->orderBy('u.createdAt', 'DESC')->getQuery()->getResult();
-        
+
         return $this->render('admin/users.html.twig', [
             'users' => $users,
             'filter' => $filter,
@@ -86,28 +77,23 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/ban', name: 'app_admin_user_ban', methods: ['POST'])]
-<<<<<<< HEAD
     public function banUser(User $user, Request $request, EntityManagerInterface $entityManager, AuditLogService $auditLog, MailerInterface $mailer): Response
-=======
-    public function banUser(User $user, Request $request, EntityManagerInterface $entityManager): Response
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $reason = $request->request->get('reason', 'Violation of terms of service');
-        
+
         $user->setIsBanned(true);
         $user->setBannedAt(new \DateTimeImmutable());
         $user->setBanReason($reason);
-        
+
         $entityManager->flush();
-        
-<<<<<<< HEAD
+
         // Log the action
         try {
             $auditLog->logUserBan($user, $reason);
         } catch (\Exception $e) {
             // Silently continue if audit log fails
         }
-        
+
         // Send automatic ban notification email
         try {
             $banEmail = (new Email())
@@ -115,104 +101,80 @@ class AdminController extends AbstractController
                 ->to($user->getEmail())
                 ->subject('Account Suspended - RLIFE')
                 ->html($this->getBanEmailHtml($user, $reason));
-            
+
             $mailer->send($banEmail);
         } catch (\Exception $e) {
             // Log error but don't block the ban
         }
-        
+
         $this->addFlash('success', sprintf('User %s has been banned and notified by email.', $user->getEmail()));
-=======
-        $this->addFlash('success', sprintf('User %s has been banned.', $user->getEmail()));
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
-        
+
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/unban', name: 'app_admin_user_unban', methods: ['POST'])]
-<<<<<<< HEAD
     public function unbanUser(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
-=======
-    public function unbanUser(User $user, EntityManagerInterface $entityManager): Response
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $user->setIsBanned(false);
         $user->setBannedAt(null);
         $user->setBanReason(null);
-        
+
         $entityManager->flush();
-        
-<<<<<<< HEAD
+
         // Log the action
         try {
             $auditLog->logUserUnban($user);
         } catch (\Exception $e) {
             // Silently continue if audit log fails
         }
-        
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+
         $this->addFlash('success', sprintf('User %s has been unbanned.', $user->getEmail()));
-        
+
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/make-admin', name: 'app_admin_user_make_admin', methods: ['POST'])]
-<<<<<<< HEAD
     public function makeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
-=======
-    public function makeAdmin(User $user, EntityManagerInterface $entityManager): Response
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $roles = $user->getRoles();
         if (!in_array('ROLE_ADMIN', $roles, true)) {
             $roles[] = 'ROLE_ADMIN';
             $user->setRoles($roles);
             $entityManager->flush();
-            
-<<<<<<< HEAD
+
             // Log the action
             try {
      $auditLog->logUserPromotion($user);
             } catch (\Exception $e) {
     // Silently continue if audit log fails
         }
-            
-            
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+
+
             $this->addFlash('success', sprintf('User %s is now an admin.', $user->getEmail()));
         }
-        
+
         return $this->redirectToRoute('app_admin_users');
     }
 
     #[Route('/users/{id}/remove-admin', name: 'app_admin_user_remove_admin', methods: ['POST'])]
-<<<<<<< HEAD
     public function removeAdmin(User $user, EntityManagerInterface $entityManager, AuditLogService $auditLog): Response
-=======
-    public function removeAdmin(User $user, EntityManagerInterface $entityManager): Response
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $roles = array_filter($user->getRoles(), fn($role) => $role !== 'ROLE_ADMIN');
         $user->setRoles($roles);
         $entityManager->flush();
-        
-<<<<<<< HEAD
+
         // Log the action
-        
+
              try {
      $auditLog->logUserDemotion($user);
             } catch (\Exception $e) {
     // Silently continue if audit log fails
         }
 
-        
-        
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+
+
         $this->addFlash('success', sprintf('Admin role removed from %s.', $user->getEmail()));
-        
+
         return $this->redirectToRoute('app_admin_users');
     }
 
@@ -220,7 +182,7 @@ class AdminController extends AbstractController
     public function statistics(EntityManagerInterface $entityManager): Response
     {
         $userRepository = $entityManager->getRepository(User::class);
-        
+
         // User growth statistics (last 7 days)
         $userGrowth = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -228,7 +190,7 @@ class AdminController extends AbstractController
             $date->setTime(0, 0, 0);
             $nextDate = clone $date;
             $nextDate->modify('+1 day');
-            
+
             $count = $userRepository->createQueryBuilder('u')
                 ->select('COUNT(u.id)')
                 ->where('u.createdAt >= :start')
@@ -237,20 +199,20 @@ class AdminController extends AbstractController
                 ->setParameter('end', $nextDate)
                 ->getQuery()
                 ->getSingleScalarResult();
-            
+
             $userGrowth[] = [
                 'date' => $date->format('M d'),
                 'count' => $count,
             ];
         }
-        
+
         // Gender distribution
         $genderStats = $userRepository->createQueryBuilder('u')
             ->select('u.gender, COUNT(u.id) as count')
             ->groupBy('u.gender')
             ->getQuery()
             ->getResult();
-        
+
         // University distribution (top 5)
         $universityStats = $userRepository->createQueryBuilder('u')
             ->select('u.university, COUNT(u.id) as count')
@@ -260,25 +222,24 @@ class AdminController extends AbstractController
             ->setMaxResults(5)
             ->getQuery()
             ->getResult();
-        
+
         return $this->render('admin/statistics.html.twig', [
             'user_growth' => $userGrowth,
             'gender_stats' => $genderStats,
             'university_stats' => $universityStats,
         ]);
     }
-<<<<<<< HEAD
 
     #[Route('/statistics/export', name: 'app_admin_statistics_export')]
     public function exportStatistics(EntityManagerInterface $entityManager): Response
     {
         $userRepository = $entityManager->getRepository(User::class);
-        
+
         // Get all statistics
         $totalUsers = $userRepository->count([]);
         $activeUsers = $userRepository->count(['isBanned' => false]);
         $bannedUsers = $userRepository->count(['isBanned' => true]);
-        
+
         // User growth statistics (last 7 days)
         $userGrowth = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -286,7 +247,7 @@ class AdminController extends AbstractController
             $date->setTime(0, 0, 0);
             $nextDate = clone $date;
             $nextDate->modify('+1 day');
-            
+
             $count = $userRepository->createQueryBuilder('u')
                 ->select('COUNT(u.id)')
                 ->where('u.createdAt >= :start')
@@ -295,20 +256,20 @@ class AdminController extends AbstractController
                 ->setParameter('end', $nextDate)
                 ->getQuery()
                 ->getSingleScalarResult();
-            
+
             $userGrowth[] = [
                 'date' => $date->format('Y-m-d'),
                 'count' => $count,
             ];
         }
-        
+
         // Gender distribution
         $genderStats = $userRepository->createQueryBuilder('u')
             ->select('u.gender, COUNT(u.id) as count')
             ->groupBy('u.gender')
             ->getQuery()
             ->getResult();
-        
+
         // University distribution (all)
         $universityStats = $userRepository->createQueryBuilder('u')
             ->select('u.university, COUNT(u.id) as count')
@@ -317,22 +278,22 @@ class AdminController extends AbstractController
             ->orderBy('count', 'DESC')
             ->getQuery()
             ->getResult();
-        
+
         // Create CSV content
         $csv = [];
-        
+
         // Header
         $csv[] = "RLIFE Platform Statistics Report";
         $csv[] = "Generated: " . date('Y-m-d H:i:s');
         $csv[] = "";
-        
+
         // Summary
         $csv[] = "SUMMARY";
         $csv[] = "Total Users," . $totalUsers;
         $csv[] = "Active Users," . $activeUsers;
         $csv[] = "Banned Users," . $bannedUsers;
         $csv[] = "";
-        
+
         // User Growth
         $csv[] = "USER GROWTH (LAST 7 DAYS)";
         $csv[] = "Date,New Users";
@@ -340,7 +301,7 @@ class AdminController extends AbstractController
             $csv[] = $growth['date'] . "," . $growth['count'];
         }
         $csv[] = "";
-        
+
         // Gender Distribution
         $csv[] = "GENDER DISTRIBUTION";
         $csv[] = "Gender,Count,Percentage";
@@ -349,7 +310,7 @@ class AdminController extends AbstractController
             $csv[] = ucfirst($stat['gender']) . "," . $stat['count'] . "," . $percentage . "%";
         }
         $csv[] = "";
-        
+
         // University Distribution
         $csv[] = "UNIVERSITY DISTRIBUTION";
         $csv[] = "Rank,University,Students,Percentage";
@@ -359,12 +320,12 @@ class AdminController extends AbstractController
             $csv[] = $rank . "," . $stat['university'] . "," . $stat['count'] . "," . $percentage . "%";
             $rank++;
         }
-        
+
         // Create response
         $response = new Response(implode("\n", $csv));
         $response->headers->set('Content-Type', 'text/csv');
         $response->headers->set('Content-Disposition', 'attachment; filename="rlife-statistics-' . date('Y-m-d') . '.csv"');
-        
+
         return $response;
     }
 
@@ -384,7 +345,7 @@ class AdminController extends AbstractController
     private function getBanEmailHtml(User $user, string $reason = null): string
     {
         $reasonText = $reason ? $reason : 'Violation of our Terms of Service';
-        
+
         return sprintf('
             <!DOCTYPE html>
             <html>
@@ -443,12 +404,12 @@ class AdminController extends AbstractController
                         <h2 style="color: #ef4444; margin-top: 0;">Dear %s,</h2>
                         <p>We are writing to inform you that your RLIFE account has been temporarily suspended.</p>
                     </div>
-                    
+
                     <div class="warning-box">
                         <h3 style="color: #ef4444; margin-top: 0;">🚫 Reason for Suspension:</h3>
                         <p style="font-size: 16px;"><strong>%s</strong></p>
                     </div>
-                    
+
                     <div class="message">
                         <h3>What This Means:</h3>
                         <ul>
@@ -457,13 +418,13 @@ class AdminController extends AbstractController
                             <li>This action may be temporary or permanent depending on the situation</li>
                         </ul>
                     </div>
-                    
+
                     <div class="message" style="background: #fef3c7; border-left-color: #f59e0b;">
                         <h3 style="margin-top: 0;">📞 Need Help?</h3>
                         <p>If you believe this is a mistake or would like to appeal this decision, please contact our support team immediately.</p>
                         <p><strong>Support Email:</strong> jasserbalti555@gmail.com</p>
                     </div>
-                    
+
                     <div class="footer">
                         <p>Please review our Terms of Service and Community Guidelines.</p>
                         <p style="margin-top: 20px;">&copy; %d RLIFE. All rights reserved.</p>
@@ -473,6 +434,4 @@ class AdminController extends AbstractController
             </html>
         ', $user->getFirstName(), $reasonText, date('Y'));
     }
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

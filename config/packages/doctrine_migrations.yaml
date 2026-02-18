@@ -1,19 +1,13 @@
 doctrine_migrations:
-<<<<<<< HEAD
     migrations_paths:
         # namespace is arbitrary but should be different from App\Migrations
         # as migrations classes should NOT be autoloaded
         'DoctrineMigrations': '%kernel.project_dir%/migrations'
     enable_profiler: false
-=======
-  migrations_paths:
-    DoctrineMigrations: '%kernel.project_dir%/migrations'
-
-  storage:
-    table_storage:
-      table_name: doctrine_migration_versions
-      version_column_name: version
-      version_column_length: 191
-      executed_at_column_name: executed_at
-      execution_time_column_name: execution_time
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+    storage:
+        table_storage:
+            table_name: doctrine_migration_versions
+            version_column_name: version
+            version_column_length: 191
+            executed_at_column_name: executed_at
+            execution_time_column_name: execution_time

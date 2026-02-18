@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+import './bootstrap.js';
 import './stimulus_bootstrap.js';
 /*
  * Welcome to your app's main JavaScript file!
@@ -112,33 +112,3 @@ document.addEventListener('turbo:before-render', (event) => {
 if (typeof window !== 'undefined') {
     window.initIcons = initializeLucideIconsWithRetry;
 }
-=======
-import './bootstrap';
-import './styles/app.css';
-
-// Lucide icons + Turbo refresh
-function initializeLucideIcons() {
-  if (window.lucide?.createIcons) window.lucide.createIcons();
-}
-
-function initializeTheme() {
-  const theme = localStorage.getItem('theme');
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-  if (theme === 'dark' || (!theme && prefersDark)) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  initializeTheme();
-  initializeLucideIcons();
-});
-
-document.addEventListener('turbo:load', () => {
-  initializeTheme();
-  initializeLucideIcons();
-});
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

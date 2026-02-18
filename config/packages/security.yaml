@@ -18,24 +18,19 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-<<<<<<< HEAD
             custom_authenticators:
+                - App\Security\FormLoginAuthenticator
                 - App\Security\GoogleAuthenticator
-            entry_point: form_login
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
-            form_login:
-                login_path: app_login
-                check_path: app_login
-                enable_csrf: true
-                success_handler: App\Security\LoginSuccessHandler
+            entry_point: App\Security\FormLoginAuthenticator
             logout:
                 path: app_logout
                 target: app_landing
+                invalidate_session: true
             remember_me:
                 secret: '%kernel.secret%'
-                lifetime: 604800 # 1 week in seconds
+                lifetime: 2592000 # 30 days in seconds
                 path: /
+                remember_me_parameter: remember
 
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
@@ -51,15 +46,9 @@ security:
         - { path: ^/revisions, roles: ROLE_USER }
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
-<<<<<<< HEAD
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/streak, roles: ROLE_USER }
         - { path: ^/admin/question-stress/reorder$, roles: PUBLIC_ACCESS, methods: [POST] }
-
-        # Tes autres règles (garde-les en dessous)
-        - { path: ^/login, roles: PUBLIC_ACCESS }
-=======
-
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 when@test:
     security:
         password_hashers:

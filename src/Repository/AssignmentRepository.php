@@ -19,7 +19,6 @@ class AssignmentRepository extends ServiceEntityRepository
     }
 
     /**
-<<<<<<< HEAD
      * Récupère tous les assignments d'un utilisateur avec filtres
      *
      * @param User $user
@@ -87,21 +86,6 @@ class AssignmentRepository extends ServiceEntityRepository
     public function findByUser(User $user, string $sort = 'dateFin', string $direction = 'ASC'): array
     {
         return $this->findByUserWithFilters($user, $sort, $direction);
-=======
-     * Find all assignments for a specific user
-     *
-     * @param User $user
-     * @return Assignment[]
-     */
-    public function findByUser(User $user): array
-    {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.user = :user')
-            ->setParameter('user', $user)
-            ->orderBy('a.dateFin', 'ASC')
-            ->getQuery()
-            ->getResult();
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     /**
@@ -166,11 +150,7 @@ class AssignmentRepository extends ServiceEntityRepository
      */
     public function countByUser(User $user): int
     {
-<<<<<<< HEAD
         return (int) $this->createQueryBuilder('a')
-=======
-        return $this->createQueryBuilder('a')
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             ->select('COUNT(a.id)')
             ->andWhere('a.user = :user')
             ->setParameter('user', $user)
@@ -179,7 +159,6 @@ class AssignmentRepository extends ServiceEntityRepository
     }
 
     /**
-<<<<<<< HEAD
      * Compte les assignments par statut
      *
      * @param User $user
@@ -218,8 +197,6 @@ class AssignmentRepository extends ServiceEntityRepository
     }
 
     /**
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
      * Find upcoming assignments (not yet completed)
      *
      * @param User $user
@@ -258,7 +235,6 @@ class AssignmentRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-<<<<<<< HEAD
 
     /**
      * Récupère les statistiques par statut pour un utilisateur
@@ -333,11 +309,11 @@ class AssignmentRepository extends ServiceEntityRepository
         $weeklyData = [];
         foreach ($result as $row) {
             $week = $row['createdAt']->format('Y-W');
-            
+
             if (!isset($weeklyData[$week])) {
                 $weeklyData[$week] = 0;
             }
-            
+
             $weeklyData[$week]++;
         }
 
@@ -353,6 +329,3 @@ class AssignmentRepository extends ServiceEntityRepository
         return $formattedResult;
     }
 }
-=======
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

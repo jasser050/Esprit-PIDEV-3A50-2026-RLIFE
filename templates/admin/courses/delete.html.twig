@@ -1,81 +1,98 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Delete {{ matiere.nomMatiere }}{% endblock %}
 
 {% block body %}
-<div class="max-w-2xl mx-auto space-y-6 animate-fade-in">
-    <!-- Header -->
-    <div class="flex items-center gap-3">
-        <a href="{{ path('app_courses_show', {id: matiere.id}) }}" 
-           class="text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200">
-            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-        </a>
-        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Delete Course</h1>
-    </div>
+<div class="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center px-4">
+    <div class="max-w-2xl w-full space-y-6 animate-fade-in">
 
-    <!-- Warning Card -->
-    <div class="card border-2 border-danger-200 dark:border-danger-900/50 bg-danger-50 dark:bg-danger-900/10">
-        <div class="p-6">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-full bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center flex-shrink-0">
-                    <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
+        <!-- Header -->
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_admin_courses') }}"
+               class="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m12 19-7-7 7-7"></path>
+                    <path d="M19 12H5"></path>
+                </svg>
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Delete Course</h1>
+        </div>
+
+        <!-- Warning Card -->
+        <div class="bg-white dark:bg-slate-800 border-2 border-red-200 dark:border-red-900/50 rounded-2xl overflow-hidden">
+            <div class="bg-red-50 dark:bg-red-900/10 p-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-600 dark:text-red-400">
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                            <path d="M12 9v4"></path>
+                            <path d="M12 17h.01"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h2 class="text-lg font-semibold text-red-900 dark:text-red-100 mb-1">
+                            Warning: Irreversible Action
+                        </h2>
+                        <p class="text-red-700 dark:text-red-300 text-sm">
+                            You are about to permanently delete the following course and all associated data.
+                        </p>
+                    </div>
                 </div>
-                <div class="flex-1">
-                    <h2 class="text-lg font-semibold text-danger-900 dark:text-danger-100 mb-2">
-                        Warning: Irreversible Action
-                    </h2>
-                    <p class="text-danger-700 dark:text-danger-300 mb-4">
-                        You are about to delete the following course:
-                    </p>
-                    
-                    <!-- Course Info -->
-                    <div class="bg-white dark:bg-secondary-800 rounded-lg p-4 mb-4">
-                        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-2">
-                            {{ matiere.nomMatiere }}
-                        </h3>
-                        <div class="grid grid-cols-2 gap-3 text-sm">
-                            <div>
-                                <span class="text-secondary-500 dark:text-secondary-400">Section:</span>
-                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.sectionMatiere }}</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary-500 dark:text-secondary-400">Code:</span>
-                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.code }}</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary-500 dark:text-secondary-400">Coefficient:</span>
-                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.coefficientMatiere }}</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary-500 dark:text-secondary-400">Hours/week:</span>
-                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.heureMatiere }}h</span>
-                            </div>
+            </div>
+
+            <!-- Course Info -->
+            <div class="p-6">
+                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 mb-6 border border-slate-200 dark:border-slate-700">
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
+                        {{ matiere.nomMatiere }}
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <span class="text-slate-500 dark:text-slate-400">Section :</span>
+                            <span class="font-medium text-slate-900 dark:text-white ml-2">{{ matiere.sectionMatiere }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 dark:text-slate-400">Code :</span>
+                            <span class="font-medium text-slate-900 dark:text-white ml-2">{{ matiere.code }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 dark:text-slate-400">Coefficient :</span>
+                            <span class="font-medium text-slate-900 dark:text-white ml-2">{{ matiere.coefficientMatiere }}</span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 dark:text-slate-400">Hours/week :</span>
+                            <span class="font-medium text-slate-900 dark:text-white ml-2">{{ matiere.heureMatiere }}h</span>
                         </div>
                     </div>
+                </div>
 
-                    <p class="text-danger-700 dark:text-danger-300">
-                        This action will permanently delete this course and all associated data 
-                        (grades, assignments, etc.). This cannot be undone.
-                    </p>
+                <p class="text-sm text-red-700 dark:text-red-300 mb-6">
+                    This action will permanently delete this course and all associated data
+                    (grades, assignments, evaluations, etc.). <strong>This cannot be undone.</strong>
+                </p>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3">
+                    <a href="{{ path('app_admin_courses') }}"
+                       class="px-6 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-all">
+                        Cancel
+                    </a>
+                    <form method="post" action="{{ path('app_admin_courses_delete', {id: matiere.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.id) }}">
+                        <button type="submit"
+                                class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                            </svg>
+                            Confirm Delete
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Actions -->
-    <div class="flex items-center justify-end gap-3">
-        <a href="{{ path('app_courses_show', {id: matiere.id}) }}" class="btn btn-secondary">
-            <i data-lucide="x" class="w-5 h-5"></i>
-            Cancel
-        </a>
-        <form method="post" action="{{ path('app_courses_delete', {id: matiere.id}) }}">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.id) }}">
-
-            <button type="submit" class="btn bg-danger-600 hover:bg-danger-700 text-white">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                Confirm Delete
-            </button>
-        </form>
     </div>
 </div>
 {% endblock %}

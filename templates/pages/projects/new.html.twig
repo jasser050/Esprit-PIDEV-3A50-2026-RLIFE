@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 {# templates/project/new.html.twig #}
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% extends 'base.html.twig' %}
 
 {% block title %}New Project{% endblock %}
 
 {% block body %}
-<<<<<<< HEAD
 <div class="space-y-6 max-w-3xl mx-auto">
     <!-- Breadcrumbs -->
     <nav class="flex text-sm" aria-label="breadcrumb">
@@ -27,7 +23,7 @@
     <!-- Form Card -->
     <div class="card p-6 md:p-8">
         {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'space-y-6'}}) }}
-        
+
         <div>
             {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2'}}) }}
             {{ form_widget(form.titre, {'attr': {'class': 'input w-full', 'placeholder': 'Ex: Website development'}}) }}
@@ -130,107 +126,3 @@
   lucide.createIcons();
 </script>
 {% endblock %}
-=======
-<div class="space-y-6">
-    <!-- Breadcrumbs -->
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Projects', url: path('app_projects') },
-            { label: 'New Project' }
-        ]
-    } %}
-
-    <!-- Page Header -->
-    {% include 'components/page_header.html.twig' with {
-        title: 'New Project',
-        subtitle: 'Create a new group project'
-    } %}
-
-    <!-- Form -->
-    <form method="POST" class="max-w-2xl">
-        <div class="card p-6 space-y-6">
-            <!-- Project Name -->
-            {% include 'components/input.html.twig' with {
-                name: 'name',
-                label: 'Project Name',
-                placeholder: 'e.g., Database Design Project',
-                required: true
-            } %}
-
-            <!-- Course -->
-            {% include 'components/select.html.twig' with {
-                name: 'course_id',
-                label: 'Course',
-                required: true,
-                options: [{ value: '', label: 'Select a course' }]|merge(
-                    courses|map(c => { value: c.id, label: c.code ~ ' - ' ~ c.name })
-                )
-            } %}
-
-            <!-- Due Date -->
-            {% include 'components/input.html.twig' with {
-                name: 'due_date',
-                label: 'Due Date',
-                type: 'date',
-                required: true
-            } %}
-
-            <!-- Color Theme -->
-            {% include 'components/select.html.twig' with {
-                name: 'color',
-                label: 'Color Theme',
-                options: [
-                    { value: 'primary', label: 'Indigo' },
-                    { value: 'secondary', label: 'Teal' },
-                    { value: 'accent', label: 'Amber' },
-                    { value: 'success', label: 'Green' },
-                    { value: 'warning', label: 'Orange' },
-                    { value: 'danger', label: 'Red' }
-                ]
-            } %}
-
-            <!-- Description -->
-            {% include 'components/textarea.html.twig' with {
-                name: 'description',
-                label: 'Description',
-                placeholder: 'Describe the project goals and requirements...',
-                rows: 4
-            } %}
-
-            <!-- Team Members -->
-            <div>
-                <label class="block text-sm font-medium mb-2">Team Members</label>
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-3">Enter team member names (one per line)</p>
-                {% include 'components/textarea.html.twig' with {
-                    name: 'members',
-                    placeholder: 'John Doe\nJane Smith\nAlex Johnson',
-                    rows: 3
-                } %}
-            </div>
-
-            <!-- Initial Tasks (Optional) -->
-            <div>
-                <label class="block text-sm font-medium mb-2">Initial Tasks (Optional)</label>
-                <p class="text-sm text-light-muted dark:text-dark-muted mb-3">Add initial tasks to get started (one per line)</p>
-                {% include 'components/textarea.html.twig' with {
-                    name: 'initial_tasks',
-                    placeholder: 'Research topic\nCreate outline\nDraft first section',
-                    rows: 3
-                } %}
-            </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="flex items-center justify-end gap-3 mt-6">
-            <a href="{{ path('app_projects') }}" class="btn btn-ghost">Cancel</a>
-            <button type="submit" class="btn btn-primary">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                Create Project
-            </button>
-        </div>
-    </form>
-</div>
-{% endblock %}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

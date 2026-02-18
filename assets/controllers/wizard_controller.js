@@ -8,15 +8,20 @@ export default class extends Controller {
     };
 
     connect() {
-        this.showStep(this.currentValue);
+        // Always reset to step 0 — prevents Turbo Drive cache restoring a stale step
+        this.currentValue = 0;
+        this.showStep(0);
     }
 
     next() {
+        // Guard against rapid double-clicks
+        if (this._transitioning) return;
         if (this.currentValue < this.totalValue - 1) {
-            // Validate current step before proceeding
             if (this.validateCurrentStep()) {
+                this._transitioning = true;
                 this.currentValue++;
                 this.showStep(this.currentValue);
+                setTimeout(() => { this._transitioning = false; }, 400);
             }
         }
     }
@@ -87,7 +92,9 @@ export default class extends Controller {
         let isValid = true;
 
         inputs.forEach(input => {
-            if (!input.value.trim()) {
+            // For checkboxes required means it must be checked, not just have a value
+            const empty = input.type === 'checkbox' ? !input.checked : !input.value.trim();
+            if (empty) {
                 isValid = false;
                 input.classList.add('border-danger-500', 'focus:ring-danger-500');
 
@@ -96,7 +103,7 @@ export default class extends Controller {
                 if (!errorEl) {
                     errorEl = document.createElement('p');
                     errorEl.className = 'error-message text-sm text-danger-600 mt-1';
-                    errorEl.textContent = 'This field is required';
+                    errorEl.textContent = input.type === 'checkbox' ? 'You must accept to continue' : 'This field is required';
                     input.parentElement.appendChild(errorEl);
                 }
             } else {
