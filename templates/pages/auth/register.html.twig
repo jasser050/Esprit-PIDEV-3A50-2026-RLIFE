@@ -10,7 +10,7 @@
         height: 100% !important;
         background: transparent !important;
     }
-    
+
     .spline-viewer {
         z-index: 1 !important;
     }
@@ -21,12 +21,14 @@
 {{ parent() }}
 <!-- Spline 3D Viewer -->
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
+<!-- face-api.js for Face ID -->
+<script src="/js/face-api.min.js"></script>
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex" data-controller="theme wizard password" data-wizard-total-value="2">
+<div class="min-h-screen flex dark" data-controller="theme wizard password" data-wizard-total-value="3">
     <!-- Left Panel - Form -->
-    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-white dark:bg-slate-900 pt-16 lg:pt-0">
+    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900 pt-16 lg:pt-0">
         <div class="w-full max-w-[480px] mx-auto">
             <!-- Logo and back link -->
             <div class="mb-8">
@@ -50,7 +52,7 @@
                     Start organising your semester in minutes
                 </p>
             </div>
-            
+
             <!-- Flash Messages -->
             {% for message in app.flashes('error') %}
             <div class="p-4 mb-4 bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800 rounded-xl animate-fade-in">
@@ -63,7 +65,7 @@
                 </div>
             </div>
             {% endfor %}
-            
+
             {% for message in app.flashes('success') %}
             <div class="p-4 mb-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 rounded-xl animate-fade-in">
                 <div class="flex items-start gap-3">
@@ -90,11 +92,18 @@
                         2
                     </div>
                     <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Preferences</span>
+                    <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors"></div>
+                </div>
+                <div class="flex items-center gap-3" data-wizard-target="indicator">
+                    <div class="step-circle w-8 h-8 rounded-full border-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 flex items-center justify-center text-sm font-semibold transition-colors">
+                        3
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Face ID</span>
                 </div>
             </div>
 
             <!-- Registration Form -->
-            <form action="{{ path('app_register') }}" method="POST" data-turbo="false" novalidate>
+            <form action="{{ path('app_register') }}" method="POST" data-turbo="false">
                 <!-- Step 1: Account Details -->
                 <div data-wizard-target="step" class="space-y-5">
                     <!-- First Name -->
@@ -107,18 +116,11 @@
                                 type="text"
                                 id="first_name"
                                 name="first_name"
-                                value="{{ old.first_name ?? '' }}"
+                                required
                                 autocomplete="given-name"
                                 placeholder="John"
-                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.first_name is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'first_name' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
-                            <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 2 characters, letters only (spaces, hyphens, apostrophes allowed)</p>
-                            {% if errors.first_name is defined %}
-                                <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                    <span>{{ errors.first_name }}</span>
-                                </div>
-                            {% endif %}
                         </div>
                         <div>
                             <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
@@ -128,18 +130,11 @@
                                 type="text"
                                 id="last_name"
                                 name="last_name"
-                                value="{{ old.last_name ?? '' }}"
+                                required
                                 autocomplete="family-name"
                                 placeholder="Doe"
-                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.last_name is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'last_name' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
-                            <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 2 characters, letters only (spaces, hyphens, apostrophes allowed)</p>
-                            {% if errors.last_name is defined %}
-                                <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                    <span>{{ errors.last_name }}</span>
-                                </div>
-                            {% endif %}
                         </div>
                     </div>
 
@@ -152,18 +147,11 @@
                             type="text"
                             id="username"
                             name="username"
-                            value="{{ old.username ?? '' }}"
+                            required
                             autocomplete="username"
                             placeholder="johndoe"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.username is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'username' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
-                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 3 characters, letters, numbers and underscores only</p>
-                        {% if errors.username is defined %}
-                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                <span>{{ errors.username }}</span>
-                            </div>
-                        {% endif %}
                     </div>
 
                     <!-- Email -->
@@ -172,21 +160,15 @@
                             Email address
                         </label>
                         <input
-                            type="text"
+                            type="email"
                             id="email"
                             name="email"
-                            value="{{ old.email ?? '' }}"
+                            required
                             autocomplete="email"
                             placeholder="you@university.edu"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.email is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'email' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
                         <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Use your .edu email for free access</p>
-                        {% if errors.email is defined %}
-                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                <span>{{ errors.email }}</span>
-                            </div>
-                        {% endif %}
                     </div>
 
                     <!-- Password -->
@@ -194,21 +176,52 @@
                         <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                             Password
                         </label>
+                        <div class="relative">
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
+                                required
                                 autocomplete="new-password"
                                 placeholder="Create a strong password"
-                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                                data-password-target="input"
+                                class="block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                             >
-                        <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 8 characters, must include uppercase, lowercase and number</p>
-                        {% if errors.password is defined %}
-                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                <span>{{ errors.password }}</span>
+                            <button
+                                type="button"
+                                data-password-target="toggle"
+                                data-action="click->password#toggleVisibility"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                            >
+                                <i data-lucide="eye" class="w-5 h-5 icon-show"></i>
+                                <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
+                            </button>
+                        </div>
+
+                        <!-- Password strength meter -->
+                        <div class="mt-3">
+                            <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full w-0 transition-all duration-300" data-password-target="strength"></div>
                             </div>
-                        {% endif %}
+                            <div class="mt-2 grid grid-cols-2 gap-2 text-xs" data-password-target="requirements">
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="length">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    8+ characters
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="lowercase">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Lowercase letter
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="uppercase">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Uppercase letter
+                                </span>
+                                <span class="flex items-center gap-1.5 text-slate-400 dark:text-slate-500" data-requirement="number">
+                                    <i data-lucide="circle" class="w-3 h-3 req-icon"></i>
+                                    Number
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Confirm Password -->
@@ -220,37 +233,25 @@
                             type="password"
                             id="confirm_password"
                             name="confirm_password"
+                            required
                             autocomplete="new-password"
                             placeholder="Confirm your password"
-                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border {% if errors.confirm_password is defined %}border-red-500 dark:border-red-400{% elseif submitted and 'confirm_password' in validFields %}border-green-500 dark:border-green-400{% else %}border-slate-200 dark:border-slate-700{% endif %} rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
                         >
-                        {% if errors.confirm_password is defined %}
-                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                <span>{{ errors.confirm_password }}</span>
-                            </div>
-                        {% endif %}
                     </div>
 
                     <!-- Terms -->
-                    <div>
-                        <div class="flex items-start gap-3">
-                            <input
-                                type="checkbox"
-                                id="terms"
-                                name="terms"
-                                class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
-                            >
-                            <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
-                                I agree to the <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
-                            </label>
-                        </div>
-                        {% if errors.terms is defined %}
-                            <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
-                                <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                <span>{{ errors.terms }}</span>
-                            </div>
-                        {% endif %}
+                    <div class="flex items-start gap-3">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required
+                            class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
+                        >
+                        <label for="terms" class="text-sm text-slate-600 dark:text-slate-300">
+                            I agree to the <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Terms of Service</a> and <a href="#" class="font-medium text-primary-600 dark:text-primary-400 hover:underline">Privacy Policy</a>
+                        </label>
                     </div>
                 </div>
 
@@ -258,19 +259,17 @@
                 <div data-wizard-target="step" class="hidden space-y-6">
                     <!-- Gender -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                            Gender
-                        </label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Gender</label>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="gender" value="male" class="peer sr-only" checked>
+                                <input type="radio" name="gender" value="male" class="peer sr-only" checked required>
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Male</span>
                                 </div>
                             </label>
                             <label class="relative cursor-pointer">
-                                <input type="radio" name="gender" value="female" class="peer sr-only">
+                                <input type="radio" name="gender" value="female" class="peer sr-only" required>
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
                                     <i data-lucide="user" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Female</span>
@@ -281,14 +280,12 @@
 
                     <!-- Study Level -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                            What's your study level?
-                        </label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">What's your study level?</label>
                         <div class="grid grid-cols-3 gap-3">
                             <label class="relative cursor-pointer">
                                 <input type="radio" name="study_level" value="beginner" class="peer sr-only" checked>
                                 <div class="p-4 text-center bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20 transition-colors">
-                                    <i data-lucide="sprout" class="w-6 h-6 mx-auto mb-2 text-slate-400 peer-checked:text-primary-600"></i>
+                                    <i data-lucide="sprout" class="w-6 h-6 mx-auto mb-2 text-slate-400"></i>
                                     <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Beginner</span>
                                 </div>
                             </label>
@@ -314,26 +311,17 @@
                         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                             Weekly study goal: <span id="goal-display" class="text-primary-600 dark:text-primary-400">5 hours</span>
                         </label>
-                        <input
-                            type="range"
-                            name="weekly_goal"
-                            min="1"
-                            max="10"
-                            value="5"
+                        <input type="range" name="weekly_goal" min="1" max="10" value="5"
                             class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full appearance-none cursor-pointer accent-primary-600"
-                            oninput="document.getElementById('goal-display').textContent = this.value + ' hours'"
-                        >
+                            oninput="document.getElementById('goal-display').textContent = this.value + ' hours'">
                         <div class="flex justify-between text-xs text-slate-400 dark:text-slate-500 mt-1">
-                            <span>1h</span>
-                            <span>10h</span>
+                            <span>1h</span><span>10h</span>
                         </div>
                     </div>
 
                     <!-- Interests -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                            What are you interested in?
-                        </label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">What are you interested in?</label>
                         <div class="flex flex-wrap gap-2">
                             {% set interests = ['Web Dev', 'Data Science', 'Design', 'Business', 'Languages', 'Math', 'Science', 'Arts', 'Engineering'] %}
                             {% for interest in interests %}
@@ -347,29 +335,112 @@
                         </div>
                     </div>
 
-                    <!-- Notifications preference -->
+                    <!-- Notifications -->
                     <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                         <div class="flex items-start gap-3">
-                            <input
-                                type="checkbox"
-                                id="notifications"
-                                name="notifications"
-                                checked
-                                class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-white dark:bg-slate-700"
-                            >
+                            <input type="checkbox" id="notifications" name="notifications" checked
+                                class="mt-1 w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-white dark:bg-slate-700">
                             <div>
-                                <label for="notifications" class="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                    Enable gentle reminders
-                                </label>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                    We'll send you helpful study reminders and deadline notifications
-                                </p>
+                                <label for="notifications" class="text-sm font-medium text-slate-700 dark:text-slate-300">Enable gentle reminders</label>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">We'll send you helpful study reminders and deadline notifications</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Navigation Buttons -->
+                <!-- Hidden face descriptor field -->
+                <input type="hidden" name="face_descriptor" id="face_descriptor_input">
+
+                <!-- Step 3: Face ID Setup -->
+                <div data-wizard-target="step" class="hidden space-y-5">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,#6366f1,#a855f7);">
+                            <i data-lucide="scan-face" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Face ID Setup</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Register your face to log in instantly</p>
+                    </div>
+
+                    <!-- Camera viewport -->
+                    <!-- Outer wrapper: holds the gradient ring + status dot, no overflow clipping -->
+                    <div class="relative mx-auto" style="width:246px;height:246px;">
+
+                        <!-- Gradient ring: padding creates the border effect, inner div clips the video -->
+                        <div id="face-ring" style="position:absolute;inset:0;border-radius:50%;padding:3px;background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);animation:ringPulse 2.5s ease-in-out infinite;">
+
+                            <!-- Inner clipping circle: overflow:hidden clips video to circle shape -->
+                            <!-- transform:translateZ(0) on the video fixes Chrome black-frame GPU bug -->
+                            <div id="camera-container" style="width:100%;height:100%;border-radius:50%;background:#0f172a;overflow:hidden;position:relative;">
+
+                                <!-- Live video feed -->
+                                <video id="face-video" autoplay muted playsinline
+                                    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);display:none;"></video>
+
+                                <!-- Frozen snapshot after capture -->
+                                <canvas id="face-canvas"
+                                    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;"></canvas>
+
+                                <!-- Idle placeholder -->
+                                <div id="face-idle" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                    <i data-lucide="camera" class="w-12 h-12 text-slate-500 mb-1"></i>
+                                    <span style="font-size:11px;color:#94a3b8;">Camera off</span>
+                                </div>
+
+                                <!-- Scan line animation -->
+                                <div id="face-scanning" style="display:none;position:absolute;inset:0;pointer-events:none;">
+                                    <div style="position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#a855f7,#6366f1,transparent);animation:scanLine 2s ease-in-out infinite;"></div>
+                                </div>
+
+                                <!-- Success overlay -->
+                                <div id="face-success-overlay" style="display:none;position:absolute;inset:0;background:rgba(16,185,129,0.3);align-items:center;justify-content:center;">
+                                    <div style="width:56px;height:56px;border-radius:50%;background:rgba(16,185,129,0.85);display:flex;align-items:center;justify-content:center;">
+                                        <i data-lucide="check" class="w-8 h-8 text-white"></i>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Status dot (outside the ring, on top) -->
+                        <div id="face-status-dot" style="position:absolute;bottom:10px;right:10px;width:18px;height:18px;border-radius:50%;border:2px solid white;background:#94a3b8;transition:background .3s;z-index:10;"></div>
+                    </div>
+
+                    <!-- Status text -->
+                    <p id="face-status-msg" class="text-center text-sm" style="color:#94a3b8;min-height:20px;">
+                        Click "Open Camera" to get started
+                    </p>
+
+                    <!-- Buttons -->
+                    <div class="space-y-3">
+                        <button type="button" id="face-open-btn" onclick="openFaceCamera()"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white"
+                            style="background:linear-gradient(135deg,#6366f1,#a855f7);">
+                            <i data-lucide="camera" class="w-5 h-5"></i>
+                            Open Camera
+                        </button>
+                        <button type="button" id="face-capture-btn" onclick="captureFace()"
+                            class="w-full items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white"
+                            style="display:none;background:linear-gradient(135deg,#10b981,#059669);">
+                            <i data-lucide="scan-face" class="w-5 h-5"></i>
+                            Capture My Face
+                        </button>
+                        <button type="button" id="face-retake-btn" onclick="retakeFace()"
+                            class="w-full items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                            style="display:none;">
+                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                            Retake
+                        </button>
+                    </div>
+
+                    <div class="flex items-start gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-xs text-indigo-700 dark:text-indigo-300">Your face is stored as a mathematical fingerprint only — no photo is saved.</p>
+                    </div>
+                </div>
+
+
+
                 <div class="flex items-center justify-between mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
                     <button
                         type="button"
@@ -395,6 +466,7 @@
 
                     <button
                         type="submit"
+                        id="face-submit-btn"
                         data-wizard-target="submitBtn"
                         class="hidden inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all hover:-translate-y-0.5"
                     >
@@ -403,6 +475,191 @@
                     </button>
                 </div>
             </form>
+
+<style>
+@keyframes scanLine {
+    0%   { top: 10%; }
+    50%  { top: 85%; }
+    100% { top: 10%; }
+}
+@keyframes ringPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.5); }
+    50%       { box-shadow: 0 0 0 14px rgba(168,85,247,0); }
+}
+</style>
+
+<script>
+const MODEL_URL = '/models';
+let modelsLoaded = false;
+let stream = null;
+let faceDescriptorData = null;
+
+function el(id) { return document.getElementById(id); }
+
+function setFaceStatus(msg, color) {
+    var colors = { indigo:'#6366f1', purple:'#a855f7', green:'#10b981', red:'#ef4444', gray:'#94a3b8' };
+    var e = el('face-status-msg');
+    e.style.color = colors[color] || '#94a3b8';
+    e.textContent = msg;
+}
+
+function stopStream() {
+    if (stream) {
+        stream.getTracks().forEach(function(t) { t.stop(); });
+        stream = null;
+    }
+    var video = el('face-video');
+    if (video) { video.pause(); video.srcObject = null; }
+}
+
+async function loadModels() {
+    if (modelsLoaded) return;
+    await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+        faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+        faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+    ]);
+    modelsLoaded = true;
+}
+
+async function openFaceCamera() {
+    stopStream();
+    setFaceStatus('Loading models…', 'indigo');
+
+    try { await loadModels(); }
+    catch(e) { setFaceStatus('Model load failed: ' + e.message, 'red'); return; }
+
+    setFaceStatus('Starting camera…', 'indigo');
+
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    } catch(e) {
+        var msgs = {
+            NotAllowedError:      'Permission denied — allow camera in browser settings.',
+            PermissionDeniedError:'Permission denied — allow camera in browser settings.',
+            NotFoundError:        'No camera detected on this device.',
+            NotReadableError:     'Camera is busy — close other apps using it.',
+            OverconstrainedError: 'Camera does not support the requested settings.',
+        };
+        setFaceStatus(msgs[e.name] || 'Camera error: ' + e.message, 'red');
+        return;
+    }
+
+    // Attach stream directly to the existing video element
+    var video = el('face-video');
+    video.srcObject = stream;
+
+    // Poll until the first frame is decoded (readyState >= 2 and videoWidth > 0)
+    var poll = function() {
+        if (video.readyState >= 2 && video.videoWidth > 0) {
+            video.style.display = 'block';
+            video.play().catch(function() {});
+            el('face-idle').style.display            = 'none';
+            el('face-scanning').style.display        = 'block';
+            el('face-success-overlay').style.display = 'none';
+            el('face-open-btn').style.display        = 'none';
+            el('face-capture-btn').style.display     = 'flex';
+            el('face-retake-btn').style.display      = 'none';
+            el('face-status-dot').style.background   = '#a855f7';
+            setFaceStatus('Centre your face in the circle, then click Capture', 'purple');
+        } else {
+            setTimeout(poll, 100);
+        }
+    };
+    setTimeout(poll, 200);
+}
+
+async function captureFace() {
+    var video = el('face-video');
+    if (!stream || video.readyState < 2 || video.videoWidth === 0) {
+        setFaceStatus('Camera not ready — please wait.', 'red'); return;
+    }
+
+    setFaceStatus('Analysing…', 'indigo');
+
+    var offscreen = document.createElement('canvas');
+    offscreen.width  = video.videoWidth;
+    offscreen.height = video.videoHeight;
+    offscreen.getContext('2d').drawImage(video, 0, 0);
+
+    var detection;
+    try {
+        detection = await faceapi
+            .detectSingleFace(offscreen, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 }))
+            .withFaceLandmarks()
+            .withFaceDescriptor();
+    } catch(e) {
+        setFaceStatus('Detection error: ' + e.message, 'red'); return;
+    }
+
+    if (!detection) {
+        setFaceStatus('No face detected — ensure good lighting and centre your face.', 'red');
+        return;
+    }
+
+    faceDescriptorData = Array.from(detection.descriptor);
+    el('face_descriptor_input').value = JSON.stringify(faceDescriptorData);
+
+    var canvas = el('face-canvas');
+    canvas.width  = offscreen.width;
+    canvas.height = offscreen.height;
+    canvas.getContext('2d').drawImage(offscreen, 0, 0);
+    canvas.style.display = 'block';
+    video.style.display  = 'none';
+    stopStream();
+
+    el('face-scanning').style.display        = 'none';
+    el('face-success-overlay').style.display = 'flex';
+    el('face-capture-btn').style.display     = 'none';
+    el('face-retake-btn').style.display      = 'flex';
+    el('face-status-dot').style.background   = '#10b981';
+    setFaceStatus('Face captured! Click Create account to finish.', 'green');
+    lucide.createIcons();
+}
+
+function retakeFace() {
+    faceDescriptorData = null;
+    el('face_descriptor_input').value = '';
+    stopStream();
+    el('face-video').style.display           = 'none';
+    el('face-canvas').style.display          = 'none';
+    el('face-success-overlay').style.display = 'none';
+    el('face-scanning').style.display        = 'none';
+    el('face-retake-btn').style.display      = 'none';
+    el('face-capture-btn').style.display     = 'none';
+    el('face-idle').style.display            = 'flex';
+    el('face-open-btn').style.display        = 'flex';
+    el('face-status-dot').style.background   = '#94a3b8';
+    setFaceStatus('Click "Open Camera" to try again.', 'gray');
+}
+
+window.addEventListener('beforeunload', stopStream);
+window.addEventListener('pagehide', stopStream);
+</script>
+
+            <!-- Divider -->
+            <div class="relative my-8">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-4 bg-slate-900 text-slate-400">or continue with</span>
+                </div>
+            </div>
+
+            <!-- Social Login -->
+            <a
+                href="{{ path('connect_google_start') }}"
+                class="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
+            >
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </a>
 
             <!-- Sign in link -->
             <p class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
@@ -414,91 +671,205 @@
         </div>
     </div>
 
-    <!-- Right Panel - Spline 3D Animation with Marketing -->
+    <!-- Right Panel - Spline 3D (full visibility) -->
     <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
-        <!-- Spline 3D Background -->
-        <spline-viewer 
+
+        <!-- Spline: full bleed -->
+        <spline-viewer
             url="https://prod.spline.design/WgPMxQsSYOM7gzlt/scene.splinecode"
             class="absolute inset-0 w-full h-full"
             loading="lazy"
         ></spline-viewer>
-        
-        <!-- Marketing Content Overlay -->
-        <div class="absolute inset-0 z-10 flex flex-col justify-center px-12 xl:px-16 bg-gradient-to-r from-primary-900/80 via-primary-800/60 to-transparent">
-            <!-- Backdrop blur -->
-            <div class="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
-            
-            <div class="relative z-20">
-                <!-- Theme toggle -->
-                <button
-                    type="button"
-                    data-action="click->theme#toggle"
-                    class="absolute -top-4 -right-4 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
-                    aria-label="Toggle theme"
-                >
-                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                </button>
 
-                <div class="max-w-md">
-                    <h2 class="text-3xl xl:text-4xl font-semibold text-white leading-tight mb-6 drop-shadow-lg">
-                        Join thousands of <span class="text-primary-300">students</span> on RLIFE
-                    </h2>
+        <!-- Left-edge seamless blend with the form panel -->
+        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10"></div>
 
-                    <!-- Stats -->
-                    <div class="space-y-4 mb-8">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 bg-primary-500/20 backdrop-blur-md rounded-xl border border-primary-400/30">
-                                <p class="text-3xl font-bold text-white drop-shadow-md">50K+</p>
-                                <p class="text-sm text-white/70 mt-1">Active students</p>
-                            </div>
-                            <div class="p-4 bg-primary-500/20 backdrop-blur-md rounded-xl border border-primary-400/30">
-                                <p class="text-3xl font-bold text-white drop-shadow-md">4.9</p>
-                                <p class="text-sm text-white/70 mt-1">Average rating</p>
-                            </div>
-                        </div>
+        <!-- ══ TOP BAND ══ -->
+        <div class="absolute top-0 inset-x-0 z-20 px-10 pt-10 pb-32
+                    bg-gradient-to-b from-black/75 via-black/40 to-transparent
+                    pointer-events-none">
 
-                        <div class="p-4 bg-white/10 backdrop-blur-md rounded-xl border border-white/20">
-                            <div class="flex items-center gap-4">
-                                <div class="flex -space-x-2">
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 border-2 border-white/20 flex items-center justify-center text-white text-xs font-semibold">A</div>
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 border-2 border-white/20 flex items-center justify-center text-white text-xs font-semibold">B</div>
-                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 border-2 border-white/20 flex items-center justify-center text-white text-xs font-semibold">C</div>
-                                    <div class="w-8 h-8 rounded-full bg-white/20 border-2 border-white/20 flex items-center justify-center text-white text-xs font-semibold">+</div>
-                                </div>
-                                <p class="text-sm text-white/90 drop-shadow-md">127 students signed up this week</p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Sparkle badge -->
+            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-6
+                        bg-gradient-to-r from-primary-500/20 to-purple-500/15
+                        backdrop-blur-sm border border-primary-400/35
+                        shadow-[0_0_20px_rgba(99,102,241,0.15)]">
+                <i data-lucide="sparkles" class="w-4 h-4 text-primary-300 flex-shrink-0"></i>
+                <span class="text-xs font-bold text-primary-200 tracking-wide">Trusted by 50,000+ students worldwide</span>
+                <span class="text-purple-400 text-sm leading-none">✦</span>
+            </div>
 
-                    <!-- Why join -->
-                    <div class="space-y-3 mb-6">
-                        <p class="text-white font-medium drop-shadow-md">Why join RLIFE?</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-3 py-1.5 text-xs font-medium text-white/80 bg-white/10 rounded-full backdrop-blur-sm">🎓 Smart study tools</span>
-                            <span class="px-3 py-1.5 text-xs font-medium text-white/80 bg-white/10 rounded-full backdrop-blur-sm">💪 Wellbeing tracking</span>
-                            <span class="px-3 py-1.5 text-xs font-medium text-white/80 bg-white/10 rounded-full backdrop-blur-sm">🤖 AI-powered insights</span>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <span class="px-3 py-1.5 text-xs font-medium text-primary-200 bg-primary-500/30 rounded-full">✨ Free for .edu emails</span>
-                            <span class="px-3 py-1.5 text-xs font-medium text-primary-200 bg-primary-500/30 rounded-full">💳 No credit card</span>
-                            <span class="px-3 py-1.5 text-xs font-medium text-primary-200 bg-primary-500/30 rounded-full">🚪 Cancel anytime</span>
-                        </div>
-                    </div>
+            <!-- Headline -->
+            <h2 class="text-4xl xl:text-5xl 2xl:text-6xl font-black text-white leading-[1.1] tracking-tight
+                       drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
+                Your<br>
+                <span class="text-transparent bg-clip-text
+                             bg-gradient-to-r from-primary-300 via-purple-300 to-pink-400
+                             drop-shadow-none">semester,</span><br>
+                <span class="text-white/90">organised.</span>
+            </h2>
+
+            <!-- Subtitle with coloured keywords -->
+            <p class="mt-5 text-sm xl:text-base text-white/55 max-w-[280px] leading-relaxed">
+                <span class="text-primary-300 font-semibold">Courses</span>,
+                <span class="text-purple-300 font-semibold">habits</span> &amp;
+                <span class="text-pink-300 font-semibold">wellbeing</span>
+                — one beautiful workspace.
+            </p>
+        </div>
+
+        <!-- ══ RIGHT SIDE STAT CARDS ══ -->
+        <div class="absolute right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none
+                    flex flex-col gap-3">
+
+            <!-- Flashcards stat -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl min-w-[165px]
+                        bg-gradient-to-r from-primary-500/15 to-indigo-500/8
+                        backdrop-blur-md border border-primary-400/30
+                        shadow-[0_0_24px_rgba(99,102,241,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-primary-400/35 to-indigo-500/35
+                            border border-primary-400/30">
+                    <i data-lucide="layers" class="w-5 h-5 text-primary-300"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black text-white leading-none">
+                        10K<span class="text-primary-300 text-lg">+</span>
+                    </p>
+                    <p class="text-[10px] font-semibold text-primary-200/60 mt-0.5 tracking-widest uppercase">Flashcards</p>
                 </div>
             </div>
 
-            <!-- Decorative elements -->
-            <div class="absolute bottom-12 right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-            <div class="absolute top-24 right-24 w-20 h-20 bg-secondary-500/20 rounded-full blur-xl"></div>
+            <!-- Exam success -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
+                        bg-gradient-to-r from-purple-500/15 to-pink-500/8
+                        backdrop-blur-md border border-purple-400/30
+                        shadow-[0_0_24px_rgba(168,85,247,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-purple-400/35 to-pink-500/35
+                            border border-purple-400/30">
+                    <i data-lucide="target" class="w-5 h-5 text-purple-300"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
+                               bg-gradient-to-r from-purple-300 to-pink-300">98%</p>
+                    <p class="text-[10px] font-semibold text-purple-200/60 mt-0.5 tracking-widest uppercase">Exam success</p>
+                </div>
+            </div>
+
+            <!-- Free forever -->
+            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
+                        bg-gradient-to-r from-emerald-500/15 to-teal-500/8
+                        backdrop-blur-md border border-emerald-400/30
+                        shadow-[0_0_24px_rgba(52,211,153,0.12)]">
+                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
+                            bg-gradient-to-br from-emerald-400/35 to-teal-500/35
+                            border border-emerald-400/30">
+                    <i data-lucide="gift" class="w-5 h-5 text-emerald-300"></i>
+                </div>
+                <div>
+                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
+                               bg-gradient-to-r from-emerald-300 to-teal-300">Free</p>
+                    <p class="text-[10px] font-semibold text-emerald-200/60 mt-0.5 tracking-widest uppercase">Forever plan</p>
+                </div>
+            </div>
         </div>
+
+        <!-- ══ BOTTOM BAND ══ -->
+        <div class="absolute bottom-0 inset-x-0 z-20 px-10 pb-10 pt-32
+                    bg-gradient-to-t from-black/75 via-black/40 to-transparent
+                    pointer-events-none">
+
+            <!-- Feature cards -->
+            <div class="grid grid-cols-3 gap-3 mb-6">
+
+                <!-- Flashcards -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-primary-500/15 to-primary-900/10
+                            backdrop-blur-sm border border-primary-400/25
+                            shadow-[0_4px_20px_rgba(99,102,241,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-primary-400/40 to-primary-600/40
+                                border border-primary-400/30
+                                shadow-[0_0_16px_rgba(99,102,241,0.25)]">
+                        <i data-lucide="graduation-cap" class="w-6 h-6 text-primary-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">Flashcards</p>
+                    <p class="text-[11px] text-primary-300/70 mt-1 leading-tight">Spaced repetition</p>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-purple-500/15 to-purple-900/10
+                            backdrop-blur-sm border border-purple-400/25
+                            shadow-[0_4px_20px_rgba(168,85,247,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-purple-400/40 to-purple-600/40
+                                border border-purple-400/30
+                                shadow-[0_0_16px_rgba(168,85,247,0.25)]">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-purple-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">AI Insights</p>
+                    <p class="text-[11px] text-purple-300/70 mt-1 leading-tight">Personalised tips</p>
+                </div>
+
+                <!-- Wellbeing -->
+                <div class="p-4 rounded-2xl text-center
+                            bg-gradient-to-b from-pink-500/15 to-pink-900/10
+                            backdrop-blur-sm border border-pink-400/25
+                            shadow-[0_4px_20px_rgba(236,72,153,0.10)]">
+                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
+                                bg-gradient-to-br from-pink-400/40 to-pink-600/40
+                                border border-pink-400/30
+                                shadow-[0_0_16px_rgba(236,72,153,0.25)]">
+                        <i data-lucide="heart-pulse" class="w-6 h-6 text-pink-300"></i>
+                    </div>
+                    <p class="text-sm font-extrabold text-white leading-tight">Wellbeing</p>
+                    <p class="text-[11px] text-pink-300/70 mt-1 leading-tight">Mood &amp; habits</p>
+                </div>
+            </div>
+
+            <!-- Social proof -->
+            <div class="flex items-center gap-3.5">
+                <div class="flex -space-x-2.5">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">A</div>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">B</div>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600
+                                border-2 border-white/30 flex items-center justify-center
+                                text-white text-xs font-black shadow-lg">C</div>
+                </div>
+                <div>
+                    <p class="text-sm font-black text-white leading-none">50,000+ students</p>
+                    <p class="text-xs text-white/40 mt-0.5">already organised their semester</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme toggle -->
+        <div class="absolute top-6 right-6 z-30">
+            <button
+                type="button"
+                data-action="click->theme#toggle"
+                class="p-2.5 rounded-xl bg-black/25 hover:bg-black/40 backdrop-blur-sm
+                       text-white/70 hover:text-white transition-all border border-white/10"
+                aria-label="Toggle theme"
+            >
+                <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
+                <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+            </button>
+        </div>
+
     </div>
 
     <!-- Mobile header -->
     <div class="lg:hidden fixed top-0 left-0 right-0 z-10 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-slate-800 dark:to-slate-900 px-4 py-3">
         <div class="flex items-center justify-between">
             <a href="{{ path('app_landing') }}" class="flex items-center gap-2">
-                <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-8 h-8 rounded-lg object-cover">
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-8 h-8 object-cover">
                 <span class="font-semibold text-white">RLIFE</span>
             </a>
             <button
