@@ -26,6 +26,11 @@ class PublicController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
+        // If already authenticated (including via remember-me cookie), skip login page
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
         // Create the form with PHP validation
         $form = $this->createForm(LoginFormType::class);
         $form->handleRequest($request);
