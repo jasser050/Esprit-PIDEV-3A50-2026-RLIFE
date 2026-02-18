@@ -511,11 +511,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 <div class="card">
   <div class="ch"><div class="chl"><div class="cico" style="background:var(--lemon-lt);">✨</div><div class="ct">Generate Flashcards with AI</div></div></div>
   <div class="gen-body">
-<<<<<<< HEAD
-    <form method="post" action="{{ path('app_deck_generate_flashcards', {id: deck.idDeck}) }}">
-=======
-   <form method="post" action="{{ path('app_deck_generate_flashcards', {id: deck.id}) }}">
->>>>>>> integration
+<form method="post" action="{{ path('app_deck_generate_flashcards', {id: deck.idDeck}) }}">
       <div class="cnt-row">
         <span class="cnt-l">Count:</span>
         <div class="cnt-btns">
@@ -538,17 +534,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 <div class="card">
   <div class="ch">
     <div class="chl"><div class="cico" style="background:var(--teal-lt);">🗂️</div><div class="ct">All Flashcards</div></div>
-<<<<<<< HEAD
-    <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}" class="btn bt btn-sm">+ Add</a>
+<a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}" class="btn bt btn-sm">+ Add</a>
   </div>
   {% if flashcards is empty %}
-  <div class="empty"><div class="eico">🃏</div><div class="etit">No flashcards yet</div><div class="esub">Use the AI generator or create manually.</div><a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}" class="btn bc" style="margin-top:.5rem;">Create my first flashcard</a></div>
-=======
-   <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn bt btn-sm">+ Add</a>
-  </div>
-  {% if flashcards is empty %}
-  <div class="empty"><div class="eico">🃏</div><div class="etit">No flashcards yet</div><div class="esub">Use the AI generator or create manually.</div><a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn bc" style="margin-top:.5rem;">Create my first flashcard</a></div>
->>>>>>> integration
   {% else %}
   <div class="fcg">
     {% for flashcard in flashcards %}
@@ -582,11 +570,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 
 {# ── DATA ── #}
 <script>
-<<<<<<< HEAD
 const DECK_ID={{ deck.idDeck }};
-=======
-const DECK_ID={{ deck.id }};
->>>>>>> integration
 const FC=[{% for fc in flashcards %}{id:{{ fc.id }},t:{{ fc.titre|default('Untitled')|json_encode|raw }},q:{{ fc.question|json_encode|raw }},a:{{ fc.reponse|json_encode|raw }}}{% if not loop.last %},{% endif %}{% endfor %}];
 const CSRF='{{ csrf_token("analyse_vocal") }}';
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
