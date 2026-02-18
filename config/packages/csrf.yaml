@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 # Enable CSRF protection for forms (Symfony 6.4 compatible)
 framework:
     csrf_protection: ~
+=======
+framework:
+    csrf_protection:
+        enabled: true
+>>>>>>> planning

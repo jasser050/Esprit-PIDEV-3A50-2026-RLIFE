@@ -7,8 +7,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+<<<<<<< HEAD
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> planning
 
 #[ORM\Entity(repositoryClass: DeckRepository::class)]
 #[ORM\Table(name: 'deck')]
@@ -17,6 +20,7 @@ class Deck
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_deck', type: Types::INTEGER)]
+<<<<<<< HEAD
     private ?int $idDeck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'decks')]
@@ -41,6 +45,24 @@ class Deck
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 2000, maxMessage: "La description ne peut pas dépasser 2000 caractères")]
+=======
+    private ?int $id = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'decks')]
+    #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
+    private ?User $user = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255)]
+    private ?string $titre = null;
+
+    #[ORM\Column(type: Types::STRING, length: 100)]
+    private ?string $matiere = null;
+
+    #[ORM\Column(type: Types::STRING, length: 50)]
+    private ?string $niveau = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+>>>>>>> planning
     private ?string $description = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -49,6 +71,7 @@ class Deck
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $pdf = null;
 
+<<<<<<< HEAD
     #[Assert\File(
         maxSize: "5M",
         mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
@@ -65,6 +88,8 @@ class Deck
     )]
     private ?File $pdfFile = null;
 
+=======
+>>>>>>> planning
     #[ORM\Column(name: 'date_creation', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateCreation = null;
 
@@ -84,6 +109,7 @@ class Deck
         $this->dateCreation = new \DateTime();
     }
 
+<<<<<<< HEAD
     // ────────────────────────────────────────────────
     // Getters & Setters pour les fichiers (VALIDATION)
     // ────────────────────────────────────────────────
@@ -117,6 +143,11 @@ class Deck
     public function getIdDeck(): ?int
     {
         return $this->idDeck;
+=======
+    public function getId(): ?int
+    {
+        return $this->id;
+>>>>>>> planning
     }
 
     public function getUser(): ?User
@@ -124,7 +155,11 @@ class Deck
         return $this->user;
     }
 
+<<<<<<< HEAD
     public function setUser(?User $user): self
+=======
+    public function setUser(?User $user): static
+>>>>>>> planning
     {
         $this->user = $user;
         return $this;
@@ -135,8 +170,12 @@ class Deck
         return $this->titre;
     }
 
+<<<<<<< HEAD
     // ✅ CORRECTION : Accepte null pour éviter l'erreur lors de la soumission du formulaire
     public function setTitre(?string $titre): self
+=======
+    public function setTitre(string $titre): static
+>>>>>>> planning
     {
         $this->titre = $titre;
         return $this;
@@ -147,8 +186,12 @@ class Deck
         return $this->matiere;
     }
 
+<<<<<<< HEAD
     // ✅ CORRECTION : Accepte null
     public function setMatiere(?string $matiere): self
+=======
+    public function setMatiere(string $matiere): static
+>>>>>>> planning
     {
         $this->matiere = $matiere;
         return $this;
@@ -159,8 +202,12 @@ class Deck
         return $this->niveau;
     }
 
+<<<<<<< HEAD
     // ✅ CORRECTION : Accepte null
     public function setNiveau(?string $niveau): self
+=======
+    public function setNiveau(string $niveau): static
+>>>>>>> planning
     {
         $this->niveau = $niveau;
         return $this;
@@ -171,7 +218,11 @@ class Deck
         return $this->description;
     }
 
+<<<<<<< HEAD
     public function setDescription(?string $description): self
+=======
+    public function setDescription(?string $description): static
+>>>>>>> planning
     {
         $this->description = $description;
         return $this;
@@ -182,7 +233,11 @@ class Deck
         return $this->image;
     }
 
+<<<<<<< HEAD
     public function setImage(?string $image): self
+=======
+    public function setImage(?string $image): static
+>>>>>>> planning
     {
         $this->image = $image;
         return $this;
@@ -193,7 +248,11 @@ class Deck
         return $this->pdf;
     }
 
+<<<<<<< HEAD
     public function setPdf(?string $pdf): self
+=======
+    public function setPdf(?string $pdf): static
+>>>>>>> planning
     {
         $this->pdf = $pdf;
         return $this;
@@ -204,7 +263,11 @@ class Deck
         return $this->dateCreation;
     }
 
+<<<<<<< HEAD
     public function setDateCreation(\DateTimeInterface $dateCreation): self
+=======
+    public function setDateCreation(\DateTimeInterface $dateCreation): static
+>>>>>>> planning
     {
         $this->dateCreation = $dateCreation;
         return $this;
@@ -218,7 +281,11 @@ class Deck
         return $this->flashcards;
     }
 
+<<<<<<< HEAD
     public function addFlashcard(Flashcard $flashcard): self
+=======
+    public function addFlashcard(Flashcard $flashcard): static
+>>>>>>> planning
     {
         if (!$this->flashcards->contains($flashcard)) {
             $this->flashcards->add($flashcard);
@@ -228,10 +295,16 @@ class Deck
         return $this;
     }
 
+<<<<<<< HEAD
     public function removeFlashcard(Flashcard $flashcard): self
     {
         if ($this->flashcards->removeElement($flashcard)) {
             // set the owning side to null (unless already changed)
+=======
+    public function removeFlashcard(Flashcard $flashcard): static
+    {
+        if ($this->flashcards->removeElement($flashcard)) {
+>>>>>>> planning
             if ($flashcard->getDeck() === $this) {
                 $flashcard->setDeck(null);
             }
@@ -248,18 +321,31 @@ class Deck
         return $this->revisionFlashcards;
     }
 
+<<<<<<< HEAD
     public function addRevisionFlashcard(Flashcard $revisionFlashcard): self
     {
         if (!$this->revisionFlashcards->contains($revisionFlashcard)) {
             $this->revisionFlashcards->add($revisionFlashcard);
+=======
+    public function addRevisionFlashcard(Flashcard $flashcard): static
+    {
+        if (!$this->revisionFlashcards->contains($flashcard)) {
+            $this->revisionFlashcards->add($flashcard);
+>>>>>>> planning
         }
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function removeRevisionFlashcard(Flashcard $revisionFlashcard): self
     {
         $this->revisionFlashcards->removeElement($revisionFlashcard);
+=======
+    public function removeRevisionFlashcard(Flashcard $flashcard): static
+    {
+        $this->revisionFlashcards->removeElement($flashcard);
+>>>>>>> planning
 
         return $this;
     }

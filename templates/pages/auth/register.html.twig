@@ -223,11 +223,19 @@
                                 <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
                             </button>
                         </div>
+<<<<<<< HEAD
                         <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">Min 8 characters, must include uppercase, lowercase and number</p>
                         {% if errors.password is defined %}
                             <div class="mt-2 flex items-start gap-2 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
                                 <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
                                 <span>{{ errors.password }}</span>
+=======
+
+                        
+                        <div class="mt-3">
+                            <div class="h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full w-0 transition-all duration-300" data-password-target="strength"></div>
+>>>>>>> planning
                             </div>
                         {% endif %}
                     </div>
