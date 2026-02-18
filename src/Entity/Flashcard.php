@@ -24,7 +24,7 @@ class Flashcard
     private ?Deck $deck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'created_by_id', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true)]
     private ?User $createdBy = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]  // ✅ CORRIGÉ
