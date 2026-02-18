@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\FlashcardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\User;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FlashcardRepository::class)]
@@ -24,10 +23,10 @@ class Flashcard
     private ?Deck $deck = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true)]
+    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
     private ?User $createdBy = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank(message: 'Le titre est obligatoire')]
     #[Assert\Length(
         min: 3,
@@ -41,7 +40,7 @@ class Flashcard
     )]
     private ?string $titre = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Assert\NotBlank(message: 'La question est obligatoire')]
     #[Assert\Length(
         min: 5,
@@ -51,7 +50,7 @@ class Flashcard
     )]
     private ?string $question = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Assert\NotBlank(message: 'La réponse est obligatoire')]
     #[Assert\Length(
         min: 1,
@@ -68,7 +67,7 @@ class Flashcard
     )]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: false)]
     #[Assert\NotNull(message: 'Le niveau de difficulté est obligatoire')]
     #[Assert\Range(
         min: 1,
@@ -77,7 +76,7 @@ class Flashcard
     )]
     private ?int $niveauDifficulte = null;
 
-    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: false)]
     #[Assert\NotBlank(message: 'L\'état est obligatoire')]
     #[Assert\Choice(
         choices: ['actif', 'brouillon', 'archive', 'inactif'],
@@ -100,7 +99,8 @@ class Flashcard
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
-        $this->etat = 'actif'; // Default value
+        $this->etat = 'actif';
+        $this->niveauDifficulte = 1;
     }
 
     #[ORM\PreUpdate]
@@ -108,6 +108,8 @@ class Flashcard
     {
         $this->dateModification = new \DateTime();
     }
+
+    // ==================== GETTERS & SETTERS ====================
 
     public function getId(): ?int
     {
@@ -122,6 +124,17 @@ class Flashcard
     public function setDeck(?Deck $deck): static
     {
         $this->deck = $deck;
+        return $this;
+    }
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
         return $this;
     }
 
@@ -232,17 +245,6 @@ class Flashcard
     public function setDateModification(?\DateTimeInterface $dateModification): static
     {
         $this->dateModification = $dateModification;
-        return $this;
-    }
-
-    public function getCreatedBy(): ?User
-    {
-        return $this->createdBy;
-    }
-
-    public function setCreatedBy(?User $createdBy): static
-    {
-        $this->createdBy = $createdBy;
         return $this;
     }
 }

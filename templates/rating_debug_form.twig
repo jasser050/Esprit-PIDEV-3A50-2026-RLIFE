@@ -1,0 +1,62 @@
+{# DEBUG FORM - À mettre dans templates/rating_debug_form.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Rating</title>
+    <style>
+        body { font-family: Arial; padding: 40px; background: #1f2937; color: white; }
+        form { background: #374151; padding: 30px; margin: 20px 0; border-radius: 12px; }
+        input, button { padding: 12px; margin: 10px 5px; font-size: 16px; }
+        button { background: #10b981; color: white; border: none; cursor: pointer; border-radius: 8px; }
+        button:hover { background: #059669; }
+        .result { background: #065f46; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .error { background: #991b1b; }
+    </style>
+</head>
+<body>
+    <h1>🐛 DEBUG RATING SYSTEM</h1>
+    
+    <h2>Test 1: GET /rating/deck/1/my-rating</h2>
+    <form action="/rating/deck/1/my-rating" method="GET">
+        <button type="submit">Tester GET</button>
+    </form>
+    
+    <h2>Test 2: POST /rating/deck/1/rate</h2>
+    <form action="/rating/deck/1/rate" method="POST">
+        <label>Nombre d'étoiles: 
+            <input type="number" name="stars" value="5" min="1" max="5" required>
+        </label>
+        <button type="submit">Tester POST</button>
+    </form>
+    
+    <h2>Test 3: POST /rating/deck/1/remove</h2>
+    <form action="/rating/deck/1/remove" method="POST">
+        <button type="submit">Tester DELETE (POST)</button>
+    </form>
+    
+    <div class="result">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Clique sur "Tester GET" → tu dois voir du JSON (même si pas connecté)</li>
+            <li>Clique sur "Tester POST" → si redirection login = IsGranted bloque</li>
+            <li>Vérifie la console PHP (Symfony profiler en bas)</li>
+        </ol>
+    </div>
+
+    <h2>Routes Symfony existantes</h2>
+    <pre style="background: #111827; padding: 20px; border-radius: 8px; overflow-x: auto;">
+{{ dump(app.request.attributes.get('_route')) }}
+    </pre>
+
+    <h2>User connecté?</h2>
+    <pre style="background: #111827; padding: 20px; border-radius: 8px;">
+{% if app.user %}
+    ✅ Connecté: {{ app.user.email }}
+    Roles: {{ app.user.roles|join(', ') }}
+{% else %}
+    ❌ PAS CONNECTÉ
+{% endif %}
+    </pre>
+</body>
+</html>

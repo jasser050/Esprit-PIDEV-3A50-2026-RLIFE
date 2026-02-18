@@ -3,11 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Assignment;
+use App\Entity\Comment;
 use App\Entity\Project;
 use App\Form\AssignmentType;
+use App\Form\CommentType;
 use App\Repository\AssignmentRepository;
+use App\Repository\CommentRepository;
 use App\Service\AssignmentStatsService;
 use App\Service\AssignmentPdfService;
+use App\Service\PusherService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,20 +105,61 @@ class AssignmentController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
     public function show(
         Assignment $assignment,
-        AssignmentStatsService $statsService
+        Request $request,
+        AssignmentStatsService $statsService,
+        CommentRepository $commentRepository,
+        EntityManagerInterface $entityManager,
+        PusherService $pusherService,
+        AssignmentCollaboratorRepository $collaboratorRepository,
+        ProjectShareRepository $shareRepository
     ): Response {
-        if ($assignment->getUser() !== $this->getUser()) {
+        // Check if user is owner, collaborator, or has project access
+        $isOwner = $assignment->getUser() === $this->getUser();
+        $isCollaborator = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $this->getUser()) !== null;
+        $hasProjectAccess = $shareRepository->hasAccess($assignment->getProject(), $this->getUser());
+
+        if (!$isOwner && !$isCollaborator && !$hasProjectAccess) {
             throw $this->createAccessDeniedException();
         }
 
         $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
 
+        // Handle comment submission
+        $comment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        $commentForm->handleRequest($request);
+
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $comment->setAssignment($assignment);
+            $comment->setUser($this->getUser());
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            // Send real-time notification via Pusher
+            $pusherService->notifyNewComment(
+                $assignment->getId(),
+                $comment->getId(),
+                $this->getUser()->getEmail(),
+                $comment->getContent(),
+                $comment->getCreatedAt()->format('Y-m-d H:i:s')
+            );
+
+            $this->addFlash('success', 'Comment added successfully!');
+            return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
+        }
+
+        // Get comments for this assignment
+        $comments = $commentRepository->findByAssignment($assignment);
+
         return $this->render('pages/assignments/show.html.twig', [
             'assignment'      => $assignment,
             'assignmentStats' => $assignmentStats,
+            'comments'        => $comments,
+            'commentForm'     => $commentForm->createView(),
         ]);
     }
 
@@ -215,5 +260,33 @@ class AssignmentController extends AbstractController
             'enRetard'   => $stats['enRetard'],
             'chartData'  => $stats['chartData'],
         ]);
+    }
+
+    #[Route('/comment/{id}/delete', name: 'app_assignments_delete_comment', methods: ['POST'])]
+    public function deleteComment(
+        Comment $comment,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PusherService $pusherService
+    ): Response {
+        // Security check - only comment author can delete
+        if ($comment->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $assignmentId = $comment->getAssignment()->getId();
+        $commentId = $comment->getId();
+
+        if ($this->isCsrfTokenValid('delete-comment' . $comment->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($comment);
+            $entityManager->flush();
+
+            // Notify via Pusher
+            $pusherService->notifyCommentDeleted($assignmentId, $commentId);
+
+            $this->addFlash('success', 'Comment deleted successfully!');
+        }
+
+        return $this->redirectToRoute('app_assignments_show', ['id' => $assignmentId]);
     }
 }

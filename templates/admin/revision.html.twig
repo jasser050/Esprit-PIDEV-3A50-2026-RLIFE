@@ -5,358 +5,171 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    /* Barre de recherche principale */
-    .search-container {
-        position: relative;
-        max-width: 100%;
-    }
-    
-    .search-input {
-        width: 100%;
-        padding: 12px 48px 12px 16px;
-        border: 2px solid #e2e8f0;
+    .search-container { position: relative; max-width: 100%; }
+    .search-input { width: 100%; padding: 12px 48px 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; transition: all 0.3s ease; background-color: white; }
+    .search-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .dark .search-input { background-color: #1e293b; border-color: #475569; color: white; }
+    .search-button { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s ease; }
+    .search-button:hover { background-color: #f1f5f9; color: #3b82f6; }
+    .controls-container { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+    .filters-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-label { font-size: 14px; font-weight: 500; color: #64748b; }
+    .dark .filter-label { color: #94a3b8; }
+    .filter-select { padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background-color: white; cursor: pointer; min-width: 150px; transition: all 0.3s ease; }
+    .filter-select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .dark .filter-select { background-color: #1e293b; border-color: #475569; color: white; }
+    .date-search-container { display: flex; gap: 8px; align-items: center; }
+    .date-input { padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 150px; transition: all 0.3s ease; }
+    .date-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .dark .date-input { background-color: #1e293b; border-color: #475569; color: white; }
+    .sort-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .sort-button { padding: 8px 16px; border-radius: 20px; border: 2px solid #e2e8f0; background-color: white; color: #64748b; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; }
+    .sort-button:hover { border-color: #3b82f6; color: #3b82f6; }
+    .sort-button.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+    .action-buttons { display: flex; gap: 8px; }
+    .action-button { padding: 8px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; }
+    .action-button.reset { background-color: #f1f5f9; color: #64748b; }
+    .action-button.reset:hover { background-color: #e2e8f0; }
+    .results-info { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .deck-counter { color: #64748b; font-size: 14px; font-weight: 500; }
+    .sort-indicator { color: #3b82f6; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .no-results { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+    .no-results-icon { width: 80px; height: 80px; margin: 0 auto 20px; color: #cbd5e1; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
+    .deck-card { animation: fadeIn 0.3s ease-out; }
+
+    /* ═══════════════════════════════════════════════
+       ⭐ BLOC NOTATION ADMIN — Lu depuis la BDD
+    ═══════════════════════════════════════════════ */
+    .rating-admin-block {
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        border: 1px solid #fde68a;
         border-radius: 12px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        background-color: white;
+        padding: 10px 14px;
+        margin-bottom: 12px;
     }
-    
-    .search-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .search-input.dark {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-    
-    .search-button {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #64748b;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-    
-    .search-button:hover {
-        background-color: #f1f5f9;
-        color: #3b82f6;
-    }
-    
-    .search-button.dark:hover {
-        background-color: #334155;
-        color: #60a5fa;
-    }
-    
-    /* Filtres et tris */
-    .controls-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        margin-top: 16px;
-    }
-    
-    .filters-row {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-    
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    
-    .filter-label {
-        font-size: 14px;
-        font-weight: 500;
-        color: #64748b;
-    }
-    
-    .filter-label.dark,
-    label.filter-label.dark {
-        color: #94a3b8;
-    }
-    
-    /* Dark mode for filter labels */
-    .dark .filter-label,
-    .dark label.filter-label {
-        color: #94a3b8;
-    }
-    
-    .filter-select {
-        padding: 8px 12px;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 14px;
-        background-color: white;
-        cursor: pointer;
-        min-width: 150px;
-        transition: all 0.3s ease;
-    }
-    
-    .filter-select:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .filter-select.dark,
-    select.filter-select.dark {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-    
-    .filter-select.dark:focus,
-    select.filter-select.dark:focus {
-        border-color: #60a5fa;
-    }
-    
-    /* Dark mode for filter select options */
-    .dark .filter-select,
-    .dark select.filter-select {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-    
-    .dark .filter-select option,
-    .dark select.filter-select option {
-        background-color: #1e293b;
-        color: white;
-    }
-    
-    /* Recherche par date */
-    .date-search-container {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-    }
-    
-    .date-input {
-        padding: 8px 12px;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 14px;
-        width: 150px;
-        transition: all 0.3s ease;
-    }
-    
-    .date-input:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    
-    .date-input.dark,
-    input.date-input.dark {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-    
-    /* Dark mode for date inputs */
-    .dark .date-input,
-    .dark input.date-input {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-    
-    .dark .date-input::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-    }
-    
-    /* Boutons de tri */
-    .sort-buttons {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    
-    .sort-button {
-        padding: 8px 16px;
-        border-radius: 20px;
-        border: 2px solid #e2e8f0;
-        background-color: white;
-        color: #64748b;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
+
+    .rating-admin-header {
         display: flex;
         align-items: center;
-        gap: 6px;
-    }
-    
-    .sort-button:hover {
-        border-color: #3b82f6;
-        color: #3b82f6;
-    }
-    
-    .sort-button.active {
-        background-color: #3b82f6;
-        color: white;
-        border-color: #3b82f6;
-    }
-    
-    .sort-button.dark {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: #cbd5e1;
-    }
-    
-    .sort-button.dark:hover {
-        border-color: #60a5fa;
-        color: #60a5fa;
-    }
-    
-    .sort-button.dark.active {
-        background-color: #60a5fa;
-        color: white;
-        border-color: #60a5fa;
-    }
-    
-    /* Boutons d'action */
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
-    
-    .action-button {
-        padding: 8px 16px;
-        border-radius: 8px;
-        border: none;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .action-button.reset {
-        background-color: #f1f5f9;
-        color: #64748b;
-    }
-    
-    .action-button.reset:hover {
-        background-color: #e2e8f0;
-    }
-    
-    .action-button.reset.dark {
-        background-color: #334155;
-        color: #cbd5e1;
-    }
-    
-    .action-button.reset.dark:hover {
-        background-color: #475569;
-    }
-    
-    /* Compteur de résultats */
-    .results-info {
-        display: flex;
         justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .rating-admin-title {
+        font-size: 11px;
+        font-weight: 700;
+        color: #92400e;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: flex;
         align-items: center;
-        margin-top: 16px;
-        padding-top: 16px;
-        border-top: 1px solid #e2e8f0;
+        gap: 4px;
     }
-    
-    .results-info.dark {
-        border-top-color: #475569;
+
+    .rating-admin-link {
+        font-size: 11px;
+        color: #d97706;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color .15s;
     }
-    
-    .deck-counter {
-        color: #64748b;
-        font-size: 14px;
-        font-weight: 500;
-    }
-    
-    .deck-counter.dark {
-        color: #94a3b8;
-    }
-    
-    .sort-indicator {
-        color: #3b82f6;
-        font-size: 14px;
-        font-weight: 500;
+    .rating-admin-link:hover { color: #b45309; text-decoration: underline; }
+
+    /* Étoiles visuelles (lecture seule) */
+    .rating-stars-visual {
         display: flex;
         align-items: center;
         gap: 6px;
     }
-    
-    .sort-indicator.dark {
-        color: #60a5fa;
+
+    .rating-stars-row {
+        display: flex;
+        gap: 2px;
     }
-    
-    /* Message "Aucun résultat" */
-    .no-results {
-        text-align: center;
-        padding: 60px 20px;
-        grid-column: 1 / -1;
+
+    .rstar {
+        font-size: 18px;
+        line-height: 1;
     }
-    
-    .no-results-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px;
-        color: #cbd5e1;
+    .rstar.filled { color: #f59e0b; }
+    .rstar.half   { color: #f59e0b; opacity: 0.5; }
+    .rstar.empty  { color: #d1d5db; }
+
+    .rating-avg-text {
+        font-size: 16px;
+        font-weight: 800;
+        color: #f59e0b;
     }
-    
-    .no-results.dark .no-results-icon {
-        color: #475569;
+
+    .rating-count-text {
+        font-size: 12px;
+        color: #92400e;
+        font-weight: 500;
     }
-    
-    /* Animation pour les cartes */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+
+    /* Barre de distribution */
+    .rating-distrib {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-top: 8px;
     }
-    
-    .deck-card {
-        animation: fadeIn 0.3s ease-out;
+
+    .distrib-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
     }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .filters-row {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .filter-select, .date-input {
-            width: 100%;
-        }
-        
-        .date-search-container {
-            flex-direction: column;
-        }
-        
-        .results-info {
-            flex-direction: column;
-            gap: 12px;
-            align-items: flex-start;
-        }
+
+    .distrib-label {
+        color: #92400e;
+        font-weight: 600;
+        width: 14px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .distrib-bar-wrap {
+        flex: 1;
+        background: #fde68a;
+        border-radius: 999px;
+        height: 6px;
+        overflow: hidden;
+    }
+
+    .distrib-bar-fill {
+        height: 100%;
+        background: #f59e0b;
+        border-radius: 999px;
+        transition: width .5s ease;
+    }
+
+    .distrib-count {
+        color: #92400e;
+        font-weight: 600;
+        width: 18px;
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    /* Badge "No ratings yet" */
+    .rating-empty-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #92400e;
+        padding: 4px 0;
+    }
+
+    @media (max-width:768px) {
+        .filters-row { flex-direction:column; align-items:stretch; }
+        .filter-select,.date-input { width:100%; }
+        .date-search-container { flex-direction:column; }
+        .results-info { flex-direction:column; gap:12px; align-items:flex-start; }
     }
 </style>
 {% endblock %}
@@ -364,9 +177,8 @@
 {% block body %}
 <div class="space-y-8 animate-fade-in">
 
-    <!-- Header + Bouton Créer Deck -->
+    <!-- Header -->
     <div class="space-y-6 animate-fade-in">
-        <!-- Page Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
@@ -374,188 +186,120 @@
             </div>
             <a href="{{ path('app_admin_deck_new') }}"
                class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
-                Create Deck
+                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Create Deck
             </a>
         </div>
 
-        <!-- Barre de recherche et filtres -->
+        <!-- Recherche & Filtres -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-6">
-            <!-- Barre de recherche principale -->
             <div class="search-container">
-                <input type="text" 
-                       id="deckSearch" 
-                       placeholder="Search decks by title, subject, level or description..." 
-                       class="search-input dark:search-input.dark">
-                <button type="button" id="searchButton" class="search-button dark:search-button.dark">
-                    <i data-lucide="search" class="w-5 h-5"></i>
-                </button>
+                <input type="text" id="deckSearch" placeholder="Search decks by title, subject, level or description..." class="search-input">
+                <button type="button" id="searchButton" class="search-button"><i data-lucide="search" class="w-5 h-5"></i></button>
             </div>
-            
-            <!-- Contrôles de filtrage et tri -->
             <div class="controls-container">
-                <!-- Première ligne : Filtres -->
                 <div class="filters-row">
-                    <!-- Filtre par matière -->
                     <div class="filter-group">
-                        <label class="filter-label dark:filter-label.dark">Subject</label>
-                        <select id="subjectFilter" class="filter-select dark:filter-select.dark">
+                        <label class="filter-label">Subject</label>
+                        <select id="subjectFilter" class="filter-select">
                             <option value="all">All Subjects</option>
                             {% set subjects = [] %}
-                            {% for deck in decks %}
-                                {% if deck.matiere not in subjects %}
-                                    {% set subjects = subjects|merge([deck.matiere]) %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for subject in subjects|sort %}
-                                <option value="{{ subject|lower }}">{{ subject }}</option>
-                            {% endfor %}
+                            {% for deck in decks %}{% if deck.matiere not in subjects %}{% set subjects = subjects|merge([deck.matiere]) %}{% endif %}{% endfor %}
+                            {% for subject in subjects|sort %}<option value="{{ subject|lower }}">{{ subject }}</option>{% endfor %}
                         </select>
                     </div>
-                    
-                    <!-- Filtre par niveau -->
                     <div class="filter-group">
-                        <label class="filter-label dark:filter-label.dark">Level</label>
-                        <select id="levelFilter" class="filter-select dark:filter-select.dark">
+                        <label class="filter-label">Level</label>
+                        <select id="levelFilter" class="filter-select">
                             <option value="all">All Levels</option>
                             {% set levels = [] %}
-                            {% for deck in decks %}
-                                {% if deck.niveau not in levels %}
-                                    {% set levels = levels|merge([deck.niveau]) %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for level in levels|sort %}
-                                <option value="{{ level|lower }}">{{ level }}</option>
-                            {% endfor %}
+                            {% for deck in decks %}{% if deck.niveau not in levels %}{% set levels = levels|merge([deck.niveau]) %}{% endif %}{% endfor %}
+                            {% for level in levels|sort %}<option value="{{ level|lower }}">{{ level }}</option>{% endfor %}
                         </select>
                     </div>
-                    
-                    <!-- Filtre par date -->
                     <div class="filter-group">
-                        <label class="filter-label dark:filter-label.dark">Date Created</label>
+                        <label class="filter-label">Date Created</label>
                         <div class="date-search-container">
-                            <input type="date" id="dateFrom" class="date-input dark:date-input.dark" placeholder="From">
+                            <input type="date" id="dateFrom" class="date-input">
                             <span class="text-slate-400">to</span>
-                            <input type="date" id="dateTo" class="date-input dark:date-input.dark" placeholder="To">
+                            <input type="date" id="dateTo" class="date-input">
                         </div>
                     </div>
-                    
-                    <!-- Filtre par progression -->
                     <div class="filter-group">
-                        <label class="filter-label dark:filter-label.dark">Progress</label>
-                        <select id="progressFilter" class="filter-select dark:filter-select.dark">
+                        <label class="filter-label">Progress</label>
+                        <select id="progressFilter" class="filter-select">
                             <option value="all">All Progress</option>
-                            <option value="0-25">0-25% (Beginner)</option>
-                            <option value="26-50">26-50% (Intermediate)</option>
-                            <option value="51-75">51-75% (Advanced)</option>
-                            <option value="76-100">76-100% (Master)</option>
+                            <option value="0-25">0–25% (Beginner)</option>
+                            <option value="26-50">26–50% (Intermediate)</option>
+                            <option value="51-75">51–75% (Advanced)</option>
+                            <option value="76-100">76–100% (Master)</option>
                             <option value="100">100% (Completed)</option>
                         </select>
                     </div>
                 </div>
-                
-                <!-- Deuxième ligne : Tris et actions -->
                 <div class="filters-row">
-                    <!-- Boutons de tri -->
-                    <div class="filter-group" style="flex-grow: 1;">
-                        <label class="filter-label dark:filter-label.dark">Sort by</label>
+                    <div class="filter-group" style="flex-grow:1;">
+                        <label class="filter-label">Sort by</label>
                         <div class="sort-buttons">
-                            <button type="button" class="sort-button dark:sort-button.dark active" data-sort="date-desc">
-                                <i data-lucide="calendar" class="w-4 h-4"></i>
-                                Newest First
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="date">
-                                <i data-lucide="calendar" class="w-4 h-4"></i>
-                                Oldest First
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="title">
-                                <i data-lucide="arrow-up-a-z" class="w-4 h-4"></i>
-                                Title A-Z
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="title-desc">
-                                <i data-lucide="arrow-down-z-a" class="w-4 h-4"></i>
-                                Title Z-A
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="progress">
-                                <i data-lucide="trending-up" class="w-4 h-4"></i>
-                                Progress ↑
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="progress-desc">
-                                <i data-lucide="trending-down" class="w-4 h-4"></i>
-                                Progress ↓
-                            </button>
-                            <button type="button" class="sort-button dark:sort-button.dark" data-sort="cards">
-                                <i data-lucide="layers" class="w-4 h-4"></i>
-                                Cards Count
-                            </button>
+                            <button type="button" class="sort-button active" data-sort="date-desc"><i data-lucide="calendar" class="w-4 h-4"></i> Newest First</button>
+                            <button type="button" class="sort-button" data-sort="date"><i data-lucide="calendar" class="w-4 h-4"></i> Oldest First</button>
+                            <button type="button" class="sort-button" data-sort="title"><i data-lucide="arrow-up-a-z" class="w-4 h-4"></i> Title A-Z</button>
+                            <button type="button" class="sort-button" data-sort="title-desc"><i data-lucide="arrow-down-z-a" class="w-4 h-4"></i> Title Z-A</button>
+                            <button type="button" class="sort-button" data-sort="progress"><i data-lucide="trending-up" class="w-4 h-4"></i> Progress ↑</button>
+                            <button type="button" class="sort-button" data-sort="progress-desc"><i data-lucide="trending-down" class="w-4 h-4"></i> Progress ↓</button>
+                            <button type="button" class="sort-button" data-sort="cards"><i data-lucide="layers" class="w-4 h-4"></i> Cards Count</button>
+                            <button type="button" class="sort-button" data-sort="rating-desc"><i data-lucide="star" class="w-4 h-4"></i> Best Rated</button>
                         </div>
                     </div>
-                    
-                    <!-- Boutons d'action -->
                     <div class="filter-group">
-                        <label class="filter-label dark:filter-label.dark opacity-0">Actions</label>
+                        <label class="filter-label" style="opacity:0;">Actions</label>
                         <div class="action-buttons">
-                            <button type="button" id="resetFilters" class="action-button reset dark:action-button.reset.dark">
-                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                Reset All
-                            </button>
+                            <button type="button" id="resetFilters" class="action-button reset"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset All</button>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Informations sur les résultats -->
-            <div class="results-info dark:results-info.dark">
-                <div id="resultCounter" class="deck-counter dark:deck-counter.dark">
-                    Showing {{ decks|length }} decks
-                </div>
-                <div id="sortIndicator" class="sort-indicator dark:sort-indicator.dark">
-                    <i data-lucide="calendar" class="w-4 h-4"></i>
-                    Sorted by: Newest First
-                </div>
+            <div class="results-info">
+                <div id="resultCounter" class="deck-counter">Showing {{ decks|length }} decks</div>
+                <div id="sortIndicator" class="sort-indicator"><i data-lucide="calendar" class="w-4 h-4"></i> Sorted by: Newest First</div>
             </div>
         </div>
 
-        <!-- Statistiques -->
+        <!-- KPI Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            <!-- Statistiques restent inchangées -->
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
                 <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
                     <i data-lucide="layers" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400" id="totalDecks">{{ decks|length }}</p>
+                    <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ decks|length }}</p>
                     <p class="text-sm text-slate-600 dark:text-slate-400">Total Decks</p>
                 </div>
             </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600 dark:text-green-400"></i>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-slate-900 dark:text-white">6</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Mastered Cards</p>
-                </div>
-            </div>
-
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
                 <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <i data-lucide="inbox" class="w-6 h-6 text-amber-600 dark:text-amber-400"></i>
+                    <i data-lucide="star" class="w-6 h-6 text-amber-500"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-slate-900 dark:text-white">15</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Cards</p>
+                    <p class="text-2xl font-bold text-amber-500" id="kpi-total-ratings">—</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Ratings</p>
                 </div>
             </div>
-
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                    <i data-lucide="flame" class="w-6 h-6 text-red-600 dark:text-red-400"></i>
+                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-slate-900 dark:text-white">12</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">To Review Today</p>
+                    <p class="text-2xl font-bold text-green-600" id="kpi-avg-global">—</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Global Average</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
+                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <i data-lucide="trophy" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-purple-600 leading-tight" id="kpi-best-deck" style="font-size:13px;">—</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Best Rated Deck</p>
                 </div>
             </div>
         </div>
@@ -567,154 +311,146 @@
         <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
             <i data-lucide="layers-2" class="w-20 h-20 mx-auto text-slate-300 dark:text-slate-600 mb-6"></i>
             <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks yet</h3>
-            <p class="text-slate-600 dark:text-slate-400 mb-6">
-                Create your first deck to organize your flashcards and study effectively
-            </p>
-            <a href="{{ path('app_admin_deck_new') }}"
-               class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-lg">
-                <i data-lucide="plus" class="w-6 h-6 mr-3"></i>
-                Create your first Deck
+            <a href="{{ path('app_admin_deck_new') }}" class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-lg">
+                <i data-lucide="plus" class="w-6 h-6 mr-3"></i> Create your first Deck
             </a>
         </div>
         {% else %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {% set colorPalettes = [
-                {bg: '#fef3c7', border: '#f59e0b', text: '#d97706'},
-                {bg: '#dbeafe', border: '#3b82f6', text: '#2563eb'},
-                {bg: '#fce7f3', border: '#ec4899', text: '#db2777'},
-                {bg: '#d1fae5', border: '#10b981', text: '#059669'},
-                {bg: '#e0e7ff', border: '#6366f1', text: '#4f46e5'},
-                {bg: '#ffe4e6', border: '#f43f5e', text: '#e11d48'},
-                {bg: '#f3e8ff', border: '#a855f7', text: '#9333ea'},
-                {bg: '#ccfbf1', border: '#14b8a6', text: '#0d9488'},
-                {bg: '#fef08a', border: '#eab308', text: '#ca8a04'},
-                {bg: '#fbcfe8', border: '#ec4899', text: '#db2777'},
-                {bg: '#bfdbfe', border: '#3b82f6', text: '#2563eb'},
-                {bg: '#c7d2fe', border: '#818cf8', text: '#6366f1'}
+                {bg:'#fef3c7',border:'#f59e0b',text:'#d97706'},
+                {bg:'#dbeafe',border:'#3b82f6',text:'#2563eb'},
+                {bg:'#fce7f3',border:'#ec4899',text:'#db2777'},
+                {bg:'#d1fae5',border:'#10b981',text:'#059669'},
+                {bg:'#e0e7ff',border:'#6366f1',text:'#4f46e5'},
+                {bg:'#ffe4e6',border:'#f43f5e',text:'#e11d48'},
+                {bg:'#f3e8ff',border:'#a855f7',text:'#9333ea'},
+                {bg:'#ccfbf1',border:'#14b8a6',text:'#0d9488'},
+                {bg:'#fef08a',border:'#eab308',text:'#ca8a04'},
+                {bg:'#fbcfe8',border:'#ec4899',text:'#db2777'},
+                {bg:'#bfdbfe',border:'#3b82f6',text:'#2563eb'},
+                {bg:'#c7d2fe',border:'#818cf8',text:'#6366f1'}
             ] %}
 
             {% set demoStats = [
-                {cards: 15, mastered: 6, progress: 40},
-                {cards: 8, mastered: 4, progress: 50},
-                {cards: 12, mastered: 9, progress: 75},
-                {cards: 10, mastered: 7, progress: 70},
-                {cards: 20, mastered: 15, progress: 75},
-                {cards: 6, mastered: 3, progress: 50},
-                {cards: 14, mastered: 10, progress: 71},
-                {cards: 9, mastered: 6, progress: 67},
-                {cards: 11, mastered: 8, progress: 73},
-                {cards: 7, mastered: 5, progress: 71},
-                {cards: 13, mastered: 9, progress: 69},
-                {cards: 16, mastered: 12, progress: 75}
+                {cards:15,mastered:6,progress:40},{cards:8,mastered:4,progress:50},
+                {cards:12,mastered:9,progress:75},{cards:10,mastered:7,progress:70},
+                {cards:20,mastered:15,progress:75},{cards:6,mastered:3,progress:50},
+                {cards:14,mastered:10,progress:71},{cards:9,mastered:6,progress:67},
+                {cards:11,mastered:8,progress:73},{cards:7,mastered:5,progress:71},
+                {cards:13,mastered:9,progress:69},{cards:16,mastered:12,progress:75}
             ] %}
 
             {% for deck in decks %}
-                {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
-                {% set demoIndex = loop.index0 % demoStats|length %}
-                {% set deckCards = demoStats[demoIndex].cards %}
-                {% set deckMastered = demoStats[demoIndex].mastered %}
-                {% set deckProgress = demoStats[demoIndex].progress %}
-                
+                {% set palette    = colorPalettes[loop.index0 % colorPalettes|length] %}
+                {% set di         = loop.index0 % demoStats|length %}
+                {% set deckCards  = demoStats[di].cards %}
+                {% set deckMast   = demoStats[di].mastered %}
+                {% set deckProg   = demoStats[di].progress %}
+
                 <div class="deck-card bg-white rounded-2xl shadow-lg border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col"
-                     style="border-color: {{ palette.border }};"
+                     style="border-color:{{ palette.border }};"
                      data-title="{{ deck.titre|lower }}"
                      data-matiere="{{ deck.matiere|lower }}"
                      data-niveau="{{ deck.niveau|lower }}"
                      data-description="{{ deck.description|lower }}"
                      data-date="{{ deck.dateCreation ? deck.dateCreation|date('Y-m-d') : '' }}"
-                     data-progress="{{ deckProgress }}"
-                     data-cards="{{ deckCards }}">
-                    
-                    <!-- Le reste de votre code de carte deck reste inchangé -->
+                     data-progress="{{ deckProg }}"
+                     data-cards="{{ deckCards }}"
+                     data-rating="0"
+                     data-deck-id="{{ deck.id }}">
+
+                    <!-- Image -->
                     <div class="h-32 overflow-hidden relative">
                         {% if deck.image %}
-                            <img src="{{ asset('uploads/decks/' ~ deck.image) }}"
-                                 alt="{{ deck.titre }}"
+                            <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}"
                                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center"
-                                 style="background: linear-gradient(135deg, {{ palette.bg }}, {{ palette.border }});">
-                                <i data-lucide="layers" class="w-16 h-16 opacity-80" style="color: {{ palette.text }};"></i>
+                                 style="background:linear-gradient(135deg,{{ palette.bg }},{{ palette.border }});">
+                                <i data-lucide="layers" class="w-16 h-16 opacity-80" style="color:{{ palette.text }};"></i>
                             </div>
                         {% endif %}
                     </div>
-                    
+
+                    <!-- Header -->
                     <div class="p-5 pb-0">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-12 h-12 rounded-lg backdrop-blur-sm flex items-center justify-center shadow-lg -mt-8 group-hover:scale-110 transition-transform"
-                                 style="background-color: rgba(255, 255, 255, 0.9); border: 2px solid {{ palette.border }};">
-                                <i data-lucide="layers" class="w-6 h-6" style="color: {{ palette.text }};"></i>
+                                 style="background-color:rgba(255,255,255,0.9);border:2px solid {{ palette.border }};">
+                                <i data-lucide="layers" class="w-6 h-6" style="color:{{ palette.text }};"></i>
                             </div>
-                            
-                            <span class="text-xs text-slate-500 font-medium">
-                                {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
-                            </span>
+                            <span class="text-xs text-slate-500 font-medium">{{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}</span>
                         </div>
-
-                        <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color: {{ palette.text }};">
-                            {{ deck.titre }}
-                        </h3>
-
+                        <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color:{{ palette.text }};">{{ deck.titre }}</h3>
                         <p class="text-sm text-slate-600 mb-3 flex items-center gap-1.5">
                             <i data-lucide="book-open" class="w-4 h-4"></i>
                             {{ deck.matiere }} • {{ deck.niveau }}
                         </p>
-
-                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">
-                            {{ deck.description ?: 'No description available' }}
-                        </p>
+                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">{{ deck.description ?: 'No description available' }}</p>
                     </div>
 
-                    <div class="px-5 pb-4">
+                    <div class="px-5 pb-4 flex flex-col flex-1">
+
+                        <!-- Stats cartes + progress -->
                         <div class="flex gap-2 mb-4">
                             <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
-                                  style="background-color: {{ palette.bg }}; color: {{ palette.text }}; border: 1px solid {{ palette.border }};">
-                                <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>
-                                {{ deckCards }} cards
+                                  style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1px solid {{ palette.border }};">
+                                <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>{{ deckCards }} cards
                             </span>
-                            
-                            <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
-                                  style="background-color: #d1fae5; color: #059669; border: 1px solid #6ee7b7;">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
-                                {{ deckMastered }} mastered
+                            <span class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-green-100 text-green-700 border border-green-300 shadow-sm">
+                                <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>{{ deckMast }} mastered
                             </span>
                         </div>
 
                         <div class="mb-4">
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm font-medium text-slate-600">Progress</span>
-                                <span class="text-sm font-bold" style="color: {{ palette.text }};">
-                                    {{ deckProgress }}%
-                                </span>
+                                <span class="text-sm font-bold" style="color:{{ palette.text }};">{{ deckProg }}%</span>
                             </div>
                             <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                                 <div class="h-full rounded-full transition-all duration-500"
-                                     style="width: {{ deckProgress }}%; background-color: {{ palette.text }};">
+                                     style="width:{{ deckProg }}%;background-color:{{ palette.text }};"></div>
+                            </div>
+                        </div>
+
+                        {# ══════════════════════════════════════════════════
+                           ⭐ BLOC NOTATION — Données étudiants depuis l'API
+                        ══════════════════════════════════════════════════ #}
+                        <div class="rating-admin-block" id="rating-block-{{ deck.id }}">
+
+                            <div class="rating-admin-header">
+                                <span class="rating-admin-title">⭐ Student ratings</span>
+                                <a href="{{ path('app_admin_ratings_deck', {'deckId': deck.id}) }}"
+                                   class="rating-admin-link">View details →</a>
+                            </div>
+
+                            {# Chargé dynamiquement par JS — placeholder initial #}
+                            <div id="rating-content-{{ deck.id }}">
+                                <div class="rating-empty-badge" style="color:#d97706; font-size:12px;">
+                                    ⏳ Loading...
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex justify-end gap-3">
-                            <!-- View/Eye Button -->
+                        <!-- Boutons admin (view / edit / delete) -->
+                        <div class="flex justify-end gap-3 mt-auto pt-2">
                             <a href="{{ path('app_admin_deck_show', {'id': deck.id}) }}"
-                               class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110 bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50"
-                               title="View deck and flashcards">
+                               class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110 bg-blue-100 text-blue-600 hover:bg-blue-200"
+                               title="View deck">
                                 <i data-lucide="eye" class="w-5 h-5"></i>
                             </a>
-                            
-                            <!-- Edit Button -->
                             <a href="{{ path('app_admin_deck_edit', {'id': deck.id}) }}"
                                class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
-                               style="background-color: {{ palette.bg }}; color: {{ palette.text }};"
+                               style="background-color:{{ palette.bg }};color:{{ palette.text }};"
                                title="Edit deck">
                                 <i data-lucide="pencil" class="w-5 h-5"></i>
                             </a>
-                            
-                            <!-- Delete Button -->
                             <form method="post" action="{{ path('app_admin_deck_delete', {'id': deck.id}) }}"
                                   onsubmit="return confirm('Really delete this deck?');" class="inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.id) }}">
-                                <button type="submit" class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                                <button type="submit"
+                                        class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110"
                                         title="Delete deck">
                                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                                 </button>
@@ -728,17 +464,13 @@
     </div>
 </div>
 
-<!-- Template pour "Aucun résultat" -->
 <template id="noResultsTemplate">
-    <div class="no-results dark:no-results.dark bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
+    <div class="no-results bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
         <i data-lucide="search" class="w-20 h-20 mx-auto no-results-icon mb-6"></i>
         <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks found</h3>
-        <p class="text-slate-600 dark:text-slate-400 mb-6">
-            Try adjusting your search or filter to find what you're looking for.
-        </p>
-        <button type="button" id="clearSearch" class="inline-flex items-center px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition">
-            <i data-lucide="x" class="w-5 h-5 mr-2"></i>
-            Clear all filters
+        <p class="text-slate-600 dark:text-slate-400 mb-6">Try adjusting your search or filter.</p>
+        <button type="button" id="clearSearch" class="inline-flex items-center px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium rounded-lg transition">
+            <i data-lucide="x" class="w-5 h-5 mr-2"></i> Clear all filters
         </button>
     </div>
 </template>
@@ -747,331 +479,285 @@
 {% block javascripts %}
 {{ parent() }}
 <script>
+// ══════════════════════════════════════════════════════
+//  ⭐ CHARGEMENT DES NOTATIONS ÉTUDIANTS (ADMIN)
+//  Utilise l'endpoint GET /rating/deck/{id}/my-rating
+//  mais en mode admin on charge via l'API chart-data
+// ══════════════════════════════════════════════════════
+
+// Charge les stats de notation pour un deck via l'API admin
+function loadDeckRating(deckId) {
+    fetch('/rating/deck/' + deckId + '/my-rating')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success !== undefined) {
+                renderRatingBlock(deckId, data.average, data.total, null);
+            }
+        })
+        .catch(function() {
+            renderRatingError(deckId);
+        });
+}
+
+// Charge les stats COMPLÈTES depuis l'endpoint admin (distribution incluse)
+function loadDeckRatingAdmin(deckId) {
+    fetch('/admin/ratings/deck/' + deckId, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(function(r) {
+        // Si la page répond en HTML (pas JSON), on fallback sur l'endpoint simple
+        var ct = r.headers.get('content-type') || '';
+        if (ct.indexOf('application/json') === -1) {
+            return loadDeckRatingSimple(deckId);
+        }
+        return r.json().then(function(data) {
+            if (data.stats) {
+                renderRatingBlock(deckId, data.stats.average, data.stats.total, data.stats.distribution);
+            }
+        });
+    })
+    .catch(function() {
+        loadDeckRatingSimple(deckId);
+    });
+}
+
+// Fallback : endpoint simple (moyenne + total seulement)
+function loadDeckRatingSimple(deckId) {
+    fetch('/rating/deck/' + deckId + '/my-rating')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            renderRatingBlock(deckId, data.average || 0, data.total || 0, null);
+            // Met à jour l'attribut data-rating pour le tri
+            var card = document.querySelector('[data-deck-id="' + deckId + '"]');
+            if (card) card.setAttribute('data-rating', data.average || 0);
+        })
+        .catch(function() { renderRatingError(deckId); });
+}
+
+// Construit le HTML du bloc notation
+function renderRatingBlock(deckId, average, total, distribution) {
+    var container = document.getElementById('rating-content-' + deckId);
+    if (!container) return;
+
+    // Met à jour data-rating pour le tri
+    var card = document.querySelector('[data-deck-id="' + deckId + '"]');
+    if (card) card.setAttribute('data-rating', average || 0);
+
+    if (total === 0 || !average) {
+        container.innerHTML =
+            '<div class="rating-empty-badge">' +
+            '<span style="font-size:16px;">📭</span>' +
+            '<span>No student ratings yet</span>' +
+            '</div>';
+        return;
+    }
+
+    // Étoiles visuelles
+    var starsHtml = '';
+    for (var i = 1; i <= 5; i++) {
+        if (i <= Math.floor(average)) {
+            starsHtml += '<span class="rstar filled">★</span>';
+        } else if (i - 0.5 <= average) {
+            starsHtml += '<span class="rstar half">★</span>';
+        } else {
+            starsHtml += '<span class="rstar empty">★</span>';
+        }
+    }
+
+    // Distribution (si disponible)
+    var distribHtml = '';
+    if (distribution) {
+        distribHtml = '<div class="rating-distrib">';
+        for (var star = 5; star >= 1; star--) {
+            var count = distribution[star] || 0;
+            var pct   = total > 0 ? Math.round(count / total * 100) : 0;
+            distribHtml +=
+                '<div class="distrib-row">' +
+                '<span class="distrib-label">' + star + '★</span>' +
+                '<div class="distrib-bar-wrap"><div class="distrib-bar-fill" style="width:' + pct + '%"></div></div>' +
+                '<span class="distrib-count">' + count + '</span>' +
+                '</div>';
+        }
+        distribHtml += '</div>';
+    }
+
+    container.innerHTML =
+        '<div class="rating-stars-visual">' +
+        '<div class="rating-stars-row">' + starsHtml + '</div>' +
+        '<span class="rating-avg-text">' + parseFloat(average).toFixed(1) + '</span>' +
+        '<span class="rating-count-text">(' + total + ' rating' + (total > 1 ? 's' : '') + ')</span>' +
+        '</div>' +
+        distribHtml;
+}
+
+function renderRatingError(deckId) {
+    var container = document.getElementById('rating-content-' + deckId);
+    if (container) {
+        container.innerHTML = '<div class="rating-empty-badge" style="color:#ef4444;">⚠️ Unable to load</div>';
+    }
+}
+
+// Charge les stats globales pour les KPI en haut
+function loadGlobalStats() {
+    fetch('/admin/ratings/api/chart-data')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var totRatings = 0, sumAvg = 0, bestLabel = '—', bestAvg = 0;
+            if (data.totals) data.totals.forEach(function(t) { totRatings += t; });
+            if (data.averages && data.labels) {
+                data.averages.forEach(function(a, i) {
+                    if (a > bestAvg) { bestAvg = a; bestLabel = data.labels[i]; }
+                    sumAvg += a * (data.totals[i] || 0);
+                });
+            }
+            var globalAvg = totRatings > 0 ? (sumAvg / totRatings).toFixed(1) : '—';
+            var kpiR = document.getElementById('kpi-total-ratings');
+            var kpiA = document.getElementById('kpi-avg-global');
+            var kpiB = document.getElementById('kpi-best-deck');
+            if (kpiR) kpiR.textContent = totRatings || '0';
+            if (kpiA) kpiA.textContent = globalAvg !== '—' ? globalAvg + '★' : '—';
+            if (kpiB) kpiB.textContent = bestLabel !== '—' ? bestLabel + ' (' + parseFloat(bestAvg).toFixed(1) + '★)' : '—';
+        })
+        .catch(function() {});
+}
+
+// ══════════════════════════════════════════════
+//  🔍 SEARCH & FILTER
+// ══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
-    // Éléments DOM
-    const deckSearch = document.getElementById('deckSearch');
-    const searchButton = document.getElementById('searchButton');
-    const subjectFilter = document.getElementById('subjectFilter');
-    const levelFilter = document.getElementById('levelFilter');
-    const dateFrom = document.getElementById('dateFrom');
-    const dateTo = document.getElementById('dateTo');
-    const progressFilter = document.getElementById('progressFilter');
-    const sortButtons = document.querySelectorAll('.sort-button');
-    const resetButton = document.getElementById('resetFilters');
-    const deckCards = document.querySelectorAll('.deck-card');
-    const decksContainer = document.getElementById('decksContainer');
-    const resultCounter = document.getElementById('resultCounter');
-    const sortIndicator = document.getElementById('sortIndicator');
-    const totalDecks = document.getElementById('totalDecks');
-    const noResultsTemplate = document.getElementById('noResultsTemplate');
-    
-    // État courant
-    let currentState = {
-        search: '',
-        subject: 'all',
-        level: 'all',
-        dateFrom: '',
-        dateTo: '',
-        progress: 'all',
-        sort: 'date-desc'
-    };
-    
-    // Icônes pour l'indicateur de tri
-    const sortIcons = {
-        'date-desc': 'calendar',
-        'date': 'calendar',
-        'title': 'arrow-up-a-z',
-        'title-desc': 'arrow-down-z-a',
-        'progress': 'trending-up',
-        'progress-desc': 'trending-down',
-        'cards': 'layers'
-    };
-    
-    const sortLabels = {
-        'date-desc': 'Newest First',
-        'date': 'Oldest First',
-        'title': 'Title A-Z',
-        'title-desc': 'Title Z-A',
-        'progress': 'Progress ↑',
-        'progress-desc': 'Progress ↓',
-        'cards': 'Cards Count'
-    };
-    
-    // Fonction pour vérifier si une date est dans l'intervalle
-    function isDateInRange(dateString, from, to) {
-        if (!dateString) return false;
-        
-        const date = new Date(dateString);
-        const fromDate = from ? new Date(from) : null;
-        const toDate = to ? new Date(to) : null;
-        
-        if (fromDate && date < fromDate) return false;
-        if (toDate && date > toDate) return false;
-        
+
+    // Charge les notations pour chaque deck
+    document.querySelectorAll('[data-deck-id]').forEach(function(card) {
+        var id = card.getAttribute('data-deck-id');
+        if (id) loadDeckRatingSimple(id);
+    });
+
+    // Charge les KPI globaux
+    loadGlobalStats();
+
+    var DS = document.getElementById('deckSearch'),
+        SB = document.getElementById('searchButton'),
+        SF = document.getElementById('subjectFilter'),
+        LF = document.getElementById('levelFilter'),
+        DF = document.getElementById('dateFrom'),
+        DT = document.getElementById('dateTo'),
+        PF = document.getElementById('progressFilter'),
+        SORTS  = document.querySelectorAll('.sort-button'),
+        RESET  = document.getElementById('resetFilters'),
+        CARDS  = document.querySelectorAll('.deck-card'),
+        CONT   = document.getElementById('decksContainer'),
+        RC     = document.getElementById('resultCounter'),
+        SI     = document.getElementById('sortIndicator'),
+        NRT    = document.getElementById('noResultsTemplate');
+
+    var state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', progress:'all', sort:'date-desc' };
+
+    var sicons  = { 'date-desc':'calendar','date':'calendar','title':'arrow-up-a-z','title-desc':'arrow-down-z-a','progress':'trending-up','progress-desc':'trending-down','cards':'layers','rating-desc':'star' };
+    var slabels = { 'date-desc':'Newest First','date':'Oldest First','title':'Title A-Z','title-desc':'Title Z-A','progress':'Progress ↑','progress-desc':'Progress ↓','cards':'Cards Count','rating-desc':'Best Rated' };
+
+    function inRange(ds, from, to) {
+        if (!ds) return false;
+        var d = new Date(ds);
+        if (from && d < new Date(from)) return false;
+        if (to   && d > new Date(to))   return false;
         return true;
     }
-    
-    // Fonction pour vérifier si la progression est dans la plage
-    function isProgressInRange(progress, range) {
-        if (range === 'all') return true;
-        if (range === '100') return progress == 100;
-        
-        const [min, max] = range.split('-').map(Number);
-        return progress >= min && progress <= max;
+    function progInRange(p, r) {
+        if (r === 'all') return true;
+        if (r === '100') return p == 100;
+        var parts = r.split('-').map(Number);
+        return p >= parts[0] && p <= parts[1];
     }
-    
-    // Fonction pour filtrer les decks
-    function filterDecks() {
-        let visibleCount = 0;
-        const visibleDecks = [];
-        
-        deckCards.forEach(card => {
-            const title = card.getAttribute('data-title') || '';
-            const matiere = card.getAttribute('data-matiere') || '';
-            const niveau = card.getAttribute('data-niveau') || '';
-            const description = card.getAttribute('data-description') || '';
-            const date = card.getAttribute('data-date') || '';
-            const progress = parseInt(card.getAttribute('data-progress')) || 0;
-            const cards = parseInt(card.getAttribute('data-cards')) || 0;
-            
-            // Vérifier la recherche
-            const searchMatch = currentState.search === '' || 
-                title.includes(currentState.search) ||
-                matiere.includes(currentState.search) ||
-                niveau.includes(currentState.search) ||
-                description.includes(currentState.search);
-            
-            // Vérifier le sujet
-            const subjectMatch = currentState.subject === 'all' || 
-                matiere === currentState.subject;
-            
-            // Vérifier le niveau
-            const levelMatch = currentState.level === 'all' || 
-                niveau === currentState.level;
-            
-            // Vérifier la date
-            const dateMatch = isDateInRange(date, currentState.dateFrom, currentState.dateTo);
-            
-            // Vérifier la progression
-            const progressMatch = isProgressInRange(progress, currentState.progress);
-            
-            // Afficher ou cacher la carte
-            if (searchMatch && subjectMatch && levelMatch && dateMatch && progressMatch) {
-                card.style.display = 'flex';
-                visibleCount++;
-                visibleDecks.push({
-                    element: card,
-                    title: title,
-                    date: date,
-                    progress: progress,
-                    cards: cards
-                });
-            } else {
-                card.style.display = 'none';
+
+    function filter() {
+        var vc = 0, vd = [];
+        CARDS.forEach(function(c) {
+            var t  = c.getAttribute('data-title')       || '',
+                m  = c.getAttribute('data-matiere')     || '',
+                n  = c.getAttribute('data-niveau')      || '',
+                de = c.getAttribute('data-description') || '',
+                dt = c.getAttribute('data-date')        || '',
+                pr = parseInt(c.getAttribute('data-progress')) || 0,
+                ca = parseInt(c.getAttribute('data-cards'))    || 0,
+                rt = parseFloat(c.getAttribute('data-rating')) || 0;
+
+            var ok = (state.search===''||t.includes(state.search)||m.includes(state.search)||n.includes(state.search)||de.includes(state.search))
+                && (state.subject==='all'||m===state.subject)
+                && (state.level==='all'||n===state.level)
+                && inRange(dt, state.dateFrom, state.dateTo)
+                && progInRange(pr, state.progress);
+
+            if (ok) { c.style.display='flex'; vc++; vd.push({element:c,title:t,date:dt,progress:pr,cards:ca,rating:rt}); }
+            else    { c.style.display='none'; }
+        });
+        sortCards(vd);
+        updateUI(vc);
+    }
+
+    function sortCards(decks) {
+        decks.sort(function(a, b) {
+            switch(state.sort) {
+                case 'date-desc':    return new Date(b.date)  - new Date(a.date);
+                case 'date':         return new Date(a.date)  - new Date(b.date);
+                case 'title':        return a.title.localeCompare(b.title);
+                case 'title-desc':   return b.title.localeCompare(a.title);
+                case 'progress':     return a.progress - b.progress;
+                case 'progress-desc':return b.progress - a.progress;
+                case 'cards':        return a.cards    - b.cards;
+                case 'rating-desc':  return b.rating   - a.rating;
+                default: return 0;
             }
         });
-        
-        // Trier les decks visibles
-        sortDecks(visibleDecks);
-        
-        // Mettre à jour l'interface
-        updateUI(visibleCount);
+        var g = CONT.querySelector('.grid');
+        if (g) decks.forEach(function(d) { g.appendChild(d.element); });
     }
-    
-    // Fonction pour trier les decks
-    function sortDecks(decks) {
-        decks.sort((a, b) => {
-            switch(currentState.sort) {
-                case 'date-desc':
-                    return new Date(b.date) - new Date(a.date);
-                case 'date':
-                    return new Date(a.date) - new Date(b.date);
-                case 'title':
-                    return a.title.localeCompare(b.title);
-                case 'title-desc':
-                    return b.title.localeCompare(a.title);
-                case 'progress':
-                    return a.progress - b.progress;
-                case 'progress-desc':
-                    return b.progress - a.progress;
-                case 'cards':
-                    return a.cards - b.cards;
-                default:
-                    return 0;
-            }
-        });
-        
-        // Réorganiser les cartes dans le DOM
-        const gridContainer = decksContainer.querySelector('.grid');
-        if (gridContainer) {
-            decks.forEach(deck => {
-                gridContainer.appendChild(deck.element);
-            });
+
+    function updateUI(vc) {
+        RC.textContent = 'Showing ' + vc + ' deck' + (vc !== 1 ? 's' : '');
+        SI.innerHTML   = '<i data-lucide="' + (sicons[state.sort]||'calendar') + '" class="w-4 h-4"></i> Sorted by: ' + (slabels[state.sort]||'');
+        lucide.createIcons();
+        var g = CONT.querySelector('.grid');
+        if (!g) return;
+        if (vc === 0) {
+            g.style.display = 'none';
+            var ex = CONT.querySelector('.no-results'); if (ex) ex.remove();
+            CONT.appendChild(NRT.content.cloneNode(true));
+            setTimeout(function() {
+                var cb = CONT.querySelector('#clearSearch');
+                if (cb) cb.addEventListener('click', resetAll);
+                lucide.createIcons();
+            }, 100);
+        } else {
+            g.style.display = 'grid';
+            var nr = CONT.querySelector('.no-results'); if (nr) nr.remove();
         }
     }
-    
-    // Fonction pour mettre à jour l'interface
-    function updateUI(visibleCount) {
-        // Mettre à jour le compteur
-        resultCounter.textContent = `Showing ${visibleCount} deck${visibleCount !== 1 ? 's' : ''}`;
-        
-        // Mettre à jour l'indicateur de tri
-        const iconName = sortIcons[currentState.sort];
-        sortIndicator.innerHTML = `
-            <i data-lucide="${iconName}" class="w-4 h-4"></i>
-            Sorted by: ${sortLabels[currentState.sort]}
-        `;
-        lucide.create();
-        
-        // Gérer l'affichage "Aucun résultat"
-        const gridContainer = decksContainer.querySelector('.grid');
-        if (gridContainer) {
-            if (visibleCount === 0) {
-                gridContainer.style.display = 'none';
-                const noResults = noResultsTemplate.content.cloneNode(true);
-                
-                // Supprimer d'abord l'ancien message
-                const existingNoResults = decksContainer.querySelector('.no-results');
-                if (existingNoResults) {
-                    existingNoResults.remove();
-                }
-                
-                decksContainer.appendChild(noResults);
-                
-                // Ajouter l'écouteur d'événement pour effacer tout
-                setTimeout(() => {
-                    const clearSearchBtn = decksContainer.querySelector('#clearSearch');
-                    if (clearSearchBtn) {
-                        clearSearchBtn.addEventListener('click', resetAllFilters);
-                    }
-                }, 100);
-            } else {
-                gridContainer.style.display = 'grid';
-                const noResultsDiv = decksContainer.querySelector('.no-results');
-                if (noResultsDiv) {
-                    noResultsDiv.remove();
-                }
-            }
-        }
+
+    function resetAll() {
+        DS.value=''; SF.value='all'; LF.value='all'; DF.value=''; DT.value=''; PF.value='all';
+        SORTS.forEach(function(b){b.classList.remove('active');});
+        var def=document.querySelector('.sort-button[data-sort="date-desc"]'); if(def)def.classList.add('active');
+        state={search:'',subject:'all',level:'all',dateFrom:'',dateTo:'',progress:'all',sort:'date-desc'};
+        filter();
     }
-    
-    // Fonction pour réinitialiser tous les filtres
-    function resetAllFilters() {
-        deckSearch.value = '';
-        subjectFilter.value = 'all';
-        levelFilter.value = 'all';
-        dateFrom.value = '';
-        dateTo.value = '';
-        progressFilter.value = 'all';
-        
-        // Réactiver le tri par défaut
-        sortButtons.forEach(btn => btn.classList.remove('active'));
-        const defaultSort = document.querySelector('.sort-button[data-sort="date-desc"]');
-        if (defaultSort) defaultSort.classList.add('active');
-        
-        // Réinitialiser l'état
-        currentState = {
-            search: '',
-            subject: 'all',
-            level: 'all',
-            dateFrom: '',
-            dateTo: '',
-            progress: 'all',
-            sort: 'date-desc'
-        };
-        
-        // Réappliquer les filtres
-        filterDecks();
-    }
-    
-    // Écouteurs d'événements
-    // Recherche
-    deckSearch.addEventListener('input', function() {
-        currentState.search = this.value.trim().toLowerCase();
-        filterDecks();
-    });
-    
-    searchButton.addEventListener('click', function() {
-        currentState.search = deckSearch.value.trim().toLowerCase();
-        filterDecks();
-    });
-    
-    deckSearch.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            currentState.search = this.value.trim().toLowerCase();
-            filterDecks();
-        }
-    });
-    
-    // Filtres
-    subjectFilter.addEventListener('change', function() {
-        currentState.subject = this.value;
-        filterDecks();
-    });
-    
-    levelFilter.addEventListener('change', function() {
-        currentState.level = this.value;
-        filterDecks();
-    });
-    
-    dateFrom.addEventListener('change', function() {
-        currentState.dateFrom = this.value;
-        filterDecks();
-    });
-    
-    dateTo.addEventListener('change', function() {
-        currentState.dateTo = this.value;
-        filterDecks();
-    });
-    
-    progressFilter.addEventListener('change', function() {
-        currentState.progress = this.value;
-        filterDecks();
-    });
-    
-    // Tris
-    sortButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Retirer la classe active de tous les boutons
-            sortButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Ajouter la classe active au bouton cliqué
-            this.classList.add('active');
-            
-            // Mettre à jour le tri courant
-            currentState.sort = this.getAttribute('data-sort');
-            
-            // Appliquer le tri
-            filterDecks();
+
+    DS.addEventListener('input',   function(){state.search=this.value.trim().toLowerCase();filter();});
+    SB.addEventListener('click',   function(){state.search=DS.value.trim().toLowerCase();filter();});
+    DS.addEventListener('keypress',function(e){if(e.key==='Enter'){state.search=this.value.trim().toLowerCase();filter();}});
+    SF.addEventListener('change',  function(){state.subject=this.value;filter();});
+    LF.addEventListener('change',  function(){state.level=this.value;filter();});
+    DF.addEventListener('change',  function(){state.dateFrom=this.value;filter();});
+    DT.addEventListener('change',  function(){state.dateTo=this.value;filter();});
+    PF.addEventListener('change',  function(){state.progress=this.value;filter();});
+    SORTS.forEach(function(b){
+        b.addEventListener('click',function(){
+            SORTS.forEach(function(x){x.classList.remove('active');});
+            b.classList.add('active'); state.sort=b.getAttribute('data-sort'); filter();
         });
     });
-    
-    // Réinitialisation
-    resetButton.addEventListener('click', resetAllFilters);
-    
-    // Initialisation
-    filterDecks();
-    
-    // Mode sombre/clair
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDarkMode = darkModeMediaQuery.matches;
-    
-    if (isDarkMode) {
-        deckSearch.classList.add('dark');
-        searchButton.classList.add('dark');
-        subjectFilter.classList.add('dark');
-        levelFilter.classList.add('dark');
-        dateFrom.classList.add('dark');
-        dateTo.classList.add('dark');
-        progressFilter.classList.add('dark');
-        sortButtons.forEach(button => button.classList.add('dark'));
-        resetButton.classList.add('dark');
-        
-        // Add dark mode to labels
-        document.querySelectorAll('.filter-label').forEach(label => {
-            label.classList.add('dark');
-        });
-    }
+    RESET.addEventListener('click', resetAll);
+    filter();
+    lucide.createIcons();
 });
 </script>
 {% endblock %}

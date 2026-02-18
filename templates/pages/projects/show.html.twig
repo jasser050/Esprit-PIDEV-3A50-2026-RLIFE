@@ -16,24 +16,38 @@
 
     <!-- Header -->
     <div class="flex items-start justify-between gap-4">
-        <div>
+        <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
                 <h1 class="text-2xl font-bold">{{ project.titre }}</h1>
                 <span class="badge badge-{{ project.statut == 'En cours' ? 'primary' : (project.statut == 'Terminé' ? 'success' : (project.statut == 'En attente' ? 'warning' : 'danger')) }}">
                     {{ project.statut }}
                 </span>
+                {% if project.user.id != app.user.id %}
+                    <span class="badge badge-info">
+                        <i data-lucide="share-2" class="w-4 h-4 inline"></i>
+                        Shared
+                    </span>
+                {% endif %}
             </div>
             <p class="text-secondary-500 dark:text-secondary-400">{{ project.description }}</p>
+            {% if project.user.id != app.user.id %}
+                <p class="text-sm text-secondary-400 mt-2">
+                    <i data-lucide="user" class="w-4 h-4 inline mr-1"></i>
+                    Shared by {{ project.user.fullName }}
+                </p>
+            {% endif %}
         </div>
         <div class="flex gap-2">
-            <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-secondary">
-                <i data-lucide="edit-2" class="w-5 h-5"></i>
-                Edit
-            </a>
-            <button type="button" class="btn btn-danger" onclick="confirmDelete()">
-                <i data-lucide="trash-2" class="w-5 h-5"></i>
-                Delete
-            </button>
+            {% if project.user.id == app.user.id %}
+                <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-secondary">
+                    <i data-lucide="edit-2" class="w-5 h-5"></i>
+                    Edit
+                </a>
+                <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                    Delete
+                </button>
+            {% endif %}
         </div>
     </div>
 
@@ -101,6 +115,62 @@
             {% endif %}
         </dl>
     </div>
+
+    {% if project.user.id == app.user.id %}
+    <!-- Partage de projet -->
+    <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-lg font-semibold">Project Sharing</h2>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Share this project with other users</p>
+            </div>
+            <span class="badge badge-primary">{{ project.shares|length }} shared</span>
+        </div>
+
+        <!-- Share Form -->
+        <form method="post" action="{{ path('app_project_share', {'id': project.id}) }}" class="mb-6">
+            <div class="flex gap-3">
+                <input type="email" name="email" placeholder="Enter user email..." required
+                    class="flex-1 px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input">
+                <select name="role" class="px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input">
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                </select>
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                    Share
+                </button>
+            </div>
+        </form>
+
+        <!-- Shared Users List -->
+        {% if project.shares|length > 0 %}
+            <div class="space-y-3">
+                {% for share in project.shares %}
+                    <div class="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-medium">
+                                {{ share.sharedWithUser.fullName|first|upper }}
+                            </div>
+                            <div>
+                                <p class="font-medium">{{ share.sharedWithUser.fullName }}</p>
+                                <p class="text-sm text-secondary-500">Shared by {{ share.sharedByUser.fullName }} • {{ share.role|capitalize }}</p>
+                            </div>
+                        </div>
+                        <form method="post" action="{{ path('app_project_remove_share', {'projectId': project.id, 'shareId': share.id}) }}" onsubmit="return confirm('Remove this share?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('remove-share' ~ share.id) }}">
+                            <button type="submit" class="text-danger-500 hover:text-danger-700 p-2">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-center text-secondary-500 py-4">This project is not shared with anyone yet.</p>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <!-- Tâches associées -->
     <div class="card p-6">

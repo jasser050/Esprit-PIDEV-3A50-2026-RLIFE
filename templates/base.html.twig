@@ -104,10 +104,17 @@
 
                     <a href="{{ path('app_assignments') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_assignments' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                              {{ app.request.attributes.get('_route') starts with 'app_assignments' and app.request.attributes.get('_route') != 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Assignments</span>
                         <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
+                    </a>
+
+                    <a href="{{ path('app_collaboration_assigned_tasks') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') == 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="user-check" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Assigned to Me</span>
                     </a>
 
                     <a href="{{ path('app_planning') }}"
@@ -577,5 +584,106 @@
             });
         })();
     </script>
+    
+    <!-- Pusher Real-time Notifications -->
+    {% if app.user %}
+    <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+    <script>
+        // Initialize Pusher for real-time notifications
+        const pusher = new Pusher('262d2d5c7812c0dd8417', {
+            cluster: 'eu',
+            forceTLS: true
+        });
+
+        // Subscribe to user's private channel
+        const userChannel = pusher.subscribe('private-user-{{ app.user.id }}');
+
+        // Listen for project shared notifications
+        userChannel.bind('project-shared', function(data) {
+            // Create toast notification
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer bg-primary-500 text-white';
+            toast.innerHTML = `
+                <i data-lucide="share-2" class="w-5 h-5"></i>
+                <div class="flex-1">
+                    <p class="font-medium">New Project Available!</p>
+                    <p class="text-sm opacity-90">${data.shared_by} shared "${data.project_title}" with you. It's now in your Projects list.</p>
+                </div>
+            `;
+            
+            // Add click handler to navigate to projects page
+            toast.addEventListener('click', function() {
+                window.location.href = '/project';
+            });
+            
+            toastContainer.appendChild(toast);
+            
+            // Initialize Lucide icons in the new toast
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 5000);
+            
+            // Update notification badge
+            const badge = document.querySelector('.relative button[aria-label="Notifications"] + div .bg-danger-500');
+            if (badge) {
+                badge.classList.remove('hidden');
+            }
+        });
+
+        // Listen for task assigned notifications
+        userChannel.bind('task-assigned', function(data) {
+            // Create toast notification
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer bg-warning-500 text-white';
+            toast.innerHTML = `
+                <i data-lucide="clipboard-check" class="w-5 h-5"></i>
+                <div class="flex-1">
+                    <p class="font-medium">Task Assigned to You</p>
+                    <p class="text-sm opacity-90">${data.assigned_by} assigned you "${data.task_title}"</p>
+                </div>
+            `;
+            
+            // Add click handler to navigate to assigned tasks
+            toast.addEventListener('click', function() {
+                window.location.href = '/collaboration/assigned-tasks';
+            });
+            
+            toastContainer.appendChild(toast);
+            
+            // Initialize Lucide icons in the new toast
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 5000);
+            
+            // Update notification badge
+            const badge = document.querySelector('.relative button[aria-label="Notifications"] + div .bg-danger-500');
+            if (badge) {
+                badge.classList.remove('hidden');
+            }
+        });
+
+        console.log('✅ Pusher notifications initialized for user {{ app.user.id }}');
+    </script>
+    {% endif %}
 </body>
 </html>

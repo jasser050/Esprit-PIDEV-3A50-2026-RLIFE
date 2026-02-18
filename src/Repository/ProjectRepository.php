@@ -19,6 +19,7 @@ class ProjectRepository extends ServiceEntityRepository
 
     /**
      * Récupère tous les projets d'un utilisateur avec filtres
+     * Inclut les projets créés par l'utilisateur ET les projets partagés avec lui
      *
      * @param User $user
      * @param string $sort
@@ -35,7 +36,9 @@ class ProjectRepository extends ServiceEntityRepository
         string $search = ''
     ): array {
         $qb = $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
+            ->leftJoin('p.shares', 'ps')
+            ->addSelect('ps')
+            ->andWhere('p.user = :user OR (ps.sharedWithUser = :user)')
             ->setParameter('user', $user);
 
         // Filtre par statut

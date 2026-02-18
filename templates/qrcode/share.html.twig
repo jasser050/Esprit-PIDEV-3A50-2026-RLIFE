@@ -1,0 +1,150 @@
+{# templates/qrcode/share.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Partager : {{ deck.titre }}{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="bi bi-share"></i> Partager le deck
+                    </h2>
+                </div>
+                
+                <div class="card-body">
+                    {# Informations du deck #}
+                    <div class="deck-info mb-4">
+                        <h3>{{ deck.titre }}</h3>
+                        {% if deck.description %}
+                            <p class="text-muted">{{ deck.description }}</p>
+                        {% endif %}
+                        <div class="badge bg-info">
+                            {{ flashcardsCount }} flashcard{{ flashcardsCount > 1 ? 's' : '' }}
+                        </div>
+                    </div>
+
+                    {# QR Code avec API gratuite #}
+                    <div class="qr-section text-center mb-4">
+                        <h4 class="mb-3">Scannez pour importer</h4>
+                        
+                        {# Affichage du QR Code #}
+                        <div class="qr-code-wrapper p-4 bg-light rounded">
+                            <img 
+                                src="{{ qrCodeUrl }}" 
+                                alt="QR Code - {{ deck.titre }}"
+                                class="img-fluid rounded shadow"
+                                style="max-width: 400px;"
+                            >
+                        </div>
+
+                        {# Boutons d'action #}
+                        <div class="action-buttons mt-4">
+                            {# Télécharger le QR Code #}
+                            <a 
+                                href="{{ qrDownloadUrl }}" 
+                                download="qrcode-{{ deck.titre|lower|replace({' ': '-'}) }}.png"
+                                class="btn btn-success btn-lg me-2"
+                            >
+                                <i class="bi bi-download"></i> Télécharger QR Code
+                            </a>
+
+                            {# Copier le lien #}
+                            <button 
+                                class="btn btn-outline-primary btn-lg"
+                                onclick="copyToClipboard('{{ importUrl }}')"
+                            >
+                                <i class="bi bi-clipboard"></i> Copier le lien
+                            </button>
+                        </div>
+                    </div>
+
+                    {# URL de partage #}
+                    <div class="share-url mt-4">
+                        <label class="form-label fw-bold">Lien de partage :</label>
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="shareUrl"
+                                value="{{ importUrl }}" 
+                                readonly
+                            >
+                            <button 
+                                class="btn btn-outline-secondary" 
+                                onclick="copyToClipboard('{{ importUrl }}')"
+                            >
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">
+                            Ce lien expire dans 30 jours
+                        </small>
+                    </div>
+
+                    {# Instructions #}
+                    <div class="instructions mt-4 p-3 bg-light rounded">
+                        <h5><i class="bi bi-info-circle"></i> Comment partager ?</h5>
+                        <ol class="mb-0">
+                            <li>Scannez le QR code avec un smartphone</li>
+                            <li>Ou partagez le lien directement</li>
+                            <li>Le destinataire pourra prévisualiser puis importer le deck</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <a href="{{ path('app_revisions') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour aux révisions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# JavaScript pour copier dans le presse-papiers #}
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Afficher une notification de succès
+        alert('✅ Lien copié dans le presse-papiers !');
+    }, function(err) {
+        // Fallback pour navigateurs plus anciens
+        const input = document.getElementById('shareUrl');
+        input.select();
+        document.execCommand('copy');
+        alert('✅ Lien copié dans le presse-papiers !');
+    });
+}
+</script>
+
+{# CSS personnalisé #}
+<style>
+.qr-code-wrapper {
+    display: inline-block;
+}
+
+.qr-code-wrapper img {
+    transition: transform 0.3s ease;
+}
+
+.qr-code-wrapper img:hover {
+    transform: scale(1.05);
+}
+
+.action-buttons .btn {
+    margin: 5px;
+}
+
+@media (max-width: 576px) {
+    .action-buttons .btn {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+</style>
+{% endblock %}
