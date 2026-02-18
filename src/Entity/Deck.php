@@ -95,6 +95,9 @@ class Deck
     #[ORM\InverseJoinColumn(name: 'id_flashcard', referencedColumnName: 'id_flashcard')]
     private Collection $revisionFlashcards;
 
+    #[ORM\OneToMany(targetEntity: Rating::class, mappedBy: 'deck', orphanRemoval: true)]
+    private Collection $ratings;
+
     private ?int $cardCount = null;
 
     private ?int $masteredCount = null;
@@ -103,6 +106,7 @@ class Deck
     {
         $this->flashcards = new ArrayCollection();
         $this->revisionFlashcards = new ArrayCollection();
+        $this->ratings = new ArrayCollection();
         $this->dateCreation = new \DateTime();
     }
 
@@ -270,6 +274,32 @@ class Deck
     public function removeRevisionFlashcard(Flashcard $flashcard): static
     {
         $this->revisionFlashcards->removeElement($flashcard);
+
+        return $this;
+    }
+
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): static
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings->add($rating);
+            $rating->setDeck($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): static
+    {
+        if ($this->ratings->removeElement($rating)) {
+            if ($rating->getDeck() === $this) {
+                $rating->setDeck(null);
+            }
+        }
 
         return $this;
     }
