@@ -15,33 +15,4 @@ class WellBeingRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, WellBeing::class);
     }
-<<<<<<< HEAD
 }
-=======
-
-//    /**
-//     * @return WellBeing[] Returns an array of WellBeing objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('w')
-//            ->andWhere('w.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('w.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?WellBeing
-//    {
-//        return $this->createQueryBuilder('w')
-//            ->andWhere('w.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

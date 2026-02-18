@@ -15,11 +15,7 @@ class EvaluationMatiere
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id_eval', type: 'integer')]
-<<<<<<< HEAD
     private ?int $id_eval = null;
-=======
-    private ?int $id = null;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'evaluations')]
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
@@ -61,15 +57,9 @@ class EvaluationMatiere
         $this->updatedAt = new \DateTime();
     }
 
-<<<<<<< HEAD
 public function getIdEval(): ?int
     {
         return $this->id_eval;
-=======
-    public function getId(): ?int
-    {
-        return $this->id;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     public function getUser(): ?User

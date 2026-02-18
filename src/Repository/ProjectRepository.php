@@ -18,7 +18,6 @@ class ProjectRepository extends ServiceEntityRepository
     }
 
     /**
-<<<<<<< HEAD
      * Récupère tous les projets d'un utilisateur avec filtres
      * Inclut les projets créés par l'utilisateur ET les projets partagés avec lui
      *
@@ -30,8 +29,8 @@ class ProjectRepository extends ServiceEntityRepository
      * @return Project[]
      */
     public function findByUserWithFilters(
-        User $user, 
-        string $sort = 'createdAt', 
+        User $user,
+        string $sort = 'createdAt',
         string $direction = 'DESC',
         string $statut = '',
         string $search = ''
@@ -83,25 +82,6 @@ class ProjectRepository extends ServiceEntityRepository
 
     /**
      * Récupère les projets d'un utilisateur selon un statut donné
-=======
-     * Find all projects for a specific user
-     *
-     * @param User $user
-     * @return Project[]
-     */
-    public function findByUser(User $user): array
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
-            ->setParameter('user', $user)
-            ->orderBy('p.dateFin', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Find projects by status for a user
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
      *
      * @param User $user
      * @param string $statut
@@ -114,32 +94,20 @@ class ProjectRepository extends ServiceEntityRepository
             ->andWhere('p.statut = :statut')
             ->setParameter('user', $user)
             ->setParameter('statut', $statut)
-<<<<<<< HEAD
             ->orderBy('p.createdAt', 'DESC')
-=======
-            ->orderBy('p.dateFin', 'ASC')
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             ->getQuery()
             ->getResult();
     }
 
     /**
-<<<<<<< HEAD
      * Compte le nombre total de projets d'un utilisateur
-=======
-     * Count total projects for a user
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
      *
      * @param User $user
      * @return int
      */
     public function countByUser(User $user): int
     {
-<<<<<<< HEAD
         return (int) $this->createQueryBuilder('p')
-=======
-        return $this->createQueryBuilder('p')
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             ->select('COUNT(p.id)')
             ->andWhere('p.user = :user')
             ->setParameter('user', $user)
@@ -148,7 +116,6 @@ class ProjectRepository extends ServiceEntityRepository
     }
 
     /**
-<<<<<<< HEAD
      * Compte les projets par statut
      *
      * @param User $user
@@ -169,16 +136,12 @@ class ProjectRepository extends ServiceEntityRepository
 
     /**
      * Récupère les projets à venir (non terminés et date de fin ≥ aujourd'hui)
-=======
-     * Find upcoming projects (not yet completed)
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
      *
      * @param User $user
      * @return Project[]
      */
     public function findUpcomingByUser(User $user): array
     {
-<<<<<<< HEAD
         $today = new \DateTime('today');
 
         return $this->createQueryBuilder('p')
@@ -268,7 +231,7 @@ class ProjectRepository extends ServiceEntityRepository
     public function getProjectsByMonth(User $user, int $months = 6): array
     {
         $startDate = new \DateTime("-{$months} months");
-        
+
         $results = $this->createQueryBuilder('p')
             ->select('p.createdAt, COUNT(p.id) as count')
             ->andWhere('p.user = :user')
@@ -279,7 +242,7 @@ class ProjectRepository extends ServiceEntityRepository
             ->orderBy('p.createdAt', 'ASC')
             ->getQuery()
             ->getResult();
-        
+
         // Aggregate by month
         $monthlyData = [];
         foreach ($results as $result) {
@@ -289,7 +252,7 @@ class ProjectRepository extends ServiceEntityRepository
             }
             $monthlyData[$month] += (int)$result['count'];
         }
-        
+
         // Convert to array of objects
         $formatted = [];
         foreach ($monthlyData as $month => $count) {
@@ -298,21 +261,7 @@ class ProjectRepository extends ServiceEntityRepository
                 'count' => $count
             ];
         }
-        
+
         return $formatted;
     }
 }
-=======
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
-            ->andWhere('p.statut != :statut')
-            ->andWhere('p.dateFin >= :today')
-            ->setParameter('user', $user)
-            ->setParameter('statut', 'Terminé')
-            ->setParameter('today', new \DateTime('today'))
-            ->orderBy('p.dateFin', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

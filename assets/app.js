@@ -1,3 +1,4 @@
+import './bootstrap.js';
 <<<<<<< HEAD
 import './stimulus_bootstrap.js';
 /*

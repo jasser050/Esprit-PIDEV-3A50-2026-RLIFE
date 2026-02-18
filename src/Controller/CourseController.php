@@ -2,37 +2,29 @@
 
 namespace App\Controller;
 
-<<<<<<< HEAD
 use App\Entity\EvaluationMatiere;
 use App\Entity\Matiere;
-use App\Form\EvaluationMatiereType;  
+use App\Form\EvaluationMatiereType;
 use App\Repository\EvaluationMatiereRepository;
 use App\Repository\MatiereRepository;
 use Doctrine\ORM\EntityManagerInterface;
-=======
-use App\Data\SampleData;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-<<<<<<< HEAD
 use App\Service\GoogleSearchService;
 use App\Entity\EvalMat;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[Route('/courses')]
 class CourseController extends AbstractController
 {
     #[Route('', name: 'app_courses')]
-<<<<<<< HEAD
     public function index(EvaluationMatiereRepository $courseRepository ,     Request $request): Response
     {
 
-   
+
     $searchMatiere = $request->query->get('matiere');
 
     // 🔃 Tri
@@ -54,7 +46,7 @@ class CourseController extends AbstractController
     // 🔃 Appliquer le tri par nom de matière
     $qb->orderBy('m.nomMatiere', $order);
 
-    
+
 
     $courses = $qb->getQuery()->getResult();
 
@@ -120,27 +112,27 @@ $course->nomMatiere = $matieresNames
     : 'Unnamed Course';
 
 
-    
-    
-        
+
+
+
         $course->instructor = 'Unknown';
         $course->notes_count = 0;
         $course->assignments_count = 0;
-        
+
         // Calculer le progrès
         if ($course->getNoteMaximaleEval() && $course->getNoteMaximaleEval() > 0) {
             $course->progress = round(($course->getScoreEval() / $course->getNoteMaximaleEval()) * 100);
         } else {
             $course->progress = 0;
         }
-        
+
         // Date d'évaluation
         if ($course->getDateEvaluation()) {
             $course->schedule = $course->getDateEvaluation()->format('d/m/Y à H:i');
         } else {
             $course->schedule = 'No schedule';
         }
-        
+
         $course->color = 'indigo';
         $totalProgress += $course->progress;
     }
@@ -155,12 +147,12 @@ $course->nomMatiere = $matieresNames
         'avg_progress' => $avgProgress,
         'search_matiere' => $searchMatiere,
         'order' => $order,
-        
+
     'stat_success' => $successCount,
     'stat_fail' => $failCount,
     'total_matieres' => $totalMatieres,
-    
-    
+
+
 
 
     ]);
@@ -170,18 +162,18 @@ $course->nomMatiere = $matieresNames
 
 
 
-    
+
     #[Route('/get-matieres-by-section', name: 'app_courses_get_matieres_by_section', methods: ['GET'])]
     public function getMatieresBySection(
         Request $request,
         MatiereRepository $matiereRepository
     ): Response {
         $section = $request->query->get('section');
-        
+
         if (!$section) {
             return $this->json([]);
         }
-        
+
         // Récupérer les matières de cette section
         $matieres = $matiereRepository->createQueryBuilder('m')
             ->where('m.sectionMatiere = :section')
@@ -189,7 +181,7 @@ $course->nomMatiere = $matieresNames
             ->orderBy('m.nomMatiere', 'ASC')
             ->getQuery()
             ->getResult();
-        
+
         // Formater les données pour JSON
         $data = [];
         foreach ($matieres as $matiere) {
@@ -199,7 +191,7 @@ $course->nomMatiere = $matieresNames
                 'code' => $matiere->getCode(),
             ];
         }
-        
+
         return $this->json($data);
     }
 
@@ -211,17 +203,17 @@ $course->nomMatiere = $matieresNames
     ): Response {
         $evaluation = new EvaluationMatiere();
         $allMatieres = $matiereRepository->findAll();
-        
+
         $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
             $this->addFlash('info', '✅ Formulaire soumis');
-            
+
             // Vérifier si le formulaire est valide
             if (!$form->isValid()) {
                 $this->addFlash('error', '❌ Formulaire invalide');
-                
+
                 // Afficher TOUTES les erreurs
                 foreach ($form->getErrors(true) as $error) {
                     $this->addFlash('error', '🔴 ' . $error->getMessage());
@@ -229,37 +221,37 @@ $course->nomMatiere = $matieresNames
             } else {
                 $this->addFlash('info', '✅ Formulaire valide');
             }
-            
+
             $matiereId = $request->request->get('matiere_id');
             $this->addFlash('info', 'Matière ID: ' . ($matiereId ?: 'VIDE'));
-            
+
             if (!$matiereId) {
                 $this->addFlash('error', '❌ Pas de matière sélectionnée');
             } else {
                 $matiere = $matiereRepository->find((int)$matiereId);
                 $this->addFlash('info', 'Matière: ' . ($matiere ? $matiere->getNomMatiere() : 'NULL'));
-                
+
                 if ($matiere && $form->isValid()) {
                     try {
                         $this->addFlash('info', '🚀 Début enregistrement...');
-                        
+
                         $evaluation->setUser($this->getUser());
                         $this->addFlash('info', '✅ User défini');
-                        
+
                         $entityManager->persist($evaluation);
                         $entityManager->flush();
                         $this->addFlash('info', '✅ Evaluation enregistrée - ID: ' . $evaluation->getIdEval());
-                        
+
                         $evalMat = new EvalMat();
                         $evalMat->setEvaluation($evaluation);
                         $evalMat->setMatiere($matiere);
                         $entityManager->persist($evalMat);
                         $entityManager->flush();
                         $this->addFlash('info', '✅ EvalMat enregistré - ID: ' . $evalMat->getId());
-                        
+
                         $this->addFlash('success', '🎉 Évaluation ajoutée avec succès !');
                         return $this->redirectToRoute('app_courses');
-                        
+
                     } catch (\Exception $e) {
                         $this->addFlash('error', '💥 Erreur SQL: ' . $e->getMessage());
                     }
@@ -322,21 +314,21 @@ public function show(
         MatiereRepository $matiereRepository
     ): Response {
         $allMatieres = $matiereRepository->findAll();
-        
+
         $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $matiereId = $request->request->get('matiere_id');
-            
+
             if ($matiereId) {
                 $matiere = $matiereRepository->find((int)$matiereId);
-                
+
                 if ($matiere) {
                     foreach ($evaluation->getEvalMats() as $evalMat) {
                         $entityManager->remove($evalMat);
                     }
-                    
+
                     $evalMat = new EvalMat();
                     $evalMat->setEvaluation($evaluation);
                     $evalMat->setMatiere($matiere);
@@ -423,18 +415,18 @@ public function show(
     ): Response {
         $recommendations = [];
         $totalResults = 0;
-        
+
         // Récupérer les matières de l'évaluation
         foreach ($course->getEvalMats() as $evalMat) {
             $matiere = $evalMat->getMatiere();
             $matiereName = $matiere->getNomMatiere();
-            
+
             // Rechercher des cours pour chaque matière
             $courses = $searchService->searchCourses($matiereName, 5);
-            
+
             // Obtenir le nombre total de résultats
             $searchInfo = $searchService->getSearchInfo("cours {$matiereName}");
-            
+
             if (!empty($courses)) {
                 $recommendations[] = [
                     'matiere' => $matiereName,
@@ -442,11 +434,11 @@ public function show(
                     'courses' => $courses,
                     'totalResults' => $searchInfo['totalResults'] ?? 0,
                 ];
-                
+
                 $totalResults += count($courses);
             }
         }
-        
+
         return $this->render('pages/courses/recommendations.html.twig', [
             'evaluation' => $course,
             'recommendations' => $recommendations,
@@ -465,7 +457,7 @@ public function show(
         // Recherche sur des sites spécifiques
         $sites = ['coursera.org', 'edx.org', 'khanacademy.org'];
         $results = $searchService->searchOnSites($matiere, $sites);
-        
+
         return $this->render('pages/courses/search_results.html.twig', [
             'matiere' => $matiere,
             'results' => $results,
@@ -481,16 +473,16 @@ public function show(
         GoogleSearchService $searchService
     ): Response {
         $pdfResources = [];
-        
+
         foreach ($course->getEvalMats() as $evalMat) {
             $matiere = $evalMat->getMatiere()->getNomMatiere();
-            
+
             // Rechercher uniquement des PDFs
             $results = $searchService->searchWithFilters("cours {$matiere}", [
                 'fileType' => 'pdf',
                 'num' => 3
             ]);
-            
+
             if (!empty($results)) {
                 $pdfResources[] = [
                     'matiere' => $matiere,
@@ -498,7 +490,7 @@ public function show(
                 ];
             }
         }
-        
+
         return $this->render('pages/courses/pdf_resources.html.twig', [
             'evaluation' => $course,
             'pdfResources' => $pdfResources,
@@ -507,76 +499,3 @@ public function show(
 
 }
 
-
-=======
-    public function index(): Response
-    {
-        return $this->render('pages/courses/index.html.twig', [
-            'courses' => SampleData::getCourses(),
-        ]);
-    }
-
-    #[Route('/new', name: 'app_courses_new', methods: ['GET', 'POST'])]
-    public function new(Request $request): Response
-    {
-        if ($request->isMethod('POST')) {
-            // In a real app, save to database
-            $this->addFlash('success', 'Course created successfully!');
-            return $this->redirectToRoute('app_courses');
-        }
-
-        return $this->render('pages/courses/new.html.twig');
-    }
-
-    #[Route('/{id}', name: 'app_courses_show', requirements: ['id' => '\d+'])]
-    public function show(int $id): Response
-    {
-        $courses = SampleData::getCourses();
-        $course = null;
-        foreach ($courses as $c) {
-            if ($c['id'] === $id) {
-                $course = $c;
-                break;
-            }
-        }
-
-        if (!$course) {
-            throw $this->createNotFoundException('Course not found');
-        }
-
-        $assignments = array_filter(SampleData::getAssignments(), fn($a) => $a['course_code'] === $course['code']);
-
-        return $this->render('pages/courses/show.html.twig', [
-            'course' => $course,
-            'assignments' => $assignments,
-        ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_courses_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, int $id): Response
-    {
-        $courses = SampleData::getCourses();
-        $course = null;
-        foreach ($courses as $c) {
-            if ($c['id'] === $id) {
-                $course = $c;
-                break;
-            }
-        }
-
-        if (!$course) {
-            throw $this->createNotFoundException('Course not found');
-        }
-
-        if ($request->isMethod('POST')) {
-            // In a real app, update database
-            $this->addFlash('success', 'Course updated successfully!');
-            return $this->redirectToRoute('app_courses_show', ['id' => $id]);
-        }
-
-        return $this->render('pages/courses/edit.html.twig', [
-            'course' => $course,
-        ]);
-    }
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

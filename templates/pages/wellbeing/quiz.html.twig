@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿{% extends 'base.html.twig' %}
 
 {% block title %}Stress Assessment Quiz{% endblock %}
@@ -163,49 +162,3 @@ updateProgress();
 applySelectedOptionStyles();
 </script>
 {% endblock %}
-=======
-{% extends 'base.html.twig' %}
-
-{% block title %}Stress Assessment{% endblock %}
-
-{% block body %}
-<div class="container mx-auto px-4 py-12 max-w-4xl">
-    <h1 class="text-4xl font-bold text-center mb-10">Stress Assessment</h1>
-
-    {% if questions|length == 0 %}
-        <div class="alert alert-warning text-center">
-            No questions available at the moment.
-        </div>
-    {% else %}
-        <form method="POST" action="{{ path('app_wellbeing_quiz_submit') }}" class="space-y-10">
-            {% for question in questions %}
-                <div class="card bg-base-200 shadow-xl p-6 rounded-2xl">
-                    <h2 class="text-2xl font-semibold mb-6">
-                        {{ loop.index }}. {{ question.label }}
-                    </h2>
-
-                    <div class="flex flex-wrap justify-center gap-6 md:gap-10">
-                        {% for value in question.minValue..question.maxValue %}
-                            <label class="cursor-pointer flex flex-col items-center">
-                                <input type="radio"
-                                       name="answers[{{ question.id }}]"
-                                       value="{{ value }}"
-                                       class="radio radio-lg radio-primary"
-                                       required />
-                                <span class="mt-2 text-xl font-medium">{{ value }}</span>
-                            </label>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}
-
-            <div class="text-center mt-12">
-                <button type="submit" class="btn btn-primary btn-lg px-12">
-                    Submit my answers
-                </button>
-            </div>
-        </form>
-    {% endif %}
-</div>
-{% endblock %}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
