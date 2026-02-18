@@ -35,6 +35,47 @@
             "./migrations/.gitignore"
         ]
     },
+<<<<<<< HEAD
+    "google/apiclient": {
+        "version": "2.19",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "2.10",
+            "ref": "07a97ec434d43b7903c78069a04c92adb6442e52"
+        }
+    },
+    "knpuniversity/oauth2-client-bundle": {
+        "version": "2.20",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "1.20",
+            "ref": "1ff300d8c030f55c99219cc55050b97a695af3f6"
+        }
+    },
+    "pusher/pusher-php-server": {
+        "version": "7.2",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "8dd3ea817217453e14ab596317177465211e01d2"
+        }
+=======
+    "lexik/jwt-authentication-bundle": {
+        "version": "2.18",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "2.5",
+            "ref": "e9481b233a11ef7e15fe055a2b21fd3ac1aa2bb7"
+        },
+        "files": [
+            "./config/packages/lexik_jwt_authentication.yaml"
+        ]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+    },
     "symfony/console": {
         "version": "7.4",
         "recipe": {
@@ -92,6 +133,30 @@
             "./.editorconfig"
         ]
     },
+<<<<<<< HEAD
+    "symfony/google-mailer": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.4",
+            "ref": "f8fd4ddb9b477510f8f4bce2b9c054ab428c0120"
+        }
+    },
+    "symfony/mailer": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "09051cfde49476e3c12cd3a0e44289ace1c75a4f"
+        },
+        "files": [
+            "./config/packages/mailer.yaml"
+        ]
+    },
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     "symfony/maker-bundle": {
         "version": "1.65",
         "recipe": {

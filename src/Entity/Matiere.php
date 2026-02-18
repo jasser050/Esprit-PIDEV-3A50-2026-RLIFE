@@ -18,7 +18,11 @@ class Matiere
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'matieres')]
+<<<<<<< HEAD
+    #[ORM\JoinColumn(name: 'user_id', nullable: true, onDelete: 'CASCADE')]
+=======
     #[ORM\JoinColumn(name: 'user_id', nullable: false, onDelete: 'CASCADE')]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?User $user = null;
 
     #[ORM\Column(name: 'nom_matiere', type: 'string', length: 255)]
@@ -48,8 +52,14 @@ class Matiere
     #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+<<<<<<< HEAD
+    #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'matiere')]
+private Collection $evalMats;
+
+=======
     #[ORM\OneToMany(targetEntity: EvalMat::class, mappedBy: 'matiere', orphanRemoval: true)]
     private Collection $evalMats;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
     public function __construct()
     {

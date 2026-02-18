@@ -1,0 +1,121 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Edit Deck - {{ deck.titre }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <!-- Flash Messages -->
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-4">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Edit Deck</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Update deck information</p>
+        </div>
+        <a href="{{ path('app_admin_revision') }}" class="btn btn-ghost">
+            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+            Back to Decks
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-8">
+        {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
+        
+        {# Display all form errors #}
+        {{ form_errors(form) }}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Title -->
+            <div class="form-group md:col-span-2">
+                {{ form_label(form.titre, 'Deck Title', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.titre, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'Enter deck title...'}}) }}
+                {{ form_errors(form.titre) }}
+            </div>
+
+            <!-- Subject -->
+            <div class="form-group">
+                {{ form_label(form.matiere, 'Subject', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.matiere, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'e.g., Mathematics, Biology...'}}) }}
+                {{ form_errors(form.matiere) }}
+            </div>
+
+            <!-- Level -->
+            <div class="form-group">
+                {{ form_label(form.niveau, 'Level', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.niveau, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'e.g., Beginner, Intermediate, Advanced'}}) }}
+                {{ form_errors(form.niveau) }}
+            </div>
+
+            <!-- Description -->
+            <div class="form-group md:col-span-2">
+                {{ form_label(form.description, 'Description (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'rows': 4, 'placeholder': 'Describe this deck...'}}) }}
+                {{ form_errors(form.description) }}
+            </div>
+
+            <!-- Current Image -->
+            {% if deck.image %}
+            <div class="form-group md:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Image</label>
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}" class="w-32 h-32 object-cover rounded-lg border border-slate-300 dark:border-slate-600">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Upload a new image below to replace this one</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Image Upload -->
+            <div class="form-group">
+                {{ form_label(form.imageFile, 'Update Deck Image (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                <div class="flex items-center gap-4">
+                    {{ form_widget(form.imageFile, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white'}}) }}
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Max 5MB. JPG, PNG, WEBP, or GIF</p>
+                {{ form_errors(form.imageFile) }}
+            </div>
+
+            <!-- Current PDF -->
+            {% if deck.pdf %}
+            <div class="form-group">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current PDF</label>
+                <a href="{{ asset('uploads/decks/' ~ deck.pdf) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition">
+                    <i data-lucide="file-text" class="w-5 h-5 mr-2"></i>
+                    View Current PDF
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- PDF Upload -->
+            <div class="form-group">
+                {{ form_label(form.pdfFile, 'Update PDF Resource (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
+                <div class="flex items-center gap-4">
+                    {{ form_widget(form.pdfFile, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white'}}) }}
+                </div>
+                <p class="text-xs text-slate-500 mt-2">Max 10MB. PDF only</p>
+                {{ form_errors(form.pdfFile) }}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-end gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <a href="{{ path('app_admin_revision') }}" class="btn btn-ghost">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i data-lucide="save" class="w-5 h-5 mr-2"></i>
+                Update Deck
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}New Check-in - Wellbeing{% endblock %}
+=======
+{% block title %}{{ edit_mode is defined and edit_mode ? 'Edit Check-in' : 'New Check-in' }} - Wellbeing{% endblock %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 {% block body %}
 <div class="space-y-6">
@@ -8,20 +12,50 @@
         items: [
             { label: 'Wellbeing', url: path('app_wellbeing') },
             { label: 'Check-ins', url: path('app_wellbeing_checkins') },
+<<<<<<< HEAD
             { label: 'New Check-in' }
+=======
+            { label: (edit_mode is defined and edit_mode) ? 'Edit Check-in' : 'New Check-in' }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]
     } %}
 
     {% include 'components/page_header.html.twig' with {
+<<<<<<< HEAD
         title: 'Daily Check-in',
         subtitle: 'How are you feeling today?'
     } %}
 
     <form method="POST" action="{{ path('app_wellbeing_checkin_new') }}" class="space-y-6">
+        <input type="hidden" name="_token" value="{{ csrf_token('wellbeing_new') }}">
+        
         <div class="card p-6">
             <h2 class="text-lg font-semibold mb-6">Mood</h2>
             <p class="text-sm text-light-muted dark:text-dark-muted mb-4">Select the emoji that best represents how you're feeling</p>
             
+=======
+        title: (edit_mode is defined and edit_mode) ? 'Edit Check-in' : 'Daily Check-in',
+        subtitle: (edit_mode is defined and edit_mode) ? 'Update your wellbeing entry' : 'How are you feeling today?'
+    } %}
+
+    {% set selectedMood = (checkin is defined) ? checkin.moodWell : 'good' %}
+    {% set selectedStress = (checkin is defined) ? checkin.stressLevelWell : 5 %}
+    {% set selectedEnergy = (checkin is defined) ? checkin.energyLevelWell : 7 %}
+    {% set selectedSleep = (checkin is defined) ? checkin.sleepHoursWell : 7 %}
+    {% set selectedNotes = (checkin is defined) ? checkin.noteWell : '' %}
+
+    <form method="POST"
+          action="{{ (edit_mode is defined and edit_mode) ? path('app_wellbeing_checkin_edit', {id: checkin.id}) : path('app_wellbeing_checkin_new') }}"
+          class="space-y-6">
+
+        <input type="hidden" name="_token"
+               value="{{ csrf_token((edit_mode is defined and edit_mode) ? 'wellbeing_edit_' ~ checkin.id : 'wellbeing_new') }}">
+
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-6">Mood</h2>
+            <p class="text-sm text-light-muted dark:text-dark-muted mb-4">Select the emoji that best represents how you're feeling</p>
+
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             <div class="grid grid-cols-5 gap-4">
                 {% set moods = [
                     { value: 'great', emoji: '😊', label: 'Great' },
@@ -30,10 +64,18 @@
                     { value: 'stressed', emoji: '😟', label: 'Stressed' },
                     { value: 'tired', emoji: '😴', label: 'Tired' }
                 ] %}
+<<<<<<< HEAD
                 
                 {% for mood in moods %}
                 <label class="relative cursor-pointer">
                     <input type="radio" name="mood" value="{{ mood.value }}" class="peer sr-only" {{ loop.index == 2 ? 'checked' : '' }}>
+=======
+
+                {% for mood in moods %}
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="mood" value="{{ mood.value }}" class="peer sr-only"
+                           {{ selectedMood == mood.value ? 'checked' : '' }}>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     <div class="p-4 rounded-xl border-2 border-light-border dark:border-dark-border text-center transition-all
                                 peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/20
                                 hover:border-primary-300 dark:hover:border-primary-700">
@@ -50,14 +92,24 @@
             <div class="card p-6">
                 <h2 class="text-lg font-semibold mb-4">Stress Level</h2>
                 <p class="text-sm text-light-muted dark:text-dark-muted mb-4">Rate your current stress (1 = very relaxed, 10 = very stressed)</p>
+<<<<<<< HEAD
                 
                 <div class="space-y-4">
                     <input type="range" name="stress_level" min="1" max="10" value="5" 
+=======
+
+                <div class="space-y-4">
+                    <input type="range" name="stress_level" min="1" max="10" value="{{ selectedStress }}"
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                            class="w-full h-2 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer accent-primary-600"
                            oninput="document.getElementById('stress-value').textContent = this.value">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-success-600 dark:text-success-400">Relaxed</span>
+<<<<<<< HEAD
                         <span id="stress-value" class="text-2xl font-bold">5</span>
+=======
+                        <span id="stress-value" class="text-2xl font-bold">{{ selectedStress }}</span>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         <span class="text-sm text-danger-600 dark:text-danger-400">Stressed</span>
                     </div>
                     <div class="flex justify-between text-xs text-light-muted dark:text-dark-muted">
@@ -72,14 +124,24 @@
             <div class="card p-6">
                 <h2 class="text-lg font-semibold mb-4">Energy Level</h2>
                 <p class="text-sm text-light-muted dark:text-dark-muted mb-4">Rate your energy (1 = exhausted, 10 = full of energy)</p>
+<<<<<<< HEAD
                 
                 <div class="space-y-4">
                     <input type="range" name="energy_level" min="1" max="10" value="7" 
+=======
+
+                <div class="space-y-4">
+                    <input type="range" name="energy_level" min="1" max="10" value="{{ selectedEnergy }}"
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                            class="w-full h-2 bg-light-border dark:bg-dark-border rounded-lg appearance-none cursor-pointer accent-accent-600"
                            oninput="document.getElementById('energy-value').textContent = this.value">
                     <div class="flex justify-between items-center">
                         <span class="text-sm text-danger-600 dark:text-danger-400">Exhausted</span>
+<<<<<<< HEAD
                         <span id="energy-value" class="text-2xl font-bold">7</span>
+=======
+                        <span id="energy-value" class="text-2xl font-bold">{{ selectedEnergy }}</span>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         <span class="text-sm text-success-600 dark:text-success-400">Energized</span>
                     </div>
                     <div class="flex justify-between text-xs text-light-muted dark:text-dark-muted">
@@ -95,11 +157,21 @@
         <div class="card p-6">
             <h2 class="text-lg font-semibold mb-4">Sleep</h2>
             <p class="text-sm text-light-muted dark:text-dark-muted mb-4">How many hours did you sleep last night?</p>
+<<<<<<< HEAD
             
             <div class="grid grid-cols-8 gap-2">
                 {% for hours in [4, 5, 6, 7, 8, 9, 10, '10+'] %}
                 <label class="relative cursor-pointer">
                     <input type="radio" name="sleep_hours" value="{{ hours is same as('10+') ? 11 : hours }}" class="peer sr-only" {{ hours == 7 ? 'checked' : '' }}>
+=======
+
+            <div class="grid grid-cols-8 gap-2">
+                {% for hours in [4, 5, 6, 7, 8, 9, 10, '10+'] %}
+                {% set val = (hours is same as('10+')) ? 11 : hours %}
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="sleep_hours" value="{{ val }}" class="peer sr-only"
+                           {{ selectedSleep == val ? 'checked' : '' }}>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     <div class="p-3 rounded-xl border-2 border-light-border dark:border-dark-border text-center transition-all
                                 peer-checked:border-secondary-500 peer-checked:bg-secondary-50 dark:peer-checked:bg-secondary-900/20
                                 hover:border-secondary-300 dark:hover:border-secondary-700">
@@ -114,8 +186,17 @@
         <!-- Notes -->
         <div class="card p-6">
             <h2 class="text-lg font-semibold mb-4">Notes (Optional)</h2>
+<<<<<<< HEAD
             {% include 'components/textarea.html.twig' with {
                 name: 'notes',
+                value: '',
+=======
+
+            {# Si ton component textarea n'accepte pas "value", remplace par textarea HTML classique #}
+            {% include 'components/textarea.html.twig' with {
+                name: 'notes',
+                value: selectedNotes,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 placeholder: 'How are you feeling? What\'s on your mind? Any particular reason for your current mood?',
                 rows: 4
             } %}
@@ -125,7 +206,11 @@
         <div class="flex items-center gap-4">
             {% include 'components/button.html.twig' with {
                 type: 'submit',
+<<<<<<< HEAD
                 label: 'Save Check-in',
+=======
+                label: (edit_mode is defined and edit_mode) ? 'Update Check-in' : 'Save Check-in',
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 variant: 'primary',
                 icon: 'check'
             } %}

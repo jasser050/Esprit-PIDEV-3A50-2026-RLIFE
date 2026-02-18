@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+{# templates/admin/base_admin.html.twig #}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -5,15 +9,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Panel{% endblock %} | RLIFE</title>
 
+<<<<<<< HEAD
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 
     <!-- Fonts - Inter -->
+=======
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<<<<<<< HEAD
     <!-- Lucide Icons -->
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     <script src="https://unpkg.com/lucide@latest"></script>
 
     {% block stylesheets %}
@@ -21,19 +33,28 @@
     {% endblock %}
 
     <script>
+<<<<<<< HEAD
         // Theme initialization and toggle function
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         (function() {
             var theme = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+<<<<<<< HEAD
             // Set initial theme
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             if (theme === 'dark' || (!theme && prefersDark)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
 
+<<<<<<< HEAD
             // Global toggle function
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             window.toggleTheme = function() {
                 var html = document.documentElement;
                 if (html.classList.contains('dark')) {
@@ -47,6 +68,7 @@
         })();
     </script>
 </head>
+<<<<<<< HEAD
 <body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     <div class="min-h-screen" data-controller="sidebar">
         <!-- Sidebar -->
@@ -56,12 +78,9 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
-                        <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
-                    </div>
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
                     <div data-sidebar-target="brandText">
                         <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
-                        <span class="ml-1 px-1.5 py-0.5 text-2xs font-bold bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded">ADMIN</span>
                     </div>
                 </a>
                 <button type="button"
@@ -98,6 +117,63 @@
                         <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Analytics</span>
                     </a>
+
+                    <a href="{{ path('app_admin_audit_log') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_audit' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="shield-alert" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Audit Log</span>
+                    </a>
+                </div>
+
+                <!-- Content Management Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Content</p>
+
+                    <a href="{{ path('app_admin_revision') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_revision' or app.request.attributes.get('_route') starts with 'app_admin_deck' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="layers" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Deck Management</span>
+                    </a>
+
+                    <a href="{{ path('app_admin_courses') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_course' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Courses</span>
+                    </a>
+                </div>
+
+                <!-- Wellbeing Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Wellbeing</p>
+
+                    <a href="{{ path('app_admin_question_stress_index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_question_stress' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="heart-pulse" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Stress Questions</span>
+                    </a>
+
+                    <a href="{{ path('app_admin_recommendation_stress_index') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_admin_recommendation_stress' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="lightbulb" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Recommendations</span>
+                    </a>
+                </div>
+
+                <!-- Communication Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Communication</p>
+
+                    <a href="{{ path('app_admin_email_compose') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') == 'app_admin_email_compose' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="mail-plus" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Send Email</span>
+                    </a>
                 </div>
 
                 <!-- System Section -->
@@ -119,7 +195,7 @@
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
                             {% if app.user and app.user.profilePic %}
-                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
                                 {{ app.user ? app.user.firstName|first ~ app.user.lastName|first : 'A' }}
                             {% endif %}
@@ -244,15 +320,292 @@
         </div>
     </div>
 
+    <!-- Global Delete Confirmation Modal -->
+    <div id="admin-confirm-modal" class="fixed inset-0 z-[100] hidden">
+        <div id="admin-confirm-overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-md"></div>
+        <div class="relative z-[101] flex min-h-screen items-center justify-center p-4">
+            <div class="w-full max-w-lg rounded-2xl border border-danger-500/40 bg-slate-900/95 p-7 shadow-2xl shadow-danger-900/40 ring-1 ring-danger-400/20">
+                <div class="mb-5 rounded-xl border border-danger-500/30 bg-danger-500/10 px-4 py-2">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-danger-300">Danger Zone</p>
+                </div>
+                <div class="flex items-start gap-3">
+                    <div class="mt-0.5 flex h-12 w-12 items-center justify-center rounded-xl bg-danger-500/20 text-danger-300 ring-1 ring-danger-400/40">
+                        <i data-lucide="alert-triangle" class="h-6 w-6"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white">Confirm Deletion</h3>
+                        <p id="admin-confirm-message" class="mt-2 text-base text-slate-200">Are you sure you want to continue?</p>
+                        <p class="mt-2 text-sm font-medium text-danger-300">This action cannot be undone.</p>
+                    </div>
+                </div>
+                <div class="mt-7 flex justify-end gap-3">
+                    <button type="button" id="admin-confirm-cancel" class="btn btn-secondary px-5">Cancel</button>
+                    <button type="button" id="admin-confirm-ok" class="btn btn-danger px-6">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
 
     <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
+        // Centralized icon init (works with Turbo + dynamic DOM updates)
+        function adminInitIcons() {
+            if (typeof window.initIcons === 'function') {
+                window.initIcons();
+                return;
+            }
+            if (typeof window.lucide !== 'undefined') {
+                window.lucide.createIcons();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', adminInitIcons);
+        document.addEventListener('turbo:load', adminInitIcons);
+        document.addEventListener('turbo:render', adminInitIcons);
+        document.addEventListener('turbo:frame-load', adminInitIcons);
+
+        (function() {
+            let pendingForm = null;
+
+            function getModalElements() {
+                const modal = document.getElementById('admin-confirm-modal');
+                if (!modal) return null;
+
+                return {
+                    modal,
+                    message: document.getElementById('admin-confirm-message'),
+                    cancelBtn: document.getElementById('admin-confirm-cancel'),
+                    okBtn: document.getElementById('admin-confirm-ok'),
+                    overlay: document.getElementById('admin-confirm-overlay')
+                };
+            }
+
+            function openConfirmModal(form) {
+                const els = getModalElements();
+                if (!els) return;
+
+                pendingForm = form;
+                const text = form.getAttribute('data-confirm') || 'Are you sure you want to continue?';
+                if (els.message) {
+                    els.message.textContent = text;
+                }
+
+                els.modal.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                adminInitIcons();
+            }
+
+            function closeConfirmModal() {
+                const els = getModalElements();
+                if (!els) return;
+
+                els.modal.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+                pendingForm = null;
+            }
+
+            document.addEventListener('submit', function(event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement)) return;
+                if (!form.hasAttribute('data-confirm')) return;
+
+                event.preventDefault();
+                openConfirmModal(form);
+            });
+
+            document.addEventListener('click', function(event) {
+                const els = getModalElements();
+                if (!els) return;
+
+                if (event.target === els.overlay || (event.target instanceof HTMLElement && event.target.closest('#admin-confirm-cancel'))) {
+                    closeConfirmModal();
+                    return;
+                }
+
+                if (event.target === els.okBtn || (event.target instanceof HTMLElement && event.target.closest('#admin-confirm-ok'))) {
+                    if (!pendingForm) {
+                        closeConfirmModal();
+                        return;
+                    }
+
+                    const formToSubmit = pendingForm;
+                    closeConfirmModal();
+                    // Use native submit to force full-page reload after delete.
+                    formToSubmit.submit();
+                }
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeConfirmModal();
+                }
+            });
+        })();
+    </script>
+=======
+
+<body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+<div class="min-h-screen" data-controller="sidebar">
+
+    <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"
+           data-sidebar-target="sidebar" id="sidebar">
+
+        <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
+            <a href="{{ path('app_admin_dashboard') }}" class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
+                    <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                </div>
+                <div data-sidebar-target="brandText">
+                    <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
+                    <span class="ml-1 px-1.5 py-0.5 text-2xs font-bold bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded">ADMIN</span>
+                </div>
+            </a>
+
+            <button type="button"
+                    class="lg:hidden p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    data-action="click->sidebar#toggle"
+                    aria-label="Close sidebar">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <div class="mb-6">
+                <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Administration</p>
+
+                <a href="{{ path('app_admin_dashboard') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') == 'app_admin_dashboard' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="{{ path('app_admin_wellbeing_home') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_admin_wellbeing' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="heart" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>Wellbeing</span>
+                </a>
+
+                <a href="{{ path('app_admin_users') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') == 'app_admin_users' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>User Management</span>
+                </a>
+
+                <a href="{{ path('app_admin_statistics') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') == 'app_admin_statistics' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div>
+                <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">System</p>
+
+                <a href="{{ path('app_settings') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white">
+                    <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+            <div class="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                        {% if app.user and app.user.profilePic %}
+                            <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ app.user ? app.user.firstName|first ~ app.user.lastName|first : 'A' }}
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ app.user ? app.user.fullName : 'Administrator' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Admin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden hidden"
+         data-sidebar-target="backdrop"
+         data-action="click->sidebar#close"></div>
+
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+        <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
+            <div class="flex items-center justify-between gap-4 h-full">
+                <div class="flex items-center gap-4">
+                    <button type="button"
+                            class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            data-action="click->sidebar#toggle"
+                            aria-label="Open menu">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+
+                    <div class="hidden sm:block">
+                        <h1 class="text-lg font-semibold text-slate-900 dark:text-white">{% block page_title %}Admin Panel{% endblock %}</h1>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            onclick="toggleTheme()"
+                            aria-label="Toggle theme">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+
+                    <a href="{{ path('app_logout') }}"
+                       class="p-2 rounded-xl text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-900/20 transition-colors"
+                       aria-label="Logout">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-4 lg:p-6">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="mb-4 p-4 rounded-xl border
+                        {% if label == 'success' %}bg-success-50 dark:bg-success-900/20 border-success-200 dark:border-success-800 text-success-800 dark:text-success-200{% endif %}
+                        {% if label == 'error' or label == 'danger' %}bg-danger-50 dark:bg-danger-900/20 border-danger-200 dark:border-danger-800 text-danger-800 dark:text-danger-200{% endif %}
+                        {% if label == 'warning' %}bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800 text-warning-800 dark:text-warning-200{% endif %}
+                        {% if label == 'info' %}bg-info-50 dark:bg-info-900/20 border-info-200 dark:border-info-800 text-info-800 dark:text-info-200{% endif %}">
+                        <p class="font-medium">{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+{% block javascripts %}
+    {{ encore_entry_script_tags('app') }}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+        });
+        document.addEventListener('turbo:load', () => {
+            if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
         });
     </script>
+{% endblock %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </body>
 </html>

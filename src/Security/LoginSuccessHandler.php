@@ -19,6 +19,7 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
     {
         $user = $token->getUser();
 
+<<<<<<< HEAD
         // Check if user is banned
         if (method_exists($user, 'isBanned') && $user->isBanned()) {
             // Redirect to logout if banned
@@ -33,6 +34,22 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
         }
 
         // Default redirect to user dashboard
+=======
+      
+        if (method_exists($user, 'isBanned') && $user->isBanned()) {
+           
+            return new RedirectResponse($this->router->generate('app_logout'));
+        }
+
+        
+        $roles = $token->getRoleNames();
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+           
+            return new RedirectResponse($this->router->generate('app_admin_dashboard'));
+        }
+
+       
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         return new RedirectResponse($this->router->generate('app_dashboard'));
     }
 }

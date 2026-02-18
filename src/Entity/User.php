@@ -10,6 +10,10 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+<<<<<<< HEAD
+use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -26,8 +30,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+<<<<<<< HEAD
+    #[Assert\NotBlank(message: 'Email is required')]
+    #[Assert\Email(message: 'Please enter a valid email address')]
+    #[Assert\Length(
+        max: 180,
+        maxMessage: 'Email cannot be longer than {{ limit }} characters'
+    )]
     private ?string $email = null;
 
+    #[ORM\Column(length: 255, nullable: true, unique: true)]
+    private ?string $googleId = null;
+
+=======
+    private ?string $email = null;
+
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     /**
      * @var list<string> The user roles
      */
@@ -41,12 +59,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
+<<<<<<< HEAD
+    #[Assert\NotBlank(message: 'First name is required')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'First name must be at least {{ limit }} characters',
+        maxMessage: 'First name cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s\-\']+$/',
+        message: 'First name can only contain letters, spaces, hyphens and apostrophes'
+    )]
+    private ?string $firstName = null;
+
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: 'Last name is required')]
+    #[Assert\Length(
+        min: 2,
+        max: 100,
+        minMessage: 'Last name must be at least {{ limit }} characters',
+        maxMessage: 'Last name cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z\s\-\']+$/',
+        message: 'Last name can only contain letters, spaces, hyphens and apostrophes'
+    )]
+    private ?string $lastName = null;
+
+    #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: 'Username is required')]
+    #[Assert\Length(
+        min: 3,
+        max: 50,
+        minMessage: 'Username must be at least {{ limit }} characters',
+        maxMessage: 'Username cannot be longer than {{ limit }} characters'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[a-zA-Z0-9_]+$/',
+        message: 'Username can only contain letters, numbers and underscores'
+    )]
+=======
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 50)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $username = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -56,6 +116,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phoneNumber = null;
 
     #[ORM\Column(length: 10)]
+<<<<<<< HEAD
+    #[Assert\NotBlank(message: 'Gender is required')]
+    #[Assert\Choice(
+        choices: ['male', 'female', 'other'],
+        message: 'Please select a valid gender'
+    )]
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $gender = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -102,11 +170,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: EvaluationMatiere::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $evaluations;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $projects;
+
+    /**
+     * @var Collection<int, Assignment>
+     */
+    #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $assignments;
+
+    /**
+     * @var Collection<int, Deck>
+     */
+    #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $decks;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
         $this->matieres = new ArrayCollection();
         $this->evaluations = new ArrayCollection();
+        $this->projects = new ArrayCollection();
+        $this->assignments = new ArrayCollection();
+        $this->decks = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
@@ -459,6 +548,107 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->evaluations->removeElement($evaluation)) {
             if ($evaluation->getUser() === $this) {
                 $evaluation->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+<<<<<<< HEAD
+    public function getGoogleId(): ?string
+    {
+        return $this->googleId;
+    }
+
+    public function setGoogleId(?string $googleId): self
+    {
+        $this->googleId = $googleId;
+        return $this;
+    }
+
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): self
+    {
+        if ($this->projects->removeElement($project)) {
+            if ($project->getUser() === $this) {
+                $project->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Assignment>
+     */
+    public function getAssignments(): Collection
+    {
+        return $this->assignments;
+    }
+
+    public function addAssignment(Assignment $assignment): self
+    {
+        if (!$this->assignments->contains($assignment)) {
+            $this->assignments->add($assignment);
+            $assignment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignment(Assignment $assignment): self
+    {
+        if ($this->assignments->removeElement($assignment)) {
+            if ($assignment->getUser() === $this) {
+                $assignment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Deck>
+     */
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function addDeck(Deck $deck): self
+    {
+        if (!$this->decks->contains($deck)) {
+            $this->decks->add($deck);
+            $deck->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeck(Deck $deck): self
+    {
+        if ($this->decks->removeElement($deck)) {
+            if ($deck->getUser() === $this) {
+                $deck->setUser(null);
             }
         }
 

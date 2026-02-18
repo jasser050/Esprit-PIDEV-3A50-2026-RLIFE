@@ -15,6 +15,9 @@ class PlanningRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Planning::class);
     }
+<<<<<<< HEAD
+}
+=======
 
     /**
      * Find all plannings for a specific user
@@ -67,3 +70,4 @@ class PlanningRepository extends ServiceEntityRepository
             ->getResult();
     }
 }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

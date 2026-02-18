@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}PDF Resources - Evaluation #{{ evaluation.idEval }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    {# Breadcrumb #}
+    <div class="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
+        <a href="{{ path('app_courses') }}" class="hover:text-primary-600 dark:hover:text-primary-400">Courses</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <a href="{{ path('app_courses_show', {id: evaluation.idEval}) }}" class="hover:text-primary-600 dark:hover:text-primary-400">
+            Evaluation #{{ evaluation.idEval }}
+        </a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span class="text-secondary-900 dark:text-white">PDF Resources</span>
+    </div>
+
+    {# Header #}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">PDF Course Resources</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">
+                Downloadable study materials for your evaluation subjects
+            </p>
+        </div>
+        
+        <a href="{{ path('app_courses_show', {id: evaluation.idEval}) }}" class="btn btn-secondary">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Back to Evaluation
+        </a>
+    </div>
+
+    {# PDF Resources by Subject #}
+    {% if pdfResources|length > 0 %}
+        <div class="space-y-6">
+            {% for resource in pdfResources %}
+                <div class="card p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-5 h-5 text-danger-600 dark:text-danger-400"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-secondary-900 dark:text-white">{{ resource.matiere }}</h2>
+                            <p class="text-sm text-secondary-500 dark:text-secondary-400">{{ resource.pdfs|length }} PDF resources found</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3">
+                        {% for pdf in resource.pdfs %}
+                            <a href="{{ pdf.link }}" target="_blank" class="p-4 rounded-xl border border-secondary-200 dark:border-secondary-800 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-md transition-all group">
+                                <div class="flex items-start gap-3">
+                                    {# PDF Icon #}
+                                    <div class="w-12 h-12 rounded-lg bg-danger-50 dark:bg-danger-900/20 flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="file-pdf" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
+                                    </div>
+
+                                    {# Content #}
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-medium text-secondary-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-1">
+                                            {{ pdf.title }}
+                                        </h3>
+                                        {% if pdf.snippet is defined %}
+                                            <p class="text-sm text-secondary-600 dark:text-secondary-400 mt-1 line-clamp-2">
+                                                {{ pdf.snippet }}
+                                            </p>
+                                        {% endif %}
+                                        <div class="flex items-center gap-4 mt-2">
+                                            <span class="text-xs text-secondary-500 dark:text-secondary-500">
+                                                {{ pdf.displayLink }}
+                                            </span>
+                                            {% if pdf.pagemap.metatags is defined and pdf.pagemap.metatags[0]['pdf:docinfo:creator'] is defined %}
+                                                <span class="text-xs text-secondary-500 dark:text-secondary-500">
+                                                    By {{ pdf.pagemap.metatags[0]['pdf:docinfo:creator'] }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {# Download Icon #}
+                                    <div class="flex-shrink-0">
+                                        <i data-lucide="download" class="w-5 h-5 text-secondary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card p-12 text-center">
+            <div class="empty-state">
+                <i data-lucide="file-x" class="w-16 h-16 text-secondary-300 dark:text-secondary-600"></i>
+                <p class="text-lg font-medium text-secondary-900 dark:text-white mt-4">No PDF resources found</p>
+                <p class="text-secondary-500 dark:text-secondary-400 mt-2">
+                    We couldn't find any PDF study materials for your evaluation subjects
+                </p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

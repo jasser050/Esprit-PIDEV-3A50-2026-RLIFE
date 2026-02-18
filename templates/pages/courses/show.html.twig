@@ -1,6 +1,12 @@
+<<<<<<< HEAD
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Evaluation #{{ course.idEval }}{% endblock %}
+=======
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ course.name }}{% endblock %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 {% block body %}
 <div class="space-y-6">
@@ -8,6 +14,186 @@
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
             { label: 'Courses', href: path('app_courses') },
+<<<<<<< HEAD
+            { label: 'Evaluation #' ~ course.idEval }
+        ]
+    } %}
+
+    {# En-tÃªte avec titre et actions #}
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+                Evaluation #{{ course.idEval }}
+            </h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {{ course.nomEval|default('Sans nom') }}
+            </p>
+        </div>
+        
+        {# Boutons d'action #}
+        <div class="flex gap-3">
+            <a href="{{ path('app_courses_edit', { id: course.idEval }) }}"
+               class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                Modifier
+            </a>
+            
+            <a href="{{ path('app_courses_pdf', { id: course.idEval }) }}"
+               target="_blank"
+               class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Exporter PDF
+            </a>
+        </div>
+    </div>
+
+    {# Carte principale - Informations de l'Ã©valuation #}
+    <div class="card p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold">ðŸ“Š Informations de l'Ã©valuation</h2>
+            
+            {# Badge de rÃ©ussite/Ã©chec #}
+            {% if percentage >= 60 %}
+                <span class="px-4 py-2 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full text-sm font-semibold">
+                    âœ“ RÃ©ussi
+                </span>
+            {% else %}
+                <span class="px-4 py-2 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 rounded-full text-sm font-semibold">
+                    âœ— Ã‰chec
+                </span>
+            {% endif %}
+        </div>
+
+        {# Grille d'informations #}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“ Score obtenu</p>
+                <p class="text-2xl font-bold">{{ course.scoreEval }} / {{ course.noteMaximaleEval }}</p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“ˆ Pourcentage</p>
+                <div class="flex items-center">
+                    <p class="text-2xl font-bold mr-3">{{ percentage|number_format(2) }}%</p>
+                    {# Barre de progression #}
+                    <div class="flex-1">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-indigo-600 h-2 rounded-full" style="width: {{ percentage }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“… Date</p>
+                <p class="text-xl font-bold">
+                    {% if course.dateEvaluation %}
+                        {{ course.dateEvaluation|date('d/m/Y Ã  H:i') }}
+                    {% else %}
+                        Non dÃ©finie
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">â±ï¸ DurÃ©e</p>
+                <p class="text-xl font-bold">{{ course.dureeEvaluation }} minutes</p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">âš¡ PrioritÃ©</p>
+                <p class="text-xl font-bold">
+                    {% if course.prioriteE %}
+                        <span class="px-3 py-1 rounded-full text-sm
+                            {% if course.prioriteE == 'Haute' %}
+                                bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                            {% elseif course.prioriteE == 'Moyenne' %}
+                                bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                            {% else %}
+                                bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                            {% endif %}
+                        ">
+                            {{ course.prioriteE }}
+                        </span>
+                    {% else %}
+                        <span class="text-gray-400">Non dÃ©finie</span>
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm text-light-muted dark:text-dark-muted mb-1">ðŸ“š MatiÃ¨res</p>
+                <p class="text-2xl font-bold">{{ course.evalMats|length }}</p>
+            </div>
+        </div>
+    </div>
+
+    {# MatiÃ¨res associÃ©es #}
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">ðŸ“š MatiÃ¨res / Sections associÃ©es</h2>
+        
+        {% if course.evalMats is not empty %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for evalMat in course.evalMats %}
+                    <div class="p-4 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-100 dark:border-indigo-800">
+                        <div class="flex items-start justify-between mb-2">
+                            <span class="px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
+                                {{ evalMat.matiere.code|default('N/A') }}
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                Coef: {{ evalMat.matiere.coefficientMatiere|default('N/A') }}
+                            </span>
+                        </div>
+                        <p class="font-semibold text-gray-900 dark:text-white mb-1">
+                            {{ evalMat.matiere.nomMatiere }}
+                        </p>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            Section: {{ evalMat.matiere.sectionMatiere|default('Non classÃ©e') }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <p class="text-light-muted dark:text-dark-muted">Aucune matiÃ¨re associÃ©e Ã  cette Ã©valuation</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Actions supplÃ©mentaires #}
+    <div class="flex flex-wrap gap-3">
+        <a href="{{ path('app_courses') }}" 
+           class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-200">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Retour Ã  la liste
+        </a>
+        
+        <form method="post" action="{{ path('app_courses_delete', { id: course.idEval }) }}" 
+              data-confirm="ÃŠtes-vous sÃ»r de vouloir supprimer cette Ã©valuation ?"
+              class="inline">
+            <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Supprimer
+            </button>
+        </form>
+    </div>
+=======
             { label: course.name }
         ]
     } %}
@@ -120,5 +306,6 @@
             </div>
         </div>
     </div>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </div>
 {% endblock %}

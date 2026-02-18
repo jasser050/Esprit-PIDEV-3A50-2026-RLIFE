@@ -18,6 +18,12 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+<<<<<<< HEAD
+            custom_authenticators:
+                - App\Security\GoogleAuthenticator
+            entry_point: form_login
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             form_login:
                 login_path: app_login
                 check_path: app_login
@@ -45,7 +51,15 @@ security:
         - { path: ^/revisions, roles: ROLE_USER }
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
+<<<<<<< HEAD
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/question-stress/reorder$, roles: PUBLIC_ACCESS, methods: [POST] }
 
+        # Tes autres règles (garde-les en dessous)
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+=======
+
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 when@test:
     security:
         password_hashers:

@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search Results - {{ matiere }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    {# Breadcrumb #}
+    <div class="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
+        <a href="{{ path('app_courses') }}" class="hover:text-primary-600 dark:hover:text-primary-400">Courses</a>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        <span class="text-secondary-900 dark:text-white">Search: {{ matiere }}</span>
+    </div>
+
+    {# Header #}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Course Search Results</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">
+                Found {{ results|length }} courses for "{{ matiere }}"
+            </p>
+        </div>
+    </div>
+
+    {# Results #}
+    {% if results|length > 0 %}
+        <div class="grid grid-cols-1 gap-4">
+            {% for result in results %}
+                <a href="{{ result.link }}" target="_blank" class="card p-5 hover:shadow-lg transition-all group">
+                    <div class="flex items-start gap-4">
+                        {# Favicon or Icon #}
+                        <div class="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                            {% if result.pagemap.cse_image is defined %}
+                                <img src="{{ result.pagemap.cse_image[0].src }}" alt="" class="w-8 h-8 rounded">
+                            {% else %}
+                                <i data-lucide="book-open" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                            {% endif %}
+                        </div>
+
+                        {# Content #}
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-semibold text-secondary-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                {{ result.title }}
+                            </h3>
+                            {% if result.snippet is defined %}
+                                <p class="text-sm text-secondary-600 dark:text-secondary-400 mt-1 line-clamp-2">
+                                    {{ result.snippet }}
+                                </p>
+                            {% endif %}
+                            <p class="text-xs text-secondary-500 dark:text-secondary-500 mt-2">
+                                {{ result.displayLink }}
+                            </p>
+                        </div>
+
+                        {# External Link Icon #}
+                        <div class="flex-shrink-0">
+                            <i data-lucide="external-link" class="w-5 h-5 text-secondary-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors"></i>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card p-12 text-center">
+            <div class="empty-state">
+                <i data-lucide="search-x" class="w-16 h-16 text-secondary-300 dark:text-secondary-600"></i>
+                <p class="text-lg font-medium text-secondary-900 dark:text-white mt-4">No results found</p>
+                <p class="text-secondary-500 dark:text-secondary-400 mt-2">
+                    Try searching for a different subject
+                </p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

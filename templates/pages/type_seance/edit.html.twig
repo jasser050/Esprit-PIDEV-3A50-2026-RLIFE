@@ -1,0 +1,65 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Edit Type{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Planning', href: path('app_planning') },
+            { label: 'Session Types', href: path('app_type_seance_index') },
+            { label: 'Edit' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'Edit Type',
+        subtitle: 'Update or delete this type'
+    } %}
+
+    <div class="card p-6 space-y-6">
+        <form method="post" class="space-y-6">
+            {% include 'components/input.html.twig' with {
+                name: 'name',
+                label: 'Type',
+                type: 'text',
+                required: true,
+                value: type.name
+            } %}
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                <a href="{{ path('app_type_seance_index') }}" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+
+        <div class="pt-6 border-t border-secondary-200 dark:border-secondary-800">
+            <div class="rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/20 p-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="trash-2" class="w-5 h-5 text-red-600 dark:text-red-300"></i>
+                    </div>
+
+                    <div class="flex-1">
+                        <p class="font-semibold text-secondary-900 dark:text-white">Danger Zone</p>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-300 mt-1">
+                            Deleting this type is permanent.
+                        </p>
+
+                        <form method="post"
+                              action="{{ path('app_type_seance_delete', {id: type.id}) }}"
+                              data-confirm="Do you really want to delete this type?"
+                              class="mt-4 flex items-center justify-end">
+                            <button class="btn btn-secondary" type="submit">
+                                <i data-lucide="trash" class="w-4 h-4 mr-2"></i>
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

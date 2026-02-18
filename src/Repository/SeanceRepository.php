@@ -15,6 +15,9 @@ class SeanceRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Seance::class);
     }
+<<<<<<< HEAD
+}
+=======
 
     /**
      * Find all seances for a specific user
@@ -44,3 +47,4 @@ class SeanceRepository extends ServiceEntityRepository
             ->getResult();
     }
 }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print Sessions</title>
+    <style>
+        :root {
+            --text: #0f172a;
+            --muted: #475569;
+            --border: #e2e8f0;
+            --bg: #f8fafc;
+        }
+
+        body { font-family: Arial, sans-serif; font-size: 12px; color: var(--text); margin: 24px; }
+        .no-print { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-bottom: 12px; }
+        .btn { border: 1px solid var(--border); background: white; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+        .btn.primary { background: #0f172a; color: white; border-color: #0f172a; text-decoration: none; display: inline-block; }
+
+        .header {
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .left { display: flex; gap: 12px; align-items: center; }
+        .logo {
+            width: 44px; height: 44px; object-fit: contain;
+            border-radius: 10px; border: 1px solid var(--border); background: white;
+        }
+        h1 { font-size: 16px; margin: 0; }
+        .subtitle { margin: 2px 0 0; color: var(--muted); font-size: 11px; }
+        .meta { text-align: right; color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+        .card { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: #0f172a;
+            color: white;
+            text-align: left;
+            padding: 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        tbody td { border-top: 1px solid var(--border); padding: 9px 10px; vertical-align: top; }
+        tbody tr:nth-child(even) td { background: var(--bg); }
+
+        .muted { color: var(--muted); }
+        .col-id { width: 52px; }
+        .col-type { width: 130px; }
+
+        @media print {
+            .no-print { display: none; }
+            body { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <button class="btn" onclick="window.print()">Print</button>
+    <a class="btn primary" href="{{ path('app_seance_index') }}">Back</a>
+</div>
+
+<div class="header">
+    <div class="left">
+        <img class="logo" src="{{ asset('image/logo.jpg') }}" alt="Logo">
+        <div>
+            <h1>Session List</h1>
+            <p class="subtitle">
+                Printout — Generated on {{ generatedAt|date('Y-m-d H:i') }}
+            </p>
+        </div>
+    </div>
+    <div class="meta">
+        Total: <strong>{{ seances|length }}</strong> session(s)
+    </div>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+        <tr>
+            <th class="col-id">#</th>
+            <th>Title</th>
+            <th class="col-type">Type</th>
+            <th>Description</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in seances %}
+            <tr>
+                <td class="muted">{{ s.id }}</td>
+                <td><strong>{{ attribute(s, 'titre') ?? '' }}</strong></td>
+                <td>{{ attribute(s, 'typeSeance') ?? '' }}</td>
+                <td>{{ attribute(s, 'description') ?? '' }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4" class="muted">No sessions found.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

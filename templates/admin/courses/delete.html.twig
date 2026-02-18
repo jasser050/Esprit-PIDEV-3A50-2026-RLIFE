@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Delete {{ matiere.nomMatiere }}{% endblock %}
+
+{% block body %}
+<div class="max-w-2xl mx-auto space-y-6 animate-fade-in">
+    <!-- Header -->
+    <div class="flex items-center gap-3">
+        <a href="{{ path('app_courses_show', {id: matiere.id}) }}" 
+           class="text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </a>
+        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Delete Course</h1>
+    </div>
+
+    <!-- Warning Card -->
+    <div class="card border-2 border-danger-200 dark:border-danger-900/50 bg-danger-50 dark:bg-danger-900/10">
+        <div class="p-6">
+            <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-full bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-lg font-semibold text-danger-900 dark:text-danger-100 mb-2">
+                        Warning: Irreversible Action
+                    </h2>
+                    <p class="text-danger-700 dark:text-danger-300 mb-4">
+                        You are about to delete the following course:
+                    </p>
+                    
+                    <!-- Course Info -->
+                    <div class="bg-white dark:bg-secondary-800 rounded-lg p-4 mb-4">
+                        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-2">
+                            {{ matiere.nomMatiere }}
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <span class="text-secondary-500 dark:text-secondary-400">Section:</span>
+                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.sectionMatiere }}</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary-500 dark:text-secondary-400">Code:</span>
+                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.code }}</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary-500 dark:text-secondary-400">Coefficient:</span>
+                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.coefficientMatiere }}</span>
+                            </div>
+                            <div>
+                                <span class="text-secondary-500 dark:text-secondary-400">Hours/week:</span>
+                                <span class="font-medium text-secondary-900 dark:text-white ml-2">{{ matiere.heureMatiere }}h</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-danger-700 dark:text-danger-300">
+                        This action will permanently delete this course and all associated data 
+                        (grades, assignments, etc.). This cannot be undone.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-3">
+        <a href="{{ path('app_courses_show', {id: matiere.id}) }}" class="btn btn-secondary">
+            <i data-lucide="x" class="w-5 h-5"></i>
+            Cancel
+        </a>
+        <form method="post" action="{{ path('app_courses_delete', {id: matiere.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.id) }}">
+
+            <button type="submit" class="btn bg-danger-600 hover:bg-danger-700 text-white">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                Confirm Delete
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

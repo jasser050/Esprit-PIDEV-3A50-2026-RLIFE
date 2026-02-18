@@ -1,0 +1,180 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}{{ matiere.nomMatiere }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'MatiÃ¨res', href: path('app_courses') },
+            { label: matiere.nomMatiere }
+        ]
+    } %}
+
+    <!-- Page Header avec bouton de suppression -->
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">{{ matiere.nomMatiere }}</h1>
+                <span class="badge badge-primary">{{ matiere.code }}</span>
+            </div>
+            <p class="text-secondary-600 dark:text-secondary-400">
+                {{ matiere.sectionMatiere }} â€¢ {{ matiere.typeMatiere }}
+            </p>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_courses_edit', { id: matiere.idMatiere }) }}" class="btn btn-secondary">
+                <i data-lucide="edit" class="w-5 h-5"></i>
+                Modifier
+            </a>
+            
+            <!-- Bouton de suppression -->
+            <button type="submit" form="deleteForm" class="btn bg-danger-600 hover:bg-danger-700 text-white">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                Supprimer
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Course Info -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Informations de la matiÃ¨re</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Code</p>
+                        <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.code }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Section</p>
+                        <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.sectionMatiere }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Coefficient</p>
+                        <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.coefficientMatiere }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Heures/semaine</p>
+                        <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.heureMatiere }}h</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Type</p>
+                        <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.typeMatiere }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Semestre</p>
+{# <p class="font-medium text-secondary-900 dark:text-white">{{ matiere.semestreMatiere }}</p> #}
+                    </div>
+                </div>
+
+                {% if matiere.description %}
+                <div class="mt-6 pt-6 border-t border-secondary-200 dark:border-secondary-700">
+                    <h3 class="text-sm font-semibold text-secondary-900 dark:text-white mb-2">Description</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400">{{ matiere.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Assignments Section (Ã  personnaliser selon vos besoins) -->
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-secondary-900 dark:text-white">Devoirs</h2>
+                    <button class="btn btn-primary btn-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Ajouter un devoir
+                    </button>
+                </div>
+                
+                <!-- Empty state pour le moment -->
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 rounded-full bg-secondary-100 dark:bg-secondary-800 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="clipboard-list" class="w-8 h-8 text-secondary-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-2">Aucun devoir</h3>
+                    <p class="text-secondary-600 dark:text-secondary-400 mb-4">
+                        Ajoutez votre premier devoir pour cette matiÃ¨re.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Actions rapides</h2>
+                <div class="space-y-2">
+                    <button class="w-full btn btn-secondary justify-start">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                        Ajouter des notes
+                    </button>
+                    <button class="w-full btn btn-secondary justify-start">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                        CrÃ©er des flashcards
+                    </button>
+                    <button class="w-full btn btn-secondary justify-start">
+                        <i data-lucide="calendar" class="w-5 h-5"></i>
+                        Voir l'emploi du temps
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Statistiques</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Notes</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">0</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Devoirs</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">0</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Flashcards</span>
+                        <span class="font-semibold text-secondary-900 dark:text-white">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">Progression</h2>
+                <div class="relative w-32 h-32 mx-auto">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" 
+                                class="text-secondary-200 dark:text-secondary-700"/>
+                        <circle cx="64" cy="64" r="56" stroke="currentColor" stroke-width="8" fill="none" 
+                                stroke-dasharray="0 352"
+                                class="text-primary-500"/>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-2xl font-bold text-secondary-900 dark:text-white">0%</span>
+                    </div>
+                </div>
+                <p class="text-center text-sm text-secondary-600 dark:text-secondary-400 mt-4">
+                    Commencez Ã  travailler pour voir votre progression
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulaire de suppression cachÃ© -->
+<form id="deleteForm"
+      method="post"
+      action="{{ path('app_courses_delete', {id: matiere.idMatiere}) }}"
+      data-confirm="Êtes-vous sûr de vouloir supprimer cette matière ? Cette action est irréversible."
+      class="hidden">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ matiere.idMatiere) }}">
+</form>
+
+{% endblock %}
+
+
+
+
