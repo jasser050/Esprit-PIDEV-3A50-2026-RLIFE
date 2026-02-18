@@ -1,4 +1,4 @@
-﻿{% extends 'base.html.twig' %}
+{% extends 'admin/base_admin.html.twig' %}
 
 {% block title %}Edit Event{% endblock %}
 
@@ -7,11 +7,7 @@
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
-<<<<<<< HEAD
             { label: 'Planning', href: path('app_planning') },
-=======
-            { label: 'Schedule', href: path('app_planning') },
->>>>>>> planning
             { label: 'Edit Event' }
         ]
     } %}
@@ -23,14 +19,10 @@
 
     <div class="card p-6 space-y-6">
         {# EDIT FORM #}
-        <form action="{{ path('app_planning_edit', {id: planning.id}) }}" method="POST" class="space-y-6">
+        <form action="{{ path('app_admin_planning_edit', {id: planning.id}) }}" method="POST" class="space-y-6">
             {% include 'components/select.html.twig' with {
                 name: 'seance_id',
-<<<<<<< HEAD
-                label: 'Session',
-=======
                 label: 'Séance',
->>>>>>> planning
                 required: true,
                 value: planning.seance ? planning.seance.id : '',
                 options: seances|default([])|map(s => { value: s.id, label: s.titre ?? ('Seance #' ~ s.id) })
@@ -87,25 +79,6 @@
                     {% set fb = planning.feedback %}
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="1" class="accent-indigo-600" {{ fb == 1 ? 'checked' : '' }}>
-<<<<<<< HEAD
-                        <span class="text-xl">ðŸ˜¡</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="feedback" value="2" class="accent-indigo-600" {{ fb == 2 ? 'checked' : '' }}>
-                        <span class="text-xl">ðŸ˜•</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="feedback" value="3" class="accent-indigo-600" {{ fb == 3 ? 'checked' : '' }}>
-                        <span class="text-xl">ðŸ˜</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="feedback" value="4" class="accent-indigo-600" {{ fb == 4 ? 'checked' : '' }}>
-                        <span class="text-xl">ðŸ™‚</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="feedback" value="5" class="accent-indigo-600" {{ fb == 5 ? 'checked' : '' }}>
-                        <span class="text-xl">ðŸ¤©</span>
-=======
                         <span class="text-xl">😡</span>
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -123,7 +96,6 @@
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="5" class="accent-indigo-600" {{ fb == 5 ? 'checked' : '' }}>
                         <span class="text-xl">🤩</span>
->>>>>>> planning
                     </label>
                     <label class="inline-flex items-center gap-2 cursor-pointer">
                         <input type="radio" name="feedback" value="" class="accent-indigo-600" {{ fb is null ? 'checked' : '' }}>
@@ -133,7 +105,7 @@
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ path('app_admin_planning') }}" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
@@ -152,13 +124,9 @@
                             Deleting this event is permanent and cannot be undone.
                         </p>
 
-                        <form action="{{ path('app_planning_delete', {id: planning.id}) }}"
+                        <form action="{{ path('app_admin_planning_delete', {id: planning.id}) }}"
                               method="POST"
-<<<<<<< HEAD
-                              data-confirm="Do you really want to delete this event?"
-=======
-                              onsubmit="return confirm('Are you sure ?');"
->>>>>>> planning
+                              onsubmit="return confirm('Voulez-vous vraiment supprimer cet événement ?');"
                               class="mt-4 flex items-center justify-end">
                             <button type="submit" class="btn btn-secondary">
                                 <i data-lucide="trash" class="w-4 h-4 mr-2"></i>

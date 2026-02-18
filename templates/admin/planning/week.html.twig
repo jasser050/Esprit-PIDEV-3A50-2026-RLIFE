@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Weekly Planning{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Weekly Planning</h1>
+      <p class="text-secondary-500 dark:text-secondary-400 mt-1">
+        Week of {{ week_days[0]|date('Y-m-d') }} → {{ week_days[6]|date('Y-m-d') }}
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <a href="{{ path('app_planning') }}" class="btn btn-secondary btn-sm">Month</a>
+    </div>
+  </div>
+
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto">
+      <div class="min-w-[900px]">
+        {# Header row: empty cell + 7 days #}
+        <div class="grid" style="grid-template-columns: 90px repeat(7, minmax(0, 1fr));">
+          <div class="p-3 border-b border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/30"></div>
+
+          {% for d in week_days %}
+            <div class="p-3 border-b border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900/30">
+              <div class="font-semibold text-secondary-900 dark:text-white">
+                {{ d|date('D') }}
+              </div>
+              <div class="text-xs text-secondary-500 dark:text-secondary-400">
+                {{ d|date('Y-m-d') }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        {# Body: hours x days #}
+        {% for h in hours %}
+          <div class="grid" style="grid-template-columns: 90px repeat(7, minmax(0, 1fr));">
+            {# Hour label #}
+            <div class="p-3 border-b border-secondary-200 dark:border-secondary-800 text-xs text-secondary-500 dark:text-secondary-400 bg-white dark:bg-secondary-950">
+              {{ '%02d:00'|format(h) }}
+            </div>
+
+            {% for d in week_days %}
+              {% set key = d|date('Y-m-d') %}
+              {% set slot_events = (events_by_day_hour[key][h] ?? []) %}
+
+              <div class="p-2 border-b border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-950 min-h-[56px]">
+                <div class="space-y-1">
+                  {% for e in slot_events %}
+                    <a
+                      {% if e.id is defined %}
+                        href="{{ path('app_planning_edit', {id: e.id}) }}"
+                      {% else %}
+                        href="#"
+                      {% endif %}
+                      class="block rounded-lg px-2 py-1 text-xs border border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-900/40"
+                      title="{{ e.title }}"
+                    >
+                      <div class="font-medium text-secondary-900 dark:text-white truncate">
+                        {{ e.title }}
+                      </div>
+                      <div class="text-secondary-500 dark:text-secondary-400">
+                        {{ e.start_time }}–{{ e.end_time }}
+                      </div>
+                    </a>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

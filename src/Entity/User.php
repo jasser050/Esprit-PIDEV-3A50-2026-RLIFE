@@ -555,6 +555,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getGoogleId(): ?string
     {
         return $this->googleId;
@@ -566,6 +567,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+=======
+>>>>>>> planning
     /**
      * @return Collection<int, Project>
      */
@@ -652,6 +655,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+<<<<<<< HEAD
 
 // ==========================================
 // 🔥 SYSTÈME DE STREAK - DÉBUT
@@ -1784,4 +1788,6 @@ private function getMotivationalQuote(float $average): string
         }
         return $this->resetPasswordTokenExpiresAt < new \DateTimeImmutable();
     }
+=======
+>>>>>>> planning
 }

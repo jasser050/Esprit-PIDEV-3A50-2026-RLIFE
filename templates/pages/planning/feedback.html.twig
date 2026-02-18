@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+{% block title %}Feedback{% endblock %}
+{% block body %}
+<div class="max-w-md mx-auto card p-6">
+    <h2 class="text-lg font-bold mb-4">Donner mon feedback pour "{{ planning.seance }}"</h2>
+    {{ form_start(form) }}
+        {{ form_row(form.feedback) }}
+        <button class="btn btn-primary mt-3" type="submit">Envoyer mon avis</button>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

@@ -46,9 +46,14 @@ security:
         - { path: ^/revisions, roles: ROLE_USER }
         - { path: ^/wellbeing, roles: ROLE_USER }
         - { path: ^/settings, roles: ROLE_USER }
+<<<<<<< HEAD
         - { path: ^/connect/google, roles: PUBLIC_ACCESS }
         - { path: ^/streak, roles: ROLE_USER }
         - { path: ^/admin/question-stress/reorder$, roles: PUBLIC_ACCESS, methods: [POST] }
+=======
+        - { path: ^/oauth/google, roles: PUBLIC_ACCESS }
+
+>>>>>>> planning
 when@test:
     security:
         password_hashers:

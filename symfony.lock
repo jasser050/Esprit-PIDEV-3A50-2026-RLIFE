@@ -38,6 +38,7 @@
     "google/apiclient": {
         "version": "2.19",
         "recipe": {
+<<<<<<< HEAD
             "repo": "github.com/symfony/recipes-contrib",
             "branch": "main",
             "version": "2.10",
@@ -72,6 +73,9 @@
             "branch": "main",
             "version": "3.0",
             "ref": "8dd3ea817217453e14ab596317177465211e01d2"
+=======
+            "version": "2.10"
+>>>>>>> planning
         }
     },
     "symfony/console": {

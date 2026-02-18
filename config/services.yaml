@@ -33,7 +33,6 @@ services:
     Symfony\Contracts\HttpClient\HttpClientInterface: '@http_client'
     App\:
         resource: '../src/'
-
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     
