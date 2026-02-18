@@ -3,17 +3,24 @@
 namespace App\Controller;
 
 use App\Entity\Assignment;
+use App\Entity\Comment;
 use App\Entity\Project;
 use App\Form\AssignmentType;
+use App\Form\CommentType;
 use App\Repository\AssignmentRepository;
+use App\Repository\CommentRepository;
 use App\Service\AssignmentStatsService;
 use App\Service\AssignmentPdfService;
+use App\Service\NotificationManager;
+use App\Service\RewardService; // ← AJOUT pour le système de récompenses
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Repository\AssignmentCollaboratorRepository;
+use App\Repository\ProjectShareRepository;  
 
 #[Route('/assignments')]
 #[IsGranted('ROLE_USER')]
@@ -101,20 +108,63 @@ class AssignmentController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
     public function show(
         Assignment $assignment,
-        AssignmentStatsService $statsService
+        Request $request,
+        AssignmentStatsService $statsService,
+        CommentRepository $commentRepository,
+        EntityManagerInterface $entityManager,
+        NotificationManager $notificationManager,
+        AssignmentCollaboratorRepository $collaboratorRepository,
+        ProjectShareRepository $shareRepository
     ): Response {
-        if ($assignment->getUser() !== $this->getUser()) {
+        // Check if user is owner, collaborator, or has project access
+        $isOwner = $assignment->getUser() === $this->getUser();
+        $isCollaborator = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $this->getUser()) !== null;
+        $hasProjectAccess = $shareRepository->hasAccess($assignment->getProject(), $this->getUser());
+
+        if (!$isOwner && !$isCollaborator && !$hasProjectAccess) {
             throw $this->createAccessDeniedException();
         }
 
         $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
 
+        // Handle comment submission
+        $comment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $comment);
+        $commentForm->handleRequest($request);
+
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $comment->setAssignment($assignment);
+            $comment->setUser($this->getUser());
+
+            $entityManager->persist($comment);
+            $entityManager->flush();
+
+            $taskOwner = $comment->getAssignment()->getUser();
+            if ($taskOwner !== $this->getUser()) {
+                $notificationManager->createNotification(
+                    $taskOwner,
+                    'Nouveau commentaire',
+                    "{$this->getUser()->getFullName()} a commente la tache \"{$comment->getAssignment()->getTitre()}\"",
+                    'new_comment',
+                    $this->generateUrl('app_assignments_show', ['id' => $comment->getAssignment()->getId()])
+                );
+            }
+
+            $this->addFlash('success', 'Comment added successfully!');
+            return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
+        }
+
+        // Get comments for this assignment
+        $comments = $commentRepository->findByAssignment($assignment);
+
         return $this->render('pages/assignments/show.html.twig', [
             'assignment'      => $assignment,
             'assignmentStats' => $assignmentStats,
+            'comments'        => $comments,
+            'commentForm'     => $commentForm->createView(),
         ]);
     }
 
@@ -122,7 +172,8 @@ class AssignmentController extends AbstractController
     public function edit(
         Request $request,
         Assignment $assignment,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        RewardService $rewardService // ← AJOUT : injection du service de récompenses
     ): Response {
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
@@ -135,6 +186,9 @@ class AssignmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+
+            // AJOUT : Récompense coins si la tâche est terminée avant l'échéance
+            $rewardService->awardCoinsForAssignment($this->getUser(), $assignment);
 
             $this->addFlash('success', 'Task updated successfully!');
 
@@ -216,4 +270,29 @@ class AssignmentController extends AbstractController
             'chartData'  => $stats['chartData'],
         ]);
     }
+
+    #[Route('/comment/{id}/delete', name: 'app_assignments_delete_comment', methods: ['POST'])]
+    public function deleteComment(
+        Comment $comment,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        // Security check - only comment author can delete
+        if ($comment->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $assignmentId = $comment->getAssignment()->getId();
+        $commentId = $comment->getId();
+
+        if ($this->isCsrfTokenValid('delete-comment' . $comment->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($comment);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Comment deleted successfully!');
+        }
+
+        return $this->redirectToRoute('app_assignments_show', ['id' => $assignmentId]);
+    }
 }
+

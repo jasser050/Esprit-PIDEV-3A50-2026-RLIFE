@@ -82,7 +82,7 @@
                 <div class="alert-info p-4 rounded-lg">
                     <div class="flex items-start gap-3">
                         <i class="fas fa-info-circle text-info-600 dark:text-info-400 mt-0.5 flex-shrink-0"></i>
-                        <span class="text-sm text-info-800 dark:text-info-200">Last modified: <strong>{{ project.updatedAt|date('d/m/Y à H:i') }}</strong></span>
+                        <span class="text-sm text-info-800 dark:text-info-200">Last modified: <strong>{{ project.updatedAt|date('d/m/Y H:i') }}</strong></span>
                     </div>
                 </div>
             {% endif %}
@@ -210,3 +210,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+

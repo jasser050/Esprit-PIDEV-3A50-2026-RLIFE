@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\UserSettings;
+use App\Service\RewardService;
 use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -46,7 +47,13 @@ class PublicController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
+        RewardService $rewardService
+    ): Response
     {
         $errors = [];
         $validFields = [];
@@ -69,6 +76,8 @@ class PublicController extends AbstractController
             $weeklyGoal = $request->request->get('weekly_goal', 5);
             $interests = $request->request->all('interests') ?? [];
             $notifications = $request->request->get('notifications') ? true : false;
+            $petType = $request->request->get('pet_type');
+            $petName = trim((string) $request->request->get('pet_name', ''));
             
             // Server-side validation
             if (!$firstName || strlen($firstName) < 2) {
@@ -136,6 +145,19 @@ class PublicController extends AbstractController
             } else {
                 $validFields[] = 'gender';
             }
+
+            $validPetTypes = ['cat', 'dog', 'dragon', 'fox', 'bird', 'hamster'];
+            if (!$petType || !in_array($petType, $validPetTypes, true)) {
+                $errors['pet_type'] = 'Please choose a valid companion';
+            } else {
+                $validFields[] = 'pet_type';
+            }
+
+            if ($petName === '' || mb_strlen($petName) < 2 || mb_strlen($petName) > 25) {
+                $errors['pet_name'] = 'Companion name must be between 2 and 25 characters';
+            } else {
+                $validFields[] = 'pet_name';
+            }
             
             // If no errors, create user
             if (empty($errors)) {
@@ -169,6 +191,8 @@ class PublicController extends AbstractController
                     $entityManager->persist($user);
                     $entityManager->persist($settings);
                     $entityManager->flush();
+
+                    $rewardService->assignPet($user, $petType, $petName);
                     
                     // Send automatic welcome email
                     try {

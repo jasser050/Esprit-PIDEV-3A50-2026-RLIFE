@@ -32,6 +32,11 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             return new RedirectResponse($this->router->generate('app_admin_dashboard'));
         }
 
+        // Require companion setup for first login
+        if (method_exists($user, 'hasPet') && !$user->hasPet()) {
+            return new RedirectResponse($this->router->generate('app_pet_choose'));
+        }
+
         // Default redirect to user dashboard
         return new RedirectResponse($this->router->generate('app_dashboard'));
     }

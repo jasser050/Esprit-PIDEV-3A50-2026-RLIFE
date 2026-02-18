@@ -19,6 +19,7 @@ class ProjectRepository extends ServiceEntityRepository
 
     /**
      * Récupère tous les projets d'un utilisateur avec filtres
+     * Inclut les projets créés par l'utilisateur ET les projets partagés avec lui
      *
      * @param User $user
      * @param string $sort
@@ -28,14 +29,16 @@ class ProjectRepository extends ServiceEntityRepository
      * @return Project[]
      */
     public function findByUserWithFilters(
-        User $user, 
-        string $sort = 'createdAt', 
+        User $user,
+        string $sort = 'createdAt',
         string $direction = 'DESC',
         string $statut = '',
         string $search = ''
     ): array {
         $qb = $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
+            ->leftJoin('p.shares', 'ps', 'WITH', 'ps.sharedWithUser = :user')
+            ->addSelect('ps')
+            ->andWhere('p.user = :user OR ps.id IS NOT NULL')
             ->setParameter('user', $user);
 
         // Filtre par statut
@@ -261,4 +264,75 @@ class ProjectRepository extends ServiceEntityRepository
         
         return $formatted;
     }
+   /**
+ * Récupère TOUS les projets avec filtres (pour admin), incluant le propriétaire User
+ *
+ * @param string $sort
+ * @param string $direction
+ * @param string $statut
+ * @param string $userEmail (filtre par email user)
+ * @param string $search
+ * @param int $limit (pour pagination)
+ * @param int $offset
+ * @return array [projects => Project[], total => int]
+ */
+public function findAllWithFilters(
+    string $sort = 'createdAt',
+    string $direction = 'DESC',
+    string $statut = '',
+    string $userEmail = '',
+    string $search = '',
+    int $limit = 20,
+    int $offset = 0
+): array {
+    $qb = $this->createQueryBuilder('p')
+        ->leftJoin('p.user', 'u')
+        ->addSelect('u');
+
+    if ($statut) {
+        $qb->andWhere('p.statut = :statut')
+           ->setParameter('statut', $statut);
+    }
+
+    if ($userEmail) {
+        $qb->andWhere('u.email LIKE :email')
+           ->setParameter('email', '%' . $userEmail . '%');
+    }
+
+    if ($search) {
+        $qb->andWhere('p.titre LIKE :s OR p.description LIKE :s')
+           ->setParameter('s', '%' . $search . '%');
+    }
+
+    /** ✅ CRITICAL FIX — VALIDATE SORT FIELD */
+    $allowedFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
+
+    if (!in_array($sort, $allowedFields, true)) {
+        $sort = 'createdAt';
+    }
+
+    /** ✅ CRITICAL FIX — VALIDATE DIRECTION */
+    $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+    $qb->orderBy('p.' . $sort, $direction);
+
+    $countQb = clone $qb;
+
+    $qb->setFirstResult($offset);
+    $qb->setMaxResults($limit);
+
+    $projects = $qb->getQuery()->getResult();
+
+    $total = (int) $countQb
+        ->select('COUNT(DISTINCT p.id)')
+        ->resetDQLPart('orderBy')
+        ->getQuery()
+        ->getSingleScalarResult();
+
+    return [
+        'projects' => $projects,
+        'total'    => $total,
+    ];
+}
+
 }

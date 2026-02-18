@@ -1,0 +1,127 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Change Companion{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+                Change Companion
+            </h1>
+            <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                Your current companion is <strong class="text-purple-600 dark:text-purple-400">{{ currentPet.name }}</strong>
+                ({{ currentPet.type|capitalize }} - Lv. {{ currentPet.level }})
+            </p>
+        </div>
+
+        {% if changeCost > 0 %}
+        <div class="mb-10 p-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl text-center">
+            <p class="text-lg font-medium">
+                Changing type costs <strong class="text-amber-700 dark:text-amber-300">{{ changeCost }} coins</strong>.
+            </p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                You currently have <strong>{{ app.user.coins }}</strong> coins.
+            </p>
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-12">
+            <div>
+                <label class="block text-xl font-medium text-slate-700 dark:text-slate-300 mb-8 text-center">
+                    Which new companion type do you want?
+                </label>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5 md:gap-6">
+                    {% for value, label in petOptions %}
+                        <label class="group cursor-pointer">
+                            <input type="radio"
+                                   name="petType"
+                                   value="{{ value }}"
+                                   class="hidden peer"
+                                   required
+                                   {% if value == currentPet.type %}checked disabled{% endif %}>
+
+                            <div class="pet-choice-card h-64 bg-white dark:bg-slate-800 rounded-3xl shadow-md border-2 border-transparent peer-checked:border-purple-500 peer-checked:shadow-purple-300 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all overflow-hidden">
+                                <div id="pet3d-{{ value }}" class="h-40 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center">
+                                    <!-- 3D preview injected by JS -->
+                                </div>
+
+                                <div class="p-5 text-center">
+                                    <p class="font-bold text-lg text-slate-800 dark:text-white">{{ label }}</p>
+                                    {% if value == currentPet.type %}
+                                        <p class="text-xs text-purple-600 dark:text-purple-400 mt-1 font-medium">Current</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-6">
+                <a href="{{ path('app_dashboard') }}"
+                   class="px-10 py-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-2xl transition text-center">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="px-12 py-4 bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white font-semibold rounded-2xl shadow-lg shadow-purple-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        {% if app.user.coins < changeCost %}disabled{% endif %}>
+                    Confirm Change
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        function createPetPreview(containerId, color) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            if (!window.RLife3D) return;
+
+            window.RLife3D.renderPet(container, {
+                color: color,
+                emissive: 0x312e81,
+                spin: 0.01
+            });
+        }
+
+        function initChangeType3D() {
+            if (!window.RLife3D) return;
+
+            const previews = {
+                'pet3d-cat': 0xf472b6,
+                'pet3d-dog': 0x60a5fa,
+                'pet3d-dragon': 0xa855f7,
+                'pet3d-fox': 0xfb923c,
+                'pet3d-bird': 0x4ade80,
+                'pet3d-hamster': 0xfbbf24
+            };
+
+            window.RLife3D.ensureThree(() => {
+                Object.entries(previews).forEach(([id, color]) => {
+                    createPetPreview(id, color);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initChangeType3D);
+        document.addEventListener('turbo:load', initChangeType3D);
+
+        document.addEventListener('turbo:before-cache', () => {
+            ['pet3d-cat', 'pet3d-dog', 'pet3d-dragon', 'pet3d-fox', 'pet3d-bird', 'pet3d-hamster'].forEach((id) => {
+                const container = document.getElementById(id);
+                if (container && window.RLife3D) {
+                    window.RLife3D.dispose(container);
+                }
+            });
+        });
+    </script>
+{% endblock %}

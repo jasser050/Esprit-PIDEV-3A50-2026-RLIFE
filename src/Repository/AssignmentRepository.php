@@ -328,4 +328,16 @@ class AssignmentRepository extends ServiceEntityRepository
 
         return $formattedResult;
     }
+    #[Route('/assignment/{id}', name: 'app_assignment_show', methods: ['GET'])]
+    public function show(
+        Assignment $assignment,
+        AssignmentRepository $assignmentRepository   // ← Correction ici
+    ): Response {
+        // Exemple d'utilisation
+        // $relatedAssignments = $assignmentRepository->findBy(['project' => $assignment->getProject()]);
+
+        return $this->render('assignment/show.html.twig', [
+            'assignment' => $assignment,
+        ]);
+    }
 }

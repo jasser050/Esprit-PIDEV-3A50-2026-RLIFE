@@ -4,8 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Deck;
 use App\Entity\User;
+use App\Entity\Project;                     // ← Ajout nécessaire
 use App\Form\DeckType;
 use App\Repository\DeckRepository;
+use App\Repository\ProjectRepository;       // ← Nouveau repository à injecter
+use App\Repository\UserRepository;
 use App\Service\AuditLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,33 +25,66 @@ use Symfony\Component\HttpFoundation\File\Exception\FileException;
 class AdminController extends AbstractController
 {
     #[Route('/', name: 'app_admin_dashboard')]
-    public function dashboard(EntityManagerInterface $entityManager): Response
-    {
-        // Get statistics
+public function dashboard(
+    EntityManagerInterface $entityManager,
+    ProjectRepository $projectRepository,   // ← Injection nécessaire
+    UserRepository $userRepository = null   // ← Optionnel : plus propre
+): Response
+{
+    // Si vous préférez garder entityManager pour les users (compatible avec votre code actuel)
+    if ($userRepository === null) {
         $userRepository = $entityManager->getRepository(User::class);
-        
-        $totalUsers = $userRepository->count([]);
-        $activeUsers = $userRepository->count(['isBanned' => false]);
-        $bannedUsers = $userRepository->count(['isBanned' => true]);
-        $adminUsers = $userRepository->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.roles LIKE :role')
-            ->setParameter('role', '%ROLE_ADMIN%')
-            ->getQuery()
-            ->getSingleScalarResult();
-        
-        // Get recent users
-        $recentUsers = $userRepository->findBy([], ['createdAt' => 'DESC'], 10);
-        
-        return $this->render('admin/dashboard.html.twig', [
-            'total_users' => $totalUsers,
-            'active_users' => $activeUsers,
-            'banned_users' => $bannedUsers,
-            'admin_users' => $adminUsers,
-            'recent_users' => $recentUsers,
-        ]);
     }
 
+    // Statistiques utilisateurs (inchangées)
+    $totalUsers = $userRepository->count([]);
+    $activeUsers = $userRepository->count(['isBanned' => false]);
+    $bannedUsers = $userRepository->count(['isBanned' => true]);
+    
+    $adminUsers = $userRepository->createQueryBuilder('u')
+        ->select('COUNT(u.id)')
+        ->where('u.roles LIKE :role')
+        ->setParameter('role', '%ROLE_ADMIN%')
+        ->getQuery()
+        ->getSingleScalarResult();
+
+    $recentUsers = $userRepository->findBy([], ['createdAt' => 'DESC'], 10);
+
+    // ────────────────────────────────────────────────
+    // AJOUT : Statistiques et projets récents
+    // ────────────────────────────────────────────────
+
+    // Projets récents (les 8 derniers créés – tous utilisateurs)
+    $recentProjects = $projectRepository->findBy(
+        [],                           // aucun filtre → tous les projets
+        ['createdAt' => 'DESC'],      // tri par date de création descendante
+        8                             // limiter à 8 projets
+    );
+
+    // Statistiques globales des projets
+    $projectStats = [
+        'total'      => $projectRepository->count([]),
+        'enCours'    => $projectRepository->count(['statut' => 'En cours']),
+        'termines'   => $projectRepository->count(['statut' => 'Terminé']),
+        'enAttente'  => $projectRepository->count(['statut' => 'En attente']),
+        // Vous pouvez ajouter d'autres statuts ici si nécessaire
+        // 'enPause' => $projectRepository->count(['statut' => 'En pause']),
+        // 'annule'  => $projectRepository->count(['statut' => 'Annulé']),
+    ];
+
+    return $this->render('admin/dashboard.html.twig', [
+        // Statistiques utilisateurs (inchangées)
+        'total_users'    => $totalUsers,
+        'active_users'   => $activeUsers,
+        'banned_users'   => $bannedUsers,
+        'admin_users'    => $adminUsers,
+        'recent_users'   => $recentUsers,
+
+        // Nouvelles variables pour le dashboard admin
+        'recentProjects' => $recentProjects,
+        'projectStats'   => $projectStats,
+    ]);
+}
     #[Route('/users', name: 'app_admin_users')]
     public function users(EntityManagerInterface $entityManager, Request $request): Response
     {
@@ -204,6 +240,7 @@ class AdminController extends AbstractController
                 'date' => $date->format('M d'),
                 'count' => $count,
             ];
+            
         }
         
         // Gender distribution
@@ -228,6 +265,34 @@ class AdminController extends AbstractController
             'gender_stats' => $genderStats,
             'university_stats' => $universityStats,
         ]);
+        // Projets récents (les 8 derniers créés, tous utilisateurs)
+        $recentProjects = $projectRepository->findBy(
+            [], 
+            ['createdAt' => 'DESC'], 
+            8
+        );
+
+        // Statistiques globales des projets
+        $projectStats = [
+            'total'     => $projectRepository->count([]),
+            'enCours'   => $projectRepository->count(['statut' => 'En cours']),
+            'termines'  => $projectRepository->count(['statut' => 'Terminé']),
+            'enAttente' => $projectRepository->count(['statut' => 'En attente']),
+            // Ajoutez ici d'autres statuts si vous en avez (ex: 'En pause', 'Annulé')
+        ];
+
+        return $this->render('admin/dashboard.html.twig', [
+            'total_users'    => $totalUsers,
+            'active_users'   => $activeUsers,
+            'banned_users'   => $bannedUsers,
+            'admin_users'    => $adminUsers,
+            'recent_users'   => $recentUsers,
+
+            // Ajout des deux variables attendues par le template
+            'recentProjects' => $recentProjects,
+            'projectStats'   => $projectStats,
+        ]);
+    
     }
 
     #[Route('/statistics/export', name: 'app_admin_statistics_export')]

@@ -131,9 +131,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $updatedAt = null;
 
     /**
-     
+     * @var Collection<int, Career>
      */
-       private Collection $careers;
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Career::class, orphanRemoval: true)]
+    private Collection $careers;
 
     #[ORM\OneToOne(targetEntity: UserSettings::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserSettings $settings = null;
@@ -168,6 +169,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $decks;
 
+    // ────────────────────────────────────────────────
+    // AJOUTS POUR LE SYSTÈME DE RÉCOMPENSES (coins + pets + transactions)
+    // ────────────────────────────────────────────────
+
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $coins = 0;
+
+    /**
+     * @var Collection<int, Pet>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Pet::class, orphanRemoval: true, cascade: ['persist'])]
+    private Collection $pets;
+
+    /**
+     * @var Collection<int, CoinTransaction>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CoinTransaction::class, orphanRemoval: true)]
+    private Collection $coinTransactions;
+
+    /**
+     * @var Collection<int, Notification>
+     */
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Notification::class, orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $notifications;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
@@ -176,6 +203,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->projects = new ArrayCollection();
         $this->assignments = new ArrayCollection();
         $this->decks = new ArrayCollection();
+        $this->pets = new ArrayCollection();
+        $this->notifications = new ArrayCollection();  
+        $this->coinTransactions = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
@@ -227,6 +257,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return array_unique($roles);
     }
+    
 
     /**
      * @param list<string> $roles
@@ -431,18 +462,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     
+     * @return Collection<int, Career>
      */
     public function getCareers(): Collection
     {
         return $this->careers;
     }
-
-    
-      
-        
-
-    
 
     public function getSettings(): ?UserSettings
     {
@@ -631,4 +656,129 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    // ────────────────────────────────────────────────
+    // AJOUTS POUR LE SYSTÈME DE RÉCOMPENSES (coins + pets + transactions)
+    // ────────────────────────────────────────────────
+
+    public function getCoins(): int
+    {
+        return $this->coins;
+    }
+
+   /**
+ * Ajoute des coins et retourne le nouveau total
+ * @throws \InvalidArgumentException si montant négatif ou nul
+ */
+public function addCoins(int $amount): int
+{
+    if ($amount <= 0) {
+        throw new \InvalidArgumentException("Le montant ajouté doit être positif");
+    }
+    
+    $this->coins += $amount;
+    return $this->coins;
+}
+
+/**
+ * Dépense des coins et retourne le nouveau total
+ * @throws \Exception si pas assez de coins
+ */
+public function spendCoins(int $amount): int
+{
+    if ($amount <= 0) {
+        throw new \InvalidArgumentException("Le montant dépensé doit être positif");
+    }
+    
+    if ($this->coins < $amount) {
+        throw new \Exception("Pas assez de coins (disponible : {$this->coins}, requis : {$amount})");
+    }
+    
+    $this->coins -= $amount;
+    return $this->coins;
+}
+    /**
+     * @return Collection<int, Pet>
+     */
+    public function getPets(): Collection
+    {
+        return $this->pets;
+    }
+
+    public function addPet(Pet $pet): self
+    {
+        if (!$this->pets->contains($pet)) {
+            $this->pets->add($pet);
+            $pet->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePet(Pet $pet): self
+    {
+        if ($this->pets->removeElement($pet)) {
+            if ($pet->getUser() === $this) {
+                $pet->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Retourne le pet principal (le premier créé, ou null si aucun)
+     */
+    public function getMainPet(): ?Pet
+    {
+        return $this->pets->first() ?: null;
+    }
+
+    /**
+     * @return Collection<int, CoinTransaction>
+     */
+    public function getCoinTransactions(): Collection
+    {
+        return $this->coinTransactions;
+    }
+
+    public function addCoinTransaction(CoinTransaction $transaction): self
+    {
+        if (!$this->coinTransactions->contains($transaction)) {
+            $this->coinTransactions->add($transaction);
+            $transaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCoinTransaction(CoinTransaction $transaction): self
+    {
+        if ($this->coinTransactions->removeElement($transaction)) {
+            if ($transaction->getUser() === $this) {
+                $transaction->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Méthode pour savoir si l'utilisateur a déjà un pet
+    public function hasPet(): bool
+    {
+        return !$this->pets->isEmpty();
+    }
+    public function getNotifications(): Collection
+{
+    return $this->notifications;
+}
+
+public function addNotification(Notification $notification): self
+{
+    if (!$this->notifications->contains($notification)) {
+        $this->notifications->add($notification);
+        $notification->setUser($this);
+    }
+    return $this;
+}
 }

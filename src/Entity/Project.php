@@ -46,9 +46,13 @@ class Project
     #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'project', orphanRemoval: true)]
     private Collection $assignments;
 
+    #[ORM\OneToMany(targetEntity: ProjectShare::class, mappedBy: 'project', orphanRemoval: true)]
+    private Collection $shares;
+
     public function __construct()
     {
         $this->assignments = new ArrayCollection();
+        $this->shares = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -101,7 +105,7 @@ class Project
         return $this->dateDebut;
     }
 
-    public function setDateDebut(\DateTimeInterface $dateDebut): static
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -112,7 +116,7 @@ class Project
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTimeInterface $dateFin): static
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;
@@ -120,12 +124,12 @@ class Project
 
     public function getStatut(): ?string
     {
-        return $this->statut;
+        return $this->normalizeStatus((string) $this->statut);
     }
 
     public function setStatut(string $statut): static
     {
-        $this->statut = $statut;
+        $this->statut = $this->normalizeStatus($statut);
         return $this;
     }
 
@@ -178,5 +182,59 @@ class Project
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, ProjectShare>
+     */
+    public function getShares(): Collection
+    {
+        return $this->shares;
+    }
+
+    public function addShare(ProjectShare $share): static
+    {
+        if (!$this->shares->contains($share)) {
+            $this->shares->add($share);
+            $share->setProject($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShare(ProjectShare $share): static
+    {
+        if ($this->shares->removeElement($share)) {
+            if ($share->getProject() === $this) {
+                $share->setProject(null);
+            }
+        }
+
+        return $this;
+    }
+
+    private function normalizeStatus(string $status): string
+    {
+        $normalized = mb_strtolower(trim($status));
+        $map = [
+            'pending' => 'En attente',
+            'en attente' => 'En attente',
+            'in_progress' => 'En cours',
+            'in progress' => 'En cours',
+            'en cours' => 'En cours',
+            'on_hold' => 'En pause',
+            'on hold' => 'En pause',
+            'en pause' => 'En pause',
+            'completed' => 'Terminé',
+            'done' => 'Terminé',
+            'termine' => 'Terminé',
+            'terminé' => 'Terminé',
+            'canceled' => 'Annulé',
+            'cancelled' => 'Annulé',
+            'annule' => 'Annulé',
+            'annulé' => 'Annulé',
+        ];
+
+        return $map[$normalized] ?? $status;
     }
 }

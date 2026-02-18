@@ -19,6 +19,7 @@
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
+    {{ encore_entry_script_tags('app') }}
 
     <script>
         // Theme initialization and toggle function
@@ -95,6 +96,11 @@
                         <i data-lucide="bar-chart-3" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Analytics</span>
                     </a>
+                    <!-- Dans la sidebar de base_admin.html.twig -->
+<a href="{{ path('admin_projects_index') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 {{ app.request.attributes.get('_route') starts with 'admin_projects' ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300' }}">
+    <i data-lucide="folder-git" class="w-5 h-5"></i>
+    <span>Projets</span>
+</a>
 
                     <a href="{{ path('app_admin_audit_log') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
@@ -298,9 +304,7 @@
         </div>
     </div>
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-    {% endblock %}
+    {% block javascripts %}{% endblock %}
 
     <script>
         // Initialize Lucide icons
@@ -310,3 +314,4 @@
     </script>
 </body>
 </html>
+

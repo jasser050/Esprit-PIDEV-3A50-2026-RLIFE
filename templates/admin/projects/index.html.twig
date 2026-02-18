@@ -1,0 +1,155 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Admin - Projects{% endblock %}
+{% block page_title %}Projects Management{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">All Projects</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Global list of user projects</p>
+        </div>
+        <div class="card px-4 py-3">
+            <p class="text-sm text-secondary-500 dark:text-secondary-400">Total projects</p>
+            <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ totalProjects }}</p>
+        </div>
+    </div>
+
+    <div class="card p-5">
+        <form method="get" action="{{ path('admin_projects_index') }}" class="flex flex-col lg:flex-row lg:items-end gap-5 flex-wrap">
+            <div class="flex-1 min-w-[260px]">
+                <label for="search" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Search</label>
+                <div class="relative">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none"></i>
+                    <input id="search" type="text" name="search" value="{{ search }}" placeholder="Title or description..."
+                           class="input w-full pl-11 pr-4 py-2.5">
+                </div>
+            </div>
+
+            <div class="min-w-[180px]">
+                <label for="statut" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Status</label>
+                <select id="statut" name="statut" class="select w-full">
+                    <option value="">All statuses</option>
+                    <option value="En attente" {% if statut == 'En attente' %}selected{% endif %}>Pending</option>
+                    <option value="En cours" {% if statut == 'En cours' %}selected{% endif %}>In Progress</option>
+                    <option value="En pause" {% if statut == 'En pause' %}selected{% endif %}>On Hold</option>
+                    <option value="Terminé" {% if statut == 'Terminé' %}selected{% endif %}>Completed</option>
+                    <option value="Annulé" {% if statut == 'Annulé' %}selected{% endif %}>Canceled</option>
+                </select>
+            </div>
+
+            <div class="min-w-[260px]">
+                <label for="userEmail" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">User Email</label>
+                <input id="userEmail" type="text" name="userEmail" value="{{ userEmail }}" placeholder="example@email.com"
+                       class="input w-full">
+            </div>
+
+            <div class="flex items-end gap-3">
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
+                    Filter
+                </button>
+                {% if search or statut or userEmail %}
+                    <a href="{{ path('admin_projects_index') }}" class="btn btn-secondary">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Clear
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr class="text-left text-sm text-secondary-500 dark:text-secondary-400 border-b border-light-border dark:border-dark-border">
+                        <th class="px-4 py-3">
+                            <a href="{{ path('admin_projects_index', {page: 1, sort: 'titre', direction: sort == 'titre' and direction == 'ASC' ? 'DESC' : 'ASC', statut: statut, userEmail: userEmail, search: search}) }}" class="inline-flex items-center gap-1 hover:text-secondary-800 dark:hover:text-secondary-200">
+                                Title
+                                {% if sort == 'titre' %}<i data-lucide="{{ direction == 'ASC' ? 'chevron-up' : 'chevron-down' }}" class="w-4 h-4"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th class="px-4 py-3">Owner</th>
+                        <th class="px-4 py-3">
+                            <a href="{{ path('admin_projects_index', {page: 1, sort: 'createdAt', direction: sort == 'createdAt' and direction == 'ASC' ? 'DESC' : 'ASC', statut: statut, userEmail: userEmail, search: search}) }}" class="inline-flex items-center gap-1 hover:text-secondary-800 dark:hover:text-secondary-200">
+                                Created
+                                {% if sort == 'createdAt' %}<i data-lucide="{{ direction == 'ASC' ? 'chevron-up' : 'chevron-down' }}" class="w-4 h-4"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th class="px-4 py-3">
+                            <a href="{{ path('admin_projects_index', {page: 1, sort: 'dateFin', direction: sort == 'dateFin' and direction == 'ASC' ? 'DESC' : 'ASC', statut: statut, userEmail: userEmail, search: search}) }}" class="inline-flex items-center gap-1 hover:text-secondary-800 dark:hover:text-secondary-200">
+                                Due Date
+                                {% if sort == 'dateFin' %}<i data-lucide="{{ direction == 'ASC' ? 'chevron-up' : 'chevron-down' }}" class="w-4 h-4"></i>{% endif %}
+                            </a>
+                        </th>
+                        <th class="px-4 py-3">
+                            <a href="{{ path('admin_projects_index', {page: 1, sort: 'statut', direction: sort == 'statut' and direction == 'ASC' ? 'DESC' : 'ASC', statut: statut, userEmail: userEmail, search: search}) }}" class="inline-flex items-center gap-1 hover:text-secondary-800 dark:hover:text-secondary-200">
+                                Status
+                                {% if sort == 'statut' %}<i data-lucide="{{ direction == 'ASC' ? 'chevron-up' : 'chevron-down' }}" class="w-4 h-4"></i>{% endif %}
+                            </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                        <tr class="border-b border-light-border dark:border-dark-border last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="px-4 py-3">
+                                <div class="font-medium text-secondary-900 dark:text-white">{{ project.titre }}</div>
+                                <div class="text-xs text-secondary-500 dark:text-secondary-400 line-clamp-1">{{ project.description|default('No description') }}</div>
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="text-sm text-secondary-700 dark:text-secondary-300">{{ project.user.fullName }}</div>
+                                <div class="text-xs text-secondary-500 dark:text-secondary-400">{{ project.user.email }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-secondary-600 dark:text-secondary-400">{{ project.createdAt|date('d/m/Y H:i') }}</td>
+                            <td class="px-4 py-3 text-sm text-secondary-600 dark:text-secondary-400">{{ project.dateFin ? project.dateFin|date('d/m/Y') : '-' }}</td>
+                            <td class="px-4 py-3">
+                                <span class="badge badge-pill
+                                    {% if project.statut == 'Terminé' %}badge-success
+                                    {% elseif project.statut == 'En cours' %}badge-primary
+                                    {% elseif project.statut == 'En attente' %}badge-warning
+                                    {% elseif project.statut == 'En pause' %}badge-info
+                                    {% else %}badge-danger{% endif %}">
+                                    {{ project.statut }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5">
+                                <div class="py-12 text-center">
+                                    <i data-lucide="folder-x" class="w-12 h-12 mx-auto text-secondary-400 dark:text-secondary-500 mb-3"></i>
+                                    <p class="font-semibold text-secondary-900 dark:text-white">No projects found</p>
+                                    <p class="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Try changing filters or search terms.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if totalPages > 1 %}
+        <div class="flex items-center justify-between">
+            <p class="text-sm text-secondary-500 dark:text-secondary-400">Page {{ currentPage }} / {{ totalPages }}</p>
+            <div class="flex items-center gap-2">
+                {% if currentPage > 1 %}
+                    <a href="{{ path('admin_projects_index', {page: currentPage - 1, sort: sort, direction: direction, statut: statut, userEmail: userEmail, search: search}) }}" class="btn btn-secondary">
+                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                        Previous
+                    </a>
+                {% endif %}
+                {% if currentPage < totalPages %}
+                    <a href="{{ path('admin_projects_index', {page: currentPage + 1, sort: sort, direction: direction, statut: statut, userEmail: userEmail, search: search}) }}" class="btn btn-secondary">
+                        Next
+                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
