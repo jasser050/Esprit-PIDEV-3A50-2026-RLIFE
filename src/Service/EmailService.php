@@ -31,6 +31,22 @@ class EmailService
         $this->mailer->send($email);
     }
 
+    public function sendPasswordResetEmail(User $user, string $resetUrl): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address($this->fromEmail, $this->fromName))
+            ->to(new Address($user->getEmail(), $user->getFullName()))
+            ->subject('Reset your RLIFE password')
+            ->htmlTemplate('emails/password-reset.html.twig')
+            ->context([
+                'user' => $user,
+                'resetUrl' => $resetUrl,
+                'expiresAt' => $user->getResetPasswordTokenExpiresAt(),
+            ]);
+
+        $this->mailer->send($email);
+    }
+
     public function sendWelcomeEmail(User $user): void
     {
         $email = (new TemplatedEmail())
