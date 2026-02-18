@@ -52,19 +52,6 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
             );
         }
         
-        // Check if another user is already logged in on this device
-        $session = $this->requestStack->getSession();
-        $currentLoggedInUserId = $session->get('logged_in_user_id');
-        
-        if ($currentLoggedInUserId) {
-            // If a different user is trying to login, block it
-            if ($user && method_exists($user, 'getId') && $user->getId() !== $currentLoggedInUserId) {
-                throw new CustomUserMessageAuthenticationException(
-                    'Another user is already logged in on this device. Please log out the current user first before logging in with a different account.'
-                );
-            }
-        }
-
         return new Passport(
             new UserBadge($email),
             new PasswordCredentials($password),

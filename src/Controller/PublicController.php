@@ -29,6 +29,11 @@ class PublicController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
+        // If already authenticated (including via remember-me cookie), skip login page
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
         // Create the form with PHP validation
         $form = $this->createForm(LoginFormType::class);
         $form->handleRequest($request);
@@ -181,6 +186,15 @@ class PublicController extends AbstractController
                     $settings->setLanguage('en');
                     
                     $user->setSettings($settings);
+                    
+                    // Save face descriptor if provided (Face ID registration)
+                    $faceDescriptorRaw = $request->request->get('face_descriptor');
+                    if ($faceDescriptorRaw) {
+                        $faceDescriptor = json_decode($faceDescriptorRaw, true);
+                        if (is_array($faceDescriptor) && count($faceDescriptor) > 0) {
+                            $user->setFaceDescriptor($faceDescriptor);
+                        }
+                    }
                     
                     // Save user
                     $entityManager->persist($user);

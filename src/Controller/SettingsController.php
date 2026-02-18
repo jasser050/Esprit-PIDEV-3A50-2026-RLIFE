@@ -186,11 +186,62 @@ class SettingsController extends AbstractController
                 unlink($profilePicPath);
             }
         }
-        
-        // Hard delete: Remove user from database completely
+
+        // Delete all related data first (foreign key order matters)
+        $conn = $entityManager->getConnection();
+        $userId = $user->getId();
+
+        // 1. Logs referencing user as admin
+        $conn->executeStatement('DELETE FROM admin_audit_log WHERE admin_user_id = ?', [$userId]);
+        $conn->executeStatement('DELETE FROM admin_email_log WHERE admin_user_id = ?', [$userId]);
+
+        // 2. Project shares (both sides)
+        $conn->executeStatement('DELETE FROM project_share WHERE shared_by_user_id = ? OR shared_with_user_id = ?', [$userId, $userId]);
+
+        // 3. Assignment collaborators (both sides)
+        $conn->executeStatement('DELETE FROM assignment_collaborator WHERE user_id = ? OR assigned_by_user_id = ?', [$userId, $userId]);
+
+        // 4. Comments
+        $conn->executeStatement('DELETE FROM comment WHERE user_id = ?', [$userId]);
+
+        // 5. Flashcards in user's decks, then by created_by
+        $conn->executeStatement('DELETE f FROM flashcard f JOIN deck d ON f.id_deck = d.id_deck WHERE d.user_id = ?', [$userId]);
+        $conn->executeStatement('DELETE FROM flashcard WHERE created_by = ?', [$userId]);
+
+        // 6. Decks
+        $conn->executeStatement('DELETE FROM deck WHERE user_id = ?', [$userId]);
+
+        // 7. Coping sessions
+        $conn->executeStatement('DELETE FROM coping_session WHERE user_id = ?', [$userId]);
+
+        // 8. Google tokens
+        $conn->executeStatement('DELETE FROM google_token WHERE user_id = ?', [$userId]);
+
+        // 9. Evaluation matieres
+        $conn->executeStatement('DELETE FROM evaluation_matiere WHERE user_id = ?', [$userId]);
+
+        // 10. Seances (planning must be deleted first since planning has seance_id FK)
+        $conn->executeStatement('DELETE FROM planning WHERE user_id = ?', [$userId]);
+
+        // 11. Seances
+        $conn->executeStatement('DELETE FROM seance WHERE user_id = ?', [$userId]);
+
+        // 12. Assignments
+        $conn->executeStatement('DELETE FROM assignment WHERE user_id = ?', [$userId]);
+
+        // 13. Matieres
+        $conn->executeStatement('DELETE FROM matiere WHERE user_id = ?', [$userId]);
+
+        // 14. Projects
+        $conn->executeStatement('DELETE FROM project WHERE user_id = ?', [$userId]);
+
+        // 15. User settings
+        $conn->executeStatement('DELETE FROM user_settings WHERE user_id = ?', [$userId]);
+
+        // Remove user entity
         $entityManager->remove($user);
         $entityManager->flush();
-        
+
         // Invalidate session
         $request->getSession()->invalidate();
         

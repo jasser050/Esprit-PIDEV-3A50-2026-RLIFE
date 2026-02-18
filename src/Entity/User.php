@@ -142,6 +142,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $verificationTokenExpiresAt = null;
 
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $faceDescriptor = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $resetPasswordToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $resetPasswordTokenExpiresAt = null;
+
     /**
      
      */
@@ -1728,5 +1737,51 @@ private function getMotivationalQuote(float $average): string
             return true;
         }
         return $this->verificationTokenExpiresAt < new \DateTimeImmutable();
+    }
+
+    public function getFaceDescriptor(): ?array
+    {
+        return $this->faceDescriptor;
+    }
+
+    public function setFaceDescriptor(?array $faceDescriptor): static
+    {
+        $this->faceDescriptor = $faceDescriptor;
+        return $this;
+    }
+
+    public function hasFaceRegistered(): bool
+    {
+        return $this->faceDescriptor !== null && count($this->faceDescriptor) > 0;
+    }
+
+    public function getResetPasswordToken(): ?string
+    {
+        return $this->resetPasswordToken;
+    }
+
+    public function setResetPasswordToken(?string $resetPasswordToken): static
+    {
+        $this->resetPasswordToken = $resetPasswordToken;
+        return $this;
+    }
+
+    public function getResetPasswordTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->resetPasswordTokenExpiresAt;
+    }
+
+    public function setResetPasswordTokenExpiresAt(?\DateTimeImmutable $resetPasswordTokenExpiresAt): static
+    {
+        $this->resetPasswordTokenExpiresAt = $resetPasswordTokenExpiresAt;
+        return $this;
+    }
+
+    public function isResetPasswordTokenExpired(): bool
+    {
+        if (!$this->resetPasswordTokenExpiresAt) {
+            return true;
+        }
+        return $this->resetPasswordTokenExpiresAt < new \DateTimeImmutable();
     }
 }
