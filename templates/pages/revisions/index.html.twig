@@ -994,14 +994,14 @@
                             <div class="flex flex-col gap-2 mt-auto">
                                 <!-- Rating Button -->
                                 <div>
-                                    <a href="{{ path('app_rating_page', {deckId: deck.id}) }}"
-                                       id="rate-btn-{{ deck.id }}"
+                                    <a href="{{ path('app_rating_page', {deckId: deck.idDeck}) }}"
+                                       id="rate-btn-{{ deck.idDeck }}"
                                        class="btn w-full justify-center"
                                        style="background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color:white; border:none;">
                                         <span>⭐</span>
-                                        <span id="rate-btn-label-{{ deck.id }}">Rate this deck</span>
-                                        <span class="rate-badge ml-1" id="rate-badge-{{ deck.id }}"></span>
-                                        <span class="btn-mini-stars ml-1" id="rate-btn-stars-{{ deck.id }}">
+                                        <span id="rate-btn-label-{{ deck.idDeck }}">Rate this deck</span>
+                                        <span class="rate-badge ml-1" id="rate-badge-{{ deck.idDeck }}"></span>
+                                        <span class="btn-mini-stars ml-1" id="rate-btn-stars-{{ deck.idDeck }}">
                                             <span class="btn-mini-star text-white/30">★</span>
                                             <span class="btn-mini-star text-white/30">★</span>
                                             <span class="btn-mini-star text-white/30">★</span>
@@ -1009,12 +1009,12 @@
                                             <span class="btn-mini-star text-white/30">★</span>
                                         </span>
                                     </a>
-                                    <div class="deck-community-score mt-1 text-center text-xs" id="dcs-{{ deck.id }}">
+                                    <div class="deck-community-score mt-1 text-center text-xs" id="dcs-{{ deck.idDeck }}">
                                         <span class="text-secondary-400">loading...</span>
                                     </div>
                                 </div>
 
-                                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                                <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
                                    class="btn w-full justify-center text-white border-0"
                                    style="background-color:{{ palette.text }};">
                                     <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
@@ -1032,13 +1032,13 @@
                                    class="inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition shadow-md border-2"
                                    style="background-color: {{ palette.bg }}; color: {{ palette.text }}; border-color: {{ palette.border }};">
                                 <button type="button"
-                                        onclick="showQRModal({{ deck.id }}, '{{ deck.titre|e('js') }}')"
+                                        onclick="showQRModal({{ deck.idDeck }}, '{{ deck.titre|e('js') }}')"
                                         class="btn btn-secondary w-full justify-center">
                                     <i data-lucide="qr-code" class="w-4 h-4 mr-2"></i>
                                     Share with QR Code
                                 </button>
 
-                                <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
+                                <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
                                    class="btn w-full justify-center border-2"
                                    style="background-color:{{ palette.bg }};color:{{ palette.text }};border-color:{{ palette.border }};">
                                     <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
