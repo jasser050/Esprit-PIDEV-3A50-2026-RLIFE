@@ -2,6 +2,7 @@
 
 {% block title %}Revisions{% endblock %}
 
+<<<<<<< HEAD
 {% block stylesheets %}
 {{ parent() }}
 <style>
@@ -10,7 +11,7 @@
         position: relative;
         max-width: 100%;
     }
-
+    
     .search-input {
         width: 100%;
         padding: 12px 48px 12px 16px;
@@ -20,19 +21,19 @@
         transition: all 0.3s ease;
         background-color: white;
     }
-
+    
     .search-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
+    
     .search-input.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
+    
     .search-button {
         position: absolute;
         right: 12px;
@@ -46,17 +47,17 @@
         border-radius: 8px;
         transition: all 0.3s ease;
     }
-
+    
     .search-button:hover {
         background-color: #f1f5f9;
         color: #3b82f6;
     }
-
+    
     .search-button.dark:hover {
         background-color: #334155;
         color: #60a5fa;
     }
-
+    
     /* Filtres et tris */
     .controls-container {
         display: flex;
@@ -64,36 +65,30 @@
         gap: 16px;
         margin-top: 16px;
     }
-
+    
     .filters-row {
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
         align-items: center;
     }
-
+    
     .filter-group {
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
-
+    
     .filter-label {
         font-size: 14px;
         font-weight: 500;
         color: #64748b;
     }
-
-    .filter-label.dark,
-    label.filter-label.dark {
+    
+    .filter-label.dark {
         color: #94a3b8;
     }
-
-    .dark .filter-label,
-    .dark label.filter-label {
-        color: #94a3b8;
-    }
-
+    
     .filter-select {
         padding: 8px 12px;
         border: 2px solid #e2e8f0;
@@ -104,46 +99,30 @@
         min-width: 150px;
         transition: all 0.3s ease;
     }
-
+    
     .filter-select:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
-    .filter-select.dark,
-    select.filter-select.dark {
+    
+    .filter-select.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
-    .filter-select.dark:focus,
-    select.filter-select.dark:focus {
+    
+    .filter-select.dark:focus {
         border-color: #60a5fa;
     }
-
-    /* Dark mode for filter select */
-    .dark .filter-select,
-    .dark select.filter-select {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-
-    .dark .filter-select option,
-    .dark select.filter-select option {
-        background-color: #1e293b;
-        color: white;
-    }
-
+    
     /* Recherche par date */
     .date-search-container {
         display: flex;
         gap: 8px;
         align-items: center;
     }
-
+    
     .date-input {
         padding: 8px 12px;
         border: 2px solid #e2e8f0;
@@ -152,39 +131,26 @@
         width: 150px;
         transition: all 0.3s ease;
     }
-
+    
     .date-input:focus {
         outline: none;
         border-color: #3b82f6;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-
-    .date-input.dark,
-    input.date-input.dark {
+    
+    .date-input.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: white;
     }
-
-    /* Dark mode for date inputs */
-    .dark .date-input,
-    .dark input.date-input {
-        background-color: #1e293b;
-        border-color: #475569;
-        color: white;
-    }
-
-    .dark .date-input::-webkit-calendar-picker-indicator {
-        filter: invert(1);
-    }
-
+    
     /* Boutons de tri */
     .sort-buttons {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
     }
-
+    
     .sort-button {
         padding: 8px 16px;
         border-radius: 20px;
@@ -199,41 +165,41 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .sort-button:hover {
         border-color: #3b82f6;
         color: #3b82f6;
     }
-
+    
     .sort-button.active {
         background-color: #3b82f6;
         color: white;
         border-color: #3b82f6;
     }
-
+    
     .sort-button.dark {
         background-color: #1e293b;
         border-color: #475569;
         color: #cbd5e1;
     }
-
+    
     .sort-button.dark:hover {
         border-color: #60a5fa;
         color: #60a5fa;
     }
-
+    
     .sort-button.dark.active {
         background-color: #60a5fa;
         color: white;
         border-color: #60a5fa;
     }
-
+    
     /* Boutons d'action */
     .action-buttons {
         display: flex;
         gap: 8px;
     }
-
+    
     .action-button {
         padding: 8px 16px;
         border-radius: 8px;
@@ -246,25 +212,25 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .action-button.reset {
         background-color: #f1f5f9;
         color: #64748b;
     }
-
+    
     .action-button.reset:hover {
         background-color: #e2e8f0;
     }
-
+    
     .action-button.reset.dark {
         background-color: #334155;
         color: #cbd5e1;
     }
-
+    
     .action-button.reset.dark:hover {
         background-color: #475569;
     }
-
+    
     /* Compteur de résultats */
     .results-info {
         display: flex;
@@ -274,21 +240,21 @@
         padding-top: 16px;
         border-top: 1px solid #e2e8f0;
     }
-
+    
     .results-info.dark {
         border-top-color: #475569;
     }
-
+    
     .deck-counter {
         color: #64748b;
         font-size: 14px;
         font-weight: 500;
     }
-
+    
     .deck-counter.dark {
         color: #94a3b8;
     }
-
+    
     .sort-indicator {
         color: #3b82f6;
         font-size: 14px;
@@ -297,29 +263,29 @@
         align-items: center;
         gap: 6px;
     }
-
+    
     .sort-indicator.dark {
         color: #60a5fa;
     }
-
+    
     /* Message "Aucun résultat" */
     .no-results {
         text-align: center;
         padding: 60px 20px;
         grid-column: 1 / -1;
     }
-
+    
     .no-results-icon {
         width: 80px;
         height: 80px;
         margin: 0 auto 20px;
-        color: #cbd5e1;
+        color: #e2e8f0;
     }
-
+    
     .no-results.dark .no-results-icon {
         color: #475569;
     }
-
+    
     /* Animation pour les cartes */
     @keyframes fadeIn {
         from {
@@ -331,35 +297,203 @@
             transform: translateY(0);
         }
     }
-
+    
     .deck-card {
         animation: fadeIn 0.3s ease-out;
     }
 
+    /* ═══════════════════════════════════════════════
+       📱 QR CODE BUTTON & MODAL - NOUVEAU
+    ═══════════════════════════════════════════════ */
+    
+    .qr-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #A78BFA 0%, #7c5ce4 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 8px rgba(167,139,250,.3);
+    }
+    
+    .qr-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(167,139,250,.5);
+    }
+    
+    .qr-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* Modal QR Code */
+    .qr-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 1rem;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .qr-modal.show {
+        display: flex;
+    }
+    
+    .qr-modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: modalSlideIn 0.3s ease;
+    }
+    
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: scale(0.9) translateY(20px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    .qr-modal-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .qr-modal-header h3 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+    
+    .qr-modal-header p {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    .qr-modal-qr {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .qr-modal-qr img {
+        border-radius: 8px;
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .qr-loading {
+        padding: 3rem;
+        text-align: center;
+        color: #64748b;
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e2e8f0;
+        border-top-color: #A78BFA;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .qr-modal-actions {
+        display: flex;
+        gap: 0.8rem;
+    }
+    
+    .qr-modal-btn {
+        flex: 1;
+        padding: 0.9rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+    
+    .qr-modal-btn.primary {
+        background: #20C9A0;
+        color: white;
+        box-shadow: 0 4px 12px rgba(32,201,160,.3);
+    }
+    
+    .qr-modal-btn.primary:hover {
+        background: #0EA37E;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(32,201,160,.4);
+    }
+    
+    .qr-modal-btn.secondary {
+        background: #f1f5f9;
+        color: #475569;
+        border: 2px solid #e2e8f0;
+    }
+    
+    .qr-modal-btn.secondary:hover {
+        border-color: #cbd5e1;
+        background: #e2e8f0;
+    }
+    
     /* Responsive */
     @media (max-width: 768px) {
         .filters-row {
             flex-direction: column;
             align-items: stretch;
         }
-
+        
         .filter-select, .date-input {
             width: 100%;
         }
-
+        
         .date-search-container {
             flex-direction: column;
         }
-
+        
         .results-info {
             flex-direction: column;
             gap: 12px;
             align-items: flex-start;
         }
+        
+        .qr-modal-actions {
+            flex-direction: column;
+        }
+        
+        .qr-modal-content {
+            padding: 1.5rem;
+        }
     }
 </style>
 {% endblock %}
 
+=======
+>>>>>>> integration
 {% block body %}
 <div class="space-y-6 animate-fade-in">
     <!-- Page Header -->
@@ -368,6 +502,7 @@
             <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
             <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track and manage your Review</p>
         </div>
+<<<<<<< HEAD
         <a href="{{ path('app_admin_deck_new') }}" class="btn btn-primary">
             <i data-lucide="plus" class="w-5 h-5"></i>
             New deck
@@ -378,15 +513,15 @@
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-6">
         <!-- Barre de recherche principale -->
         <div class="search-container">
-            <input type="text"
-                   id="deckSearch"
-                   placeholder="Search decks by title, subject, level or description..."
+            <input type="text" 
+                   id="deckSearch" 
+                   placeholder="Search decks by title, subject, level or description..." 
                    class="search-input dark:search-input.dark">
             <button type="button" id="searchButton" class="search-button dark:search-button.dark">
                 <i data-lucide="search" class="w-5 h-5"></i>
             </button>
         </div>
-
+        
         <!-- Contrôles de filtrage et tri -->
         <div class="controls-container">
             <!-- Première ligne : Filtres -->
@@ -407,7 +542,7 @@
                         {% endfor %}
                     </select>
                 </div>
-
+                
                 <!-- Filtre par niveau -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark">Level</label>
@@ -424,7 +559,7 @@
                         {% endfor %}
                     </select>
                 </div>
-
+                
                 <!-- Filtre par date -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark">Date Created</label>
@@ -435,7 +570,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Deuxième ligne : Tris et actions -->
             <div class="filters-row">
                 <!-- Boutons de tri -->
@@ -457,10 +592,186 @@
                         <button type="button" class="sort-button dark:sort-button.dark" data-sort="title-desc">
                             <i data-lucide="arrow-down-z-a" class="w-4 h-4"></i>
                             Title Z-A
+=======
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_admin_deck_new') }}" class="btn btn-primary">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                New deck
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+                    <i data-lucide="calendar-clock" class="w-8 h-8 text-warning-500"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-secondary-900 dark:text-white">3</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Assignments due</p>
+                </div>
+            </div>
+        </div>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                    <i data-lucide="clock" class="w-8 h-8 text-success-500"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-secondary-900 dark:text-white">5</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Hours per day this week</p>
+                </div>
+            </div>
+        </div>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-8 h-8 text-primary-500"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-secondary-900 dark:text-white">+3</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Study time this week</p>
+                </div>
+            </div>
+        </div>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+                    <i data-lucide="layers" class="w-8 h-8 text-accent-500"></i>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-secondary-900 dark:text-white">45</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Cards reviewed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gamification Banner -->
+    {% if gamification is defined and gamification %}
+    <div class="card overflow-hidden border-0" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);">
+        <div class="p-5">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                        <span class="text-3xl">🎓</span>
+                    </div>
+                    <div>
+                        <p class="text-sm" style="color: #bbf7d0;">Your progress</p>
+                        <h3 class="text-2xl font-bold text-white">Level {{ gamification.level }} <span style="color: #bbf7d0;">⭐</span></h3>
+                        <p class="text-sm" style="color: #86efac;">{{ gamification.points }} XP total</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6 flex-wrap">
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-white">🔥 {{ gamification.streak }}</p>
+                        <p class="text-xs" style="color: #86efac;">Day streak</p>
+                    </div>
+                    <div class="w-px h-8" style="background: rgba(255,255,255,0.3);"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-white">{{ gamification.totalDecksCompleted }}</p>
+                        <p class="text-xs" style="color: #86efac;">Decks done</p>
+                    </div>
+                    <div class="w-px h-8" style="background: rgba(255,255,255,0.3);"></div>
+                    <div class="text-center">
+                        <p class="text-2xl font-bold text-white">{{ gamification.totalCorrectAnswers }}</p>
+                        <p class="text-xs" style="color: #86efac;">Correct</p>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    {% set currentLevelXp = (gamification.level - 1) * 100 %}
+                    {% set nextLevelXp = gamification.level * 100 %}
+                    {% set progress = gamification.points > currentLevelXp ? ((gamification.points - currentLevelXp) / (nextLevelXp - currentLevelXp) * 100)|round : 0 %}
+                    {% set progress = progress > 100 ? 100 : progress %}
+                    <div class="flex justify-between text-xs mb-2">
+                        <span style="color: #bbf7d0;">Level {{ gamification.level }}</span>
+                        <span style="color: #4ade80;">{{ progress }}% → Lvl {{ gamification.level + 1 }}</span>
+                    </div>
+                    <div class="h-2 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.2);">
+                        <div class="h-full rounded-full transition-all duration-500" style="width: {{ progress }}%; background: #4ade80;"></div>
+                    </div>
+                </div>
+                <a href="{{ path('gamification_dashboard') }}" class="btn border-0 text-white font-semibold" style="background: rgba(255,255,255,0.2);">
+                    <i data-lucide="trophy" class="w-4 h-4"></i>
+                    Full Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Search and Filters Section -->
+    <div class="card overflow-hidden">
+        <div class="p-5 border-b border-secondary-200 dark:border-secondary-800">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <i data-lucide="search" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <h2 class="font-semibold text-secondary-900 dark:text-white">Search Decks</h2>
+            </div>
+        </div>
+        <div class="p-5 space-y-4">
+            <div class="relative">
+                <input type="text" id="deckSearch" placeholder="Search decks by title, subject, level or description..." 
+                       class="w-full px-4 py-3 pl-12 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400"></i>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Subject</label>
+                    <select id="subjectFilter" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="all">All Subjects</option>
+                        {% set subjects = [] %}
+                        {% for deck in decks %}{% if deck.matiere not in subjects %}{% set subjects = subjects|merge([deck.matiere]) %}{% endif %}{% endfor %}
+                        {% for subject in subjects|sort %}<option value="{{ subject|lower }}">{{ subject }}</option>{% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Level</label>
+                    <select id="levelFilter" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="all">All Levels</option>
+                        {% set levels = [] %}
+                        {% for deck in decks %}{% if deck.niveau not in levels %}{% set levels = levels|merge([deck.niveau]) %}{% endif %}{% endfor %}
+                        {% for level in levels|sort %}<option value="{{ level|lower }}">{{ level }}</option>{% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date From</label>
+                    <input type="date" id="dateFrom" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date To</label>
+                    <input type="date" id="dateTo" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Sort by:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all active" data-sort="date-desc">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>Newest
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all" data-sort="date">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>Oldest
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all" data-sort="title">
+                            <i data-lucide="arrow-up-a-z" class="w-4 h-4 inline mr-1"></i>A-Z
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all" data-sort="title-desc">
+                            <i data-lucide="arrow-down-z-a" class="w-4 h-4 inline mr-1"></i>Z-A
+>>>>>>> integration
                         </button>
                     </div>
                 </div>
-
+                
+<<<<<<< HEAD
                 <!-- Boutons d'action -->
                 <div class="filter-group">
                     <label class="filter-label dark:filter-label.dark opacity-0">Actions</label>
@@ -473,7 +784,7 @@
                 </div>
             </div>
         </div>
-
+        
         <!-- Informations sur les résultats -->
         <div class="results-info dark:results-info.dark">
             <div id="resultCounter" class="deck-counter dark:deck-counter.dark">
@@ -482,10 +793,29 @@
             <div id="sortIndicator" class="sort-indicator dark:sort-indicator.dark">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 Sorted by: Newest First
+=======
+                <div class="flex items-center gap-3">
+                    <button type="button" id="resetFilters" class="btn btn-secondary">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        Reset All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                <div id="resultCounter" class="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Showing {{ decks|length }} deck{% if decks|length != 1 %}s{% endif %}
+                </div>
+                <div id="sortIndicator" class="text-sm text-primary-600 dark:text-primary-400 flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Sorted by: Newest First
+                </div>
+>>>>>>> integration
             </div>
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Liste des decks -->
     <div id="decksContainer">
         {% if decks is empty %}
@@ -495,10 +825,20 @@
                 <p class="text-slate-600 dark:text-slate-400">
                     Connect to create or view your decks
                 </p>
+=======
+    <!-- Decks Grid -->
+    <div id="decksContainer">
+        {% if decks is empty %}
+            <div class="card p-12 text-center">
+                <i data-lucide="layers" class="w-20 h-20 mx-auto text-secondary-300 dark:text-secondary-600 mb-6"></i>
+                <h3 class="text-2xl font-semibold text-secondary-900 dark:text-white mb-3">No decks available</h3>
+                <p class="text-secondary-600 dark:text-secondary-400">Connect to create or view your decks</p>
+>>>>>>> integration
             </div>
         {% else %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {% set colorPalettes = [
+<<<<<<< HEAD
                     {bg: '#fef3c7', border: '#f59e0b', text: '#d97706'},
                     {bg: '#dbeafe', border: '#3b82f6', text: '#2563eb'},
                     {bg: '#fce7f3', border: '#ec4899', text: '#db2777'},
@@ -511,19 +851,39 @@
                     {bg: '#fbcfe8', border: '#ec4899', text: '#db2777'},
                     {bg: '#bfdbfe', border: '#3b82f6', text: '#2563eb'},
                     {bg: '#c7d2fe', border: '#818cf8', text: '#6366f1'}
+=======
+                    {bg:'#fef3c7',border:'#f59e0b',text:'#d97706'},
+                    {bg:'#dbeafe',border:'#3b82f6',text:'#2563eb'},
+                    {bg:'#fce7f3',border:'#ec4899',text:'#db2777'},
+                    {bg:'#d1fae5',border:'#10b981',text:'#059669'},
+                    {bg:'#e0e7ff',border:'#6366f1',text:'#4f46e5'},
+                    {bg:'#ffe4e6',border:'#f43f5e',text:'#e11d48'},
+                    {bg:'#f3e8ff',border:'#a855f7',text:'#9333ea'},
+                    {bg:'#ccfbf1',border:'#14b8a6',text:'#0d9488'},
+                    {bg:'#fef08a',border:'#eab308',text:'#ca8a04'},
+                    {bg:'#fbcfe8',border:'#ec4899',text:'#db2777'},
+                    {bg:'#bfdbfe',border:'#3b82f6',text:'#2563eb'},
+                    {bg:'#c7d2fe',border:'#818cf8',text:'#6366f1'}
+>>>>>>> integration
                 ] %}
 
                 {% for deck in decks %}
                     {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
-
+<<<<<<< HEAD
+                    
                     <div class="deck-card bg-white rounded-2xl shadow-lg border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col"
                          style="border-color: {{ palette.border }};"
+=======
+
+                    <div class="deck-card card hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
+>>>>>>> integration
                          data-title="{{ deck.titre|lower }}"
                          data-matiere="{{ deck.matiere|lower }}"
                          data-niveau="{{ deck.niveau|lower }}"
                          data-description="{{ deck.description|lower }}"
                          data-date="{{ deck.dateCreation ? deck.dateCreation|date('Y-m-d') : '' }}">
-
+<<<<<<< HEAD
+                        
                         <!-- Photo de couverture -->
                         <div class="h-32 overflow-hidden relative">
                             {% if deck.image %}
@@ -537,7 +897,7 @@
                                 </div>
                             {% endif %}
                         </div>
-
+                        
                         <!-- Header avec icône et date -->
                         <div class="p-5 pb-0">
                             <div class="flex items-start justify-between mb-4">
@@ -546,7 +906,7 @@
                                      style="background-color: rgba(255, 255, 255, 0.9); border: 2px solid {{ palette.border }};">
                                     <i data-lucide="layers" class="w-6 h-6" style="color: {{ palette.text }};"></i>
                                 </div>
-
+                                
                                 <!-- Date de création -->
                                 <span class="text-xs text-slate-500 font-medium">
                                     {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
@@ -579,7 +939,7 @@
                                     <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>
                                     {{ deck.flashcards|length }} cards
                                 </span>
-
+                                
                                 <!-- Cartes maîtrisées -->
                                 <span class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-green-100 text-green-700 border border-green-300 shadow-sm">
                                     <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
@@ -589,10 +949,52 @@
                                             {% set mastered = mastered + 1 %}
                                         {% endif %}
                                     {% endfor %}
+=======
+
+                        <div class="h-32 overflow-hidden rounded-t-xl relative">
+                            {% if deck.image %}
+                                <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}"
+                                     class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center"
+                                     style="background:linear-gradient(135deg,{{ palette.bg }},{{ palette.border }});">
+                                    <i data-lucide="layers" class="w-16 h-16 opacity-80" style="color:{{ palette.text }};"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-white dark:bg-secondary-800 shadow-md flex items-center justify-center -mt-8 border-2" style="border-color:{{ palette.border }};">
+                                    <i data-lucide="layers" class="w-6 h-6" style="color:{{ palette.text }};"></i>
+                                </div>
+                                <span class="text-xs text-secondary-500 font-medium">{{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}</span>
+                            </div>
+                            
+                            <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color:{{ palette.text }};">{{ deck.titre }}</h3>
+                            
+                            <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-3 flex items-center gap-1.5">
+                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                                {{ deck.matiere }} • {{ deck.niveau }}
+                            </p>
+                            
+                            <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-4 line-clamp-2">{{ deck.description ?: 'No description available' }}</p>
+
+                            <div class="flex gap-2 mb-4">
+                                <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
+                                      style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1px solid {{ palette.border }};">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>{{ deck.flashcards|length }} cards
+                                </span>
+                                <span class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-success-100 text-success-700 border border-success-300 shadow-sm">
+                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
+                                    {% set mastered = 0 %}
+                                    {% for flashcard in deck.flashcards %}{% if flashcard.niveauDifficulte == 4 %}{% set mastered = mastered + 1 %}{% endif %}{% endfor %}
+>>>>>>> integration
                                     {{ mastered }} mastered
                                 </span>
                             </div>
 
+<<<<<<< HEAD
                             <!-- Barre de progression -->
                             <div class="mb-4">
                                 <div class="flex justify-between items-center mb-2">
@@ -614,16 +1016,77 @@
 
                             <!-- Boutons d'action principaux -->
                             <div class="flex flex-col gap-2">
-                                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                                <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
                                    class="inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition shadow-md text-white"
                                    style="background-color: {{ palette.text }};">
+=======
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Progress</span>
+                                    <span class="text-sm font-bold" style="color:{{ palette.text }};">
+                                        {% if deck.flashcards|length > 0 %}{{ ((mastered / deck.flashcards|length)*100)|round }}%{% else %}0%{% endif %}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-secondary-200 dark:bg-secondary-700 rounded-full h-2.5 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500"
+                                         style="width:{% if deck.flashcards|length > 0 %}{{ ((mastered / deck.flashcards|length)*100)|round }}%{% else %}0%{% endif %};background-color:{{ palette.text }};"></div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-2 mt-auto">
+                                <!-- Rating Button -->
+                                <div>
+                                    <a href="{{ path('app_rating_page', {deckId: deck.id}) }}"
+                                       id="rate-btn-{{ deck.id }}"
+                                       class="btn w-full justify-center"
+                                       style="background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color:white; border:none;">
+                                        <span>⭐</span>
+                                        <span id="rate-btn-label-{{ deck.id }}">Rate this deck</span>
+                                        <span class="rate-badge ml-1" id="rate-badge-{{ deck.id }}"></span>
+                                        <span class="btn-mini-stars ml-1" id="rate-btn-stars-{{ deck.id }}">
+                                            <span class="btn-mini-star text-white/30">★</span>
+                                            <span class="btn-mini-star text-white/30">★</span>
+                                            <span class="btn-mini-star text-white/30">★</span>
+                                            <span class="btn-mini-star text-white/30">★</span>
+                                            <span class="btn-mini-star text-white/30">★</span>
+                                        </span>
+                                    </a>
+                                    <div class="deck-community-score mt-1 text-center text-xs" id="dcs-{{ deck.id }}">
+                                        <span class="text-secondary-400">loading...</span>
+                                    </div>
+                                </div>
+
+                                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                                   class="btn w-full justify-center text-white border-0"
+                                   style="background-color:{{ palette.text }};">
+>>>>>>> integration
                                     <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
                                     Study this deck
                                 </a>
 
-                                <a data-turbo="false" href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
+<<<<<<< HEAD
+                                <!-- ═══ BOUTON QR CODE - NOUVEAU ═══ -->
+                                <button onclick="showQRModal({{ deck.idDeck }}, '{{ deck.titre|e('js') }}')"
+                                        class="qr-btn">
+                                    <i data-lucide="qr-code" class="w-4 h-4"></i>
+                                    Share with QR Code
+                                </button>
+
+                                <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
                                    class="inline-flex items-center justify-center px-4 py-2.5 font-semibold rounded-lg transition shadow-md border-2"
                                    style="background-color: {{ palette.bg }}; color: {{ palette.text }}; border-color: {{ palette.border }};">
+=======
+                                <button type="button"
+                                        onclick="showQRModal({{ deck.id }}, '{{ deck.titre|e('js') }}')"
+                                        class="btn btn-secondary w-full justify-center">
+                                    <i data-lucide="qr-code" class="w-4 h-4 mr-2"></i>
+                                    Share with QR Code
+                                </button>
+
+                                <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
+                                   class="btn w-full justify-center border-2"
+                                   style="background-color:{{ palette.bg }};color:{{ palette.text }};border-color:{{ palette.border }};">
+>>>>>>> integration
                                     <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
                                     Add a flashcard
                                 </a>
@@ -634,29 +1097,162 @@
             </div>
         {% endif %}
     </div>
+
+<<<<<<< HEAD
+    <!-- Message "Aucun résultat" (template) -->
+    <template id="noResultsTemplate">
+        <div class="no-results">
+            <i data-lucide="search-x" class="no-results-icon"></i>
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No results found</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">
+                Try adjusting your filters or search terms
+            </p>
+            <button type="button" id="clearSearch" class="action-button reset dark:action-button.reset.dark mx-auto">
+=======
+    <!-- No Results Template -->
+    <template id="noResultsTemplate">
+        <div class="card p-12 text-center">
+            <i data-lucide="search-x" class="w-20 h-20 mx-auto text-secondary-300 dark:text-secondary-600 mb-6"></i>
+            <h3 class="text-2xl font-semibold text-secondary-900 dark:text-white mb-3">No results found</h3>
+            <p class="text-secondary-600 dark:text-secondary-400 mb-6">Try adjusting your filters or search terms</p>
+            <button type="button" id="clearSearch" class="btn btn-secondary mx-auto">
+>>>>>>> integration
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Clear all filters
+            </button>
+        </div>
+    </template>
 </div>
 
-<!-- Template pour "Aucun résultat" -->
-<template id="noResultsTemplate">
-    <div class="no-results dark:no-results.dark bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
-        <i data-lucide="search" class="w-20 h-20 mx-auto no-results-icon mb-6"></i>
-        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks found</h3>
-        <p class="text-slate-600 dark:text-slate-400 mb-6">
-            Try adjusting your search or filter to find what you're looking for.
-        </p>
-        <button type="button" id="clearSearch" class="inline-flex items-center px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-medium rounded-lg transition">
-            <i data-lucide="x" class="w-5 h-5 mr-2"></i>
-            Clear all filters
-        </button>
+<<<<<<< HEAD
+<!-- ═══════════════════════════════════════════════
+     📱 QR CODE MODAL - NOUVEAU
+═══════════════════════════════════════════════ -->
+<div class="qr-modal" id="qr-modal">
+    <div class="qr-modal-content">
+        <div class="qr-modal-header">
+            <h3 id="qr-modal-title">Share this deck</h3>
+            <p>Scan to import instantly</p>
+        </div>
+        
+        <div class="qr-modal-qr">
+            <img id="qr-modal-image" src="" alt="QR Code" width="300" height="300" style="display:none;">
+            <div id="qr-loading" class="qr-loading">
+                <div class="spinner"></div>
+                <p>Generating QR Code...</p>
+            </div>
+        </div>
+        
+        <div class="qr-modal-actions">
+            <a id="qr-modal-share" href="#" class="qr-modal-btn primary">
+                <i data-lucide="share-2" class="w-4 h-4"></i>
+                View Share Options
+            </a>
+            <button onclick="closeQRModal()" class="qr-modal-btn secondary">
+                <i data-lucide="x" class="w-4 h-4"></i>
+                Close
+            </button>
+=======
+<!-- QR Modal -->
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-50" id="qr-modal" onclick="if(event.target===this)closeQRModal()">
+    <div class="bg-white dark:bg-secondary-800 rounded-2xl max-w-md w-full mx-4 shadow-2xl animate-fade-in">
+        <div class="p-6 text-center">
+            <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-1" id="qr-modal-title">Share this deck</h3>
+            <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-6">Scan to import instantly</p>
+            
+            <div class="bg-secondary-100 dark:bg-secondary-700 rounded-xl p-4 mb-6">
+                <img id="qr-modal-image" src="" alt="QR Code" class="mx-auto rounded-lg max-w-full h-auto" style="display:none;">
+                <div id="qr-loading" class="py-8 text-center">
+                    <div class="inline-block w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                    <p class="text-sm text-secondary-600 dark:text-secondary-400">Generating QR Code...</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <a id="qr-modal-share" href="#" class="btn btn-primary flex-1 justify-center">
+                    <i data-lucide="share-2" class="w-4 h-4 mr-2"></i>
+                    Share Options
+                </a>
+                <button type="button" onclick="closeQRModal()" class="btn btn-secondary flex-1 justify-center">
+                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
+                    Close
+                </button>
+            </div>
+>>>>>>> integration
+        </div>
     </div>
-</template>
+</div>
+
+<<<<<<< HEAD
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
 <script>
+// ═══════════════════════════════════════════════
+//  📱 QR CODE MODAL FUNCTIONS - NOUVEAU
+// ═══════════════════════════════════════════════
+
+function showQRModal(deckId, deckTitle) {
+    const modal = document.getElementById('qr-modal');
+    const titleEl = document.getElementById('qr-modal-title');
+    const imageEl = document.getElementById('qr-modal-image');
+    const loadingEl = document.getElementById('qr-loading');
+    const shareLink = document.getElementById('qr-modal-share');
+    
+    // Mettre à jour le contenu
+    titleEl.textContent = deckTitle;
+    shareLink.href = `/qr/share/${deckId}`;
+    
+    // Afficher le loading
+    imageEl.style.display = 'none';
+    loadingEl.style.display = 'block';
+    
+    // Afficher le modal
+    modal.classList.add('show');
+    
+    // Charger le QR Code directement dans l'élément img
+    imageEl.onload = function() {
+        imageEl.style.display = 'block';
+        loadingEl.style.display = 'none';
+    };
+    imageEl.onerror = function() {
+        // Fallback vers api.qrserver.com si l'endpoint PHP échoue
+        const fallbackUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(window.location.origin + '/qr/import/preview-' + deckId);
+        if (imageEl.src !== fallbackUrl) {
+            imageEl.src = fallbackUrl;
+        } else {
+            loadingEl.innerHTML = '<p style="color: #ef4444; font-family: sans-serif;">❌ QR Code indisponible. Utilisez le lien de partage.</p>';
+        }
+    };
+    imageEl.alt = `QR Code - ${deckTitle}`;
+    imageEl.src = `/qr/deck/${deckId}`;
+    
+    // Fermer en cliquant en dehors
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            closeQRModal();
+        }
+    };
+}
+
+function closeQRModal() {
+    const modal = document.getElementById('qr-modal');
+    modal.classList.remove('show');
+}
+
+// Fermer avec la touche Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQRModal();
+    }
+});
+
+// ═══════════════════════════════════════════════
+//  🔍 SEARCH & FILTER FUNCTIONALITY - EXISTANT
+// ═══════════════════════════════════════════════
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Éléments DOM
     const deckSearch = document.getElementById('deckSearch');
     const searchButton = document.getElementById('searchButton');
     const subjectFilter = document.getElementById('subjectFilter');
@@ -670,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const resultCounter = document.getElementById('resultCounter');
     const sortIndicator = document.getElementById('sortIndicator');
     const noResultsTemplate = document.getElementById('noResultsTemplate');
-
+    
     // État courant
     let currentState = {
         search: '',
@@ -680,7 +1276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         dateTo: '',
         sort: 'date-desc'
     };
-
+    
     // Icônes pour l'indicateur de tri
     const sortIcons = {
         'date-desc': 'calendar',
@@ -688,58 +1284,58 @@ document.addEventListener('DOMContentLoaded', function() {
         'title': 'arrow-up-a-z',
         'title-desc': 'arrow-down-z-a'
     };
-
+    
     const sortLabels = {
         'date-desc': 'Newest First',
         'date': 'Oldest First',
         'title': 'Title A-Z',
         'title-desc': 'Title Z-A'
     };
-
+    
     // Fonction pour vérifier si une date est dans l'intervalle
     function isDateInRange(dateString, from, to) {
         if (!dateString) return false;
-
+        
         const date = new Date(dateString);
         const fromDate = from ? new Date(from) : null;
         const toDate = to ? new Date(to) : null;
-
+        
         if (fromDate && date < fromDate) return false;
         if (toDate && date > toDate) return false;
-
+        
         return true;
     }
-
+    
     // Fonction pour filtrer les decks
     function filterDecks() {
         let visibleCount = 0;
         const visibleDecks = [];
-
+        
         deckCards.forEach(card => {
             const title = card.getAttribute('data-title') || '';
             const matiere = card.getAttribute('data-matiere') || '';
             const niveau = card.getAttribute('data-niveau') || '';
             const description = card.getAttribute('data-description') || '';
             const date = card.getAttribute('data-date') || '';
-
+            
             // Vérifier la recherche
-            const searchMatch = currentState.search === '' ||
+            const searchMatch = currentState.search === '' || 
                 title.includes(currentState.search) ||
                 matiere.includes(currentState.search) ||
                 niveau.includes(currentState.search) ||
                 description.includes(currentState.search);
-
+            
             // Vérifier le sujet
-            const subjectMatch = currentState.subject === 'all' ||
+            const subjectMatch = currentState.subject === 'all' || 
                 matiere === currentState.subject;
-
+            
             // Vérifier le niveau
-            const levelMatch = currentState.level === 'all' ||
+            const levelMatch = currentState.level === 'all' || 
                 niveau === currentState.level;
-
+            
             // Vérifier la date
             const dateMatch = isDateInRange(date, currentState.dateFrom, currentState.dateTo);
-
+            
             // Afficher ou cacher la carte
             if (searchMatch && subjectMatch && levelMatch && dateMatch) {
                 card.style.display = 'flex';
@@ -753,14 +1349,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 card.style.display = 'none';
             }
         });
-
+        
         // Trier les decks visibles
         sortDecks(visibleDecks);
-
+        
         // Mettre à jour l'interface
         updateUI(visibleCount);
     }
-
+    
     // Fonction pour trier les decks
     function sortDecks(decks) {
         decks.sort((a, b) => {
@@ -777,7 +1373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     return 0;
             }
         });
-
+        
         // Réorganiser les cartes dans le DOM
         const gridContainer = decksContainer.querySelector('.grid');
         if (gridContainer) {
@@ -786,41 +1382,42 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
-
+    
     // Fonction pour mettre à jour l'interface
     function updateUI(visibleCount) {
         // Mettre à jour le compteur
         resultCounter.textContent = `Showing ${visibleCount} deck${visibleCount !== 1 ? 's' : ''}`;
-
+        
         // Mettre à jour l'indicateur de tri
         const iconName = sortIcons[currentState.sort];
         sortIndicator.innerHTML = `
             <i data-lucide="${iconName}" class="w-4 h-4"></i>
             Sorted by: ${sortLabels[currentState.sort]}
         `;
-        lucide.create();
-
+        lucide.createIcons();
+        
         // Gérer l'affichage "Aucun résultat"
         const gridContainer = decksContainer.querySelector('.grid');
         if (gridContainer) {
             if (visibleCount === 0) {
                 gridContainer.style.display = 'none';
                 const noResults = noResultsTemplate.content.cloneNode(true);
-
+                
                 // Supprimer d'abord l'ancien message
                 const existingNoResults = decksContainer.querySelector('.no-results');
                 if (existingNoResults) {
                     existingNoResults.remove();
                 }
-
+                
                 decksContainer.appendChild(noResults);
-
+                
                 // Ajouter l'écouteur d'événement pour effacer tout
                 setTimeout(() => {
                     const clearSearchBtn = decksContainer.querySelector('#clearSearch');
                     if (clearSearchBtn) {
                         clearSearchBtn.addEventListener('click', resetAllFilters);
                     }
+                    lucide.createIcons();
                 }, 100);
             } else {
                 gridContainer.style.display = 'grid';
@@ -831,7 +1428,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
+    
     // Fonction pour réinitialiser tous les filtres
     function resetAllFilters() {
         deckSearch.value = '';
@@ -839,12 +1436,12 @@ document.addEventListener('DOMContentLoaded', function() {
         levelFilter.value = 'all';
         dateFrom.value = '';
         dateTo.value = '';
-
+        
         // Réactiver le tri par défaut
         sortButtons.forEach(btn => btn.classList.remove('active'));
         const defaultSort = document.querySelector('.sort-button[data-sort="date-desc"]');
         if (defaultSort) defaultSort.classList.add('active');
-
+        
         // Réinitialiser l'état
         currentState = {
             search: '',
@@ -854,93 +1451,397 @@ document.addEventListener('DOMContentLoaded', function() {
             dateTo: '',
             sort: 'date-desc'
         };
-
+        
         // Réappliquer les filtres
         filterDecks();
     }
-
+    
     // Écouteurs d'événements
     // Recherche
     deckSearch.addEventListener('input', function() {
         currentState.search = this.value.trim().toLowerCase();
         filterDecks();
     });
-
+    
     searchButton.addEventListener('click', function() {
         currentState.search = deckSearch.value.trim().toLowerCase();
         filterDecks();
     });
-
+    
     deckSearch.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             currentState.search = this.value.trim().toLowerCase();
             filterDecks();
         }
     });
-
+    
     // Filtres
     subjectFilter.addEventListener('change', function() {
         currentState.subject = this.value;
         filterDecks();
     });
-
+    
     levelFilter.addEventListener('change', function() {
         currentState.level = this.value;
         filterDecks();
     });
-
+    
     dateFrom.addEventListener('change', function() {
         currentState.dateFrom = this.value;
         filterDecks();
     });
-
+    
     dateTo.addEventListener('change', function() {
         currentState.dateTo = this.value;
         filterDecks();
     });
-
+    
     // Tris
     sortButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Retirer la classe active de tous les boutons
             sortButtons.forEach(btn => btn.classList.remove('active'));
-
+            
             // Ajouter la classe active au bouton cliqué
             this.classList.add('active');
-
+            
             // Mettre à jour le tri courant
             currentState.sort = this.getAttribute('data-sort');
-
+            
             // Appliquer le tri
             filterDecks();
         });
     });
-
+    
     // Réinitialisation
     resetButton.addEventListener('click', resetAllFilters);
-
+    
     // Initialisation
     filterDecks();
+    
+    // Créer les icônes Lucide
+=======
+<!-- Gamification Toast -->
+<div class="fixed bottom-6 right-6 bg-white dark:bg-secondary-800 rounded-xl shadow-2xl border-l-4 border-primary-500 p-4 transform translate-x-[120%] transition-transform duration-300 z-50 max-w-sm" id="gami-toast">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-2xl" id="gami-toast-icon">🎖</div>
+        <div>
+            <h4 class="font-semibold text-secondary-900 dark:text-white" id="gami-toast-title">Badge unlocked!</h4>
+            <p class="text-sm text-secondary-500 dark:text-secondary-400" id="gami-toast-msg">Master Deck 🎖</p>
+        </div>
+    </div>
+</div>
 
-    // Mode sombre/clair
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDarkMode = darkModeMediaQuery.matches;
+<script>
+// QR Modal Functions
+function showQRModal(id, title) {
+    const modal = document.getElementById('qr-modal');
+    const img = document.getElementById('qr-modal-image');
+    const loading = document.getElementById('qr-loading');
+    const shareLink = document.getElementById('qr-modal-share');
+    
+    document.getElementById('qr-modal-title').textContent = title;
+    shareLink.href = '/qr/share/' + id;
+    
+    img.style.display = 'none';
+    loading.style.display = 'block';
+    modal.classList.remove('hidden');
+    
+    img.onload = function() {
+        img.style.display = 'block';
+        loading.style.display = 'none';
+    };
+    
+    img.onerror = function() {
+        const fallback = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+                        encodeURIComponent(window.location.origin + '/qr/import/preview-' + id);
+        if (img.src !== fallback) {
+            img.src = fallback;
+        } else {
+            loading.innerHTML = '<p class="text-danger-500">❌ Unable to generate QR code</p>';
+        }
+    };
+    
+    img.alt = 'QR - ' + title;
+    img.src = '/qr/deck/' + id;
+}
 
-    if (isDarkMode) {
-        deckSearch.classList.add('dark');
-        searchButton.classList.add('dark');
-        subjectFilter.classList.add('dark');
-        levelFilter.classList.add('dark');
-        dateFrom.classList.add('dark');
-        dateTo.classList.add('dark');
-        sortButtons.forEach(button => button.classList.add('dark'));
-        resetButton.classList.add('dark');
+function closeQRModal() {
+    document.getElementById('qr-modal').classList.add('hidden');
+}
 
-        // Add dark mode to labels
-        document.querySelectorAll('.filter-label').forEach(label => {
-            label.classList.add('dark');
-        });
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeQRModal();
+});
+
+// Gamification Toast
+function showGamiToast(icon, title, msg) {
+    const toast = document.getElementById('gami-toast');
+    if (!toast) return;
+    
+    document.getElementById('gami-toast-icon').textContent = icon;
+    document.getElementById('gami-toast-title').textContent = title;
+    document.getElementById('gami-toast-msg').textContent = msg;
+    
+    toast.classList.remove('translate-x-[120%]');
+    setTimeout(() => toast.classList.add('translate-x-[120%]'), 4000);
+}
+
+function gamiCorrectAnswer() {
+    fetch('/gamification/correct-answer', { 
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.success) return;
+        if (d.newBadges && d.newBadges.length > 0) {
+            showGamiToast('🎖', 'Badge unlocked!', d.newBadges[0]);
+        } else {
+            showGamiToast('🎯', '+10 XP', d.message || 'Correct answer!');
+        }
+    })
+    .catch(() => {});
+}
+
+function gamiDeckCompleted(deckId) {
+    fetch('/gamification/deck-completed/' + deckId, { 
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (!d.success) return;
+        if (d.newBadges && d.newBadges.length > 0) {
+            showGamiToast('🏆', 'Badge earned!', d.newBadges[0]);
+        } else {
+            showGamiToast('🏆', '+50 XP', 'Deck completed!');
+        }
+    })
+    .catch(() => {});
+}
+
+// Load Community Scores
+function loadDeckScore(deckId) {
+    fetch('/rating/deck/' + deckId + '/my-rating')
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) return;
+
+        const dcs = document.getElementById('dcs-' + deckId);
+        if (dcs) {
+            if (data.total > 0 && data.average > 0) {
+                dcs.innerHTML = 
+                    '<span class="text-warning-500">★</span>' +
+                    '<span class="font-semibold text-warning-600 dark:text-warning-400 mx-1">' + 
+                    parseFloat(data.average).toFixed(1) + '</span>' +
+                    '<span class="text-secondary-400">·</span>' +
+                    '<span class="text-secondary-500 ml-1">' + data.total + ' rating' + (data.total > 1 ? 's' : '') + '</span>';
+            } else {
+                dcs.innerHTML = '<span class="text-secondary-400">No ratings yet</span>';
+            }
+        }
+
+        if (data.userStars) {
+            const labelEl = document.getElementById('rate-btn-label-' + deckId);
+            const starsEl = document.getElementById('rate-btn-stars-' + deckId);
+            const badgeEl = document.getElementById('rate-badge-' + deckId);
+
+            if (labelEl) labelEl.textContent = 'My rating';
+            if (badgeEl) {
+                badgeEl.textContent = data.userStars + '★';
+                badgeEl.classList.add('inline');
+            }
+            if (starsEl) {
+                starsEl.querySelectorAll('.btn-mini-star').forEach((s, i) => {
+                    s.className = i < data.userStars ? 'btn-mini-star text-warning-400' : 'btn-mini-star text-white/30';
+                });
+            }
+        }
+    })
+    .catch(() => {
+        const dcs = document.getElementById('dcs-' + deckId);
+        if (dcs) dcs.innerHTML = '';
+    });
+}
+
+// Search & Filter
+document.addEventListener('DOMContentLoaded', function() {
+    // Load scores
+    document.querySelectorAll('[id^="rate-btn-"]').forEach(btn => {
+        const id = btn.id.replace('rate-btn-', '');
+        if (id) loadDeckScore(id);
+    });
+
+    const DS = document.getElementById('deckSearch');
+    const SF = document.getElementById('subjectFilter');
+    const LF = document.getElementById('levelFilter');
+    const DF = document.getElementById('dateFrom');
+    const DT = document.getElementById('dateTo');
+    const SORTS = document.querySelectorAll('.sort-button');
+    const RESET = document.getElementById('resetFilters');
+    const CARDS = document.querySelectorAll('.deck-card');
+    const CONT = document.getElementById('decksContainer');
+    const RC = document.getElementById('resultCounter');
+    const SI = document.getElementById('sortIndicator');
+    const NRT = document.getElementById('noResultsTemplate');
+
+    let state = { search: '', subject: 'all', level: 'all', dateFrom: '', dateTo: '', sort: 'date-desc' };
+    const sicons = { 'date-desc': 'calendar', 'date': 'calendar', 'title': 'arrow-up-a-z', 'title-desc': 'arrow-down-z-a' };
+    const slabels = { 'date-desc': 'Newest First', 'date': 'Oldest First', 'title': 'Title A-Z', 'title-desc': 'Title Z-A' };
+
+    function inRange(ds, from, to) {
+        if (!ds) return false;
+        const d = new Date(ds);
+        if (from && d < new Date(from)) return false;
+        if (to && d > new Date(to)) return false;
+        return true;
     }
+
+    function filter() {
+        let visibleCount = 0;
+        let visibleDecks = [];
+
+        CARDS.forEach(c => {
+            const t = c.getAttribute('data-title') || '';
+            const m = c.getAttribute('data-matiere') || '';
+            const n = c.getAttribute('data-niveau') || '';
+            const de = c.getAttribute('data-description') || '';
+            const dt = c.getAttribute('data-date') || '';
+            
+            const searchMatch = state.search === '' || 
+                t.includes(state.search) || 
+                m.includes(state.search) || 
+                n.includes(state.search) || 
+                de.includes(state.search);
+            
+            const subjectMatch = state.subject === 'all' || m === state.subject;
+            const levelMatch = state.level === 'all' || n === state.level;
+            const dateMatch = inRange(dt, state.dateFrom, state.dateTo);
+            
+            const ok = searchMatch && subjectMatch && levelMatch && dateMatch;
+            
+            if (ok) {
+                c.style.display = 'flex';
+                visibleCount++;
+                visibleDecks.push({ element: c, title: t, date: dt });
+            } else {
+                c.style.display = 'none';
+            }
+        });
+
+        sortCards(visibleDecks);
+        updateUI(visibleCount);
+    }
+
+    function sortCards(decks) {
+        decks.sort((a, b) => {
+            switch(state.sort) {
+                case 'date-desc': return new Date(b.date) - new Date(a.date);
+                case 'date': return new Date(a.date) - new Date(b.date);
+                case 'title': return a.title.localeCompare(b.title);
+                case 'title-desc': return b.title.localeCompare(a.title);
+                default: return 0;
+            }
+        });
+        
+        const grid = CONT.querySelector('.grid');
+        if (grid) {
+            decks.forEach(d => grid.appendChild(d.element));
+        }
+    }
+
+    function updateUI(visibleCount) {
+        RC.textContent = 'Showing ' + visibleCount + ' deck' + (visibleCount !== 1 ? 's' : '');
+        SI.innerHTML = '<i data-lucide="' + sicons[state.sort] + '" class="w-4 h-4 mr-1"></i> Sorted by: ' + slabels[state.sort];
+        lucide.createIcons();
+
+        const grid = CONT.querySelector('.grid');
+        if (!grid) return;
+
+        if (visibleCount === 0) {
+            grid.style.display = 'none';
+            const nr = NRT.content.cloneNode(true);
+            const existing = CONT.querySelector('.no-results');
+            if (existing) existing.remove();
+            CONT.appendChild(nr);
+            setTimeout(() => {
+                const cb = CONT.querySelector('#clearSearch');
+                if (cb) cb.addEventListener('click', resetAll);
+                lucide.createIcons();
+            }, 100);
+        } else {
+            grid.style.display = 'grid';
+            const nr = CONT.querySelector('.no-results');
+            if (nr) nr.remove();
+        }
+    }
+
+    function resetAll() {
+        DS.value = '';
+        SF.value = 'all';
+        LF.value = 'all';
+        DF.value = '';
+        DT.value = '';
+        
+        SORTS.forEach(b => b.classList.remove('active'));
+        const def = document.querySelector('.sort-button[data-sort="date-desc"]');
+        if (def) def.classList.add('active');
+        
+        state = { search: '', subject: 'all', level: 'all', dateFrom: '', dateTo: '', sort: 'date-desc' };
+        filter();
+    }
+
+    DS.addEventListener('input', () => {
+        state.search = DS.value.trim().toLowerCase();
+        filter();
+    });
+
+    DS.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            state.search = DS.value.trim().toLowerCase();
+            filter();
+        }
+    });
+
+    SF.addEventListener('change', () => {
+        state.subject = SF.value;
+        filter();
+    });
+
+    LF.addEventListener('change', () => {
+        state.level = LF.value;
+        filter();
+    });
+
+    DF.addEventListener('change', () => {
+        state.dateFrom = DF.value;
+        filter();
+    });
+
+    DT.addEventListener('change', () => {
+        state.dateTo = DT.value;
+        filter();
+    });
+
+    SORTS.forEach(b => {
+        b.addEventListener('click', function() {
+            SORTS.forEach(x => x.classList.remove('active'));
+            b.classList.add('active');
+            state.sort = b.getAttribute('data-sort');
+            filter();
+        });
+    });
+
+    RESET.addEventListener('click', resetAll);
+    
+    // Initialize active sort button
+    SORTS.forEach(b => b.classList.remove('active'));
+    document.querySelector('.sort-button[data-sort="date-desc"]')?.classList.add('active');
+    
+    filter();
+>>>>>>> integration
+    lucide.createIcons();
 });
 </script>
 {% endblock %}

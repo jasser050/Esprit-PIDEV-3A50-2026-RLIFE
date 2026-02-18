@@ -1,99 +1,357 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}Create New Deck{% endblock %}
+{% block title %}Create a Deck - RLIFE Admin{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* ✅ Styles pour les erreurs de validation serveur */
+        .form-errors {
+            color: #dc2626;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        .form-errors ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .form-errors li {
+            padding: 0.25rem 0;
+        }
+        
+        .form-errors li::before {
+            content: "⚠️ ";
+            margin-right: 0.25rem;
+        }
+        
+        /* Bordure rouge pour champs invalides */
+        .is-invalid {
+            border-color: #ef4444 !important;
+            border-width: 2px !important;
+            background-color: #fef2f2 !important;
+        }
+        
+        .dark .is-invalid {
+            background-color: #7f1d1d !important;
+        }
+        
+        /* Animation shake pour attirer l'attention */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Style pour les flash messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert-error {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
-<div class="space-y-6 animate-fade-in">
-    <!-- Flash Messages -->
+<div class="space-y-8 max-w-4xl mx-auto px-4 sm:px-6 animate-fade-in">
+    
+    {# ✅ AFFICHAGE DES FLASH MESSAGES #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="alert alert-{{ label == 'error' ? 'danger' : label }} mb-4">
-                {{ message }}
+            <div class="alert alert-{{ label }}">
+                {% if label == 'error' %}
+                    ❌ {{ message }}
+                {% elseif label == 'success' %}
+                    ✅ {{ message }}
+                {% else %}
+                    ℹ️ {{ message }}
+                {% endif %}
             </div>
         {% endfor %}
     {% endfor %}
-
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Create New Deck</h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Add a new flashcard deck to the system</p>
-        </div>
-        <a href="{{ path('app_admin_revision') }}" class="btn btn-ghost">
-            <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
-            Back to Decks
+    
+    <nav class="flex items-center text-sm gap-2">
+        <a href="{{ path('app_admin_dashboard') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">
+            Dashboard
         </a>
+        <span class="text-slate-400">›</span>
+        <a href="{{ path('app_admin_revision') }}" class="text-slate-500 hover:text-indigo-600 transition font-medium">Revisions</a>
+        <span class="text-slate-400">›</span>
+        <span class="font-semibold text-indigo-600">Create Deck</span>
+    </nav>
+
+    <div class="relative">
+        <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-3xl blur-3xl"></div>
+        <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg text-2xl">
+                        📚
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Create New Deck</h1>
+                        <p class="mt-1 text-slate-600 dark:text-slate-400">
+                            Remplissez tous les champs obligatoires (*) pour créer votre deck
+                        </p>
+                    </div>
+                </div>
+                <a href="{{ path('app_admin_revision') }}"
+                   class="inline-flex items-center justify-center px-5 py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition shadow-sm gap-2">
+                    ← Back
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- Form Card -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-8">
-        {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
-        
-        {# Display all form errors #}
-        {{ form_errors(form) }}
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      
+        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 px-8 py-6 border-b border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+                ✏️ Deck Information
+            </h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Les champs marqués d'un astérisque (*) sont obligatoires
+            </p>
+        </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Title -->
-            <div class="form-group md:col-span-2">
-                {{ form_label(form.titre, 'Deck Title', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                {{ form_widget(form.titre, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'Enter deck title...'}}) }}
-                {{ form_errors(form.titre) }}
+        <div class="p-8">
+            {# ✅ DÉSACTIVER la validation HTML5 pour laisser PHP gérer #}
+            {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+                {# ========================================= #}
+                {# TITRE                                     #}
+                {# ========================================= #}
+                <div class="md:col-span-2">
+                    <label for="{{ form.titre.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        📝 Titre du Deck <span class="text-red-500">*</span>
+                    </label>
+                    
+                    {{ form_widget(form.titre, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base font-medium' ~ (form.titre.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'placeholder': 'Exemple : Biologie - Système nerveux, Vocabulaire Espagnol A2...'
+                        }
+                    }) }}
+                    
+                    {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
+                    {{ form_errors(form.titre) }}
+                    
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Minimum 3 caractères • Ne doit pas commencer par un chiffre
+                    </p>
+                </div>
+
+                {# ========================================= #}
+                {# MATIÈRE                                   #}
+                {# ========================================= #}
+                <div>
+                    <label for="{{ form.matiere.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        📚 Matière <span class="text-red-500">*</span>
+                    </label>
+                    
+                    {{ form_widget(form.matiere, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base' ~ (form.matiere.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'placeholder': 'Exemple : Biologie, Anglais, Mathématiques...'
+                        }
+                    }) }}
+                    
+                    {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
+                    {{ form_errors(form.matiere) }}
+                    
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Minimum 3 caractères
+                    </p>
+                </div>
+
+                {# ========================================= #}
+                {# NIVEAU                                    #}
+                {# ========================================= #}
+                <div>
+                    <label for="{{ form.niveau.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        🎓 Niveau <span class="text-red-500">*</span>
+                    </label>
+                    
+                    {{ form_widget(form.niveau, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 text-base' ~ (form.niveau.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'placeholder': 'Exemple : Lycée, Licence, B1, Terminale...'
+                        }
+                    }) }}
+                    
+                    {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
+                    {{ form_errors(form.niveau) }}
+                    
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Indiquez le niveau scolaire
+                    </p>
+                </div>
             </div>
 
-            <!-- Subject -->
-            <div class="form-group">
-                {{ form_label(form.matiere, 'Subject', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                {{ form_widget(form.matiere, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'e.g., Mathematics, Biology...'}}) }}
-                {{ form_errors(form.matiere) }}
-            </div>
-
-            <!-- Level -->
-            <div class="form-group">
-                {{ form_label(form.niveau, 'Level', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                {{ form_widget(form.niveau, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'placeholder': 'e.g., Beginner, Intermediate, Advanced'}}) }}
-                {{ form_errors(form.niveau) }}
-            </div>
-
-            <!-- Description -->
-            <div class="form-group md:col-span-2">
-                {{ form_label(form.description, 'Description (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                {{ form_widget(form.description, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white', 'rows': 4, 'placeholder': 'Describe this deck...'}}) }}
+            {# ========================================= #}
+            {# DESCRIPTION                               #}
+            {# ========================================= #}
+            <div class="mt-6">
+                <label for="{{ form.description.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    💭 Description <span class="text-red-500">*</span>
+                </label>
+                
+                {{ form_widget(form.description, {
+                    'attr': {
+                        'rows': 4,
+                        'class': 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 dark:focus:ring-indigo-900/50 outline-none transition-all duration-200 min-h-[120px] text-base resize-none' ~ (form.description.vars.errors|length > 0 ? ' is-invalid' : ''),
+                        'placeholder': 'Décrivez le contenu, les objectifs, les chapitres ou compétences abordées...'
+                    }
+                }) }}
+                
+                {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
                 {{ form_errors(form.description) }}
+                
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                    ℹ️ Maximum 2000 caractères
+                </p>
             </div>
 
-            <!-- Image Upload -->
-            <div class="form-group">
-                {{ form_label(form.imageFile, 'Deck Image (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                <div class="flex items-center gap-4">
-                    {{ form_widget(form.imageFile, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white'}}) }}
+            {# Divider #}
+            <div class="relative py-6">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t-2 border-slate-200 dark:border-slate-700"></div>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">Max 5MB. JPG, PNG, WEBP, or GIF</p>
-                {{ form_errors(form.imageFile) }}
+                <div class="relative flex justify-center">
+                    <span class="bg-white dark:bg-slate-800 px-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                        🖼️ Fichiers média
+                    </span>
+                </div>
             </div>
 
-            <!-- PDF Upload -->
-            <div class="form-group">
-                {{ form_label(form.pdfFile, 'PDF Resource (Optional)', {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2'}}) }}
-                <div class="flex items-center gap-4">
-                    {{ form_widget(form.pdfFile, {'attr': {'class': 'w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-primary-500 dark:bg-slate-700 dark:text-white'}}) }}
+            {# ========================================= #}
+            {# FICHIERS                                  #}
+            {# ========================================= #}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {# IMAGE #}
+                <div>
+                    <label for="{{ form.imageFile.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        🖼️ Image de couverture <span class="text-red-500">*</span>
+                    </label>
+                    
+                    {{ form_widget(form.imageFile, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-purple-400 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 dark:focus:ring-purple-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-900/30 dark:file:text-purple-400' ~ (form.imageFile.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'accept': 'image/jpeg,image/png,image/webp,image/gif'
+                        }
+                    }) }}
+                    
+                    {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
+                    {{ form_errors(form.imageFile) }}
+                    
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Max 5 Mo • JPG, PNG, WEBP, GIF
+                    </p>
                 </div>
-                <p class="text-xs text-slate-500 mt-2">Max 10MB. PDF only</p>
-                {{ form_errors(form.pdfFile) }}
+
+                {# PDF #}
+                <div>
+                    <label for="{{ form.pdfFile.vars.id }}" class="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                        📄 Fichier PDF <span class="text-red-500">*</span>
+                    </label>
+                    
+                    {{ form_widget(form.pdfFile, {
+                        'attr': {
+                            'class': 'w-full px-4 py-3 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white hover:border-amber-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-100 dark:focus:ring-amber-900/50 transition-all duration-200 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 dark:file:bg-amber-900/30 dark:file:text-amber-400' ~ (form.pdfFile.vars.errors|length > 0 ? ' is-invalid' : ''),
+                            'accept': 'application/pdf'
+                        }
+                    }) }}
+                    
+                    {# ✅ AFFICHER LES ERREURS SANS CONDITION #}
+                    {{ form_errors(form.pdfFile) }}
+                    
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+                        ℹ️ Max 10 Mo • PDF uniquement
+                    </p>
+                </div>
+            </div>
+
+            {# Buttons #}
+            <div class="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-8 mt-8 border-t-2 border-slate-200 dark:border-slate-700">
+                <a href="{{ path('app_admin_revision') }}"
+                   class="px-6 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition-all shadow-sm text-center">
+                    ✕ Cancel
+                </a>
+                <button type="submit"
+                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center gap-2">
+                    ✓ Create Deck
+                </button>
+            </div>
+
+            {{ form_end(form) }}
+        </div>
+    </div>
+
+    {# Tips Card #}
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-2xl border-2 border-blue-200 dark:border-blue-800 p-6 shadow-lg">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center flex-shrink-0 text-xl">
+                💡
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-900 dark:text-white mb-2">Règles de validation</h3>
+                <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-400">
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span><strong>Titre :</strong> minimum 3 caractères, ne doit pas commencer par un chiffre</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span><strong>Matière :</strong> minimum 3 caractères</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span><strong>Description :</strong> maximum 2000 caractères</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span><strong>Image :</strong> max 5 Mo, formats JPG/PNG/WEBP/GIF</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-green-500 flex-shrink-0">✓</span>
+                        <span><strong>PDF :</strong> max 10 Mo, format PDF uniquement</span>
+                    </li>
+                </ul>
             </div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center justify-end gap-4 pt-6 border-t border-slate-200 dark:border-slate-700">
-            <a href="{{ path('app_admin_revision') }}" class="btn btn-ghost">
-                Cancel
-            </a>
-            <button type="submit" class="btn btn-primary">
-                <i data-lucide="save" class="w-5 h-5 mr-2"></i>
-                Create Deck
-            </button>
-        </div>
-
-        {{ form_end(form) }}
     </div>
 </div>
 {% endblock %}
+
+{# ✅ PAS DE JAVASCRIPT - Validation 100% côté serveur PHP #}

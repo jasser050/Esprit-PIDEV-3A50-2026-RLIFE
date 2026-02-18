@@ -296,9 +296,9 @@
     {% endif %}
 
     {# Statistiques #}
-    {% set totalDays = date_diff(assignment.dateDebut, assignment.dateFin).days %}
-    {% set elapsedDays = date_diff(assignment.dateDebut, now).days %}
-    {% set remainingDays = date_diff(now, assignment.dateFin).days %}
+    {% set totalDays = (assignment.dateDebut and assignment.dateFin) ? assignment.dateDebut.diff(assignment.dateFin).days : 0 %}
+    {% set elapsedDays = assignment.dateDebut ? assignment.dateDebut.diff(now).days : 0 %}
+    {% set remainingDays = assignment.dateFin ? now.diff(assignment.dateFin).days : 0 %}
     {% set progress = totalDays > 0 ? ((elapsedDays / totalDays * 100) > 100 ? 100 : (elapsedDays / totalDays * 100))|round(0) : 0 %}
     
     <div class="stats-grid">

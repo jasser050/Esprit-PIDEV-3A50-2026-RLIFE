@@ -5,67 +5,7 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    /* Force dark mode backgrounds */
-    .dark .bg-white {
-        background-color: #111827 !important;
-    }
-    
-    .dark .bg-gray-50 {
-        background-color: #0f172a !important;
-    }
-    
-    .dark input,
-    .dark textarea,
-    .dark select {
-        background-color: #1f2937 !important;
-        color: #f3f4f6 !important;
-        border-color: #4b5563 !important;
-    }
-    
-    .dark label {
-        color: #d1d5e1 !important;
-    }
-    
-    /* Validation visuelle en temps réel */
-    input:invalid:not(:placeholder-shown):not(:focus),
-    textarea:invalid:not(:placeholder-shown):not(:focus),
-    select:invalid:not(:focus) {
-        border-color: #ef4444 !important;
-        background-color: #fef2f2 !important;
-    }
-
-    input:valid:not(:placeholder-shown):not(:focus),
-    textarea:valid:not(:placeholder-shown):not(:focus),
-    select:valid:not(:focus) {
-        border-color: #10b981 !important;
-        background-color: #f0fdf4 !important;
-    }
-
-    /* Dark mode */
-    .dark input:invalid:not(:placeholder-shown):not(:focus),
-    .dark textarea:invalid:not(:placeholder-shown):not(:focus),
-    .dark select:invalid:not(:focus) {
-        background-color: #7f1d1d !important;
-    }
-
-    .dark input:valid:not(:placeholder-shown):not(:focus),
-    .dark textarea:valid:not(:placeholder-shown):not(:focus),
-    .dark select:valid:not(:focus) {
-        background-color: #064e3b !important;
-    }
-
-    /* Animation d'erreur */
-    .field-error {
-        animation: shake 0.3s ease-in-out;
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
-    }
-
-    /* Messages d'erreur */
+    /* Style épuré - uniquement pour l'affichage */
     .error-message {
         color: #ef4444;
         font-size: 0.875rem;
@@ -73,102 +13,46 @@
         font-weight: 500;
         display: block;
     }
-
+    
     .error-message:empty {
         display: none;
     }
-
-    /* Messages d'aide */
+    
     .help-text {
         color: #64748b;
         font-size: 0.75rem;
         margin-top: 0.375rem;
         display: block;
     }
-
-    .dark .help-text {
-        color: #94a3b8;
-    }
-
-    /* Indicateur de champ obligatoire */
+    
     label.required::after {
         content: " *";
         color: #ef4444;
         font-weight: bold;
-        font-size: 1.1em;
     }
-
-    /* Compteur de caractères */
-    .char-counter {
-        font-size: 0.75rem;
-        color: #94a3b8;
-        text-align: right;
-        margin-top: 0.25rem;
-    }
-
-    .dark .char-counter {
-        color: #cbd5e1;
-    }
-
-    .char-counter.warning {
-        color: #f59e0b;
-        font-weight: 600;
-    }
-
-    .char-counter.danger {
-        color: #ef4444;
-        font-weight: 700;
-    }
-
-    /* Styles des boutons */
+    
     .btn-cancel {
         padding: 0.875rem 1.75rem;
         background: #e5e7eb;
         color: #374151;
         font-weight: 500;
         border-radius: 0.5rem;
-        transition: all 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
     }
-    .btn-cancel:hover { 
-        background: #d1d5db; 
-        transform: translateY(-1px);
-    }
-
-    .dark .btn-cancel {
-        background: #374151;
-        color: #e5e7eb;
-    }
-    .dark .btn-cancel:hover {
-        background: #4b5563;
-    }
-
+    
     .btn-save {
         padding: 0.875rem 2rem;
         background: linear-gradient(to right, #4f46e5, #7c3aed);
         color: white;
         font-weight: 600;
         border-radius: 0.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
     }
-    .btn-save:hover {
-        background: linear-gradient(to right, #4338ca, #6d28d9);
-        transform: translateY(-1px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
-    .btn-save:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    /* Aperçu des fichiers */
+    
     .file-preview {
         margin-top: 0.75rem;
         padding: 0.75rem;
@@ -177,43 +61,10 @@
         border-radius: 0.5rem;
         font-size: 0.875rem;
     }
-
+    
     .dark .file-preview {
         background: #1f2937;
         border-color: #374151;
-    }
-
-    /* Alert de validation globale */
-    .validation-alert {
-        padding: 1rem;
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        border-radius: 0.5rem;
-        color: #991b1b;
-        margin-bottom: 1.5rem;
-        display: none;
-    }
-
-    .dark .validation-alert {
-        background: #7f1d1d;
-        border-color: #991b1b;
-        color: #fecaca;
-    }
-
-    .validation-alert.show {
-        display: block;
-        animation: slideDown 0.3s ease-out;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 </style>
 {% endblock %}
@@ -225,263 +76,186 @@
 
             <!-- Header -->
             <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-10 text-white">
-                <h1 class="text-3xl font-bold mb-2">Create New Flashcard</h1>
+                <h1 class="text-3xl font-bold mb-2">Créer une nouvelle Flashcard</h1>
                 <p class="text-indigo-100/90 text-lg">
-                    Deck: <strong class="text-white">{{ deck.titre }}</strong>
+                    Deck : <strong class="text-white">{{ deck.titre }}</strong>
                     <span class="opacity-80">({{ deck.matiere }} • {{ deck.niveau }})</span>
                 </p>
             </div>
 
             <!-- Form Body -->
-            <div class="p-8 lg:p-10 bg-white dark:bg-gray-900">
-                <!-- Validation Alert -->
-                <div id="validationAlert" class="validation-alert">
-                    <strong>⚠️ Validation Errors:</strong>
-                    <ul id="validationErrors" class="list-disc list-inside mt-2"></ul>
-                </div>
+            <div class="p-8 lg:p-10">
+                {# 
+                    ✅ CORRECTION : activation de 'novalidate' pour désactiver la validation HTML5
+                    ✅ La validation est UNIQUEMENT côté serveur avec Symfony Validator
+                #}
+                {{ form_start(form, {'attr': {'class': 'space-y-7', 'novalidate': 'novalidate'}}) }}
 
-                {{ form_start(form, {'attr': {'class': 'space-y-7', 'id': 'flashcardForm', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
-
-                <!-- Title (REQUIRED) -->
+                <!-- Titre -->
                 <div class="space-y-2">
-                    {{ form_label(form.titre, 'Flashcard Title', {
+                    {{ form_label(form.titre, 'Titre de la flashcard', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.titre, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                            'placeholder': 'e.g., Definition of nervous system, Pythagorean theorem...',
-                            'required': 'required',
-                            'minlength': '3',
-                            'maxlength': '255',
-                            'pattern': '^[^0-9].*',
-                            'data-field': 'titre',
-                            'id': 'flashcard_titre'
+                            'placeholder': 'Ex : Définition du système nerveux, Théorème de Pythagore...'
                         }
                     }) }}
-                    <p class="help-text">📌 Required – Min 3 characters – Cannot start with a number – Max 255 characters</p>
-                    <div class="char-counter" data-counter="titre">
-                        <span class="current">0</span> / 255 characters
-                    </div>
-                    {% if form.titre.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.titre.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-titre"></div>
+                    
+                    <p class="help-text">📌 Obligatoire – Min 3 caractères – Ne doit pas commencer par un chiffre – Max 255 caractères</p>
+                    
+                    {# ✅ CORRECTION : utilisation de form_errors() comme dans le workshop #}
+                    {{ form_errors(form.titre, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Question (REQUIRED) -->
+                <!-- Question -->
                 <div class="space-y-2">
                     {{ form_label(form.question, 'Question', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.question, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm min-h-[130px]',
-                            'placeholder': 'What is the capital of France? Explain the Pythagorean theorem...',
-                            'required': 'required',
-                            'minlength': '5',
-                            'maxlength': '2000',
-                            'data-field': 'question',
-                            'id': 'flashcard_question'
+                            'placeholder': 'Quelle est la capitale de la France ? Expliquez le théorème de Pythagore...'
                         }
                     }) }}
-                    <p class="help-text">📌 Required – Min 5 characters – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="question">
-                        <span class="current">0</span> / 2000 characters
-                    </div>
-                    {% if form.question.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.question.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-question"></div>
+                    
+                    <p class="help-text">📌 Obligatoire – Min 5 caractères – Max 2000 caractères</p>
+                    
+                    {{ form_errors(form.question, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Answer (REQUIRED) -->
+                <!-- Réponse -->
                 <div class="space-y-2">
-                    {{ form_label(form.reponse, 'Answer', {
+                    {{ form_label(form.reponse, 'Réponse', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
+                    
                     {{ form_widget(form.reponse, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition shadow-sm min-h-[160px]',
-                            'placeholder': 'Paris\n\nIn a right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides...',
-                            'required': 'required',
-                            'minlength': '1',
-                            'maxlength': '2000',
-                            'data-field': 'reponse',
-                            'id': 'flashcard_reponse'
+                            'placeholder': 'Paris\n\nDans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés...'
                         }
                     }) }}
-                    <p class="help-text">📌 Required – Min 1 character – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="reponse">
-                        <span class="current">0</span> / 2000 characters
-                    </div>
-                    {% if form.reponse.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.reponse.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-reponse"></div>
+                    
+                    <p class="help-text">📌 Obligatoire – Min 1 caractère – Max 2000 caractères</p>
+                    
+                    {{ form_errors(form.reponse, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Description (OPTIONAL) -->
+                <!-- Description (optionnel) -->
                 <div class="space-y-2">
-                    {{ form_label(form.description, 'Notes / Additional Explanation (optional)', {
+                    {{ form_label(form.description, 'Notes / Explications supplémentaires (optionnel)', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
+                    
                     {{ form_widget(form.description, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition shadow-sm min-h-[110px]',
-                            'placeholder': 'Additional context, examples, common mistakes, proof...',
-                            'maxlength': '2000',
-                            'data-field': 'description',
-                            'id': 'flashcard_description'
+                            'placeholder': 'Contexte supplémentaire, exemples, pièges classiques, démonstration...'
                         }
                     }) }}
-                    <p class="help-text">💡 Optional – Max 2000 characters</p>
-                    <div class="char-counter" data-counter="description">
-                        <span class="current">0</span> / 2000 characters
-                    </div>
-                    {% if form.description.vars.errors|length > 0 %}
-                        <div class="error-message">
-                            {% for error in form.description.vars.errors %}
-                                {{ error.message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <div class="error-message" id="error-description"></div>
+                    
+                    <p class="help-text">💡 Optionnel – Max 2000 caractères</p>
+                    
+                    {{ form_errors(form.description, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Difficulty Level + Status -->
+                <!-- Niveau de difficulté + État -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Difficulty Level -->
                     <div class="space-y-2">
-                        {{ form_label(form.niveauDifficulte, 'Difficulty Level', {
+                        {{ form_label(form.niveauDifficulte, 'Niveau de difficulté', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
+                        
                         {{ form_widget(form.niveauDifficulte, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                                'required': 'required',
-                                'data-field': 'niveauDifficulte',
-                                'id': 'flashcard_niveauDifficulte'
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
                             }
                         }) }}
-                        <p class="help-text">📌 Required – Between 1 (easy) and 5 (hard)</p>
-                        {% if form.niveauDifficulte.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.niveauDifficulte.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-niveauDifficulte"></div>
+                        
+                        <p class="help-text">📌 Obligatoire – Entre 1 (facile) et 5 (difficile)</p>
+                        
+                        {{ form_errors(form.niveauDifficulte, {'attr': {'class': 'error-message'}}) }}
                     </div>
 
-                    <!-- Status -->
                     <div class="space-y-2">
-                        {{ form_label(form.etat, 'Card Status', {
+                        {{ form_label(form.etat, 'État de la carte', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
+                        
                         {{ form_widget(form.etat, {
                             'attr': {
-                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                                'required': 'required',
-                                'data-field': 'etat',
-                                'id': 'flashcard_etat'
+                                'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
                             }
                         }) }}
-                        <p class="help-text">📌 Required – Flashcard status</p>
-                        {% if form.etat.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.etat.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-etat"></div>
+                        
+                        <p class="help-text">📌 Obligatoire – Statut de la flashcard</p>
+                        
+                        {{ form_errors(form.etat, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- Files (OPTIONAL) -->
+                <!-- Fichiers -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                    <!-- Image -->
                     <div class="space-y-2">
-                        {{ form_label(form.imageFile, 'Image (optional)', {
+                        {{ form_label(form.imageFile, 'Image (optionnel)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
+                        
                         {{ form_widget(form.imageFile, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-indigo-300 shadow-sm',
-                                'accept': 'image/jpeg,image/png,image/webp,image/gif',
-                                'data-field': 'imageFile',
-                                'id': 'flashcard_imageFile'
+                                'accept': 'image/jpeg,image/png,image/webp,image/gif'
                             }
                         }) }}
-                        <p class="help-text">💡 Optional – Max 5 MB – JPG, PNG, WEBP, GIF</p>
+                        
+                        <p class="help-text">💡 Optionnel – Max 5 Mo – JPG, PNG, WEBP, GIF</p>
+                        
+                        {# ✅ CORRECTION : affichage du nom du fichier uniquement pour l'UX #}
                         <div id="imagePreview" class="file-preview" style="display: none;">
-                            <strong>Selected file:</strong> <span id="imageName"></span>
-                            <br><small>Size: <span id="imageSize"></span></small>
+                            <strong>Fichier sélectionné :</strong> <span id="imageName"></span>
                         </div>
-                        {% if form.imageFile.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.imageFile.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-imageFile"></div>
+                        
+                        {{ form_errors(form.imageFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
 
-                    <!-- PDF -->
                     <div class="space-y-2">
-                        {{ form_label(form.pdfFile, 'PDF Document (optional)', {
+                        {{ form_label(form.pdfFile, 'Document PDF (optionnel)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
+                        
                         {{ form_widget(form.pdfFile, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-gray-700 dark:file:text-purple-300 shadow-sm',
-                                'accept': 'application/pdf',
-                                'data-field': 'pdfFile',
-                                'id': 'flashcard_pdfFile'
+                                'accept': 'application/pdf'
                             }
                         }) }}
-                        <p class="help-text">💡 Optional – Max 10 MB – PDF only</p>
+                        
+                        <p class="help-text">💡 Optionnel – Max 10 Mo – PDF uniquement</p>
+                        
                         <div id="pdfPreview" class="file-preview" style="display: none;">
-                            <strong>Selected file:</strong> <span id="pdfName"></span>
-                            <br><small>Size: <span id="pdfSize"></span></small>
+                            <strong>Fichier sélectionné :</strong> <span id="pdfName"></span>
                         </div>
-                        {% if form.pdfFile.vars.errors|length > 0 %}
-                            <div class="error-message">
-                                {% for error in form.pdfFile.vars.errors %}
-                                    {{ error.message }}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="error-message" id="error-pdfFile"></div>
+                        
+                        {{ form_errors(form.pdfFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
+                <!-- Boutons d'action -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                    <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
                        class="btn-cancel">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        Cancel
+                        Annuler
                     </a>
 
-                    <button type="submit" id="submitBtn" class="btn-save">
+                    <button type="submit" class="btn-save">
                         <i data-lucide="save" class="w-5 h-5"></i>
-                        Save Flashcard
+                        Enregistrer la flashcard
                     </button>
                 </div>
 
@@ -496,254 +270,40 @@
 {{ parent() }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('flashcardForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const validationAlert = document.getElementById('validationAlert');
-    const validationErrors = document.getElementById('validationErrors');
-
-    // Configuration des champs avec validation
-    const fields = {
-        titre: {
-            element: document.getElementById('flashcard_titre'),
-            minLength: 3,
-            maxLength: 255,
-            required: true,
-            pattern: /^[^0-9]/,
-            patternMessage: 'Title cannot start with a number'
-        },
-        question: {
-            element: document.getElementById('flashcard_question'),
-            minLength: 5,
-            maxLength: 2000,
-            required: true
-        },
-        reponse: {
-            element: document.getElementById('flashcard_reponse'),
-            minLength: 1,
-            maxLength: 2000,
-            required: true
-        },
-        description: {
-            element: document.getElementById('flashcard_description'),
-            maxLength: 2000,
-            required: false
-        },
-        niveauDifficulte: {
-            element: document.getElementById('flashcard_niveauDifficulte'),
-            required: true
-        },
-        etat: {
-            element: document.getElementById('flashcard_etat'),
-            required: true
-        },
-        imageFile: {
-            element: document.getElementById('flashcard_imageFile'),
-            maxSize: 5 * 1024 * 1024, // 5 Mo
-            allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-            required: false
-        },
-        pdfFile: {
-            element: document.getElementById('flashcard_pdfFile'),
-            maxSize: 10 * 1024 * 1024, // 10 Mo
-            allowedTypes: ['application/pdf'],
-            required: false
-        }
-    };
-
-    // Compteur de caractères
-    function updateCharCounter(fieldName) {
-        const field = fields[fieldName];
-        if (!field || !field.element || field.element.type === 'file') return;
-
-        const counter = document.querySelector(`[data-counter="${fieldName}"] .current`);
-        const counterContainer = document.querySelector(`[data-counter="${fieldName}"]`);
-        
-        if (counter) {
-            const length = field.element.value.length;
-            counter.textContent = length;
-
-            // Changer la couleur selon le pourcentage
-            if (field.maxLength) {
-                const percent = (length / field.maxLength) * 100;
-                counterContainer.classList.remove('warning', 'danger');
-                
-                if (percent >= 90) {
-                    counterContainer.classList.add('danger');
-                } else if (percent >= 75) {
-                    counterContainer.classList.add('warning');
-                }
-            }
-        }
-    }
-
-    // Validation d'un champ
-    function validateField(fieldName) {
-        const field = fields[fieldName];
-        if (!field || !field.element) return true;
-
-        const errorDiv = document.getElementById(`error-${fieldName}`);
-        let errors = [];
-
-        // Required field
-        if (field.required && !field.element.value.trim()) {
-            errors.push('This field is required');
-        }
-
-        // Validation pour les champs texte
-        if (field.element.type !== 'file' && field.element.value) {
-            // Min length
-            if (field.minLength && field.element.value.length < field.minLength) {
-                errors.push(`Minimum ${field.minLength} characters required`);
-            }
-
-            // Max length
-            if (field.maxLength && field.element.value.length > field.maxLength) {
-                errors.push(`Maximum ${field.maxLength} characters allowed`);
-            }
-
-            // Pattern
-            if (field.pattern && !field.pattern.test(field.element.value)) {
-                errors.push(field.patternMessage || 'Invalid format');
-            }
-        }
-
-        // Validation pour les fichiers
-        if (field.element.type === 'file' && field.element.files.length > 0) {
-            const file = field.element.files[0];
-
-            // Size
-            if (field.maxSize && file.size > field.maxSize) {
-                const maxSizeMB = field.maxSize / (1024 * 1024);
-                errors.push(`Maximum size: ${maxSizeMB} MB`);
-            }
-
-            // Type
-            if (field.allowedTypes && !field.allowedTypes.includes(file.type)) {
-                errors.push('File type not allowed');
-            }
-        }
-
-        // Afficher les erreurs
-        if (errorDiv) {
-            if (errors.length > 0) {
-                errorDiv.textContent = errors.join('. ');
-                field.element.classList.add('field-error');
-                return false;
-            } else {
-                errorDiv.textContent = '';
-                field.element.classList.remove('field-error');
-                return true;
-            }
-        }
-
-        return errors.length === 0;
-    }
-
-    // Validation de tous les champs
-    function validateForm() {
-        let isValid = true;
-        let errorMessages = [];
-
-        for (const fieldName in fields) {
-            if (!validateField(fieldName)) {
-                isValid = false;
-                const field = fields[fieldName];
-                const errorDiv = document.getElementById(`error-${fieldName}`);
-                if (errorDiv && errorDiv.textContent) {
-                    errorMessages.push(`<li><strong>${fieldName}</strong>: ${errorDiv.textContent}</li>`);
-                }
-            }
-        }
-
-        // Afficher l'alerte globale si erreurs
-        if (!isValid) {
-            validationErrors.innerHTML = errorMessages.join('');
-            validationAlert.classList.add('show');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            validationAlert.classList.remove('show');
-        }
-
-        return isValid;
-    }
-
-    // Événements sur les champs texte
-    for (const fieldName in fields) {
-        const field = fields[fieldName];
-        if (!field.element) continue;
-
-        // Pour les champs texte
-        if (field.element.type !== 'file') {
-            // Mise à jour du compteur en temps réel
-            field.element.addEventListener('input', function() {
-                updateCharCounter(fieldName);
-            });
-
-            // Validation à la perte de focus
-            field.element.addEventListener('blur', function() {
-                validateField(fieldName);
-            });
-
-            // Initialiser le compteur
-            updateCharCounter(fieldName);
-        }
-    }
-
-    // Gestion des fichiers - Image
+    // ✅ CORRECTION : Uniquement pour l'aperçu des fichiers, PAS pour la validation
+    // La validation est 100% côté serveur via Symfony Validator
+    
+    // Aperçu image
     const imageFile = document.getElementById('flashcard_imageFile');
     if (imageFile) {
         imageFile.addEventListener('change', function(e) {
             const preview = document.getElementById('imagePreview');
             const name = document.getElementById('imageName');
-            const size = document.getElementById('imageSize');
 
             if (this.files.length > 0) {
-                const file = this.files[0];
-                name.textContent = file.name;
-                size.textContent = (file.size / 1024).toFixed(2) + ' Ko';
+                name.textContent = this.files[0].name;
                 preview.style.display = 'block';
-                validateField('imageFile');
             } else {
                 preview.style.display = 'none';
             }
         });
     }
 
-    // Gestion des fichiers - PDF
+    // Aperçu PDF
     const pdfFile = document.getElementById('flashcard_pdfFile');
     if (pdfFile) {
         pdfFile.addEventListener('change', function(e) {
             const preview = document.getElementById('pdfPreview');
             const name = document.getElementById('pdfName');
-            const size = document.getElementById('pdfSize');
 
             if (this.files.length > 0) {
-                const file = this.files[0];
-                name.textContent = file.name;
-                size.textContent = (file.size / 1024).toFixed(2) + ' Ko';
+                name.textContent = this.files[0].name;
                 preview.style.display = 'block';
-                validateField('pdfFile');
             } else {
                 preview.style.display = 'none';
             }
         });
     }
-
-    // Validation à la soumission
-    form.addEventListener('submit', function(e) {
-        if (!validateForm()) {
-            e.preventDefault();
-            submitBtn.disabled = false;
-        } else {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i> Saving...';
-        }
-    });
-
-    // Masquer l'alerte au clic
-    validationAlert.addEventListener('click', function() {
-        this.classList.remove('show');
-    });
 });
 </script>
 {% endblock %}

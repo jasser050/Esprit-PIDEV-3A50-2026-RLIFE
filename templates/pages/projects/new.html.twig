@@ -19,6 +19,31 @@
         <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Create a New Project</h1>
         <p class="text-secondary-500 dark:text-secondary-400 mt-1">Organize your work by creating a new project</p>
     </div>
+     <!-- Conseils Card -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">
+            <i data-lucide="lightbulb" class="w-5 h-5 text-warning-500 mr-2"></i>
+            Tips for a good project
+        </h3>
+        <ul class="space-y-2 text-sm text-secondary-600 dark:text-secondary-400">
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Choose a clear and descriptive title
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Provide a detailed description of the objectives
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Make sure the end date is after the start date
+            </li>
+            <li class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
+                Update the status as you progress
+            </li>
+        </ul>
+    </div>
 
     <!-- Form Card -->
     <div class="card p-6 md:p-8">
@@ -91,31 +116,7 @@
         {{ form_end(form) }}
     </div>
 
-    <!-- Conseils Card -->
-    <div class="card p-6">
-        <h3 class="text-lg font-semibold text-secondary-900 dark:text-white mb-4">
-            <i data-lucide="lightbulb" class="w-5 h-5 text-warning-500 mr-2"></i>
-            Tips for a good project
-        </h3>
-        <ul class="space-y-2 text-sm text-secondary-600 dark:text-secondary-400">
-            <li class="flex items-start gap-3">
-                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
-                Choose a clear and descriptive title
-            </li>
-            <li class="flex items-start gap-3">
-                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
-                Provide a detailed description of the objectives
-            </li>
-            <li class="flex items-start gap-3">
-                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
-                Make sure the end date is after the start date
-            </li>
-            <li class="flex items-start gap-3">
-                <i data-lucide="check-circle" class="w-4 h-4 text-success-500 mt-0.5 flex-shrink-0"></i>
-                Update the status as you progress
-            </li>
-        </ul>
-    </div>
+   
 </div>
 {% endblock %}
 

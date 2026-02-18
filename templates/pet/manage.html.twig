@@ -1,0 +1,132 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Companion{% endblock %}
+
+{% block body %}
+{% set pet = app.user.mainPet %}
+<div class="max-w-5xl mx-auto py-8 space-y-6">
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold">{{ pet.name }}</h1>
+            <p class="text-slate-500 dark:text-slate-400">Level {{ pet.level }} - {{ pet.mood }}</p>
+        </div>
+        <a href="{{ path('app_pet_change_type') }}" class="btn btn-secondary">Change Type</a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-4">3D Companion</h2>
+            <div id="petScene"
+                 data-pet-hunger="{{ pet.hunger }}"
+                 data-pet-type="{{ pet.type }}"
+                 class="w-full aspect-square rounded-2xl bg-gradient-to-br from-teal-50 via-blue-50 to-sky-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800"></div>
+        </div>
+
+        <div class="card p-6 space-y-5">
+            <div>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Hunger</p>
+                <p class="text-xl font-semibold"><span id="hungerValue">{{ pet.hunger }}</span>/100</p>
+                <div class="mt-2 w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                    <div id="hungerBar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500" style="width: {{ pet.hunger }}%"></div>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Coins</p>
+                <p class="text-xl font-semibold" id="coinsValue">{{ app.user.coins }}</p>
+            </div>
+
+            <form method="post" action="{{ path('app_pet_rename') }}" class="flex gap-3">
+                <input type="text" name="name" value="{{ pet.name }}" minlength="2" maxlength="25" required class="input w-full" />
+                <button class="btn btn-secondary" type="submit">Rename</button>
+            </form>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <form method="post" action="{{ path('app_pet_feed') }}">
+                    <input type="hidden" name="food_type" value="basic" />
+                    <button class="btn btn-primary w-full" type="submit">Basic (50)</button>
+                </form>
+                <form method="post" action="{{ path('app_pet_feed') }}">
+                    <input type="hidden" name="food_type" value="premium" />
+                    <button class="btn btn-primary w-full" type="submit">Premium (120)</button>
+                </form>
+                <form method="post" action="{{ path('app_pet_feed') }}">
+                    <input type="hidden" name="food_type" value="deluxe" />
+                    <button class="btn btn-primary w-full" type="submit">Deluxe (200)</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function() {
+    const localFallback = (container, type) => {
+        const emojiByType = {
+            cat: '🐱',
+            dog: '🐶',
+            dragon: '🐉',
+            fox: '🦊',
+            bird: '🐦',
+            hamster: '🐹'
+        };
+        const emoji = emojiByType[type] || '🐾';
+        if (!document.getElementById('pet-manage-fallback-style')) {
+            const st = document.createElement('style');
+            st.id = 'pet-manage-fallback-style';
+            st.textContent = '@keyframes petManageFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}';
+            document.head.appendChild(st);
+        }
+        container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div style="font-size:64px; animation: petManageFloat 1.6s ease-in-out infinite;">' + emoji + '</div></div>';
+    };
+
+    const initScene = () => {
+        const container = document.getElementById('petScene');
+        if (!container) return;
+
+        const hunger = parseInt(container.dataset.petHunger || '50', 10);
+        const petType = (container.dataset.petType || 'cat').toLowerCase();
+        const emissive = hunger > 70 ? 0x7f1d1d : hunger > 35 ? 0x1f2937 : 0x065f46;
+        if (!window.RLife3D || typeof window.RLife3D.renderPet !== 'function') {
+            localFallback(container, petType);
+            return;
+        }
+
+        window.RLife3D.renderPet(container, {
+            type: petType,
+            hunger: hunger,
+            spin: 0.004 + ((hunger / 100) * 0.018),
+            emissive: emissive
+        });
+
+        // Safety net: if nothing rendered for any reason, keep an animated fallback.
+        setTimeout(() => {
+            if (!container.firstElementChild) {
+                localFallback(container, petType);
+            }
+        }, 900);
+    };
+
+    const ensureThree = () => {
+        if (window.RLife3D && typeof window.RLife3D.ensureThree === 'function') {
+            window.RLife3D.ensureThree(initScene);
+            return;
+        }
+        initScene();
+    };
+
+    ensureThree();
+    document.addEventListener('turbo:load', ensureThree);
+
+    document.addEventListener('turbo:before-cache', function() {
+        const container = document.getElementById('petScene');
+        if (container && window.RLife3D) {
+            window.RLife3D.dispose(container);
+        }
+    });
+})();
+</script>
+{% endblock %}

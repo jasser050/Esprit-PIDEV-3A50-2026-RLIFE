@@ -20,47 +20,47 @@ class AssignmentType extends AbstractType
     {
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Titre de la tâche',
-                'attr' => ['placeholder' => 'Ex: Rédiger le rapport final', 'class' => 'input'],
+                'label' => 'Task Title',
+                'attr' => ['placeholder' => 'Ex: Write the final report', 'class' => 'input'],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => ['rows' => 4, 'class' => 'textarea'],
             ])
             ->add('dateDebut', DateType::class, [
-                'label' => 'Date de début',
+                'label' => 'Start Date',
                 'widget' => 'single_text',
                 'attr' => ['class' => 'input'],
             ])
             ->add('dateFin', DateType::class, [
-                'label' => 'Date de fin',
+                'label' => 'Due Date',
                 'widget' => 'single_text',
                 'attr' => ['class' => 'input'],
             ])
             ->add('priorite', ChoiceType::class, [
-                'label' => 'Priorité',
+                'label' => 'Priority',
                 'choices' => [
-                    'Haute' => 'Haute',
-                    'Moyenne' => 'Moyenne',
-                    'Basse' => 'Basse',
+                    'High' => 'Haute',
+                    'Medium' => 'Moyenne',
+                    'Low' => 'Basse',
                 ],
                 'attr' => ['class' => 'select'],
             ])
             ->add('statut', ChoiceType::class, [
-                'label' => 'Statut',
+                'label' => 'Status',
                 'choices' => [
-                    'À faire' => 'À faire',
-                    'En cours' => 'En cours',
-                    'Terminé' => 'Terminé',
-                    'Annulé' => 'Annulé',
+                    'To Do' => 'À faire',
+                    'In Progress' => 'En cours',
+                    'Completed' => 'Terminé',
+                    'Canceled' => 'Annulé',
                 ],
                 'attr' => ['class' => 'select'],
             ])
             ->add('project', EntityType::class, [
                 'class' => Project::class,
                 'choice_label' => 'titre',
-                'label' => 'Projet associé',
-                'placeholder' => 'Sélectionnez un projet',
+                'label' => 'Associated Project',
+                'placeholder' => 'Select a project',
                 'attr' => ['class' => 'select'],
                 'query_builder' => function ($projectRepository) use ($options) {
                     return $projectRepository->createQueryBuilder('p')

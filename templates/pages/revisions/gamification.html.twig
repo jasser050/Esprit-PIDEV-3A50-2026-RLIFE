@@ -1,0 +1,1825 @@
+{% extends 'base.html.twig' %}
+{% block title %}⚡ XP Arena — Gamification{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   ROOT VARIABLES
+═══════════════════════════════════════════════ */
+:root {
+  --neon-cyan:   #00f5ff;
+  --neon-pink:   #ff006e;
+  --neon-green:  #39ff14;
+  --neon-yellow: #ffea00;
+  --neon-purple: #bf00ff;
+  --neon-orange: #ff6b00;
+  --dark-bg:     #050510;
+  --dark-card:   #0a0a1f;
+  --dark-border: rgba(0,245,255,0.15);
+  --text-dim:    rgba(255,255,255,0.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: var(--dark-bg);
+  color: white;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Animated grid background */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 20s linear infinite;
+}
+@keyframes gridMove { 0%{background-position:0 0} 100%{background-position:50px 50px} }
+
+/* Scanlines */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+}
+
+.arena-wrap {
+  position: relative; z-index: 1;
+  max-width: 1300px; margin: 0 auto;
+  padding: 1.5rem 1rem 4rem;
+}
+
+/* ═══════════════════════════════════════════════
+   TOP NAV
+═══════════════════════════════════════════════ */
+.top-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.nav-logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem; font-weight: 900;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 20px var(--neon-cyan);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--neon-pink); }
+.back-link {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .5rem 1rem;
+  background: rgba(0,245,255,0.05);
+  border: 1px solid var(--dark-border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: .8rem; font-weight: 600;
+  transition: all .2s;
+}
+.back-link:hover { border-color: var(--neon-cyan); color: var(--neon-cyan); }
+
+/* ═══════════════════════════════════════════════
+   HERO BANNER
+═══════════════════════════════════════════════ */
+.hero-banner {
+  position: relative;
+  background: linear-gradient(135deg, rgba(0,245,255,0.05) 0%, rgba(191,0,255,0.05) 50%, rgba(255,0,110,0.05) 100%);
+  border: 1px solid var(--dark-border);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.hero-banner::before {
+  content: '';
+  position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(0,245,255,0.03) 20%, transparent 40%);
+  animation: rotateBg 8s linear infinite;
+}
+@keyframes rotateBg { 100%{transform:rotate(360deg)} }
+
+.hero-inner {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 1.5rem;
+}
+.hero-left { display: flex; align-items: center; gap: 1.5rem; }
+
+.avatar-circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 0 30px rgba(0,245,255,0.4), 0 0 60px rgba(191,0,255,0.2);
+  flex-shrink: 0;
+  animation: avatarPulse 3s ease-in-out infinite;
+}
+@keyframes avatarPulse {
+  0%,100%{box-shadow:0 0 30px rgba(0,245,255,0.4),0 0 60px rgba(191,0,255,0.2)}
+  50%{box-shadow:0 0 50px rgba(0,245,255,0.7),0 0 100px rgba(191,0,255,0.4)}
+}
+
+.hero-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem; font-weight: 900;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero-sub { color: var(--text-dim); font-size: .85rem; margin-top: .3rem; }
+.hero-badges-row { display: flex; gap: .5rem; margin-top: .6rem; flex-wrap: wrap; }
+.hero-badge-pill {
+  padding: .2rem .7rem; border-radius: 99px; font-size: .7rem; font-weight: 700;
+  background: rgba(255,234,0,0.1); border: 1px solid rgba(255,234,0,0.3); color: var(--neon-yellow);
+}
+
+/* XP Bar hero */
+.hero-xp-panel { min-width: 280px; }
+.xp-pts-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.5rem; font-weight: 900;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 20px var(--neon-cyan);
+  text-align: right;
+}
+.xp-pts-display small { font-size: 1rem; color: var(--text-dim); }
+.xp-bar-wrap { margin-top: .6rem; }
+.xp-bar-labels { display: flex; justify-content: space-between; font-size: .7rem; color: var(--text-dim); margin-bottom: .4rem; }
+.xp-bar-track {
+  height: 14px; border-radius: 99px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(0,245,255,0.1);
+  overflow: hidden; position: relative;
+}
+.xp-bar-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+  box-shadow: 0 0 12px rgba(0,245,255,0.6);
+  transition: width 1.5s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.xp-bar-fill::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer { 0%,100%{opacity:0} 50%{opacity:1} }
+
+/* ═══════════════════════════════════════════════
+   STAT CARDS ROW
+═══════════════════════════════════════════════ */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: 16px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  position: relative; overflow: hidden;
+  transition: all .3s; cursor: default;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.stat-c1::before { background: linear-gradient(90deg, var(--neon-cyan), transparent); }
+.stat-c2::before { background: linear-gradient(90deg, var(--neon-pink), transparent); }
+.stat-c3::before { background: linear-gradient(90deg, var(--neon-green), transparent); }
+.stat-c4::before { background: linear-gradient(90deg, var(--neon-yellow), transparent); }
+.stat-c5::before { background: linear-gradient(90deg, var(--neon-purple), transparent); }
+.stat-c6::before { background: linear-gradient(90deg, var(--neon-orange), transparent); }
+
+.stat-card:hover { transform: translateY(-4px); border-color: rgba(0,245,255,0.3); }
+.stat-icon { font-size: 1.8rem; margin-bottom: .4rem; }
+.stat-val {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem; font-weight: 900; color: white;
+  line-height: 1;
+}
+.stat-lbl { font-size: .65rem; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: .1em; margin-top: .3rem; }
+
+/* ═══════════════════════════════════════════════
+   MAIN GRID
+═══════════════════════════════════════════════ */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.main-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+@media(max-width:900px){ .main-grid{grid-template-columns:1fr;} .main-grid.triple{grid-template-columns:1fr;} }
+@media(min-width:900px) and (max-width:1100px){ .main-grid.triple{grid-template-columns:1fr 1fr;} }
+
+.panel {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.4rem;
+  border-bottom: 1px solid var(--dark-border);
+}
+.panel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: .85rem; font-weight: 700;
+  color: var(--neon-cyan);
+  letter-spacing: .05em;
+}
+.panel-body { padding: 1.25rem; }
+
+/* ═══════════════════════════════════════════════
+   XP ACTIONS — EARN BUTTONS
+═══════════════════════════════════════════════ */
+.xp-actions-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: .75rem;
+}
+.xp-btn {
+  position: relative;
+  padding: 1rem;
+  border: none; border-radius: 14px;
+  cursor: pointer;
+  font-family: 'Exo 2', sans-serif;
+  font-weight: 700; font-size: .82rem;
+  color: white;
+  transition: all .2s;
+  overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; gap: .3rem;
+  text-align: center;
+}
+.xp-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background .2s;
+}
+.xp-btn:hover::before { background: rgba(255,255,255,0.08); }
+.xp-btn:active { transform: scale(0.96); }
+.xp-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+.xp-btn-icon { font-size: 1.8rem; }
+.xp-btn-label { font-size: .75rem; color: rgba(255,255,255,0.8); }
+.xp-btn-reward {
+  font-family: 'Orbitron', monospace;
+  font-size: .85rem; font-weight: 900;
+  color: var(--neon-yellow);
+  text-shadow: 0 0 10px var(--neon-yellow);
+}
+
+.btn-correct  { background: linear-gradient(135deg, #0d4f0d, #1a7a1a); border: 1px solid rgba(57,255,20,0.3); }
+.btn-deck     { background: linear-gradient(135deg, #4f0d2e, #7a1a4d); border: 1px solid rgba(255,0,110,0.3); }
+.btn-daily    { background: linear-gradient(135deg, #2a2a00, #4a4a00); border: 1px solid rgba(255,234,0,0.3); }
+.btn-streak   { background: linear-gradient(135deg, #2a0a00, #5a1a00); border: 1px solid rgba(255,107,0,0.3); }
+
+/* ═══════════════════════════════════════════════
+   DAILY CHALLENGES
+═══════════════════════════════════════════════ */
+.challenge-list { display: flex; flex-direction: column; gap: .75rem; }
+.challenge-item {
+  display: flex; align-items: center; gap: .9rem;
+  padding: .9rem 1rem;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all .2s; cursor: default;
+}
+.challenge-item.done { border-color: rgba(57,255,20,0.2); background: rgba(57,255,20,0.03); }
+.challenge-item.done .ch-name { text-decoration: line-through; color: var(--text-dim); }
+.ch-icon { font-size: 1.4rem; flex-shrink: 0; }
+.ch-info { flex: 1; }
+.ch-name { font-size: .82rem; font-weight: 700; color: white; }
+.ch-desc { font-size: .7rem; color: var(--text-dim); margin-top: .1rem; }
+.ch-prog-wrap { margin-top: .4rem; }
+.ch-prog-track { height: 4px; background: rgba(255,255,255,0.07); border-radius: 99px; overflow: hidden; }
+.ch-prog-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+.ch-reward {
+  font-family: 'Orbitron', monospace;
+  font-size: .75rem; font-weight: 900;
+  color: var(--neon-yellow); white-space: nowrap;
+}
+.ch-done-icon { font-size: 1.2rem; }
+
+/* ═══════════════════════════════════════════════
+   LEADERBOARD
+═══════════════════════════════════════════════ */
+.leader-list { display: flex; flex-direction: column; gap: .5rem; }
+.leader-row {
+  display: flex; align-items: center; gap: .8rem;
+  padding: .75rem .9rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all .2s;
+}
+.leader-row.is-me { background: rgba(0,245,255,0.05); border-color: rgba(0,245,255,0.2); }
+.leader-row:hover { background: rgba(255,255,255,0.03); }
+.lr-rank {
+  font-family: 'Orbitron', monospace;
+  font-size: .9rem; font-weight: 900;
+  width: 28px; text-align: center; flex-shrink: 0;
+}
+.r1{color:#ffd700;text-shadow:0 0 10px #ffd700}
+.r2{color:#c0c0c0}
+.r3{color:#cd7f32}
+.lr-av {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; font-weight: 800; color: white;
+  flex-shrink: 0;
+}
+.lr-name { flex: 1; font-size: .8rem; font-weight: 700; color: rgba(255,255,255,0.85); }
+.lr-lvl { font-size: .65rem; color: var(--text-dim); }
+.lr-pts {
+  font-family: 'Orbitron', monospace;
+  font-size: .78rem; font-weight: 900; color: var(--neon-cyan);
+}
+
+/* ═══════════════════════════════════════════════
+   MINI GAME — MEMORY
+═══════════════════════════════════════════════ */
+.memory-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: .5rem;
+}
+.mem-card {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .4s;
+}
+.mem-card.flipped { transform: rotateY(180deg); }
+.mem-card.matched { transform: rotateY(180deg); }
+.mem-card.matched .mem-back { background: rgba(57,255,20,0.15); border-color: rgba(57,255,20,0.4); }
+.mem-face, .mem-back {
+  position: absolute; inset: 0;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  backface-visibility: hidden;
+}
+.mem-face {
+  background: linear-gradient(135deg, rgba(0,245,255,0.1), rgba(191,0,255,0.1));
+  border: 1px solid rgba(0,245,255,0.2);
+  font-size: 1.1rem; color: rgba(0,245,255,0.4);
+}
+.mem-back {
+  background: linear-gradient(135deg, rgba(0,245,255,0.08), rgba(191,0,255,0.08));
+  border: 1px solid rgba(191,0,255,0.3);
+  transform: rotateY(180deg);
+}
+.mem-stats-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.mem-stat-pill {
+  flex: 1; text-align: center; padding: .5rem;
+  background: rgba(255,255,255,0.03); border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.mem-stat-val { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 900; color: var(--neon-cyan); }
+.mem-stat-lbl { font-size: .6rem; color: var(--text-dim); text-transform: uppercase; }
+
+/* ═══════════════════════════════════════════════
+   MINI GAME — SPEED QUIZ
+═══════════════════════════════════════════════ */
+.quiz-question {
+  font-size: 1rem; font-weight: 700; color: white;
+  text-align: center; margin-bottom: 1.2rem;
+  min-height: 60px; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.03); border-radius: 12px;
+  padding: 1rem; border: 1px solid rgba(255,255,255,0.06);
+}
+.quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-bottom: 1rem; }
+.quiz-opt {
+  padding: .75rem; border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.85); font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; text-align: center;
+  font-family: 'Exo 2', sans-serif;
+}
+.quiz-opt:hover:not(:disabled) { background: rgba(0,245,255,0.08); border-color: var(--neon-cyan); color: var(--neon-cyan); }
+.quiz-opt.correct { background: rgba(57,255,20,0.1); border-color: var(--neon-green); color: var(--neon-green); }
+.quiz-opt.wrong   { background: rgba(255,0,110,0.1);  border-color: var(--neon-pink);  color: var(--neon-pink);  }
+.quiz-opt:disabled { cursor: default; }
+.quiz-timer-bar { height: 6px; border-radius: 99px; background: rgba(255,255,255,0.07); overflow: hidden; margin-bottom: .8rem; }
+.quiz-timer-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--neon-green), var(--neon-yellow), var(--neon-pink)); transition: width .1s linear; }
+.quiz-score-row { display: flex; justify-content: space-between; font-size: .75rem; color: var(--text-dim); font-family: 'Orbitron', monospace; }
+
+/* ═══════════════════════════════════════════════
+   BADGES PANEL
+═══════════════════════════════════════════════ */
+.badges-showcase { display: flex; flex-wrap: wrap; gap: .6rem; }
+.badge-chip {
+  display: flex; align-items: center; gap: .4rem;
+  padding: .45rem .9rem; border-radius: 99px;
+  font-size: .75rem; font-weight: 700;
+  transition: all .2s;
+}
+.badge-chip.earned {
+  background: rgba(251,191,36,0.12);
+  border: 1px solid rgba(251,191,36,0.4);
+  color: #fde68a;
+  box-shadow: 0 0 12px rgba(251,191,36,0.15);
+}
+.badge-chip.locked {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.25);
+}
+.badge-chip.earned:hover { box-shadow: 0 0 20px rgba(251,191,36,0.3); transform: scale(1.05); }
+
+/* All badges grid */
+.all-badges-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: .8rem;
+}
+.badge-full-card {
+  padding: 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.badge-full-card.earned-b {
+  background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.04));
+  border-color: rgba(251,191,36,0.3);
+}
+.badge-full-card.locked-b {
+  background: rgba(255,255,255,0.02);
+  opacity: 0.6;
+}
+.badge-full-card:hover { transform: translateY(-3px); }
+.badge-full-card .bf-icon { font-size: 1.8rem; margin-bottom: .5rem; }
+.badge-full-card .bf-name { font-size: .8rem; font-weight: 800; color: white; margin-bottom: .25rem; }
+.badge-full-card .bf-desc { font-size: .68rem; color: var(--text-dim); line-height: 1.4; }
+.badge-full-card .bf-status {
+  font-size: .65rem; font-weight: 700;
+  margin-top: .5rem; text-transform: uppercase; letter-spacing: .06em;
+}
+.bf-status.e { color: #fbbf24; }
+.bf-status.l { color: rgba(255,255,255,0.2); }
+
+/* ═══════════════════════════════════════════════
+   XP FLOATERS & PARTICLES
+═══════════════════════════════════════════════ */
+.xp-floater {
+  position: fixed;
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem; font-weight: 900;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 20px var(--neon-cyan);
+  pointer-events: none; z-index: 9999;
+  animation: floatUp 1.5s ease-out forwards;
+}
+@keyframes floatUp {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) scale(1.4); }
+}
+
+/* ═══════════════════════════════════════════════
+   LEVEL UP OVERLAY
+═══════════════════════════════════════════════ */
+#levelup-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.85);
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+#levelup-overlay.show { display: flex; }
+.levelup-box {
+  text-align: center; padding: 3rem;
+  background: var(--dark-card);
+  border: 2px solid var(--neon-cyan);
+  border-radius: 28px;
+  box-shadow: 0 0 80px rgba(0,245,255,0.3), 0 0 160px rgba(191,0,255,0.2);
+  animation: levelupBounce .5s cubic-bezier(.36,.07,.19,.97);
+  max-width: 400px; width: 90%;
+}
+@keyframes levelupBounce {
+  0%{transform:scale(0.5) rotate(-5deg);opacity:0}
+  60%{transform:scale(1.1) rotate(1deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+.levelup-emoji { font-size: 4rem; animation: emojiSpin 1s ease-out; display: block; margin-bottom: 1rem; }
+@keyframes emojiSpin { 0%{transform:rotate(-30deg) scale(0)} 100%{transform:rotate(0) scale(1)} }
+.levelup-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem; color: var(--text-dim); margin-bottom: .4rem; text-transform: uppercase; letter-spacing: .1em;
+}
+.levelup-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 4rem; font-weight: 900;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.levelup-sub { color: var(--text-dim); font-size: .9rem; margin: 1rem 0; }
+.levelup-close {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .75rem 2rem; border-radius: 12px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  border: none; color: var(--dark-bg); font-family: 'Exo 2', sans-serif;
+  font-weight: 800; font-size: .9rem; cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,245,255,0.3);
+}
+
+/* ═══════════════════════════════════════════════
+   BADGE TOAST
+═══════════════════════════════════════════════ */
+#badge-toast-area { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9990; display: flex; flex-direction: column; gap: .7rem; }
+.badge-toast {
+  display: flex; align-items: center; gap: .8rem;
+  padding: 1rem 1.4rem;
+  background: var(--dark-card);
+  border: 1px solid rgba(251,191,36,0.5);
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(251,191,36,0.2);
+  animation: toastIn .4s cubic-bezier(.36,.07,.19,.97) forwards;
+  max-width: 320px;
+}
+@keyframes toastIn { 0%{transform:translateX(100px);opacity:0} 100%{transform:translateX(0);opacity:1} }
+.bt-icon { font-size: 1.8rem; }
+.bt-title { font-size: .7rem; font-weight: 700; color: var(--neon-yellow); text-transform: uppercase; letter-spacing: .1em; }
+.bt-name  { font-size: .9rem; font-weight: 800; color: white; }
+
+/* ═══════════════════════════════════════════════
+   ACTIVITY FEED
+═══════════════════════════════════════════════ */
+.activity-feed { display: flex; flex-direction: column; gap: .6rem; max-height: 280px; overflow-y: auto; }
+.activity-feed::-webkit-scrollbar { width: 4px; }
+.activity-feed::-webkit-scrollbar-track { background: transparent; }
+.activity-feed::-webkit-scrollbar-thumb { background: rgba(0,245,255,0.2); border-radius: 99px; }
+.act-item {
+  display: flex; align-items: center; gap: .7rem;
+  padding: .6rem .8rem;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  animation: actSlide .3s ease-out;
+}
+@keyframes actSlide { 0%{opacity:0;transform:translateX(-20px)} 100%{opacity:1;transform:translateX(0)} }
+.act-icon { font-size: 1rem; flex-shrink: 0; }
+.act-text { font-size: .78rem; color: rgba(255,255,255,0.75); flex: 1; }
+.act-xp {
+  font-family: 'Orbitron', monospace;
+  font-size: .7rem; font-weight: 900; color: var(--neon-cyan);
+  white-space: nowrap;
+}
+.act-time { font-size: .65rem; color: var(--text-dim); }
+
+/* ═══════════════════════════════════════════════
+   STREAK CALENDAR
+═══════════════════════════════════════════════ */
+.streak-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.streak-day {
+  aspect-ratio: 1; border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .6rem; color: var(--text-dim);
+  position: relative;
+}
+.streak-day.active {
+  background: rgba(255,107,0,0.2);
+  border-color: rgba(255,107,0,0.4);
+}
+.streak-day.active::after {
+  content: '🔥';
+  position: absolute; font-size: .7rem;
+}
+.streak-day.today {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 8px rgba(0,245,255,0.3);
+}
+
+/* ═══════════════════════════════════════════════
+   XP ROULETTE
+═══════════════════════════════════════════════ */
+.roulette-wheel {
+  width: 180px; height: 180px; margin: 0 auto;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--neon-pink)   0deg 45deg,
+    var(--neon-cyan)   45deg 90deg,
+    var(--neon-yellow) 90deg 135deg,
+    var(--neon-green)  135deg 180deg,
+    var(--neon-purple) 180deg 225deg,
+    var(--neon-orange) 225deg 270deg,
+    var(--neon-pink)   270deg 315deg,
+    var(--neon-cyan)   315deg 360deg
+  );
+  border: 4px solid rgba(255,255,255,0.2);
+  box-shadow: 0 0 30px rgba(0,245,255,0.2);
+  transition: transform 3s cubic-bezier(.17,.67,.12,.99);
+  position: relative;
+}
+.roulette-wheel::after {
+  content: '⬆️';
+  position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+  font-size: 1.2rem;
+}
+.roulette-center {
+  position: absolute; inset: 20%; border-radius: 50%;
+  background: var(--dark-card);
+  border: 3px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Orbitron', monospace;
+  font-size: .7rem; font-weight: 900; color: var(--neon-cyan);
+}
+.roulette-labels {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: .4rem; margin-top: 1rem;
+}
+.rl-chip {
+  text-align: center; padding: .3rem;
+  border-radius: 8px; font-size: .65rem; font-weight: 800;
+  font-family: 'Orbitron', monospace;
+}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS GENERIC
+═══════════════════════════════════════════════ */
+.neon-btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .6rem 1.2rem; border-radius: 10px; border: none;
+  font-family: 'Exo 2', sans-serif; font-size: .82rem; font-weight: 700;
+  cursor: pointer; transition: all .2s; text-decoration: none;
+}
+.neon-btn:hover { transform: translateY(-2px); }
+.neon-btn:active { transform: scale(0.97); }
+.neon-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+.nb-cyan   { background: rgba(0,245,255,0.1); border: 1px solid rgba(0,245,255,0.4); color: var(--neon-cyan); }
+.nb-cyan:hover { background: rgba(0,245,255,0.18); box-shadow: 0 0 16px rgba(0,245,255,0.25); }
+.nb-pink   { background: rgba(255,0,110,0.1); border: 1px solid rgba(255,0,110,0.4); color: var(--neon-pink); }
+.nb-green  { background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.4); color: var(--neon-green); }
+.nb-yellow { background: rgba(255,234,0,0.1); border: 1px solid rgba(255,234,0,0.4); color: var(--neon-yellow); }
+.nb-solid  { background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple)); color: #000; font-weight: 800; box-shadow: 0 0 20px rgba(0,245,255,0.3); }
+
+/* ═══════════════════════════════════════════════
+   CONFETTI CANVAS
+═══════════════════════════════════════════════ */
+#confetti-canvas {
+  position: fixed; inset: 0; z-index: 9997;
+  pointer-events: none;
+  display: none;
+}
+#confetti-canvas.show { display: block; }
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media(max-width:600px) {
+  .hero-inner { flex-direction: column; }
+  .hero-xp-panel { min-width: unset; width: 100%; }
+  .xp-pts-display { text-align: left; }
+  .stats-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ═══════════════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════════════ */
+.full-width { grid-column: 1 / -1; }
+.text-center { text-align: center; }
+.mt-1 { margin-top: .5rem; }
+.mt-2 { margin-top: 1rem; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-1 { gap: .5rem; }
+.gap-2 { gap: 1rem; }
+.neon-text { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+.section-label {
+  font-size: .65rem; text-transform: uppercase; letter-spacing: .12em;
+  color: var(--text-dim); font-weight: 700; margin-bottom: .8rem;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<canvas id="confetti-canvas"></canvas>
+<div id="levelup-overlay">
+  <div class="levelup-box">
+    <span class="levelup-emoji">🚀</span>
+    <div class="levelup-title">LEVEL UP!</div>
+    <div class="levelup-num" id="lu-num">2</div>
+    <div class="levelup-sub">You reached a new level! Keep going! 🔥</div>
+    <button class="levelup-close" onclick="closeLevelUp()">⚡ CONTINUE</button>
+  </div>
+</div>
+<div id="badge-toast-area"></div>
+
+<div class="arena-wrap">
+
+  {# ── TOP NAV ── #}
+  <div class="top-nav">
+    <div class="nav-logo">⚡ XP <span>ARENA</span></div>
+    <a href="{{ path('app_revisions') }}" class="back-link">← Back to Revisions</a>
+  </div>
+
+  {# ── HERO BANNER ── #}
+  <div class="hero-banner">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="avatar-circle">🎓</div>
+        <div>
+          <div class="hero-name" id="hero-name">Level <span id="cur-level">{{ gamification.level }}</span> — Your Arena</div>
+          <div class="hero-sub">
+            🔥 <span id="cur-streak">{{ gamification.streak }}</span> day streak &nbsp;·&nbsp;
+            🏆 Rank #<span id="cur-rank">{{ userRank }}</span> &nbsp;·&nbsp;
+            🎖 <span id="cur-badges">{{ gamification.badges|length }}</span> badge{{ gamification.badges|length != 1 ? 's' : '' }}
+          </div>
+          {% if gamification.badges|length > 0 %}
+          <div class="hero-badges-row">
+            {% for badge in gamification.badges|slice(0,3) %}
+            <span class="hero-badge-pill">{{ badge.name }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="hero-xp-panel">
+        <div class="xp-pts-display" id="xp-display">{{ gamification.points }} <small>XP</small></div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-labels">
+            <span>Lv <span id="lv-cur">{{ gamification.level }}</span></span>
+            <span id="xp-prog-txt">{{ gamification.levelProgress }}% → Lv<span id="lv-next">{{ gamification.level + 1 }}</span></span>
+          </div>
+          <div class="xp-bar-track">
+            <div class="xp-bar-fill" id="xp-bar-fill" style="width:{{ progressPercent }}%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── STAT CARDS ── #}
+  <div class="stats-row">
+    <div class="stat-card stat-c1">
+      <div class="stat-icon">💎</div>
+      <div class="stat-val" id="s-xp">{{ gamification.points }}</div>
+      <div class="stat-lbl">Total XP</div>
+    </div>
+    <div class="stat-card stat-c2">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-val" id="s-lvl">{{ gamification.level }}</div>
+      <div class="stat-lbl">Level</div>
+    </div>
+    <div class="stat-card stat-c3">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-val" id="s-streak">{{ gamification.streak }}</div>
+      <div class="stat-lbl">Day Streak</div>
+    </div>
+    <div class="stat-card stat-c4">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-val">#<span id="s-rank">{{ userRank }}</span></div>
+      <div class="stat-lbl">Rank</div>
+    </div>
+    <div class="stat-card stat-c5">
+      <div class="stat-icon">📚</div>
+      <div class="stat-val" id="s-decks">{{ gamification.totalDecksCompleted }}</div>
+      <div class="stat-lbl">Decks Done</div>
+    </div>
+    <div class="stat-card stat-c6">
+      <div class="stat-icon">✅</div>
+      <div class="stat-val" id="s-correct">{{ gamification.totalCorrectAnswers }}</div>
+      <div class="stat-lbl">Correct Ans.</div>
+    </div>
+  </div>
+
+  {# ── ROW 1: XP ACTIONS + DAILY CHALLENGES ── #}
+  <div class="main-grid" style="margin-bottom:1.25rem;">
+
+    {# XP EARN BUTTONS #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">⚡ EARN XP</span>
+        <span style="font-size:.7rem;color:var(--text-dim);">Click to gain points!</span>
+      </div>
+      <div class="panel-body">
+        <div class="xp-actions-grid">
+          <button class="xp-btn btn-correct" id="btn-correct" onclick="earnCorrectAnswer()">
+            <span class="xp-btn-icon">🎯</span>
+            <span style="font-size:.8rem;font-weight:800;">Correct Answer</span>
+            <span class="xp-btn-label">Simulate a right answer</span>
+            <span class="xp-btn-reward">+10 XP</span>
+          </button>
+          <button class="xp-btn btn-deck" id="btn-deck" onclick="earnDeckCompleted()">
+            <span class="xp-btn-icon">📚</span>
+            <span style="font-size:.8rem;font-weight:800;">Complete Deck</span>
+            <span class="xp-btn-label">Finish a study deck</span>
+            <span class="xp-btn-reward">+50 XP</span>
+          </button>
+          <button class="xp-btn btn-daily" id="btn-daily" onclick="earnDailyRevision()">
+            <span class="xp-btn-icon">📅</span>
+            <span style="font-size:.8rem;font-weight:800;">Daily Revision</span>
+            <span class="xp-btn-label">1x per day bonus</span>
+            <span class="xp-btn-reward">+15 XP</span>
+          </button>
+          <button class="xp-btn btn-streak" id="btn-streak" onclick="doStreak10()">
+            <span class="xp-btn-icon">🔥</span>
+            <span style="font-size:.8rem;font-weight:800;">Streak Bonus</span>
+            <span class="xp-btn-label">10 correct in a row</span>
+            <span class="xp-btn-reward">+100 XP</span>
+          </button>
+        </div>
+
+        {# Cooldown indicator #}
+        <div style="margin-top:1rem;padding:.7rem;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:.7rem;color:var(--text-dim);margin-bottom:.4rem;font-weight:600;">⏱️ COOLDOWNS</div>
+          <div style="display:flex;flex-direction:column;gap:.3rem;" id="cooldown-list">
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;">
+              <span style="color:rgba(255,255,255,0.6);">Correct Answer</span>
+              <span style="color:var(--neon-green);font-family:'Orbitron',monospace;" id="cd-correct">READY</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;">
+              <span style="color:rgba(255,255,255,0.6);">Daily Revision</span>
+              <span id="cd-daily" style="font-family:'Orbitron',monospace;color:var(--neon-green);">READY</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# DAILY CHALLENGES #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🎯 DAILY CHALLENGES</span>
+        <span style="font-size:.7rem;color:var(--text-dim);" id="challenge-timer">Resets at midnight</span>
+      </div>
+      <div class="panel-body">
+        <div class="challenge-list" id="challenge-list">
+          <!-- injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── ROW 2: MEMORY GAME + SPEED QUIZ + LEADERBOARD ── #}
+  <div class="main-grid triple" style="margin-bottom:1.25rem;">
+
+    {# MEMORY GAME #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🃏 MEMORY GAME</span>
+        <button class="neon-btn nb-cyan" style="padding:.3rem .8rem;font-size:.7rem;" onclick="initMemory()">↺ Reset</button>
+      </div>
+      <div class="panel-body">
+        <div class="mem-stats-row">
+          <div class="mem-stat-pill">
+            <div class="mem-stat-val" id="mem-moves">0</div>
+            <div class="mem-stat-lbl">Moves</div>
+          </div>
+          <div class="mem-stat-pill">
+            <div class="mem-stat-val" id="mem-pairs">0/8</div>
+            <div class="mem-stat-lbl">Pairs</div>
+          </div>
+          <div class="mem-stat-pill">
+            <div class="mem-stat-val" id="mem-timer">0s</div>
+            <div class="mem-stat-lbl">Time</div>
+          </div>
+        </div>
+        <div class="memory-grid" id="memory-grid"></div>
+        <div style="font-size:.72rem;color:var(--text-dim);margin-top:.7rem;text-align:center;">
+          🏆 Complete to earn <strong style="color:var(--neon-yellow);">+30 XP</strong>
+        </div>
+      </div>
+    </div>
+
+    {# SPEED QUIZ #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">⚡ SPEED QUIZ</span>
+        <div style="display:flex;gap:.4rem;align-items:center;">
+          <span style="font-size:.7rem;color:var(--text-dim);">Q <span id="qz-num">1</span>/10</span>
+          <span style="font-family:'Orbitron',monospace;font-size:.7rem;color:var(--neon-cyan);" id="qz-score-top">0pts</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="quiz-timer-bar">
+          <div class="quiz-timer-fill" id="qz-timer-bar" style="width:100%"></div>
+        </div>
+        <div class="quiz-question" id="qz-question">Press START to play!</div>
+        <div class="quiz-opts" id="qz-opts">
+          <button class="quiz-opt" onclick="startQuiz()" style="grid-column:1/-1;padding:1.2rem;font-size:1rem;">🚀 START QUIZ</button>
+        </div>
+        <div class="quiz-score-row">
+          <span>⏱ <span id="qz-time">10</span>s</span>
+          <span>✅ <span id="qz-correct">0</span> correct</span>
+          <span>🔥 Streak <span id="qz-streak">0</span></span>
+        </div>
+      </div>
+    </div>
+
+    {# LEADERBOARD #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🥇 LEADERBOARD</span>
+        <button class="neon-btn nb-cyan" style="padding:.3rem .8rem;font-size:.7rem;" onclick="refreshLeaderboard()">↺</button>
+      </div>
+      <div class="panel-body" style="padding:.75rem;">
+        <div class="leader-list" id="leaderboard-list">
+          {% for item in leaderboard %}
+          {% set rank = loop.index %}
+          <div class="leader-row {{ item.user == app.user ? 'is-me' : '' }}">
+            <div class="leader-rank {{ rank == 1 ? 'r1' : (rank == 2 ? 'r2' : (rank == 3 ? 'r3' : '')) }}">
+              {{ rank == 1 ? '🥇' : (rank == 2 ? '🥈' : (rank == 3 ? '🥉' : rank)) }}
+            </div>
+            <div class="lr-av">{{ item.user.email|slice(0,1)|upper }}</div>
+            <div>
+              <div class="lr-name">
+                {{ item.user.email|slice(0, 18) }}{% if item.user.email|length > 18 %}…{% endif %}
+                {% if item.user == app.user %}<span style="color:var(--neon-cyan);font-size:.65rem;"> (you)</span>{% endif %}
+              </div>
+              <div class="lr-lvl">Level {{ item.level }}</div>
+            </div>
+            <div class="lr-pts">{{ item.points }}</div>
+          </div>
+          {% else %}
+          <div style="text-align:center;padding:2rem;color:var(--text-dim);font-size:.85rem;">
+            Be the first! Earn XP now 🚀
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── ROW 3: XP ROULETTE + STREAK CALENDAR + ACTIVITY ── #}
+  <div class="main-grid triple" style="margin-bottom:1.25rem;">
+
+    {# XP ROULETTE #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🎰 XP ROULETTE</span>
+        <span style="font-size:.65rem;color:var(--text-dim);">1x / day</span>
+      </div>
+      <div class="panel-body text-center">
+        <div style="position:relative;display:inline-block;margin-bottom:1rem;">
+          <div class="roulette-wheel" id="roulette-wheel">
+            <div class="roulette-center" id="roulette-center">SPIN</div>
+          </div>
+        </div>
+        <div class="roulette-labels">
+          <div class="rl-chip" style="background:rgba(255,0,110,0.15);color:var(--neon-pink);">+5</div>
+          <div class="rl-chip" style="background:rgba(0,245,255,0.15);color:var(--neon-cyan);">+10</div>
+          <div class="rl-chip" style="background:rgba(255,234,0,0.15);color:var(--neon-yellow);">+25</div>
+          <div class="rl-chip" style="background:rgba(57,255,20,0.15);color:var(--neon-green);">+50</div>
+          <div class="rl-chip" style="background:rgba(191,0,255,0.15);color:var(--neon-purple);">+15</div>
+          <div class="rl-chip" style="background:rgba(255,107,0,0.15);color:var(--neon-orange);">+30</div>
+          <div class="rl-chip" style="background:rgba(255,0,110,0.15);color:var(--neon-pink);">+5</div>
+          <div class="rl-chip" style="background:rgba(255,234,0,0.15);color:var(--neon-yellow);">⭐</div>
+        </div>
+        <button class="neon-btn nb-solid mt-2" id="spin-btn" onclick="spinRoulette()" style="width:100%;justify-content:center;margin-top:.8rem;">
+          🎰 SPIN!
+        </button>
+      </div>
+    </div>
+
+    {# STREAK CALENDAR #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">🔥 STREAK CALENDAR</span>
+        <span style="font-family:'Orbitron',monospace;font-size:.75rem;color:var(--neon-orange);" id="streak-count">{{ gamification.streak }} days</span>
+      </div>
+      <div class="panel-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+          <span style="font-size:.7rem;color:var(--text-dim);">Last 28 days</span>
+          <span style="font-size:.7rem;color:var(--neon-orange);">Best: {{ gamification.streak }} 🔥</span>
+        </div>
+        <div class="streak-cal" id="streak-cal"></div>
+        <div style="display:flex;gap:.5rem;margin-top:.8rem;font-size:.65rem;color:var(--text-dim);">
+          <span style="display:flex;align-items:center;gap:.3rem;"><span style="width:10px;height:10px;background:rgba(255,107,0,0.3);border-radius:3px;display:inline-block;"></span> Inactive</span>
+          <span style="display:flex;align-items:center;gap:.3rem;"><span style="width:10px;height:10px;background:rgba(255,107,0,0.8);border-radius:3px;display:inline-block;"></span> Active</span>
+          <span style="display:flex;align-items:center;gap:.3rem;"><span style="width:10px;height:10px;border:2px solid var(--neon-cyan);border-radius:3px;display:inline-block;"></span> Today</span>
+        </div>
+
+        <div style="margin-top:1rem;padding:.7rem;background:rgba(255,107,0,0.07);border-radius:10px;border:1px solid rgba(255,107,0,0.2);">
+          <div style="font-size:.75rem;font-weight:700;color:var(--neon-orange);margin-bottom:.3rem;">🔥 Streak Milestones</div>
+          <div style="display:flex;flex-direction:column;gap:.2rem;">
+            <div style="display:flex;justify-content:space-between;font-size:.7rem;">
+              <span style="color:rgba(255,255,255,0.6);">7 days</span>
+              <span style="color:{{ gamification.streak >= 7 ? '#39ff14' : 'var(--text-dim)' }};">{{ gamification.streak >= 7 ? '✅ Done' : '🔒 ' ~ gamification.streak ~ '/7' }}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.7rem;">
+              <span style="color:rgba(255,255,255,0.6);">30 days</span>
+              <span style="color:var(--text-dim);">🔒 {{ gamification.streak }}/30</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# LIVE ACTIVITY FEED #}
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">📡 LIVE ACTIVITY</span>
+        <span style="display:flex;align-items:center;gap:.4rem;font-size:.65rem;color:var(--neon-green);">
+          <span style="width:6px;height:6px;background:var(--neon-green);border-radius:50%;animation:pulse 1s infinite;display:inline-block;"></span>
+          LIVE
+        </span>
+      </div>
+      <div class="panel-body" style="padding:.75rem;">
+        <div class="activity-feed" id="activity-feed">
+          <div class="act-item">
+            <span class="act-icon">🚀</span>
+            <span class="act-text">Session started</span>
+            <span class="act-time">now</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ── ROW 4: ALL BADGES ── #}
+  <div class="panel" style="margin-bottom:1.25rem;">
+    <div class="panel-header">
+      <span class="panel-title">🏆 ALL BADGES</span>
+      <span style="font-size:.7rem;color:var(--text-dim);">{{ gamification.badges|length }} / 6 earned</span>
+    </div>
+    <div class="panel-body">
+      {% set allBadges = [
+        {name:'Master Deck',          icon:'🎖',  desc:'Complete 1 deck at 100%'},
+        {name:'Streak 7 jours',       icon:'🔥',  desc:'Study 7 days in a row'},
+        {name:'100 Bonnes Réponses',  icon:'💯',  desc:'Give 100 correct answers'},
+        {name:'500 Bonnes Réponses',  icon:'🚀',  desc:'Give 500 correct answers'},
+        {name:'Niveau 5',             icon:'⭐',  desc:'Reach level 5'},
+        {name:'Niveau 10',            icon:'🌟',  desc:'Reach level 10'},
+      ] %}
+      {% set earnedNames = gamification.badges|map(b => b.name) %}
+      <div class="all-badges-grid" id="badges-grid">
+        {% for badge in allBadges %}
+          {% set isEarned = badge.name in earnedNames %}
+          <div class="badge-full-card {{ isEarned ? 'earned-b' : 'locked-b' }}">
+            <div class="bf-icon">{{ isEarned ? badge.icon : '🔒' }}</div>
+            <div class="bf-name">{{ badge.name }}</div>
+            <div class="bf-desc">{{ badge.desc }}</div>
+            <div class="bf-status {{ isEarned ? 'e' : 'l' }}">
+              {{ isEarned ? '✅ EARNED' : '🔒 LOCKED' }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{# HIDDEN DATA #}
+<div id="gami-data"
+  data-points="{{ gamification.points }}"
+  data-level="{{ gamification.level }}"
+  data-streak="{{ gamification.streak }}"
+  data-progress="{{ progressPercent }}"
+  data-correct="{{ gamification.totalCorrectAnswers }}"
+  data-decks="{{ gamification.totalDecksCompleted }}">
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+// ═══════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ═══════════════════════════════════════════════════════
+const DATA = document.getElementById('gami-data').dataset;
+let state = {
+  points:  parseInt(DATA.points),
+  level:   parseInt(DATA.level),
+  streak:  parseInt(DATA.streak),
+  progress: parseInt(DATA.progress),
+  correct: parseInt(DATA.correct),
+  decks:   parseInt(DATA.decks),
+};
+
+let cooldowns = { correct: 0, daily: 0, roulette: 0 };
+let activityLog = [];
+let challengeProgress = { c1: 0, c2: 0, c3: 0, c4: 0 };
+
+// ═══════════════════════════════════════════════════════
+//  UI UPDATE
+// ═══════════════════════════════════════════════════════
+function updateUI(newData) {
+  const oldLevel = state.level;
+
+  if (newData.points  !== undefined) state.points  = newData.points;
+  if (newData.level   !== undefined) state.level   = newData.level;
+  if (newData.streak  !== undefined) state.streak  = newData.streak;
+
+  // XP display
+  animateCount('xp-display', state.points, ' <small>XP</small>');
+  animateCount('s-xp',       state.points);
+  animateCount('s-lvl',      state.level);
+  animateCount('s-streak',   state.streak);
+
+  document.getElementById('cur-level').textContent  = state.level;
+  document.getElementById('cur-streak').textContent = state.streak;
+  document.getElementById('lv-cur').textContent     = state.level;
+  document.getElementById('lv-next').textContent    = state.level + 1;
+  document.getElementById('streak-count').textContent = state.streak + ' days';
+
+  // XP bar
+  const pct = state.points % 100;
+  document.getElementById('xp-bar-fill').style.width = pct + '%';
+  document.getElementById('xp-prog-txt').textContent = pct + '% → Lv' + (state.level + 1);
+
+  // Level up?
+  if (state.level > oldLevel) {
+    setTimeout(() => showLevelUp(state.level), 600);
+  }
+
+  // Update badges count if provided
+  if (newData.badges !== undefined) {
+    const earned = newData.badges.length;
+    document.getElementById('cur-badges').textContent = earned;
+  }
+}
+
+function animateCount(id, target, suffix = '') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = parseInt(el.textContent) || 0;
+  const diff  = target - start;
+  if (diff === 0) { el.innerHTML = target + suffix; return; }
+  const steps = 20; let step = 0;
+  const timer = setInterval(() => {
+    step++;
+    el.innerHTML = Math.round(start + (diff * (step / steps))) + suffix;
+    if (step >= steps) { el.innerHTML = target + suffix; clearInterval(timer); }
+  }, 30);
+}
+
+// ═══════════════════════════════════════════════════════
+//  XP FLOATER
+// ═══════════════════════════════════════════════════════
+function spawnFloater(text, color = '#00f5ff') {
+  const el = document.createElement('div');
+  el.className = 'xp-floater';
+  el.textContent = text;
+  el.style.cssText = `left:${40 + Math.random() * 20}%;top:${30 + Math.random() * 30}%;color:${color};text-shadow:0 0 20px ${color};`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ACTIVITY FEED
+// ═══════════════════════════════════════════════════════
+function addActivity(icon, text, xp) {
+  activityLog.unshift({ icon, text, xp, time: 'now' });
+  if (activityLog.length > 20) activityLog.pop();
+
+  const feed = document.getElementById('activity-feed');
+  const item = document.createElement('div');
+  item.className = 'act-item';
+  item.innerHTML = `
+    <span class="act-icon">${icon}</span>
+    <span class="act-text">${text}</span>
+    ${xp ? `<span class="act-xp">+${xp} XP</span>` : ''}
+    <span class="act-time">now</span>
+  `;
+  feed.insertBefore(item, feed.firstChild);
+  if (feed.children.length > 8) feed.removeChild(feed.lastChild);
+}
+
+// ═══════════════════════════════════════════════════════
+//  LEVEL UP
+// ═══════════════════════════════════════════════════════
+function showLevelUp(level) {
+  document.getElementById('lu-num').textContent = level;
+  document.getElementById('levelup-overlay').classList.add('show');
+  launchConfetti();
+}
+function closeLevelUp() {
+  document.getElementById('levelup-overlay').classList.remove('show');
+  stopConfetti();
+}
+
+// ═══════════════════════════════════════════════════════
+//  BADGE TOAST
+// ═══════════════════════════════════════════════════════
+function showBadgeToast(badgeName) {
+  const area = document.getElementById('badge-toast-area');
+  const toast = document.createElement('div');
+  toast.className = 'badge-toast';
+  toast.innerHTML = `
+    <span class="bt-icon">🏅</span>
+    <div>
+      <div class="bt-title">🎉 NEW BADGE!</div>
+      <div class="bt-name">${badgeName}</div>
+    </div>
+  `;
+  area.appendChild(toast);
+  setTimeout(() => toast.style.opacity = '0', 4000);
+  setTimeout(() => toast.remove(), 4500);
+}
+
+// ═══════════════════════════════════════════════════════
+//  COOLDOWN SYSTEM
+// ═══════════════════════════════════════════════════════
+function setCooldown(key, seconds) {
+  cooldowns[key] = Date.now() + seconds * 1000;
+}
+
+function checkCooldown(key) {
+  return cooldowns[key] ? Date.now() < cooldowns[key] : false;
+}
+
+function updateCooldownUI() {
+  const cdCorrect = document.getElementById('cd-correct');
+  const cdDaily   = document.getElementById('cd-daily');
+
+  if (checkCooldown('correct')) {
+    const rem = Math.ceil((cooldowns.correct - Date.now()) / 1000);
+    cdCorrect.textContent = rem + 's';
+    cdCorrect.style.color = 'var(--neon-pink)';
+  } else {
+    cdCorrect.textContent = 'READY';
+    cdCorrect.style.color = 'var(--neon-green)';
+  }
+
+  if (checkCooldown('daily')) {
+    cdDaily.textContent = 'DONE TODAY';
+    cdDaily.style.color = 'var(--neon-yellow)';
+  } else {
+    cdDaily.textContent = 'READY';
+    cdDaily.style.color = 'var(--neon-green)';
+  }
+}
+setInterval(updateCooldownUI, 500);
+
+// ═══════════════════════════════════════════════════════
+//  CHALLENGES
+// ═══════════════════════════════════════════════════════
+const CHALLENGES = [
+  { id:'c1', icon:'🎯', name:'Answer Machine',   desc:'Get 5 correct answers',   target:5,  reward:25,  color:'var(--neon-cyan)' },
+  { id:'c2', icon:'🔥', name:'On Fire',          desc:'Maintain 3-day streak',   target:3,  reward:30,  color:'var(--neon-orange)' },
+  { id:'c3', icon:'📚', name:'Deck Destroyer',   desc:'Complete 2 decks',        target:2,  reward:50,  color:'var(--neon-pink)' },
+  { id:'c4', icon:'⚡', name:'Speed Demon',      desc:'Score 7+ in Speed Quiz',  target:7,  reward:40,  color:'var(--neon-yellow)' },
+];
+
+function renderChallenges() {
+  const list = document.getElementById('challenge-list');
+  list.innerHTML = '';
+  CHALLENGES.forEach(ch => {
+    const prog = challengeProgress[ch.id] || 0;
+    const done = prog >= ch.target;
+    const pct  = Math.min(100, Math.round((prog / ch.target) * 100));
+    list.innerHTML += `
+      <div class="challenge-item ${done ? 'done' : ''}">
+        <span class="ch-icon">${ch.icon}</span>
+        <div class="ch-info">
+          <div class="ch-name">${ch.name}</div>
+          <div class="ch-desc">${ch.desc} (${Math.min(prog, ch.target)}/${ch.target})</div>
+          <div class="ch-prog-wrap">
+            <div class="ch-prog-track">
+              <div class="ch-prog-fill" style="width:${pct}%;background:${ch.color};box-shadow:0 0 8px ${ch.color};"></div>
+            </div>
+          </div>
+        </div>
+        ${done
+          ? '<span class="ch-done-icon">✅</span>'
+          : `<span class="ch-reward">+${ch.reward} XP</span>`}
+      </div>`;
+  });
+}
+
+function progressChallenge(id, amount = 1) {
+  if (!challengeProgress[id]) challengeProgress[id] = 0;
+  const ch = CHALLENGES.find(c => c.id === id);
+  if (!ch || challengeProgress[id] >= ch.target) return;
+  challengeProgress[id] = Math.min(ch.target, challengeProgress[id] + amount);
+  if (challengeProgress[id] >= ch.target) {
+    addActivity('🏆', `Challenge completed: ${ch.name}!`, ch.reward);
+    spawnFloater(`CHALLENGE! +${ch.reward} XP`, 'var(--neon-yellow)');
+    showBadgeToast(`Challenge: ${ch.name}`);
+    launchConfetti();
+    // Give XP for challenge completion
+    callAPI('/gamification/correct-answer', {});
+  }
+  renderChallenges();
+}
+
+// ═══════════════════════════════════════════════════════
+//  API CALLS
+// ═══════════════════════════════════════════════════════
+async function callAPI(url, body = {}) {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch(e) {
+    console.warn('API error:', e.message);
+    return null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  EARN XP ACTIONS
+// ═══════════════════════════════════════════════════════
+async function earnCorrectAnswer() {
+  if (checkCooldown('correct')) return;
+  setCooldown('correct', 3);
+
+  const btn = document.getElementById('btn-correct');
+  btn.disabled = true;
+
+  const data = await callAPI('/gamification/correct-answer');
+
+  if (data && data.success) {
+    spawnFloater('+10 XP 🎯', 'var(--neon-green)');
+    addActivity('🎯', 'Correct answer!', 10);
+    updateUI(data);
+    if (data.newBadges && data.newBadges.length) data.newBadges.forEach(b => showBadgeToast(b));
+
+    // Challenge progress
+    progressChallenge('c1');
+
+    state.correct++;
+    document.getElementById('s-correct').textContent = state.correct;
+  } else {
+    // Fallback demo mode
+    state.points += 10;
+    spawnFloater('+10 XP 🎯', 'var(--neon-green)');
+    addActivity('🎯', 'Correct answer! (demo)', 10);
+    state.correct++;
+    document.getElementById('s-correct').textContent = state.correct;
+    updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+    progressChallenge('c1');
+  }
+
+  setTimeout(() => { btn.disabled = false; }, 3000);
+}
+
+async function earnDeckCompleted() {
+  const btn = document.getElementById('btn-deck');
+  btn.disabled = true;
+
+  const data = await callAPI('/gamification/deck-completed/0');
+
+  if (data && data.success) {
+    spawnFloater('+50 XP 📚', 'var(--neon-pink)');
+    addActivity('📚', 'Deck completed!', 50);
+    updateUI(data);
+    if (data.newBadges && data.newBadges.length) data.newBadges.forEach(b => showBadgeToast(b));
+    state.decks++;
+    document.getElementById('s-decks').textContent = state.decks;
+    progressChallenge('c3');
+    launchConfetti();
+  } else {
+    state.points += 50;
+    spawnFloater('+50 XP 📚', 'var(--neon-pink)');
+    addActivity('📚', 'Deck completed! (demo)', 50);
+    state.decks++;
+    document.getElementById('s-decks').textContent = state.decks;
+    updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+    progressChallenge('c3');
+    launchConfetti();
+  }
+
+  setTimeout(() => { btn.disabled = false; }, 3000);
+}
+
+async function earnDailyRevision() {
+  if (checkCooldown('daily')) {
+    addActivity('ℹ️', 'Daily revision already claimed today!');
+    return;
+  }
+  setCooldown('daily', 86400);
+
+  const btn = document.getElementById('btn-daily');
+  btn.disabled = true;
+
+  const data = await callAPI('/gamification/daily-revision');
+
+  if (data) {
+    if (data.success) {
+      spawnFloater('+15 XP 📅', 'var(--neon-yellow)');
+      addActivity('📅', 'Daily revision bonus!', 15);
+      updateUI(data);
+    } else {
+      addActivity('ℹ️', 'Already claimed today — come back tomorrow!');
+    }
+  } else {
+    state.points += 15;
+    spawnFloater('+15 XP 📅', 'var(--neon-yellow)');
+    addActivity('📅', 'Daily revision! (demo)', 15);
+    updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+  }
+
+  setTimeout(() => { btn.disabled = false; }, 2000);
+}
+
+async function doStreak10() {
+  const btn = document.getElementById('btn-streak');
+  btn.disabled = true;
+  btn.textContent = 'Earning...';
+
+  // 10 correct answers = 100 XP
+  let total = 0;
+  for (let i = 0; i < 10; i++) {
+    const data = await callAPI('/gamification/correct-answer');
+    if (data && data.success) { total += 10; updateUI(data); }
+    else { state.points += 10; total += 10; updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 }); }
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  spawnFloater('+100 XP 🔥🔥🔥', 'var(--neon-orange)');
+  addActivity('🔥', '10-answer streak bonus!', 100);
+  launchConfetti();
+
+  btn.disabled = false;
+  btn.textContent = '🔥 Streak Bonus';
+}
+
+// ═══════════════════════════════════════════════════════
+//  MEMORY GAME
+// ═══════════════════════════════════════════════════════
+const MEM_EMOJIS = ['🎯','📚','🔥','⭐','🏆','🎮','⚡','💎'];
+let memCards = [], memFlipped = [], memMatched = 0, memMoves = 0;
+let memTimerVal = 0, memTimerInt = null, memStarted = false;
+
+function initMemory() {
+  clearInterval(memTimerInt);
+  memCards = []; memFlipped = []; memMatched = 0; memMoves = 0; memTimerVal = 0; memStarted = false;
+  document.getElementById('mem-moves').textContent = '0';
+  document.getElementById('mem-pairs').textContent = '0/8';
+  document.getElementById('mem-timer').textContent = '0s';
+
+  const pairs = [...MEM_EMOJIS, ...MEM_EMOJIS].sort(() => Math.random() - 0.5);
+  const grid = document.getElementById('memory-grid');
+  grid.innerHTML = '';
+
+  pairs.forEach((emoji, i) => {
+    const card = document.createElement('div');
+    card.className = 'mem-card';
+    card.dataset.emoji = emoji;
+    card.dataset.idx   = i;
+    card.innerHTML = `<div class="mem-face">?</div><div class="mem-back">${emoji}</div>`;
+    card.addEventListener('click', () => flipMemCard(card));
+    grid.appendChild(card);
+    memCards.push(card);
+  });
+}
+
+function flipMemCard(card) {
+  if (card.classList.contains('flipped') || card.classList.contains('matched') || memFlipped.length >= 2) return;
+
+  if (!memStarted) {
+    memStarted = true;
+    memTimerInt = setInterval(() => {
+      memTimerVal++;
+      document.getElementById('mem-timer').textContent = memTimerVal + 's';
+    }, 1000);
+  }
+
+  card.classList.add('flipped');
+  memFlipped.push(card);
+
+  if (memFlipped.length === 2) {
+    memMoves++;
+    document.getElementById('mem-moves').textContent = memMoves;
+
+    if (memFlipped[0].dataset.emoji === memFlipped[1].dataset.emoji) {
+      memFlipped[0].classList.add('matched');
+      memFlipped[1].classList.add('matched');
+      memMatched++;
+      document.getElementById('mem-pairs').textContent = memMatched + '/8';
+      memFlipped = [];
+
+      if (memMatched === 8) {
+        clearInterval(memTimerInt);
+        setTimeout(async () => {
+          const xp = Math.max(10, 30 - Math.floor(memMoves / 3));
+          addActivity('🃏', `Memory Game won in ${memMoves} moves!`, xp);
+          spawnFloater(`+${xp} XP 🃏`, 'var(--neon-purple)');
+          launchConfetti();
+          // Give XP
+          for (let i = 0; i < Math.ceil(xp/10); i++) {
+            await callAPI('/gamification/correct-answer');
+            state.points += 10;
+          }
+          updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+        }, 400);
+      }
+    } else {
+      setTimeout(() => {
+        memFlipped[0].classList.remove('flipped');
+        memFlipped[1].classList.remove('flipped');
+        memFlipped = [];
+      }, 900);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  SPEED QUIZ
+// ═══════════════════════════════════════════════════════
+const QUIZ_QUESTIONS = [
+  { q: 'What is the capital of France?',         opts: ['Berlin','Paris','Madrid','Rome'],          ans: 1 },
+  { q: 'What is 7 × 8?',                         opts: ['54','56','58','64'],                       ans: 1 },
+  { q: 'Who painted the Mona Lisa?',             opts: ['Picasso','Rembrandt','da Vinci','Monet'],  ans: 2 },
+  { q: 'What planet is closest to the Sun?',     opts: ['Venus','Earth','Mercury','Mars'],          ans: 2 },
+  { q: 'H₂O is the formula for...?',             opts: ['Hydrogen','Oxygen','Water','Salt'],        ans: 2 },
+  { q: 'How many continents are there?',         opts: ['5','6','7','8'],                           ans: 2 },
+  { q: 'What year did WW2 end?',                 opts: ['1943','1944','1945','1946'],                ans: 2 },
+  { q: 'Speed of light ≈ ?',                     opts: ['300 km/s','300,000 km/s','30,000 km/s','3,000 km/s'], ans: 1 },
+  { q: 'Largest ocean on Earth?',                opts: ['Atlantic','Indian','Arctic','Pacific'],    ans: 3 },
+  { q: 'How many sides does a hexagon have?',    opts: ['5','6','7','8'],                           ans: 1 },
+];
+
+let qzIdx = 0, qzScore = 0, qzCorrect = 0, qzStreak = 0;
+let qzTimerInt = null, qzTime = 10, qzRunning = false;
+
+function startQuiz() {
+  qzIdx = 0; qzScore = 0; qzCorrect = 0; qzStreak = 0;
+  qzRunning = true;
+  loadQuizQ();
+}
+
+function loadQuizQ() {
+  if (qzIdx >= QUIZ_QUESTIONS.length) { endQuiz(); return; }
+  clearInterval(qzTimerInt);
+  qzTime = 10;
+
+  const q = QUIZ_QUESTIONS[qzIdx];
+  document.getElementById('qz-question').textContent = q.q;
+  document.getElementById('qz-num').textContent = qzIdx + 1;
+  document.getElementById('qz-time').textContent = qzTime;
+  document.getElementById('qz-timer-bar').style.width = '100%';
+
+  const opts = document.getElementById('qz-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answerQuiz(i, q.ans);
+    opts.appendChild(btn);
+  });
+
+  qzTimerInt = setInterval(() => {
+    qzTime--;
+    document.getElementById('qz-time').textContent = qzTime;
+    document.getElementById('qz-timer-bar').style.width = (qzTime / 10 * 100) + '%';
+    if (qzTime <= 0) { clearInterval(qzTimerInt); timeoutQuiz(q.ans); }
+  }, 1000);
+}
+
+function answerQuiz(chosen, correct) {
+  clearInterval(qzTimerInt);
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correct) o.classList.add('correct');
+    else if (i === chosen && chosen !== correct) o.classList.add('wrong');
+  });
+
+  if (chosen === correct) {
+    qzCorrect++;
+    qzStreak++;
+    const pts = 10 + qzStreak * 2 + qzTime;
+    qzScore += pts;
+    document.getElementById('qz-correct').textContent = qzCorrect;
+    document.getElementById('qz-streak').textContent = qzStreak;
+    document.getElementById('qz-score-top').textContent = qzScore + 'pts';
+    spawnFloater(`+${pts}pts ⚡`, 'var(--neon-cyan)');
+    progressChallenge('c4');
+  } else {
+    qzStreak = 0;
+    document.getElementById('qz-streak').textContent = 0;
+  }
+
+  qzIdx++;
+  setTimeout(loadQuizQ, 1000);
+}
+
+function timeoutQuiz(correct) {
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o, i) => { o.disabled = true; if (i === correct) o.classList.add('correct'); });
+  qzStreak = 0;
+  qzIdx++;
+  setTimeout(loadQuizQ, 1200);
+}
+
+async function endQuiz() {
+  qzRunning = false;
+  const xpEarned = Math.ceil(qzScore / 10);
+  document.getElementById('qz-question').innerHTML = `
+    <div style="text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:.5rem;">🏁 Quiz Done!</div>
+      <div style="font-family:'Orbitron',monospace;font-size:.9rem;color:var(--neon-cyan);">${qzCorrect}/10 correct</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-top:.3rem;">${qzScore} points → ~${xpEarned} XP</div>
+    </div>`;
+  document.getElementById('qz-opts').innerHTML = `<button class="quiz-opt" onclick="startQuiz()" style="grid-column:1/-1;padding:1rem;">🔄 Play Again</button>`;
+  document.getElementById('qz-timer-bar').style.width = '0%';
+
+  addActivity('⚡', `Speed Quiz: ${qzCorrect}/10 correct, ${qzScore}pts`, xpEarned);
+  spawnFloater(`+${xpEarned} XP ⚡`, 'var(--neon-cyan)');
+
+  // Give real XP
+  for (let i = 0; i < Math.min(xpEarned, 10); i++) {
+    await callAPI('/gamification/correct-answer');
+    state.points += 10;
+    await new Promise(r => setTimeout(r, 80));
+  }
+  updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+  if (qzCorrect >= 7) launchConfetti();
+}
+
+// ═══════════════════════════════════════════════════════
+//  ROULETTE
+// ═══════════════════════════════════════════════════════
+const ROULETTE_XP = [5, 10, 25, 50, 15, 30, 5, 10];
+let rouletteSpun = false;
+
+async function spinRoulette() {
+  if (rouletteSpun) {
+    addActivity('ℹ️', 'Roulette: 1 spin per session!');
+    return;
+  }
+  rouletteSpun = true;
+
+  const btn = document.getElementById('spin-btn');
+  btn.disabled = true;
+  btn.textContent = '🌀 Spinning...';
+
+  const wheel = document.getElementById('roulette-wheel');
+  const center = document.getElementById('roulette-center');
+
+  const sectorIdx = Math.floor(Math.random() * 8);
+  const xp        = ROULETTE_XP[sectorIdx];
+  const extraRot  = 360 * 5 + (sectorIdx * 45);
+
+  wheel.style.transform = `rotate(${extraRot}deg)`;
+  center.textContent    = '...';
+
+  setTimeout(async () => {
+    center.textContent = '+' + xp;
+    spawnFloater(`+${xp} XP 🎰`, 'var(--neon-yellow)');
+    addActivity('🎰', `Roulette win!`, xp);
+
+    // Give XP
+    for (let i = 0; i < Math.ceil(xp / 10); i++) {
+      await callAPI('/gamification/correct-answer');
+      state.points += 10;
+      await new Promise(r => setTimeout(r, 100));
+    }
+    updateUI({ points: state.points, level: Math.floor(state.points / 100) + 1 });
+    if (xp >= 25) launchConfetti();
+
+    btn.textContent = '✅ Used today!';
+  }, 3200);
+}
+
+// ═══════════════════════════════════════════════════════
+//  STREAK CALENDAR
+// ═══════════════════════════════════════════════════════
+function buildStreakCal() {
+  const cal = document.getElementById('streak-cal');
+  cal.innerHTML = '';
+  const today = new Date();
+  const streak = state.streak;
+
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const isToday   = i === 0;
+    const isActive  = i < streak;
+    const day       = d.getDate();
+
+    const cell = document.createElement('div');
+    cell.className = 'streak-day' + (isActive ? ' active' : '') + (isToday ? ' today' : '');
+    if (!isActive) cell.textContent = day;
+    cal.appendChild(cell);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════════
+let confettiParts = [], confettiRunning = false;
+const COLORS = ['#00f5ff','#ff006e','#39ff14','#ffea00','#bf00ff','#ff6b00'];
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.classList.add('show');
+
+  for (let i = 0; i < 120; i++) {
+    confettiParts.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height - canvas.height,
+      w: 6 + Math.random() * 8,
+      h: 10 + Math.random() * 12,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      vy: 3 + Math.random() * 5,
+      vx: (Math.random() - 0.5) * 4,
+      rot: Math.random() * 360,
+      vr: (Math.random() - 0.5) * 8,
+    });
+  }
+
+  if (!confettiRunning) {
+    confettiRunning = true;
+    animateConfetti(ctx, canvas);
+  }
+
+  setTimeout(stopConfetti, 3500);
+}
+
+function animateConfetti(ctx, canvas) {
+  if (!confettiRunning) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  confettiParts = confettiParts.filter(p => p.y < canvas.height + 20);
+  confettiParts.forEach(p => {
+    p.y += p.vy; p.x += p.vx; p.rot += p.vr;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI / 180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+    ctx.restore();
+  });
+  requestAnimationFrame(() => animateConfetti(ctx, canvas));
+}
+
+function stopConfetti() {
+  confettiRunning = false;
+  confettiParts = [];
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+//  LEADERBOARD REFRESH
+// ═══════════════════════════════════════════════════════
+async function refreshLeaderboard() {
+  const list = document.getElementById('leaderboard-list');
+  list.style.opacity = '.4';
+  await new Promise(r => setTimeout(r, 500));
+  list.style.opacity = '1';
+  addActivity('📡', 'Leaderboard refreshed');
+}
+
+// ═══════════════════════════════════════════════════════
+//  CHALLENGE TIMER COUNTDOWN
+// ═══════════════════════════════════════════════════════
+function updateChallengeTimer() {
+  const now  = new Date();
+  const midnight = new Date(now); midnight.setHours(24,0,0,0);
+  const diff = Math.floor((midnight - now) / 1000);
+  const h = Math.floor(diff / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  const s = diff % 60;
+  const el = document.getElementById('challenge-timer');
+  if (el) el.textContent = `Resets in ${h}h ${m}m ${s}s`;
+}
+setInterval(updateChallengeTimer, 1000);
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initMemory();
+  renderChallenges();
+  buildStreakCal();
+  updateChallengeTimer();
+
+  // Set challenge progress from real data
+  challengeProgress.c1 = Math.min(state.correct, 5);
+  challengeProgress.c2 = Math.min(state.streak, 3);
+  challengeProgress.c3 = Math.min(state.decks, 2);
+  renderChallenges();
+
+  // Animate XP bar
+  setTimeout(() => {
+    const fill = document.getElementById('xp-bar-fill');
+    if (fill) { const w = fill.style.width; fill.style.width = '0'; setTimeout(() => fill.style.width = w, 200); }
+  }, 300);
+
+  addActivity('🚀', 'Welcome to XP Arena!');
+});
+</script>
+{% endblock %}

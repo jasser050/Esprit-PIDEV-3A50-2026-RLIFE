@@ -1,0 +1,457 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz - {{ theme }}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .quiz-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 32px 16px;
+    }
+    
+    .quiz-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 48px 32px;
+        color: white;
+        text-align: center;
+        margin-bottom: 40px;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    }
+    
+    .quiz-header h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+    }
+    
+    .quiz-meta {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .quiz-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .question-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .question-card:hover {
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .question-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 16px;
+    }
+    
+    .question-text {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 24px;
+        line-height: 1.6;
+    }
+    
+    .options-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 24px 0;
+    }
+    
+    .option-item {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .option-item:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    
+    .option-item.selected {
+        background: #dbeafe;
+        border-color: #3b82f6;
+    }
+    
+    .option-item.correct {
+        background: #dcfce7;
+        border-color: #22c55e;
+    }
+    
+    .option-item.incorrect {
+        background: #fee2e2;
+        border-color: #ef4444;
+    }
+    
+    .option-letter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background: #e2e8f0;
+        color: #475569;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+    
+    .option-item.selected .option-letter {
+        background: #3b82f6;
+        color: white;
+    }
+    
+    .option-item.correct .option-letter {
+        background: #22c55e;
+        color: white;
+    }
+    
+    .option-item.incorrect .option-letter {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .option-text {
+        flex: 1;
+        color: #334155;
+        font-size: 16px;
+    }
+    
+    .explanation-box {
+        background: #f0f9ff;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-top: 16px;
+        display: none;
+    }
+    
+    .explanation-box.show {
+        display: block;
+    }
+    
+    .explanation-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 8px;
+    }
+    
+    .explanation-text {
+        color: #1e40af;
+        line-height: 1.6;
+    }
+    
+    .check-button {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .check-button:hover {
+        background: #2563eb;
+    }
+    
+    .check-button:disabled {
+        background: #cbd5e1;
+        cursor: not-allowed;
+    }
+    
+    .results-summary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        margin-top: 40px;
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+    }
+    
+    .score-display {
+        font-size: 64px;
+        font-weight: 700;
+        margin: 20px 0;
+    }
+    
+    .actions-bar {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    
+    .action-btn.primary {
+        background: white;
+        color: #667eea;
+    }
+    
+    .action-btn.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .action-btn.secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+    }
+    
+    .action-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="quiz-container">
+    <!-- En-tête du quiz -->
+    <div class="quiz-header">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: rgba(255, 255, 255, 0.2); border-radius: 16px; margin-bottom: 16px;">
+            <i data-lucide="brain" class="w-10 h-10"></i>
+        </div>
+        <h1>{{ theme }}</h1>
+        <p style="font-size: 18px; opacity: 0.95; margin: 8px 0 0 0;">Quiz interactif généré par IA</p>
+        
+        <div class="quiz-meta">
+            <div class="quiz-meta-item">
+                <i data-lucide="list-checks" class="w-5 h-5"></i>
+                <span>{{ questions|length }} questions</span>
+            </div>
+            <div class="quiz-meta-item">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+                <span>~{{ questions|length * 2 }} minutes</span>
+            </div>
+            <div class="quiz-meta-item">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span>OpenRouter AI</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Questions -->
+    <form id="quizForm">
+        {% for key, question in questions %}
+            <div class="question-card" data-question-index="{{ key }}">
+                <div class="question-number">{{ key + 1 }}</div>
+                <div class="question-text">{{ question.question }}</div>
+                
+                <ul class="options-list">
+                    {% for optKey, option in question.options %}
+                        <li class="option-item" 
+                            data-option="{{ option }}"
+                            data-is-correct="{{ option == question.correct_answer ? 'true' : 'false' }}">
+                            <div class="option-letter">{{ 'ABCD'[optKey] }}</div>
+                            <div class="option-text">{{ option }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                
+                <button type="button" class="check-button" data-question-index="{{ key }}" disabled>
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    Vérifier la réponse
+                </button>
+                
+                {% if question.explanation %}
+                    <div class="explanation-box">
+                        <div class="explanation-title">
+                            <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                            Explication
+                        </div>
+                        <div class="explanation-text">{{ question.explanation }}</div>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </form>
+
+    <!-- Résumé des résultats (caché initialement) -->
+    <div id="resultsSummary" class="results-summary" style="display: none;">
+        <i data-lucide="trophy" class="w-16 h-16" style="margin: 0 auto;"></i>
+        <h2 style="font-size: 32px; margin: 20px 0 8px 0;">Quiz terminé !</h2>
+        <div class="score-display" id="scoreDisplay">0/{{ questions|length }}</div>
+        <p style="font-size: 18px; opacity: 0.95;">Vous avez obtenu <span id="percentageDisplay">0%</span></p>
+        
+        <div class="actions-bar">
+            <a href="{{ path('app_revisions') }}" class="action-btn primary">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                Retour aux decks
+            </a>
+            <button type="button" class="action-btn secondary" onclick="window.location.reload()">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                Recommencer
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionCards = document.querySelectorAll('.question-card');
+    let correctAnswers = 0;
+    let answeredQuestions = 0;
+    const totalQuestions = {{ questions|length }};
+    
+    questionCards.forEach(card => {
+        const options = card.querySelectorAll('.option-item');
+        const checkButton = card.querySelector('.check-button');
+        const explanationBox = card.querySelector('.explanation-box');
+        let selectedOption = null;
+        let hasChecked = false;
+        
+        // Gestion de la sélection d'option
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                if (hasChecked) return; // Empêcher la modification après vérification
+                
+                // Désélectionner toutes les options
+                options.forEach(opt => opt.classList.remove('selected'));
+                
+                // Sélectionner l'option cliquée
+                this.classList.add('selected');
+                selectedOption = this;
+                
+                // Activer le bouton de vérification
+                checkButton.disabled = false;
+            });
+        });
+        
+        // Gestion de la vérification
+        checkButton.addEventListener('click', function() {
+            if (!selectedOption || hasChecked) return;
+            
+            hasChecked = true;
+            answeredQuestions++;
+            
+            // Désactiver toutes les options
+            options.forEach(opt => {
+                opt.style.cursor = 'default';
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Vérifier si la réponse est correcte
+            const isCorrect = selectedOption.getAttribute('data-is-correct') === 'true';
+            
+            if (isCorrect) {
+                selectedOption.classList.add('correct');
+                correctAnswers++;
+            } else {
+                selectedOption.classList.add('incorrect');
+                
+                // Montrer la bonne réponse
+                options.forEach(opt => {
+                    if (opt.getAttribute('data-is-correct') === 'true') {
+                        opt.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Afficher l'explication
+            if (explanationBox) {
+                explanationBox.classList.add('show');
+            }
+            
+            // Désactiver le bouton
+            this.disabled = true;
+            this.textContent = isCorrect ? '✓ Correct !' : '✗ Incorrect';
+            this.style.background = isCorrect ? '#22c55e' : '#ef4444';
+            
+            // Vérifier si toutes les questions sont répondues
+            if (answeredQuestions === totalQuestions) {
+                setTimeout(showResults, 1000);
+            }
+        });
+    });
+    
+    function showResults() {
+        const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+        
+        document.getElementById('scoreDisplay').textContent = `${correctAnswers}/${totalQuestions}`;
+        document.getElementById('percentageDisplay').textContent = `${percentage}%`;
+        
+        const resultsSummary = document.getElementById('resultsSummary');
+        resultsSummary.style.display = 'block';
+        
+        // Scroll vers les résultats
+        resultsSummary.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Adapter la couleur selon le score
+        if (percentage >= 80) {
+            resultsSummary.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        } else if (percentage >= 60) {
+            resultsSummary.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        } else {
+            resultsSummary.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+        }
+        
+        // Recréer les icônes Lucide
+        lucide.createIcons();
+    }
+    
+    // Initialiser les icônes Lucide
+    lucide.createIcons();
+});
+</script>
+{% endblock %}
