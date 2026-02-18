@@ -1,6 +1,5 @@
 {% extends 'base.html.twig' %}
 
-<<<<<<< HEAD
 {% block title %}Profile & Settings{% endblock %}
 
 {% block body %}
@@ -212,33 +211,6 @@
                         <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
                             {% if app.user.profilePic %}
                                 <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
-=======
-{% block title %}Settings{% endblock %}
-
-{% block body %}
-<div class="space-y-6 max-w-4xl">
-    <!-- Page Header -->
-    <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">Settings</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-400">Manage your account and preferences</p>
-    </div>
-
-    <form method="POST" action="{{ path('app_settings') }}" enctype="multipart/form-data" class="space-y-6" onsubmit="return validateSettingsForm(event)">
-        <!-- Profile Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Profile Information</h2>
-            
-            <div class="space-y-5">
-                <!-- Profile Picture -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
-                        Profile Picture
-                    </label>
-                    <div class="flex items-center gap-6">
-                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
-                            {% if app.user.profilePic %}
-                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                             {% else %}
                                 {{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}
                             {% endif %}
@@ -262,15 +234,9 @@
                 </div>
 
                 <!-- Name Fields -->
-<<<<<<< HEAD
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                         <label for="first_name" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="first_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                             First Name <span class="text-danger-500">*</span>
                         </label>
                         <input
@@ -283,11 +249,7 @@
                         >
                     </div>
                     <div>
-<<<<<<< HEAD
                         <label for="last_name" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                        <label for="last_name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                             Last Name <span class="text-danger-500">*</span>
                         </label>
                         <input
@@ -303,11 +265,7 @@
 
                 <!-- Username -->
                 <div>
-<<<<<<< HEAD
                     <label for="username" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Username <span class="text-danger-500">*</span>
                     </label>
                         <input
@@ -324,11 +282,7 @@
 
                 <!-- Email -->
                 <div>
-<<<<<<< HEAD
                     <label for="email" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Email Address <span class="text-danger-500">*</span>
                     </label>
                     <input
@@ -343,11 +297,7 @@
 
                 <!-- Phone Number -->
                 <div>
-<<<<<<< HEAD
                     <label for="phone_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="phone_number" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Phone Number
                     </label>
                         <input
@@ -387,11 +337,7 @@
 
                 <!-- Bio -->
                 <div>
-<<<<<<< HEAD
                     <label for="bio" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="bio" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Bio
                     </label>
                     <textarea
@@ -403,7 +349,6 @@
                     >{{ app.user.bio }}</textarea>
                 </div>
             </div>
-<<<<<<< HEAD
             <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(59, 130, 246, 0.2), transparent); filter: blur(40px);"></div>
         </div>
 
@@ -426,18 +371,6 @@
                 <!-- University -->
                 <div>
                     <label for="university" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-        </div>
-
-        <!-- Academic Information -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Academic Information</h2>
-            
-            <div class="space-y-5">
-                <!-- University -->
-                <div>
-                    <label for="university" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         University
                     </label>
                     <input
@@ -452,11 +385,7 @@
 
                 <!-- Student ID -->
                 <div>
-<<<<<<< HEAD
                     <label for="student_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="student_id" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Student ID
                     </label>
                     <input
@@ -469,7 +398,6 @@
                     >
                 </div>
             </div>
-<<<<<<< HEAD
             <div class="absolute bottom-0 left-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.2), transparent); filter: blur(40px);"></div>
         </div>
 
@@ -493,29 +421,12 @@
                     <div class="flex items-start gap-4">
                         <i data-lucide="info" class="w-6 h-6 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5"></i>
                         <p class="text-sm text-info-800 dark:text-info-200 leading-relaxed">Leave password fields empty if you don't want to change your password.</p>
-=======
-        </div>
-
-        <!-- Change Password Section -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-6">Change Password</h2>
-            
-            <div class="space-y-5">
-                <div class="p-4 bg-info-50 dark:bg-info-900/20 border border-info-200 dark:border-info-800 rounded-xl">
-                    <div class="flex items-start gap-3">
-                        <i data-lucide="info" class="w-5 h-5 text-info-600 dark:text-info-400 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-sm text-info-800 dark:text-info-200">Leave password fields empty if you don't want to change your password.</p>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     </div>
                 </div>
 
                 <!-- Current Password -->
                 <div>
-<<<<<<< HEAD
                     <label for="current_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="current_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         Current Password
                     </label>
                     <input
@@ -529,11 +440,7 @@
 
                 <!-- New Password -->
                 <div>
-<<<<<<< HEAD
                     <label for="new_password" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-=======
-                    <label for="new_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                         New Password
                     </label>
                     <input
@@ -547,7 +454,6 @@
                     >
                 </div>
             </div>
-<<<<<<< HEAD
             <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent); filter: blur(40px);"></div>
         </div>
 
@@ -557,37 +463,20 @@
                 type="button"
                 onclick="window.location.href='{{ path('app_dashboard') }}'"
                 class="px-8 py-3.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all hover:scale-105 border-2 border-slate-200 dark:border-slate-700"
-=======
-        </div>
-
-        <!-- Save Button -->
-        <div class="flex items-center justify-end gap-3 pt-4">
-            <button
-                type="button"
-                onclick="window.location.href='{{ path('app_dashboard') }}'"
-                class="px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             >
                 Cancel
             </button>
             <button
                 type="submit"
-<<<<<<< HEAD
                 class="inline-flex items-center gap-2 px-8 py-3.5 text-white text-sm font-bold rounded-xl shadow-lg transition-all hover:scale-105 hover:shadow-xl" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);"
             >
                 <i data-lucide="save" class="w-5 h-5"></i>
-=======
-                class="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-primary-500/25 transition-all"
-            >
-                <i data-lucide="save" class="w-4 h-4"></i>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 <span>Save Changes</span>
             </button>
         </div>
     </form>
 
     <!-- Danger Zone -->
-<<<<<<< HEAD
     <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-3xl border-2 border-red-300 dark:border-red-800 shadow-lg hover:shadow-2xl transition-all group">
         <div class="p-6 pb-5 border-b-2 border-red-100 dark:border-red-900/50" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05), rgba(220, 38, 38, 0.05));">
             <div class="flex items-center gap-4">
@@ -619,25 +508,10 @@
             </div>
         </div>
         <div class="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(239, 68, 68, 0.2), transparent); filter: blur(40px);"></div>
-=======
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border-2 border-danger-200 dark:border-danger-800 p-6">
-        <h2 class="text-lg font-semibold text-danger-600 dark:text-danger-400 mb-2">Danger Zone</h2>
-        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
-        
-        <button
-            type="button"
-            onclick="confirmDeleteAccount()"
-            class="inline-flex items-center gap-2 px-5 py-2.5 bg-danger-600 hover:bg-danger-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-danger-500/25 transition-all"
-        >
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-            <span>Delete Account</span>
-        </button>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     </div>
 </div>
 
 <!-- Delete Confirmation Modal -->
-<<<<<<< HEAD
 <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/70 backdrop-blur-md">
     <div class="relative bg-white dark:bg-slate-900 rounded-3xl border-2 border-red-300 dark:border-red-800 p-8 max-w-md mx-4 shadow-2xl animate-scale-in">
         <!-- Close Button -->
@@ -684,35 +558,12 @@
                 <label for="confirm_password" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
                     <i data-lucide="lock" class="w-4 h-4"></i>
                     Confirm with your password
-=======
-<div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-md mx-4 shadow-xl">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-xl bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
-                <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
-            </div>
-            <div>
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Delete Account</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">This action cannot be undone</p>
-            </div>
-        </div>
-        
-        <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
-            Are you absolutely sure you want to delete your account? All of your data will be permanently removed. This action cannot be undone.
-        </p>
-        
-        <form method="POST" action="{{ path('app_settings_delete') }}" class="space-y-4">
-            <div>
-                <label for="confirm_password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                    Enter your password to confirm
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 </label>
                 <input
                     type="password"
                     id="confirm_password"
                     name="confirm_password"
                     required
-<<<<<<< HEAD
                     placeholder="Enter your password to continue"
                     class="block w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all font-medium"
                 >
@@ -723,39 +574,20 @@
                     type="button"
                     onclick="closeDeleteModal()"
                     class="flex-1 px-5 py-3.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all hover:scale-105 border-2 border-slate-200 dark:border-slate-700"
-=======
-                    placeholder="Enter your password"
-                    class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-danger-500/20 focus:border-danger-500 transition-colors"
-                >
-            </div>
-            
-            <div class="flex gap-3">
-                <button
-                    type="button"
-                    onclick="closeDeleteModal()"
-                    class="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 >
                     Cancel
                 </button>
                 <button
                     type="submit"
-<<<<<<< HEAD
                     class="flex-1 px-5 py-3.5 text-white text-sm font-bold rounded-xl shadow-lg transition-all hover:scale-105" style="background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);"
                 >
                     Yes, Delete Forever
-=======
-                    class="flex-1 px-4 py-2.5 bg-danger-600 hover:bg-danger-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all"
-                >
-                    Delete Account
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<<<<<<< HEAD
 <style>
 @keyframes scale-in {
     from {
@@ -773,8 +605,6 @@
 }
 </style>
 
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 <script>
 function previewImage(event) {
     const file = event.target.files[0];

@@ -7,7 +7,6 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-<<<<<<< HEAD
         "doctrine/doctrine-bundle": "^2.10",
         "doctrine/doctrine-migrations-bundle": "^3.2",
         "doctrine/orm": "^2.16",
@@ -15,41 +14,26 @@
         "google/apiclient": "^2.19",
         "knpuniversity/oauth2-client-bundle": "*",
         "league/oauth2-google": "^4.1",
-        "pusher/pusher-php-server": "^7.2",
-=======
-        "doctrine/doctrine-bundle": "^2.18",
-        "doctrine/doctrine-migrations-bundle": "^3.7",
-        "doctrine/orm": "^3.6",
         "lexik/jwt-authentication-bundle": "^2.18",
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+        "pusher/pusher-php-server": "^7.2",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2",
         "symfony/form": "6.4.*",
         "symfony/framework-bundle": "6.4.*",
-<<<<<<< HEAD
         "symfony/google-mailer": "6.4.*",
         "symfony/http-client": "6.4.*",
         "symfony/mailer": "6.4.*",
         "symfony/mime": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
+        "symfony/security-csrf": "6.4",
         "symfony/stimulus-bundle": "^2.9",
         "symfony/twig-bundle": "6.4.*",
         "symfony/ux-turbo": "^2.9",
         "symfony/validator": "6.4.*",
         "symfony/webpack-encore-bundle": "^2.0",
-=======
-        "symfony/runtime": "6.4.*",
-        "symfony/security-bundle": "6.4.*",
-        "symfony/security-csrf": "6.4",
-        "symfony/stimulus-bundle": "^2.32",
-        "symfony/twig-bundle": "6.4.*",
-        "symfony/ux-turbo": "^2.32",
-        "symfony/validator": "6.4.*",
-        "symfony/webpack-encore-bundle": "^2.4",
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         "symfony/yaml": "6.4.*"
     },
     "config": {

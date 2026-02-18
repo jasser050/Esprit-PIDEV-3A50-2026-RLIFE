@@ -5,29 +5,19 @@ namespace App\Controller;
 use App\Data\SampleData;
 use App\Entity\WellBeing;
 use App\Repository\WellBeingRepository;
-<<<<<<< HEAD
 use App\Service\WellbeingAiService;
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-<<<<<<< HEAD
 use Dompdf\Dompdf;
 use Dompdf\Options;
-=======
-use App\Entity\CopingSession;
-use App\Repository\CopingSessionRepository;
-use Symfony\Component\HttpFoundation\JsonResponse;
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[Route('/wellbeing')]
 class WellbeingController extends AbstractController
 {
     #[Route('', name: 'app_wellbeing', methods: ['GET'])]
-<<<<<<< HEAD
     public function index(WellBeingRepository $repo, Request $request): Response
     {
         // Get sort parameter
@@ -77,28 +67,10 @@ class WellbeingController extends AbstractController
             'trend' => $trend,
             'mood_counts' => $moodCounts,
             'tools' => SampleData::getCopingTools(),
-=======
-    public function index(WellBeingRepository $repo): Response
-    {
-        $checkins = $repo->findBy([], ['entryDate_well' => 'DESC'], 10);
-
-        $count = count($checkins);
-        $avgStress = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getStressLevelWell(), $checkins)) / $count : 0;
-        $avgEnergy = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getEnergyLevelWell(), $checkins)) / $count : 0;
-        $avgSleep  = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getSleepHoursWell(), $checkins)) / $count : 0;
-
-        return $this->render('pages/wellbeing/index.html.twig', [
-            'checkins' => $checkins,
-            'avg_stress' => round($avgStress, 1),
-            'avg_energy' => round($avgEnergy, 1),
-            'avg_sleep' => round($avgSleep, 1),
-            'tools' => SampleData::getCopingTools(), // optionnel
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]);
     }
 
     #[Route('/checkins', name: 'app_wellbeing_checkins', methods: ['GET'])]
-<<<<<<< HEAD
     public function checkins(WellBeingRepository $repo, Request $request): Response
     {
         $search = $request->query->get('search', '');
@@ -137,22 +109,6 @@ class WellbeingController extends AbstractController
             'mood_filter' => $mood,
             'sort' => $sort,
             'order' => $order,
-=======
-    public function checkins(WellBeingRepository $repo): Response
-    {
-        $checkins = $repo->findBy([], ['entryDate_well' => 'DESC']);
-
-        $count = count($checkins);
-        $avgStress = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getStressLevelWell(), $checkins)) / $count : 0;
-        $avgEnergy = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getEnergyLevelWell(), $checkins)) / $count : 0;
-        $avgSleep  = $count ? array_sum(array_map(fn(WellBeing $c) => $c->getSleepHoursWell(), $checkins)) / $count : 0;
-
-        return $this->render('pages/wellbeing/checkins.html.twig', [
-            'checkins' => $checkins,
-            'avg_stress' => round($avgStress, 1),
-            'avg_energy' => round($avgEnergy, 1),
-            'avg_sleep' => round($avgSleep, 1),
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]);
     }
 
@@ -165,7 +121,6 @@ class WellbeingController extends AbstractController
             }
 
             $wb = new WellBeing();
-<<<<<<< HEAD
             $wb->setEntryDate(new \DateTime());
             $wb->setMood((string)$request->request->get('mood', 'good'));
             $wb->setStressLevel((int)$request->request->get('stress_level', 5));
@@ -179,21 +134,6 @@ class WellbeingController extends AbstractController
             
             $this->addFlash('success', 'Check-in added successfully!');
             return $this->redirectToRoute('app_wellbeing_checkins');
-=======
-            $wb->setEntryDateWell(new \DateTime());
-            $wb->setMoodWell((string)$request->request->get('mood', 'good'));
-            $wb->setStressLevelWell((int)$request->request->get('stress_level', 5));
-            $wb->setEnergyLevelWell((int)$request->request->get('energy_level', 7));
-            $wb->setSleepHoursWell((float)$request->request->get('sleep_hours', 7));
-            $wb->setNoteWell($request->request->get('notes'));
-            $wb->setCreatedAtWell(new \DateTime());
-
-            $em->persist($wb);
-            $em->flush();
-
-            // ✅ retourne au dashboard wellbeing (comme ton image 3)
-            return $this->redirectToRoute('app_wellbeing');
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         }
 
         return $this->render('pages/wellbeing/checkin_new.html.twig', [
@@ -209,7 +149,6 @@ class WellbeingController extends AbstractController
                 throw $this->createAccessDeniedException();
             }
 
-<<<<<<< HEAD
             $checkin->setMood((string)$request->request->get('mood', $checkin->getMood()));
             $checkin->setStressLevel((int)$request->request->get('stress_level', $checkin->getStressLevel()));
             $checkin->setEnergyLevel((int)$request->request->get('energy_level', $checkin->getEnergyLevel()));
@@ -220,17 +159,6 @@ class WellbeingController extends AbstractController
             $em->flush();
             
             $this->addFlash('success', 'Check-in updated successfully!');
-=======
-            $checkin->setMoodWell((string)$request->request->get('mood', $checkin->getMoodWell()));
-            $checkin->setStressLevelWell((int)$request->request->get('stress_level', $checkin->getStressLevelWell()));
-            $checkin->setEnergyLevelWell((int)$request->request->get('energy_level', $checkin->getEnergyLevelWell()));
-            $checkin->setSleepHoursWell((float)$request->request->get('sleep_hours', $checkin->getSleepHoursWell()));
-            $checkin->setNoteWell($request->request->get('notes'));
-            $checkin->setUpdatedAtWell(new \DateTime());
-
-            $em->flush();
-
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             return $this->redirectToRoute('app_wellbeing_checkins');
         }
 
@@ -246,16 +174,12 @@ class WellbeingController extends AbstractController
         if ($this->isCsrfTokenValid('wellbeing_delete_'.$checkin->getId(), (string)$request->request->get('_token'))) {
             $em->remove($checkin);
             $em->flush();
-<<<<<<< HEAD
             $this->addFlash('success', 'Check-in deleted successfully!');
-=======
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         }
 
         return $this->redirectToRoute('app_wellbeing_checkins');
     }
 
-<<<<<<< HEAD
     #[Route('/export/pdf', name: 'app_wellbeing_export_pdf', methods: ['GET'])]
     public function exportPdf(WellBeingRepository $repo, Request $request): Response
     {
@@ -308,8 +232,3 @@ class WellbeingController extends AbstractController
         ];
     }
 }
-=======
-   
-    
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

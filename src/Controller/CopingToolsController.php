@@ -16,7 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class CopingToolsController extends AbstractController
 {
     #[Route('', name: 'app_wellbeing_tools', methods: ['GET'])]
-<<<<<<< HEAD
     public function index(CopingSessionRepository $sessionRepo): Response
     {
         $user = $this->getUser();
@@ -50,12 +49,6 @@ class CopingToolsController extends AbstractController
             'total_sessions' => $totalSessions,
             'total_minutes' => round($totalMinutes),
             'completed_sessions' => $completedSessions,
-=======
-    public function index(): Response
-    {
-        return $this->render('pages/wellbeing/tools.html.twig', [
-            'tools' => SampleData::getCopingTools(),
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]);
     }
 
@@ -90,15 +83,9 @@ class CopingToolsController extends AbstractController
         $session->setToolKey($toolKey);
         $session->setToolName((string)($tool['name'] ?? $toolKey));
         $session->setDurationSeconds((int)($tool['durationSeconds'] ?? 0));
-<<<<<<< HEAD
         $session->setStartedAt((new \DateTime())->format('Y-m-d H:i:s'));
         $session->setStatus('started');
         $session->setCreatedAt((new \DateTime())->format('Y-m-d H:i:s'));
-=======
-        $session->setStartedAt(new \DateTime());
-        $session->setStatus('started');
-        $session->setCreatedAt(new \DateTime());
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
         $em->persist($session);
         $em->flush();
@@ -143,7 +130,6 @@ class CopingToolsController extends AbstractController
         $finish = new \DateTime();
 
         if ($actualSeconds <= 0) {
-<<<<<<< HEAD
             $startedAt = \DateTime::createFromFormat('Y-m-d H:i:s', $session->getStartedAt());
             if ($startedAt) {
                 $actualSeconds = max(1, $finish->getTimestamp() - $startedAt->getTimestamp());
@@ -154,21 +140,6 @@ class CopingToolsController extends AbstractController
         $session->setActualSeconds($actualSeconds);
         $session->setStatus($status);
         $session->setUpdatedAt($finish->format('Y-m-d H:i:s'));
-=======
-            $actualSeconds = max(1, $finish->getTimestamp() - $session->getStartedAt()->getTimestamp());
-        }
-
-        // Notes (Gratitude, etc.) - optionnel
-        $notes = (string)($data['notes'] ?? '');
-        if ($notes !== '' && method_exists($session, 'setNotes')) {
-            $session->setNotes($notes);
-        }
-
-        $session->setFinishedAt($finish);
-        $session->setActualSeconds($actualSeconds);
-        $session->setStatus($status);
-        $session->setUpdatedAt(new \DateTime());
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
         $em->flush();
 
@@ -178,8 +149,4 @@ class CopingToolsController extends AbstractController
             'actualSeconds' => $session->getActualSeconds(),
         ]);
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

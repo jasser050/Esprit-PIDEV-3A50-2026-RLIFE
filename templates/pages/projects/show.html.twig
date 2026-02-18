@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿{# templates/project/show.html.twig #}
 {% extends 'base.html.twig' %}
 
@@ -78,97 +77,11 @@
                 <div>
                     <p class="text-sm text-secondary-500 dark:text-secondary-400">Days Remaining</p>
                     <p class="text-2xl font-bold">{{ projectStats.joursRestants }} days</p>
-=======
-{% extends 'base.html.twig' %}
-
-{% block title %}{{ project.name }}{% endblock %}
-
-{% block body %}
-<div class="space-y-6">
-    <!-- Breadcrumbs -->
-    {% include 'components/breadcrumbs.html.twig' with {
-        items: [
-            { label: 'Projects', url: path('app_projects') },
-            { label: project.name }
-        ]
-    } %}
-
-    <!-- Page Header -->
-    {% include 'components/page_header.html.twig' with {
-        title: project.name,
-        subtitle: 'Due ' ~ project.due_date|date('F j, Y'),
-        badge: { label: project.course, variant: project.color },
-        actions: [
-            { label: 'Edit Project', url: path('app_projects_edit', { id: project.id }), variant: 'ghost', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>' },
-            { label: 'Add Task', url: '#', variant: 'primary', icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>', modal: 'add-task-modal' }
-        ]
-    } %}
-
-    <!-- Project Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <!-- Progress Card -->
-        <div class="card p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-{{ project.color }}-100 dark:bg-{{ project.color }}-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-{{ project.color }}-600 dark:text-{{ project.color }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold">{{ project.progress }}%</p>
-                    <p class="text-sm text-light-muted dark:text-dark-muted">Progress</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tasks Card -->
-        <div class="card p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold">{{ total_tasks }}</p>
-                    <p class="text-sm text-light-muted dark:text-dark-muted">Total Tasks</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Completed Card -->
-        <div class="card p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold">{{ tasks.done|length }}</p>
-                    <p class="text-sm text-light-muted dark:text-dark-muted">Completed</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Team Card -->
-        <div class="card p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold">{{ project.members|length }}</p>
-                    <p class="text-sm text-light-muted dark:text-dark-muted">Members</p>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 </div>
             </div>
         </div>
     </div>
 
-<<<<<<< HEAD
     <!-- Progression -->
     <div class="card p-6">
         <h2 class="text-lg font-semibold mb-4">Project Progress</h2>
@@ -317,132 +230,11 @@
                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ project.id) }}">
                         <button type="submit" class="btn btn-danger w-full">Delete</button>
                     </form>
-=======
-    <!-- Progress Bar -->
-    <div class="card p-4">
-        <div class="flex items-center justify-between text-sm mb-2">
-            <span class="font-medium">Overall Progress</span>
-            <span class="text-light-muted dark:text-dark-muted">{{ tasks.done|length }} of {{ total_tasks }} tasks completed</span>
-        </div>
-        <div class="h-3 bg-light-bg dark:bg-dark-bg rounded-full overflow-hidden">
-            <div class="h-full bg-{{ project.color }}-500 rounded-full transition-all" style="width: {{ project.progress }}%"></div>
-        </div>
-    </div>
-
-    <!-- Team Members -->
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-4">Team Members</h2>
-        <div class="flex flex-wrap gap-4">
-            {% for member in project.members %}
-            <div class="flex items-center gap-3 p-3 rounded-xl bg-light-bg dark:bg-dark-bg">
-                <div class="avatar w-10 h-10">{{ member|slice(0,1) }}</div>
-                <div>
-                    <p class="font-medium">{{ member }}</p>
-                    <p class="text-sm text-light-muted dark:text-dark-muted">
-                        {% set member_tasks = 0 %}
-                        {% for task in tasks.todo %}
-                            {% if task.assignee == member %}{% set member_tasks = member_tasks + 1 %}{% endif %}
-                        {% endfor %}
-                        {% for task in tasks.in_progress %}
-                            {% if task.assignee == member %}{% set member_tasks = member_tasks + 1 %}{% endif %}
-                        {% endfor %}
-                        {{ member_tasks }} active task{{ member_tasks != 1 ? 's' : '' }}
-                    </p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- Kanban Board -->
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold mb-4">Task Board</h2>
-        <div class="kanban-board">
-            <!-- To Do -->
-            <div class="kanban-column">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-light-muted dark:text-dark-muted">To Do</h3>
-                    <span class="badge badge-secondary">{{ tasks.todo|length }}</span>
-                </div>
-                <div class="space-y-2">
-                    {% for task in tasks.todo %}
-                    <div class="kanban-card group">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <p class="font-medium text-sm">{{ task.title }}</p>
-                                <p class="text-xs text-light-muted dark:text-dark-muted mt-1">{{ task.assignee }}</p>
-                            </div>
-                            <button class="p-1 rounded hover:bg-light-bg dark:hover:bg-dark-bg opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg class="w-4 h-4 text-light-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    {% else %}
-                    <p class="text-sm text-light-muted dark:text-dark-muted text-center py-4">No tasks</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- In Progress -->
-            <div class="kanban-column">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-primary-600 dark:text-primary-400">In Progress</h3>
-                    <span class="badge badge-primary">{{ tasks.in_progress|length }}</span>
-                </div>
-                <div class="space-y-2">
-                    {% for task in tasks.in_progress %}
-                    <div class="kanban-card border-l-4 border-primary-500 group">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <p class="font-medium text-sm">{{ task.title }}</p>
-                                <p class="text-xs text-light-muted dark:text-dark-muted mt-1">{{ task.assignee }}</p>
-                            </div>
-                            <button class="p-1 rounded hover:bg-light-bg dark:hover:bg-dark-bg opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg class="w-4 h-4 text-light-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    {% else %}
-                    <p class="text-sm text-light-muted dark:text-dark-muted text-center py-4">No tasks</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Done -->
-            <div class="kanban-column">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-success-600 dark:text-success-400">Done</h3>
-                    <span class="badge badge-success">{{ tasks.done|length }}</span>
-                </div>
-                <div class="space-y-2">
-                    {% for task in tasks.done %}
-                    <div class="kanban-card border-l-4 border-success-500 opacity-75 group">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <p class="font-medium text-sm line-through">{{ task.title }}</p>
-                                <p class="text-xs text-light-muted dark:text-dark-muted mt-1">{{ task.assignee }}</p>
-                            </div>
-                            <button class="p-1 rounded hover:bg-light-bg dark:hover:bg-dark-bg opacity-0 group-hover:opacity-100 transition-opacity">
-                                <svg class="w-4 h-4 text-light-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    {% else %}
-                    <p class="text-sm text-light-muted dark:text-dark-muted text-center py-4">No tasks</p>
-                    {% endfor %}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 </div>
             </div>
         </div>
     </div>
 </div>
-<<<<<<< HEAD
 {% endblock %}
 
 {% block scripts %}
@@ -465,37 +257,4 @@
     }
   });
 </script>
-=======
-
-<!-- Add Task Modal -->
-{% include 'components/modal.html.twig' with {
-    id: 'add-task-modal',
-    title: 'Add New Task',
-    content: '
-        <form class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-2">Task Title</label>
-                <input type="text" class="input" placeholder="Enter task title" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-2">Assign To</label>
-                <select class="select">
-                    ' ~ project.members|map(m => '<option value="' ~ m ~ '">' ~ m ~ '</option>')|join('') ~ '
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-2">Status</label>
-                <select class="select">
-                    <option value="todo">To Do</option>
-                    <option value="in_progress">In Progress</option>
-                </select>
-            </div>
-            <div class="flex justify-end gap-3 pt-4">
-                <button type="button" class="btn btn-ghost" data-action="click->modal#close">Cancel</button>
-                <button type="submit" class="btn btn-primary">Add Task</button>
-            </div>
-        </form>
-    '
-} %}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

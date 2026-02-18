@@ -1,8 +1,3 @@
 framework:
-<<<<<<< HEAD
     property_info:
         enabled: true
-=======
-  property_info:
-    enabled: true
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
