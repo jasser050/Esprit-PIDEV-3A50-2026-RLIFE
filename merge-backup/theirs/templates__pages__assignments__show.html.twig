@@ -1,0 +1,333 @@
+﻿{# templates/assignment/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ assignment.titre }}{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-4xl mx-auto">
+    <!-- Breadcrumbs -->
+    <nav class="flex text-sm" aria-label="breadcrumb">
+        <ol class="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
+            <li><a href="{{ path('app_assignments') }}" class="hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors">Tasks</a></li>
+            <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+            <li class="text-secondary-900 dark:text-white">{{ assignment.titre }}</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-2xl font-bold">{{ assignment.titre }}</h1>
+                <span class="badge badge-{{ assignment.priorite == 'Haute' ? 'danger' : (assignment.priorite == 'Moyenne' ? 'warning' : 'info') }}">
+                    {{ assignment.priorite }} priority
+                </span>
+                <span class="badge badge-{{ assignment.statut == 'TerminÃ©' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
+                    {{ assignment.statut }}
+                </span>
+            </div>
+            <p class="text-light-muted dark:text-dark-muted">
+                {{ assignment.project.titre }}
+            </p>
+        </div>
+        <a href="{{ path('app_assignments_edit', { id: assignment.id }) }}" class="btn btn-secondary">
+            <i data-lucide="edit-2" class="w-5 h-5"></i>
+            Edit
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Description -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Description</h2>
+                <p class="text-light-muted dark:text-dark-muted leading-relaxed">{{ assignment.description|nl2br }}</p>
+            </div>
+
+            <!-- Progress -->
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Progress</h2>
+                    <span class="text-lg font-bold text-primary-500">{{ assignmentStats.pourcentageTemps }}%</span>
+                </div>
+                <div class="w-full h-3 bg-light-border dark:bg-dark-border rounded-full overflow-hidden">
+                    <div class="h-full bg-primary-500 rounded-full transition-all" style="width: {{ assignmentStats.pourcentageTemps }}%"></div>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ assignmentStats.dureeTotale }}</p>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Total Duration (days)</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-warning-600 dark:text-warning-400">{{ assignmentStats.tempsEcoule }}</p>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Time Elapsed (days)</p>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-info-600 dark:text-info-400">{{ assignmentStats.joursRestants }}</p>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400">Days Remaining</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projet associÃ© -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Associated Project</h2>
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white">
+                            <i data-lucide="folder" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h6 class="font-semibold text-secondary-900 dark:text-white mb-1">{{ assignment.project.titre }}</h6>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-3">{{ assignment.project.description }}</p>
+                        <div class="flex flex-wrap gap-3 text-xs text-secondary-500 dark:text-secondary-400">
+                            <span><i data-lucide="calendar" class="w-3 h-3 inline"></i> {{ assignment.project.dateDebut|date('d/m/Y') }} â†’ {{ assignment.project.dateFin|date('d/m/Y') }}</span>
+                            <span class="badge badge-{{ assignment.project.statut == 'En cours' ? 'primary' : (assignment.project.statut == 'TerminÃ©' ? 'success' : 'warning') }} badge-pill">
+                                {{ assignment.project.statut }}
+                            </span>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ path('app_project_show', {'id': assignment.project.id}) }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline inline-flex items-center gap-1">
+                                View Project
+                                <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Collaborateurs -->
+            <div class="card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Collaborators</h2>
+                    <span class="badge badge-primary">{{ assignment.collaborators|length }}</span>
+                </div>
+
+                {% if assignment.collaborators|length > 0 %}
+                    <div class="space-y-3 mb-4">
+                        {% for collaborator in assignment.collaborators %}
+                            <div class="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm font-medium">
+                                        {{ collaborator.user.fullName|first|upper }}
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-sm">{{ collaborator.user.fullName }}</p>
+                                        <p class="text-xs text-secondary-500">Assigned by {{ collaborator.assignedByUser.fullName }}</p>
+                                    </div>
+                                </div>
+                                <form method="post" action="{{ path('app_collaboration_remove_collaborator', {'assignmentId': assignment.id, 'collaboratorId': collaborator.id}) }}" class="inline" data-confirm="Remove this collaborator?">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('remove-collaborator' ~ collaborator.id) }}">
+                                    <button type="submit" class="text-danger-500 hover:text-danger-700 p-1">
+                                        <i data-lucide="x" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-secondary-500 text-sm mb-4">No collaborators assigned yet.</p>
+                {% endif %}
+
+                <!-- Add Collaborator Form -->
+                <form method="post" action="{{ path('app_collaboration_assign_task', {'id': assignment.id}) }}" class="mt-4">
+                    <div class="flex gap-2">
+                        <input type="email" name="email" placeholder="Enter user email..." required
+                            class="flex-1 px-3 py-2 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input text-sm">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                            Assign
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Comments ({{ comments|length }})</h2>
+
+                <!-- Add Comment Form -->
+                {{ form_start(commentForm, {'attr': {'class': 'mb-6'}}) }}
+                    <div class="space-y-3">
+                        {{ form_widget(commentForm.content, {'attr': {'class': 'w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input', 'rows': 3, 'placeholder': 'Add a comment...'}}) }}
+                        <div class="flex justify-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                                Post Comment
+                            </button>
+                        </div>
+                    </div>
+                {{ form_end(commentForm) }}
+
+                <!-- Comments List -->
+                <div id="comments-list" class="space-y-4 max-h-96 overflow-y-auto">
+                    {% for comment in comments %}
+                        <div id="comment-{{ comment.id }}" class="p-4 bg-light-background dark:bg-dark-background rounded-lg">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="flex items-start gap-3 flex-1">
+                                    <div class="w-8 h-8 rounded-full bg-secondary-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                                        {{ comment.user.fullName|first|upper }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-medium text-sm">{{ comment.user.fullName }}</span>
+                                            <span class="text-xs text-secondary-500">{{ comment.createdAt|date('d/m/Y H:i') }}</span>
+                                        </div>
+                                        <p class="text-sm text-secondary-700 dark:text-secondary-300 whitespace-pre-wrap">{{ comment.content }}</p>
+                                    </div>
+                                </div>
+                                {% if comment.user == app.user %}
+                                    <form method="post" action="{{ path('app_assignments_delete_comment', {'id': comment.id}) }}" class="flex-shrink-0" data-confirm="Delete this comment?">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-comment' ~ comment.id) }}">
+                                        <button type="submit" class="text-secondary-400 hover:text-danger-500 p-1">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-center text-secondary-500 py-4">No comments yet. Be the first to comment!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Details</h2>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-sm text-light-muted dark:text-dark-muted">Start Date</dt>
+                        <dd class="font-medium">{{ assignment.dateDebut|date('d F Y') }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-light-muted dark:text-dark-muted">Due Date</dt>
+                        <dd class="font-medium flex items-center gap-2">
+                            {% set dueDate = assignment.dateFin|date('U') %}
+                            {% set today = 'now'|date('U') %}
+                            {% set daysUntil = ((dueDate - today) / 86400)|round(0, 'floor') %}
+
+                            {{ assignment.dateFin|date('d F Y') }}
+
+                            {% if assignment.statut != 'TerminÃ©' %}
+                                {% if daysUntil < 0 %}
+                                    <span class="badge badge-danger">Overdue</span>
+                                {% elseif daysUntil == 0 %}
+                                    <span class="badge badge-danger">Today</span>
+                                {% elseif daysUntil == 1 %}
+                                    <span class="badge badge-warning">Tomorrow</span>
+                                {% elseif daysUntil <= 3 %}
+                                    <span class="badge badge-warning">{{ daysUntil }} days</span>
+                                {% endif %}
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-light-muted dark:text-dark-muted">Priority</dt>
+                        <dd class="font-medium">
+                            <span class="badge badge-{{ assignment.priorite == 'Haute' ? 'danger' : (assignment.priorite == 'Moyenne' ? 'warning' : 'info') }} badge-pill">
+                                {% if assignment.priorite == 'Haute' %}
+                                    <i data-lucide="arrow-up" class="w-3 h-3"></i>
+                                {% elseif assignment.priorite == 'Moyenne' %}
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                {% else %}
+                                    <i data-lucide="arrow-down" class="w-3 h-3"></i>
+                                {% endif %}
+                                {{ assignment.priorite }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm text-light-muted dark:text-dark-muted">Created On</dt>
+                        <dd class="font-medium text-sm">{{ assignment.createdAt|date('d/m/Y Ã  H:i') }}</dd>
+                    </div>
+                    {% if assignment.updatedAt %}
+                    <div>
+                        <dt class="text-sm text-light-muted dark:text-dark-muted">Modified On</dt>
+                        <dd class="font-medium text-sm">{{ assignment.updatedAt|date('d/m/Y Ã  H:i') }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <div class="card p-6">
+                <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
+                <div class="space-y-2">
+                    <a href="{{ path('app_assignments_edit', {'id': assignment.id}) }}" class="w-full btn btn-secondary justify-start">
+                        <i data-lucide="edit-2" class="w-5 h-5"></i>
+                        Edit
+                    </a>
+                    <a href="{{ path('app_assignments_export_single_pdf', {'id': assignment.id}) }}" class="w-full btn btn-secondary justify-start">
+                        <i data-lucide="file-down" class="w-5 h-5"></i>
+                        Download PDF
+                    </a>
+                    <hr class="my-2 border-light-border dark:border-dark-border">
+                    <a href="{{ path('app_assignments') }}" class="w-full btn btn-ghost justify-start">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+<script>
+  lucide.createIcons();
+
+  // Initialize Pusher for real-time comments
+  const pusher = new Pusher('{{ app.request.server.get('PUSHER_KEY')|default('262d2d5c7812c0dd8417') }}', {
+    cluster: '{{ app.request.server.get('PUSHER_CLUSTER')|default('eu') }}',
+    forceTLS: true
+  });
+
+  const channel = pusher.subscribe('comments-channel-{{ assignment.id }}');
+
+  channel.bind('new-comment', function(data) {
+    const commentsList = document.getElementById('comments-list');
+    const newComment = document.createElement('div');
+    newComment.id = 'comment-' + data.comment_id;
+    newComment.className = 'p-4 bg-light-background dark:bg-dark-background rounded-lg';
+    newComment.innerHTML = `
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3 flex-1">
+          <div class="w-8 h-8 rounded-full bg-secondary-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+            ${data.author.charAt(0).toUpperCase()}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="font-medium text-sm">${data.author}</span>
+              <span class="text-xs text-secondary-500">${data.created_at}</span>
+            </div>
+            <p class="text-sm text-secondary-700 dark:text-secondary-300 whitespace-pre-wrap">${data.content}</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Remove "no comments" message if exists
+    const noCommentsMsg = commentsList.querySelector('p.text-center');
+    if (noCommentsMsg) {
+      noCommentsMsg.remove();
+    }
+
+    commentsList.insertBefore(newComment, commentsList.firstChild);
+    lucide.createIcons();
+  });
+
+  channel.bind('comment-deleted', function(data) {
+    const comment = document.getElementById('comment-' + data.comment_id);
+    if (comment) {
+      comment.remove();
+    }
+  });
+</script>
+{% endblock %}
