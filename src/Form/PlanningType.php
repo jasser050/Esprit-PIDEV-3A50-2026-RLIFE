@@ -76,21 +76,6 @@ class PlanningType extends AbstractType
             ])
 
             // Feedback emojis (1..5)
-<<<<<<< HEAD
-            ->add('feedback', ChoiceType::class, [
-                'label' => 'Feedback',
-                'required' => false,
-                'expanded' => true,
-                'multiple' => false,
-                'choices' => [
-                    '😡' => 1,
-                    '😕' => 2,
-                    '😐' => 3,
-                    '🙂' => 4,
-                    '🤩' => 5,
-                ],
-            ]);
-=======
             // ->add('feedback', ChoiceType::class, [
             //     'label' => 'Feedback',
             //     'required' => false,
@@ -105,7 +90,6 @@ class PlanningType extends AbstractType
             //     ],
             // ])
             ;
->>>>>>> planning
 
         // Option: on garantit le mapping dateDebut/dateFin à partir des 3 champs si besoin
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {

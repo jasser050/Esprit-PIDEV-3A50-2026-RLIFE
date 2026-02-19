@@ -12,9 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-<<<<<<< HEAD
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
-=======
 use App\Service\GoogleCalendarClient;
 use App\Entity\Planning;           
 use App\Entity\Seance;
@@ -23,7 +21,6 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
->>>>>>> planning
 
 #[Route('/admin')]
 #[IsGranted('ROLE_ADMIN')]
@@ -186,7 +183,6 @@ class AdminController extends AbstractController
             'university_stats' => $universityStats,
         ]);
     }
-<<<<<<< HEAD
 
     #[Route('/revision', name: 'app_admin_revision', methods: ['GET', 'POST'])]
     public function revision(
@@ -245,8 +241,6 @@ class AdminController extends AbstractController
             'decks'          => $decks,
         ]);
     }
-}
-=======
     // #[Route('/admin', name: 'app_admin_index')]
     // public function index(
     //     Request $request,
@@ -1014,4 +1008,5 @@ public function print(Request $request, EntityManagerInterface $em): Response
         return $this->redirectToRoute('app_admin_type_seance_index');
     }
 }
->>>>>>> planning
+
+

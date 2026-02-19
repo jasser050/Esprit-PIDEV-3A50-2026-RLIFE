@@ -107,6 +107,34 @@ class GoogleCalendarClient
         'htmlLink' => $created->getHtmlLink(),
     ];
 }
+public function listEventsForRange(User $user, \DateTimeInterface $start, \DateTimeInterface $end, int $maxResults = 250): array
+{
+    $client = $this->buildClientForUser($user);
+    $service = new \Google\Service\Calendar($client);
+
+    $events = $service->events->listEvents('primary', [
+        'maxResults'   => $maxResults,
+        'singleEvents' => true,
+        'orderBy'      => 'startTime',
+        'timeMin'      => (new \DateTimeImmutable('@' . $start->getTimestamp()))->format(\DateTimeInterface::RFC3339),
+        'timeMax'      => (new \DateTimeImmutable('@' . $end->getTimestamp()))->format(\DateTimeInterface::RFC3339),
+    ]);
+
+    $result = [];
+    foreach ($events->getItems() as $event) {
+        $startObj = $event->getStart();
+        $endObj   = $event->getEnd();
+        $result[] = [
+            'id'      => $event->getId(),
+            'summary' => $event->getSummary(),
+            'start'   => $startObj->getDateTime() ?: $startObj->getDate(),
+            'end'     => $endObj->getDateTime() ?: $endObj->getDate(),
+        ];
+    }
+
+    return $result;
+}
+
 public function listEventsForMonth(User $user, int $year, int $month, int $maxResults = 250): array
 {
     $client = $this->buildClientForUser($user);

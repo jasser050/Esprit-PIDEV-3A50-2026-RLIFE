@@ -4,20 +4,16 @@ framework:
     csrf_protection:
         enabled: true
 
-<<<<<<< HEAD
-    csrf_protection: true
-
     form:
         csrf_protection:
             enabled: true
             field_name: _token
 
-    #esi: true
-    #fragments: true
-=======
     session:
         enabled: true
->>>>>>> planning
+
+    #esi: true
+    #fragments: true
 
     property_info:
         enabled: true

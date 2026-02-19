@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# UX Turbo configuration for Symfony 6.4
-# CSRF protection is enabled in csrf.yaml
-=======
 framework:
     csrf_protection:
         enabled: true
->>>>>>> planning

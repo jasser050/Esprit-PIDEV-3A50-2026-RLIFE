@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Service\GoogleCalendarClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,11 +43,7 @@ class PlanningController extends AbstractController
             ->getQuery()
             ->getResult();
 
-<<<<<<< HEAD
-        // Map couleur -> classes CSS utilisées par ton design
-=======
         // les couleurs
->>>>>>> planning
         $uiMap = [
             'indigo' => ['bg' => 'bg-indigo-100 dark:bg-indigo-900/30', 'text' => 'text-indigo-700 dark:text-indigo-200', 'bar' => 'bg-indigo-500'],
             'teal'   => ['bg' => 'bg-teal-100 dark:bg-teal-900/30',     'text' => 'text-teal-700 dark:text-teal-200',     'bar' => 'bg-teal-500'],
@@ -259,11 +256,7 @@ usort($upcomingFiltered, static function (array $a, array $b) use ($up_sort): in
             'upcoming_q' => $upcoming_q,
             'upcoming' => $upcomingFiltered,
             'upcoming_total' => count($upcomingAll),
-<<<<<<< HEAD
-
-=======
             
->>>>>>> planning
 
         ]);
     }
@@ -273,16 +266,6 @@ public function new(Request $request, EntityManagerInterface $em): Response
     $planning = new Planning();
     $form = $this->createForm(\App\Form\PlanningType::class, $planning);
     $form->handleRequest($request);
-<<<<<<< HEAD
-
-
-    // Validation manuelle "Choose a session"
-    if ($form->isSubmitted() && $form->isValid()) {
-    $date      = $form->get('date')->getData();
-    $startTime = $form->get('start_time')->getData();
-    $endTime   = $form->get('end_time')->getData();
-
-=======
     
 
     // Validation manuelle "Choose a session"
@@ -291,7 +274,6 @@ public function new(Request $request, EntityManagerInterface $em): Response
     $startTime = $form->get('start_time')->getData();
     $endTime   = $form->get('end_time')->getData();
 
->>>>>>> planning
     // PATCH pour DateTimeImmutable -> DateTime
     if ($date && $startTime && $endTime) {
         $dateDebut = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date->format('Y-m-d') . ' ' . $startTime->format('H:i:s'));
@@ -300,25 +282,6 @@ public function new(Request $request, EntityManagerInterface $em): Response
         $planning->setDateFin(\DateTime::createFromImmutable($dateFin));
     }
     
-
-    // PATCH pour l'utilisateur
-    $user = $this->getUser();
-    if (!$user instanceof User) {
-        throw $this->createAccessDeniedException('You must be logged in.');
-    }
-    $planning->setUser($user);
-
-    $em->persist($planning);
-    $em->flush();
-    $this->addFlash('success', 'Event created!');
-    return $this->redirectToRoute('app_planning');
-}
-    $seances = $em->getRepository(Seance::class)->findBy([], ['id' => 'DESC']);
-    return $this->render('pages/planning/new.html.twig', [
-        'seances' => $seances,
-        'form' => $form->createView(),
-    ]);
-}
 
     // PATCH pour l'utilisateur
     $user = $this->getUser();
@@ -562,8 +525,6 @@ public function week(
         'google_load_error' => $google_load_error,
     ]);
 }
-<<<<<<< HEAD
-=======
 #[Route('/planning/{id}/feedback', name: 'app_planning_feedback', methods: ['POST'])]
 public function feedback(int $id, Request $request, EntityManagerInterface $em): Response
 {
@@ -594,5 +555,4 @@ public function feedback(int $id, Request $request, EntityManagerInterface $em):
 
     return new JsonResponse(['success' => true]);
 }
->>>>>>> planning
 }

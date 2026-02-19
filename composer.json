@@ -7,42 +7,30 @@
         "php": ">=8.1",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "doctrine/doctrine-bundle": "^2.18",
+        "doctrine/doctrine-bundle": "^2.18.2",
         "doctrine/doctrine-migrations-bundle": "^3.7",
-        "doctrine/orm": "^3.6",
-        "dompdf/dompdf": "^3.1",
-<<<<<<< HEAD
-        "endroid/qr-code": "^6.0",
+        "doctrine/orm": "^3.6.2",
+        "dompdf/dompdf": "^3.1.4",
+        "endroid/qr-code": "^6.0.9",
         "google/apiclient": "^2.19",
         "google/apiclient-services": "^0.432",
-        "knpuniversity/oauth2-client-bundle": "*",
+        "knpuniversity/oauth2-client-bundle": ">=2.20.2",
         "league/oauth2-google": "^4.1",
-        "lexik/jwt-authentication-bundle": "^2.18",
-        "pusher/pusher-php-server": "^7.2",
-=======
-        "google/apiclient": "*",
-        "league/oauth2-google": "^4.1",
->>>>>>> planning
+        "lexik/jwt-authentication-bundle": "^2.18.1",
+        "pusher/pusher-php-server": "^7.2.7",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
-        "symfony/flex": "^2",
+        "symfony/flex": "^2.10",
         "symfony/form": "6.4.*",
         "symfony/framework-bundle": "6.4.*",
-<<<<<<< HEAD
         "symfony/google-mailer": "6.4.*",
         "symfony/http-client": "6.4.*",
         "symfony/mailer": "6.4.*",
         "symfony/mime": "6.4.*",
         "symfony/runtime": "6.4.*",
         "symfony/security-bundle": "6.4.*",
-        "symfony/security-csrf": "6.4",
-=======
-        "symfony/http-client": "6.4.*",
-        "symfony/runtime": "6.4.*",
-        "symfony/security-bundle": "6.4.*",
         "symfony/security-csrf": "6.4.*",
->>>>>>> planning
         "symfony/stimulus-bundle": "^2.32",
         "symfony/twig-bundle": "6.4.*",
         "symfony/ux-turbo": "^2.32",
@@ -101,6 +89,6 @@
         }
     },
     "require-dev": {
-        "symfony/maker-bundle": "^1.65"
+        "symfony/maker-bundle": "^1.66"
     }
 }

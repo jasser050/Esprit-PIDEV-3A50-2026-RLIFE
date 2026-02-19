@@ -29,16 +29,6 @@ class TypeSeanceController extends AbstractController
             $name = trim((string) $request->request->get('name', ''));
 
             if ($name === '') {
-<<<<<<< HEAD
-                $this->addFlash('error', 'Type is required.');
-                return $this->redirectToRoute('app_type_seance_new');
-            }
-
-            // Avoid duplicate
-            $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name]);
-            if ($exists) {
-                $this->addFlash('error', 'This type already exists.');
-=======
                 $this->addFlash('error', 'Le type est obligatoire.');
                 return $this->redirectToRoute('app_type_seance_new');
             }
@@ -47,7 +37,6 @@ class TypeSeanceController extends AbstractController
             $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name]);
             if ($exists) {
                 $this->addFlash('error', 'Ce type existe déjà.');
->>>>>>> planning
                 return $this->redirectToRoute('app_type_seance_new');
             }
 
@@ -57,11 +46,7 @@ class TypeSeanceController extends AbstractController
             $em->persist($type);
             $em->flush();
 
-<<<<<<< HEAD
-            $this->addFlash('success', 'Type added.');
-=======
             $this->addFlash('success', 'Type ajouté.');
->>>>>>> planning
             return $this->redirectToRoute('app_type_seance_index');
         }
 
@@ -73,30 +58,18 @@ class TypeSeanceController extends AbstractController
     {
         $type = $em->getRepository(TypeSeance::class)->find($id);
         if (!$type) {
-<<<<<<< HEAD
-            throw $this->createNotFoundException('Type not found.');
-=======
             throw $this->createNotFoundException('Type introuvable.');
->>>>>>> planning
         }
 
         if ($request->isMethod('POST')) {
             $name = trim((string) $request->request->get('name', ''));
 
             if ($name === '') {
-<<<<<<< HEAD
-                $this->addFlash('error', 'Type is required.');
-                return $this->redirectToRoute('app_type_seance_edit', ['id' => $id]);
-            }
-
-            // Avoid duplicate (different id)
-=======
                 $this->addFlash('error', 'Le type est obligatoire.');
                 return $this->redirectToRoute('app_type_seance_edit', ['id' => $id]);
             }
 
             // éviter doublon (autre id)
->>>>>>> planning
             $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name]);
             if ($exists && $exists->getId() !== $type->getId()) {
                 $this->addFlash('error', 'Ce type existe déjà.');
@@ -120,17 +93,6 @@ class TypeSeanceController extends AbstractController
     {
         $type = $em->getRepository(TypeSeance::class)->find($id);
         if (!$type) {
-<<<<<<< HEAD
-            throw $this->createNotFoundException('Type not found.');
-        }
-
-        // If sessions use this type, deletion may fail (FK)
-        // According to your FK: ON DELETE SET NULL => OK, otherwise it blocks.
-        $em->remove($type);
-        $em->flush();
-
-        $this->addFlash('success', 'Type deleted.');
-=======
             throw $this->createNotFoundException('Type introuvable.');
         }
 
@@ -140,7 +102,6 @@ class TypeSeanceController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'Type supprimé.');
->>>>>>> planning
         return $this->redirectToRoute('app_type_seance_index');
     }
 }
