@@ -39,12 +39,26 @@ class RevisionController extends AbstractController
 
     #[Route('', name: 'app_revisions', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
-    public function index(DeckRepository $deckRepository): Response
-    {
+    public function index(
+        DeckRepository $deckRepository,
+        StudentGamificationRepository $gamificationRepository,
+        EntityManagerInterface $em
+    ): Response {
+        $user  = $this->getUser();
         $decks = $deckRepository->findAll();
+
+        $gamification = $gamificationRepository->findOneBy(['user' => $user]);
+
+        if (!$gamification) {
+            $gamification = new StudentGamification();
+            $gamification->setUser($user);
+            $em->persist($gamification);
+            $em->flush();
+        }
 
         return $this->render('pages/revisions/index.html.twig', [
             'decks'        => $decks,
+            'gamification' => $gamification,
         ]);
     }
 
