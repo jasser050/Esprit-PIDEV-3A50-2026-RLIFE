@@ -209,4 +209,9 @@ class StudentGamification
         $this->createdAt = $createdAt;
         return $this;
     }
+
+    public function getLevelProgress(): int
+    {
+        return $this->points % 100;
+    }
 }
