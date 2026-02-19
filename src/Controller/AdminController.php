@@ -14,7 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use App\Service\GoogleCalendarClient;
-use App\Entity\Planning;           
+use App\Entity\Planning;
+use App\Entity\Project;
 use App\Entity\Seance;
 use App\Entity\TypeSeance;
 use Dompdf\Dompdf;
@@ -42,13 +43,25 @@ class AdminController extends AbstractController
             ->getSingleScalarResult();
         
         $recentUsers = $userRepository->findBy([], ['createdAt' => 'DESC'], 10);
-        
+
+        $projectRepo   = $entityManager->getRepository(Project::class);
+        $recentProjects = $projectRepo->findBy([], ['createdAt' => 'DESC'], 5);
+        $allProjects    = $projectRepo->findAll();
+        $projectStats   = [
+            'total'     => count($allProjects),
+            'termines'  => count(array_filter($allProjects, fn($p) => $p->getStatut() === 'Terminé')),
+            'enCours'   => count(array_filter($allProjects, fn($p) => $p->getStatut() === 'En cours')),
+            'enAttente' => count(array_filter($allProjects, fn($p) => $p->getStatut() === 'En attente')),
+        ];
+
         return $this->render('admin/dashboard.html.twig', [
-            'total_users' => $totalUsers,
-            'active_users' => $activeUsers,
-            'banned_users' => $bannedUsers,
-            'admin_users' => $adminUsers,
-            'recent_users' => $recentUsers,
+            'total_users'     => $totalUsers,
+            'active_users'    => $activeUsers,
+            'banned_users'    => $bannedUsers,
+            'admin_users'     => $adminUsers,
+            'recent_users'    => $recentUsers,
+            'recentProjects'  => $recentProjects,
+            'projectStats'    => $projectStats,
         ]);
     }
 
