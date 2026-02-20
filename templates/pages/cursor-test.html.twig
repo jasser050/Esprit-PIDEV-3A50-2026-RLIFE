@@ -1,0 +1,341 @@
+{% extends 'layouts/public.html.twig' %}
+
+{% block title %}Cursor Design Test{% endblock %}
+
+{% block body %}
+<style>
+/* Base styles */
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.cursor-test-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 24px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.header h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+}
+
+.header p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.cursor-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.cursor-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-4px);
+}
+
+.cursor-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(102, 126, 234, 0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.cursor-card:hover::before {
+    opacity: 1;
+}
+
+.cursor-card h3 {
+    color: #f1f5f9;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.cursor-card p {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.cursor-demo-area {
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 60px 20px;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.activate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 16px;
+}
+
+.activate-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+.activate-btn.active {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: #cbd5e1;
+}
+
+/* ===== CURSOR STYLES ===== */
+
+/* 1. Neon Pointer */
+.cursor-neon {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 3 L5 21 L12 16 L16 22 L18 21 L14 15 L21 15 Z' fill='%23667eea' stroke='%23a5b4fc' stroke-width='1.5' opacity='0.9'/%3E%3C/svg%3E") 2 2, auto;
+}
+
+/* 2. Glowing Dot */
+.cursor-dot {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23667eea' opacity='0.6'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23ffffff'/%3E%3C/svg%3E") 8 8, auto;
+}
+
+/* 3. Star Cursor */
+.cursor-star {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M10 2 L12 8 L18 8 L13 12 L15 18 L10 14 L5 18 L7 12 L2 8 L8 8 Z' fill='%23fbbf24' stroke='%23fcd34d' stroke-width='1'/%3E%3C/svg%3E") 10 10, auto;
+}
+
+/* 4. Crosshair Precision */
+.cursor-crosshair {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cline x1='12' y1='2' x2='12' y2='10' stroke='%2394a3b8' stroke-width='2'/%3E%3Cline x1='12' y1='14' x2='12' y2='22' stroke='%2394a3b8' stroke-width='2'/%3E%3Cline x1='2' y1='12' x2='10' y2='12' stroke='%2394a3b8' stroke-width='2'/%3E%3Cline x1='14' y1='12' x2='22' y2='12' stroke='%2394a3b8' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='%23667eea' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+/* 5. Pencil - Cartoonish Design (Bright & Clear!) */
+.cursor-pencil {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3C!-- Eraser (big and cute!) --%3E%3Crect x='20' y='3' width='6' height='4' rx='1' fill='%23ff6b9d' stroke='%23ff1f7a' stroke-width='2'/%3E%3C!-- Eraser highlight --%3E%3Crect x='21' y='4' width='2' height='1.5' rx='0.5' fill='%23ffb3d9' opacity='0.9'/%3E%3C!-- Metal band --%3E%3Crect x='19' y='7' width='8' height='3' fill='%23ffd700' stroke='%23f59e0b' stroke-width='2'/%3E%3Crect x='20' y='7.5' width='6' height='0.8' fill='%23fff4a3' opacity='0.9'/%3E%3C!-- Wood body --%3E%3Cpath d='M 19 10 L 6 23 L 3 24 L 4 21 L 17 8 Z' fill='%23fbbf24' stroke='%23f59e0b' stroke-width='2.5' stroke-linejoin='round'/%3E%3C!-- Wood side panel --%3E%3Cpath d='M 17 8 L 19 10 L 18 11 L 16 9 Z' fill='%23f97316'/%3E%3C!-- Cute shine on body --%3E%3Cellipse cx='14' cy='13' rx='2' ry='3.5' fill='%23fff' opacity='0.5' transform='rotate(-45 14 13)'/%3E%3C!-- Graphite tip --%3E%3Cpath d='M 6 23 L 3 24 L 4 21 Z' fill='%23475569' stroke='%2364748b' stroke-width='1.8'/%3E%3C!-- Sparkle 1 --%3E%3Cpath d='M 24 2 L 24.5 3.5 L 26 4 L 24.5 4.5 L 24 6 L 23.5 4.5 L 22 4 L 23.5 3.5 Z' fill='%23ffd700' opacity='1'/%3E%3C!-- Sparkle 2 --%3E%3Cpath d='M 2 20 L 2.3 20.8 L 3.1 21.1 L 2.3 21.4 L 2 22.2 L 1.7 21.4 L 0.9 21.1 L 1.7 20.8 Z' fill='%23fbbf24' opacity='1'/%3E%3C/svg%3E") 4 24, auto;
+}
+
+/* 6. Rounded Arrow */
+.cursor-rounded {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 4 Q5 3 6 3 L18 15 Q19 16 18 17 L16 19 Q15 20 14 19 L7 12 L4 20 Q3 21 3 19 L3 6 Q3 4 5 4 Z' fill='%23e2e8f0' stroke='%2364748b' stroke-width='1'/%3E%3C/svg%3E") 3 3, auto;
+}
+
+/* 7. Diamond */
+.cursor-diamond {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Cpath d='M9 2 L16 9 L9 16 L2 9 Z' fill='%2310b981' stroke='%23059669' stroke-width='1.5' opacity='0.8'/%3E%3C/svg%3E") 9 9, auto;
+}
+
+/* 8. Ring Cursor */
+.cursor-ring {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='8' fill='none' stroke='%23ec4899' stroke-width='2' opacity='0.7'/%3E%3Ccircle cx='10' cy='10' r='2' fill='%23ffffff'/%3E%3C/svg%3E") 10 10, auto;
+}
+
+.reset-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 16px 40px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    margin: 40px auto 0;
+}
+
+.reset-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+</style>
+
+<div class="cursor-test-container">
+    <a href="{{ path('app_dashboard') }}" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0L6.59 1.41L12.17 7H0v2h12.17l-5.58 5.59L8 16l8-8z"/>
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <div class="header">
+        <h1>✨ Custom Cursor Gallery</h1>
+        <p>Hover over each area to preview the cursor. Click "Activate" to apply it site-wide!</p>
+    </div>
+
+    <div class="grid">
+        <!-- Neon Pointer -->
+        <div class="cursor-card">
+            <h3>💜 Neon Pointer</h3>
+            <p>Glowing purple arrow with outline - professional & matches your brand colors</p>
+            <div class="cursor-demo-area cursor-neon">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-neon', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Glowing Dot -->
+        <div class="cursor-card">
+            <h3>⚫ Glowing Dot</h3>
+            <p>Modern minimalist circle - subtle and won't distract during study sessions</p>
+            <div class="cursor-demo-area cursor-dot">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-dot', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Star -->
+        <div class="cursor-card">
+            <h3>⭐ Star Cursor</h3>
+            <p>Golden star icon - fun and playful, matches your galaxy admin theme!</p>
+            <div class="cursor-demo-area cursor-star">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-star', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Crosshair -->
+        <div class="cursor-card">
+            <h3>🎯 Precision Crosshair</h3>
+            <p>Precision targeting cursor - great for dashboards and data visualization</p>
+            <div class="cursor-demo-area cursor-crosshair">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-crosshair', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Pencil -->
+        <div class="cursor-card">
+            <h3>✏️ Cartoon Pencil ✨</h3>
+            <p>Fun cartoonish design with thick outlines, bright colors & sparkles - playful and perfect for study apps!</p>
+            <div class="cursor-demo-area cursor-pencil">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-pencil', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Rounded Arrow -->
+        <div class="cursor-card">
+            <h3>🔄 Soft Rounded Arrow</h3>
+            <p>Smooth rounded edges - elegant and less sharp than default cursor</p>
+            <div class="cursor-demo-area cursor-rounded">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-rounded', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Diamond -->
+        <div class="cursor-card">
+            <h3>💎 Diamond</h3>
+            <p>Unique geometric shape - modern and eye-catching</p>
+            <div class="cursor-demo-area cursor-diamond">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-diamond', this)">Activate Site-Wide</button>
+        </div>
+
+        <!-- Ring -->
+        <div class="cursor-card">
+            <h3>⭕ Ring Cursor</h3>
+            <p>Hollow circle with center dot - clean and minimal</p>
+            <div class="cursor-demo-area cursor-ring">
+                HOVER HERE TO TEST
+            </div>
+            <button class="activate-btn" onclick="activateCursor('cursor-ring', this)">Activate Site-Wide</button>
+        </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetCursor()">🔄 Reset to Default Cursor</button>
+</div>
+
+<script>
+function activateCursor(cursorClass, button) {
+    // Remove cursor class from body
+    document.body.className = document.body.className.replace(/cursor-\w+/g, '').trim();
+    
+    // Add new cursor class
+    document.body.classList.add(cursorClass);
+    
+    // Update button states
+    document.querySelectorAll('.activate-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.textContent = 'Activate Site-Wide';
+    });
+    
+    button.classList.add('active');
+    button.textContent = '✓ Active';
+    
+    console.log('Cursor activated:', cursorClass);
+}
+
+function resetCursor() {
+    // Remove all cursor classes
+    document.body.className = document.body.className.replace(/cursor-\w+/g, '').trim();
+    
+    // Reset all buttons
+    document.querySelectorAll('.activate-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.textContent = 'Activate Site-Wide';
+    });
+    
+    console.log('Cursor reset to default');
+}
+</script>
+{% endblock %}

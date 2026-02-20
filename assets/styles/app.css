@@ -20,6 +20,7 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         letter-spacing: -0.011em;
+        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3C!-- Eraser (big and cute!) --%3E%3Crect x='20' y='3' width='6' height='4' rx='1' fill='%23ff6b9d' stroke='%23ff1f7a' stroke-width='2'/%3E%3C!-- Eraser highlight --%3E%3Crect x='21' y='4' width='2' height='1.5' rx='0.5' fill='%23ffb3d9' opacity='0.9'/%3E%3C!-- Metal band --%3E%3Crect x='19' y='7' width='8' height='3' fill='%23ffd700' stroke='%23f59e0b' stroke-width='2'/%3E%3Crect x='20' y='7.5' width='6' height='0.8' fill='%23fff4a3' opacity='0.9'/%3E%3C!-- Wood body --%3E%3Cpath d='M 19 10 L 6 23 L 3 24 L 4 21 L 17 8 Z' fill='%23fbbf24' stroke='%23f59e0b' stroke-width='2.5' stroke-linejoin='round'/%3E%3C!-- Wood side panel --%3E%3Cpath d='M 17 8 L 19 10 L 18 11 L 16 9 Z' fill='%23f97316'/%3E%3C!-- Cute shine on body --%3E%3Cellipse cx='14' cy='13' rx='2' ry='3.5' fill='%23fff' opacity='0.5' transform='rotate(-45 14 13)'/%3E%3C!-- Graphite tip --%3E%3Cpath d='M 6 23 L 3 24 L 4 21 Z' fill='%23475569' stroke='%2364748b' stroke-width='1.8'/%3E%3C!-- Sparkle 1 --%3E%3Cpath d='M 24 2 L 24.5 3.5 L 26 4 L 24.5 4.5 L 24 6 L 23.5 4.5 L 22 4 L 23.5 3.5 Z' fill='%23ffd700' opacity='1'/%3E%3C!-- Sparkle 2 --%3E%3Cpath d='M 2 20 L 2.3 20.8 L 3.1 21.1 L 2.3 21.4 L 2 22.2 L 1.7 21.4 L 0.9 21.1 L 1.7 20.8 Z' fill='%23fbbf24' opacity='1'/%3E%3C/svg%3E") 4 24, auto;
     }
 
     /* Selection */
@@ -62,6 +63,12 @@
 
     .dark ::-webkit-scrollbar-thumb:hover {
         @apply bg-slate-600;
+    }
+
+    /* Interactive elements cursor (pointer version of pencil - PURPLE!) */
+    button, a, input[type="submit"], input[type="button"], 
+    .cursor-pointer, [role="button"], [tabindex]:not([tabindex="-1"]) {
+        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3C!-- Eraser (big and cute!) --%3E%3Crect x='20' y='3' width='6' height='4' rx='1' fill='%23ff6b9d' stroke='%23ff1f7a' stroke-width='2'/%3E%3C!-- Eraser highlight --%3E%3Crect x='21' y='4' width='2' height='1.5' rx='0.5' fill='%23ffb3d9' opacity='0.9'/%3E%3C!-- Metal band --%3E%3Crect x='19' y='7' width='8' height='3' fill='%23ffd700' stroke='%23a78bfa' stroke-width='2'/%3E%3Crect x='20' y='7.5' width='6' height='0.8' fill='%23fff4a3' opacity='0.9'/%3E%3C!-- Wood body (PURPLE for hover!) --%3E%3Cpath d='M 19 10 L 6 23 L 3 24 L 4 21 L 17 8 Z' fill='%238b5cf6' stroke='%236366f1' stroke-width='2.5' stroke-linejoin='round'/%3E%3C!-- Wood side panel --%3E%3Cpath d='M 17 8 L 19 10 L 18 11 L 16 9 Z' fill='%237c3aed'/%3E%3C!-- Cute shine on body --%3E%3Cellipse cx='14' cy='13' rx='2' ry='3.5' fill='%23fff' opacity='0.6' transform='rotate(-45 14 13)'/%3E%3C!-- Graphite tip --%3E%3Cpath d='M 6 23 L 3 24 L 4 21 Z' fill='%23475569' stroke='%2364748b' stroke-width='1.8'/%3E%3C!-- Sparkle 1 --%3E%3Cpath d='M 24 2 L 24.5 3.5 L 26 4 L 24.5 4.5 L 24 6 L 23.5 4.5 L 22 4 L 23.5 3.5 Z' fill='%23a78bfa' opacity='1'/%3E%3C!-- Sparkle 2 --%3E%3Cpath d='M 2 20 L 2.3 20.8 L 3.1 21.1 L 2.3 21.4 L 2 22.2 L 1.7 21.4 L 0.9 21.1 L 1.7 20.8 Z' fill='%238b5cf6' opacity='1'/%3E%3C/svg%3E") 4 24, pointer !important;
     }
 }
 
