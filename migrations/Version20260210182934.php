@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace DoctrineMigrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+
+/**
+ * Auto-generated Migration: Please modify to your needs!
+ */
+final class Version20260210182934 extends AbstractMigration
+{
+    public function getDescription(): string
+    {
+        return '';
+    }
+
+    public function up(Schema $schema): void
+    {
+        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE question_stress DROP FOREIGN KEY `FK_754FDCA4853CD175`');
+        $this->addSql('ALTER TABLE question_stress CHANGE quiz_id quiz_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE question_stress ADD CONSTRAINT FK_754FDCA4853CD175 FOREIGN KEY (quiz_id) REFERENCES quiz_stress (id) ON DELETE SET NULL');
+    }
+
+    public function down(Schema $schema): void
+    {
+        // this down() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE question_stress DROP FOREIGN KEY FK_754FDCA4853CD175');
+        $this->addSql('ALTER TABLE question_stress CHANGE quiz_id quiz_id INT NOT NULL');
+        $this->addSql('ALTER TABLE question_stress ADD CONSTRAINT `FK_754FDCA4853CD175` FOREIGN KEY (quiz_id) REFERENCES quiz_stress (id) ON DELETE CASCADE');
+    }
+}

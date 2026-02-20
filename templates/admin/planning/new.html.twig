@@ -1,0 +1,45 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}New Event{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto">
+
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_admin_dashboard') },
+            { label: 'Schedule', href: path('app_admin_planning') },
+            { label: 'New Event' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'New Event',
+        subtitle: 'Add a new event to your calendar'
+    } %}
+
+    {# Affichage global des erreurs (racine) #}
+    {{ form_errors(form) }}
+
+    {{ form_start(form) }}
+        <div class="space-y-6">
+            {{ form_row(form.seance) }}    {# Champ + erreurs #}
+            {{ form_row(form.date) }}
+            {{ form_row(form.start_time) }}
+            {{ form_row(form.end_time) }}
+            {{ form_row(form.color) }}
+            {{ form_row(form.feedback) }}
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                <a href="{{ path('app_admin_planning') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Event
+                </button>
+            </div>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

@@ -4,6 +4,11 @@ framework:
         # For instance, basic validation constraints will be inferred from Doctrine's metadata.
         #auto_mapping:
         #    App\Entity\: []
+        enabled: true
+        email_validation_mode: html5
+        mapping:
+            paths:
+                - '%kernel.project_dir%/src/Entity'
 
 when@test:
     framework:

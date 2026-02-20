@@ -1,18 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Session Types{% endblock %}
+{% block title %}Types of session{% endblock %}
 
 {% block body %}
 <div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
-            { label: 'Planning', href: path('app_planning') }
+            { label: 'Schedule', href: path('app_planning') }
         ]
     } %}
 
     {% include 'components/page_header.html.twig' with {
-        title: 'Session Types',
-        subtitle: 'Add / edit / delete types (Lab, Course, Remedial, ...)'
+        title: 'Types of session',
+        subtitle: 'Add / Modify / Delete types'
     } %}
 
     <div class="flex justify-end">
@@ -21,7 +21,7 @@
 
     <div class="card p-6 space-y-4">
         {% if types is empty %}
-            <p class="text-sm text-secondary-600 dark:text-secondary-300">No types yet.</p>
+            <p class="text-sm text-secondary-600 dark:text-secondary-300">No types at this moment.</p>
         {% else %}
             <div class="space-y-3">
                 {% for t in types %}
@@ -32,11 +32,11 @@
                         </div>
 
                         <div class="flex items-center gap-2">
-                            <a class="btn btn-secondary" href="{{ path('app_type_seance_edit', {id: t.id}) }}">Edit</a>
+                            <a class="btn btn-secondary" href="{{ path('app_type_seance_edit', {id: t.id}) }}">Modify</a>
 
                             <form method="post"
                                   action="{{ path('app_type_seance_delete', {id: t.id}) }}"
-                                  onsubmit="return confirm('Delete this type?');">
+                                  onsubmit="return confirm('Delete this type ?');">
                                 <button type="submit" class="btn btn-secondary">Delete</button>
                             </form>
                         </div>
@@ -44,7 +44,7 @@
                 {% endfor %}
             </div>
             <div class="flex items-center justify-end gap-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
-            <a href="{{ path('app_planning') }}" class="btn btn-secondary">Back</a>
+            <a href="{{ path('app_planning') }}" class="btn btn-secondary">Return</a>
         </div>
         {% endif %}
     </div>

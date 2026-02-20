@@ -1,6 +1,6 @@
 {% extends 'admin/base_admin.html.twig' %}
 
-{% block title %}View Deck #{{ deck.id }} - Admin{% endblock %}
+{% block title %}View Deck #{{ deck.idDeck }} - Admin{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -32,7 +32,7 @@
             Revisions
         </a>
         <span class="text-slate-400">›</span>
-        <span class="font-semibold text-indigo-600">Deck #{{ deck.id }}</span>
+        <span class="font-semibold text-indigo-600">Deck #{{ deck.idDeck }}</span>
     </nav>
 
     <!-- Section Deck -->
@@ -77,10 +77,10 @@
                     {{ deck.matiere }}
                 </span>
                 <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
-                    Level {{ deck.niveau }}
+                    Niveau {{ deck.niveau }}
                 </span>
                 
-                <a href="{{ path('app_admin_deck_edit', {'id': deck.id}) }}"
+                <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.idDeck}) }}"
                    class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition font-medium text-sm">
                     <i data-lucide="pencil" class="w-4 h-4"></i>
                     Edit Deck
@@ -161,7 +161,7 @@
                         <i data-lucide="layers" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
                         Flashcards
                     </h2>
-                    <a href="{{ path('app_admin_flashcard_new', {id: deck.id}) }}"
+                    <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-sm">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         Add Flashcard
@@ -177,7 +177,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No flashcards yet</h3>
                     <p class="text-slate-500 dark:text-slate-400 mb-8">Add your first flashcard to start studying</p>
-                    <a href="{{ path('app_admin_flashcard_new', {id: deck.id}) }}"
+                    <a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}"
                        class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition shadow-sm">
                         <i data-lucide="plus" class="w-5 h-5"></i>
                         Create first flashcard
@@ -210,7 +210,7 @@
                             </div>
 
                             <div class="mb-4">
-                                <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Answer</p>
+                                <p class="text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">Réponse</p>
                                 <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
                                     {{ flashcard.reponse }}
                                 </p>
@@ -246,7 +246,7 @@
                                    class="flex-1 text-center py-2.5 rounded-lg font-semibold text-sm transition-all bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-300 dark:hover:bg-indigo-900/30">
                                     Edit
                                 </a>
-                                <form method="post" action="{{ path('app_admin_flashcard_delete', {id: flashcard.id}) }}"
+                                <form method="post" action="{{ path('app_flashcard_delete', {id: flashcard.id}) }}"
                                       onsubmit="return confirm('Delete this flashcard?');" class="flex-1">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ flashcard.id) }}">
                                     <button type="submit" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200 rounded-lg font-semibold text-sm transition-all">
@@ -263,13 +263,4 @@
         </div>
     </div>
 </div>
-
-<script>
-// Initialize Lucide icons after page load
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-});
-</script>
 {% endblock %}

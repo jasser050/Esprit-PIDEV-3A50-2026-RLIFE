@@ -1,7 +1,8 @@
 twig:
     file_name_pattern: '*.twig'
-    form_themes:
-        - 'bootstrap_5_layout.html.twig'
+    globals:
+        pusher_app_key: '%env(PUSHER_KEY)%'
+        pusher_app_cluster: '%env(PUSHER_CLUSTER)%'
 
 when@test:
     twig:

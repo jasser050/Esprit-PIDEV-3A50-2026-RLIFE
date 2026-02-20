@@ -109,7 +109,7 @@
                 {% for stat in gender_stats %}
                 <div class="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 hover:scale-105 transition-transform">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-md" 
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-md"
                              style="background: {% if stat.gender == 'male' %}linear-gradient(135deg, #3b82f6, #06b6d4){% elseif stat.gender == 'female' %}linear-gradient(135deg, #ec4899, #f43f5e){% else %}linear-gradient(135deg, #a855f7, #7c3aed){% endif %};">
                             <i data-lucide="{% if stat.gender == 'male' %}user{% elseif stat.gender == 'female' %}user{% else %}users{% endif %}" class="w-5 h-5 text-white"></i>
                         </div>
@@ -146,7 +146,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- University Cards Grid -->
     <div class="p-6">
         {% set total = university_stats|reduce((sum, stat) => sum + stat.count, 0) %}
@@ -157,24 +157,24 @@
             {from: '#f59e0b', to: '#ef4444', light: 'from-amber-500 to-red-500', border: 'border-amber-200 dark:border-amber-800', bg: 'from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20'},
             {from: '#ec4899', to: '#f43f5e', light: 'from-pink-500 to-rose-500', border: 'border-pink-200 dark:border-pink-800', bg: 'from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20'}
         ] %}
-        
+
         <div class="space-y-4">
             {% for stat in university_stats %}
             {% set color = colors[loop.index0] %}
             {% set percentage = (stat.count / total * 100)|round(1) %}
-            
+
             <div class="relative group/item hover:scale-105 transition-all duration-300">
                 <!-- Rank Badge -->
-                <div class="absolute -left-3 -top-3 w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg z-10 transform group-hover/item:rotate-12 transition-transform" 
+                <div class="absolute -left-3 -top-3 w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg z-10 transform group-hover/item:rotate-12 transition-transform"
                      style="background: linear-gradient(135deg, {{ color.from }}, {{ color.to }});">
                     #{{ loop.index }}
                 </div>
-                
+
                 <!-- University Card -->
                 <div class="ml-6 p-5 rounded-2xl border-2 {{ color.border }} bg-gradient-to-br {{ color.bg }} hover:shadow-xl transition-all">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-md" 
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center shadow-md"
                                  style="background: linear-gradient(135deg, {{ color.from }}, {{ color.to }});">
                                 <i data-lucide="school" class="w-5 h-5 text-white"></i>
                             </div>
@@ -188,7 +188,7 @@
                             <p class="text-xs text-slate-600 dark:text-slate-400 font-semibold">Students</p>
                         </div>
                     </div>
-                    
+
                     <!-- Animated Progress Bar -->
                     <div class="relative">
                         <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
@@ -196,7 +196,7 @@
                             <span class="px-2 py-1 rounded-lg" style="background: linear-gradient(135deg, {{ color.from }}, {{ color.to }}); color: white;">{{ percentage }}%</span>
                         </div>
                         <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
-                            <div class="h-full rounded-full shadow-lg transition-all duration-1000 ease-out transform origin-left" 
+                            <div class="h-full rounded-full shadow-lg transition-all duration-1000 ease-out transform origin-left"
                                  style="background: linear-gradient(90deg, {{ color.from }}, {{ color.to }}); width: {{ percentage }}%; animation: slideIn 1s ease-out {{ loop.index0 * 0.1 }}s both;">
                             </div>
                         </div>
@@ -213,7 +213,7 @@
             {% endfor %}
         </div>
     </div>
-    
+
     <div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(16, 185, 129, 0.2), transparent); filter: blur(50px);"></div>
 </div>
 
@@ -231,7 +231,7 @@
             <p class="text-xs text-white/70 mt-2">↑ 15% from last week</p>
         </div>
     </div>
-    
+
     <!-- Course Enrollments -->
     <div class="relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer group" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);">
         <div class="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500" style="background: rgba(255, 255, 255, 0.3); filter: blur(30px);"></div>
@@ -244,7 +244,7 @@
             <p class="text-xs text-white/70 mt-2">↑ 28% growth rate</p>
         </div>
     </div>
-    
+
     <!-- Avg Session Time -->
     <div class="relative overflow-hidden rounded-2xl p-6 transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer group" style="background: linear-gradient(135deg, #a855f7, #7c3aed); box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);">
         <div class="absolute top-0 right-0 w-24 h-24 rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500" style="background: rgba(255, 255, 255, 0.3); filter: blur(30px);"></div>
@@ -469,7 +469,7 @@ new Chart(genderCtx, {
                                 const value = data.datasets[0].data[i];
                                 const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
                                 const percentage = ((value / total) * 100).toFixed(1);
-                                
+
                                 return {
                                     text: `${label}: ${value} (${percentage}%)`,
                                     fillStyle: data.datasets[0].borderColor[i],

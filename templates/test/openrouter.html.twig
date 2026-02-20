@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Test OpenRouter{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    
+    .test-card {
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    
+    .test-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    
+    .test-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    
+    .test-header p {
+        color: #64748b;
+        font-size: 16px;
+    }
+    
+    .test-section {
+        margin-bottom: 24px;
+    }
+    
+    .test-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .prompt-box {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 16px;
+        font-family: 'Courier New', monospace;
+        color: #475569;
+        line-height: 1.6;
+    }
+    
+    .response-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        line-height: 1.8;
+        font-size: 16px;
+        white-space: pre-wrap;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .status-badge.success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    
+    .status-badge.error {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="test-container">
+    <div class="test-card">
+        <div class="test-header">
+            <i data-lucide="flask-conical" class="w-16 h-16 mx-auto text-purple-600 mb-4"></i>
+            <h1>Test OpenRouter API</h1>
+            <p>Vérification de l'intégration avec Claude 3 Haiku</p>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-label">
+                <i data-lucide="message-square" class="w-5 h-5"></i>
+                Prompt envoyé :
+            </div>
+            <div class="prompt-box">{{ prompt }}</div>
+        </div>
+        
+        <div class="test-section">
+            <div class="test-label">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                Réponse de l'IA :
+                {% if response != 'Erreur - aucune réponse' %}
+                    <span class="status-badge success">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        Succès
+                    </span>
+                {% else %}
+                    <span class="status-badge error">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        Erreur
+                    </span>
+                {% endif %}
+            </div>
+            <div class="response-box">{{ response }}</div>
+        </div>
+        
+        <div class="test-section" style="border-top: 2px solid #e2e8f0; padding-top: 24px; margin-top: 32px;">
+            <div class="test-label">
+                <i data-lucide="info" class="w-5 h-5"></i>
+                Informations techniques :
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 16px; font-size: 14px; color: #64748b;">
+                <div style="margin-bottom: 8px;"><strong>Modèle :</strong> anthropic/claude-3-haiku</div>
+                <div style="margin-bottom: 8px;"><strong>Température :</strong> 0.7</div>
+                <div style="margin-bottom: 8px;"><strong>Max tokens :</strong> 150</div>
+                <div><strong>API :</strong> OpenRouter</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 32px;">
+            <a href="{{ path('app_revisions') }}" class="inline-flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                Retour aux decks
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

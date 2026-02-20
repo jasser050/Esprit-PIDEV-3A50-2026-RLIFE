@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Service\GoogleCalendarClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,7 +43,7 @@ class PlanningController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        // Map couleur -> classes CSS utilisées par ton design
+        // les couleurs
         $uiMap = [
             'indigo' => ['bg' => 'bg-indigo-100 dark:bg-indigo-900/30', 'text' => 'text-indigo-700 dark:text-indigo-200', 'bar' => 'bg-indigo-500'],
             'teal'   => ['bg' => 'bg-teal-100 dark:bg-teal-900/30',     'text' => 'text-teal-700 dark:text-teal-200',     'bar' => 'bg-teal-500'],
@@ -280,6 +281,7 @@ public function new(Request $request, EntityManagerInterface $em): Response
         $planning->setDateDebut(\DateTime::createFromImmutable($dateDebut));
         $planning->setDateFin(\DateTime::createFromImmutable($dateFin));
     }
+    
 
     // PATCH pour l'utilisateur
     $user = $this->getUser();
@@ -522,5 +524,35 @@ public function week(
         'google_events_count' => $google_events_count,
         'google_load_error' => $google_load_error,
     ]);
+}
+#[Route('/planning/{id}/feedback', name: 'app_planning_feedback', methods: ['POST'])]
+public function feedback(int $id, Request $request, EntityManagerInterface $em): Response
+{
+    $planning = $em->getRepository(Planning::class)->find($id);
+    
+    if (!$planning) {
+        return new JsonResponse(['error' => 'Planning not found'], 404);
+    }
+
+    // Vérifie que la séance est terminée
+    if ($planning->getDateFin() > new \DateTime()) {
+        return new JsonResponse(['error' => 'Session not finished yet'], 400);
+    }
+
+    // Vérifie que c'est bien la séance de l'utilisateur
+    if ($planning->getUser() !== $this->getUser()) {
+        return new JsonResponse(['error' => 'Unauthorized'], 403);
+    }
+
+    $feedback = (int) $request->request->get('feedback');
+
+    if ($feedback < 1 || $feedback > 5) {
+        return new JsonResponse(['error' => 'Invalid feedback value'], 400);
+    }
+
+    $planning->setFeedback($feedback);
+    $em->flush();
+
+    return new JsonResponse(['success' => true]);
 }
 }

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Evaluation #{{ course.idEval }}{% endblock %}
 
@@ -173,7 +173,7 @@
             Retour à la liste
         </a>
         
-        <form method="post" action="{{ path('app_courses_delete', { id: course.idEval }) }}" 
+        <form method="post" action="{{ path('app_evaluation_delete', { id: course.idEval }) }}" 
               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette évaluation ?');"
               class="inline">
             <button type="submit" 

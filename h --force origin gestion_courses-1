@@ -1,0 +1,91 @@
+* [33m95879dc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mgestion_courses-1[m[33m, [m[1;32mintegration[m[33m)[m Your integration commit
+* [33m9cb91da[m[33m ([m[1;31mpidev/integration[m[33m)[m Your commit message
+[31m|[m * [33mcb0fd37[m[33m ([m[1;35mrefs/stash[m[33m)[m WIP on integration: d4ff64d Add wellbeing module with quiz and recommendations
+[31m|[m[31m/[m[33m|[m 
+[31m|[m * [33m466f34a[m index on integration: d4ff64d Add wellbeing module with quiz and recommendations
+[31m|[m[31m/[m  
+* [33md4ff64d[m Add wellbeing module with quiz and recommendations
+* [33m0ae7ffc[m integrate planning courses
+* [33mdf56d9f[m add deck view
+* [33mcd6e406[m simplify inline script
+* [33m45b5207[m add inline test
+* [33mba931ad[m use event listeners
+* [33m2860c32[m fix function scope
+* [33m0550e5a[m improve delete modal
+* [33mbd46324[m fix delete modal
+* [33m86573d0[m translate templates
+* [33md1104c0[m translate to english
+* [33mea0ac68[m integrate project module
+* [33ma5a426e[m add user validation
+* [33m055d1d6[m translate to english
+* [33mfc2ab0f[m force dark mode
+* [33m5c4846b[m improve dark mode
+* [33mf2c4cef[m add ai generation
+* [33md890a4c[m fix dark mode
+* [33m3ef1c92[m Add planning module
+* [33mfe48579[m Update dashboard stats
+* [33meb637ac[m Integrate course module
+* [33m2bf8d6a[m Add project management
+* [33m8178052[m Fix Google profile pic and simplify logo
+* [33meb714d3[m Enable Google OAuth
+* [33meb55598[m Fix audit log errors
+*   [33ma5b8a5d[m Merge user work
+[34m|[m[35m\[m  
+[34m|[m * [33mde2c750[m[33m ([m[1;31mpidev/user[m[33m, [m[1;32muser[m[33m)[m Add OAuth integration
+[34m|[m * [33m8adf13b[m Standardize logo sizes
+[34m|[m * [33mae0934d[m Match logo dimensions
+[34m|[m * [33mdff3dc1[m Remove email menu
+[34m|[m * [33m339609d[m Fix logo references
+[34m|[m * [33m583bb41[m Update user module
+* [35m|[m [33m82ee102[m Add revision features
+* [35m|[m [33m4091f7d[m Integrated work complete
+[35m|[m[35m/[m  
+* [33mddc2030[m Add email features
+* [33m0fe66c7[m Update project config
+* [33m4643d58[m Add user module
+* [33m622cd0a[m Fix registration flow
+* [33m8fbe176[m Add files via upload
+* [33m0f8d175[m[33m ([m[1;31mpidev/planning[m[33m)[m Avancement
+[36m|[m *   [33m58c374d[m[33m ([m[1;31mpidev/gestion_wellbeing[m[33m)[m Merge branch 'gestion_wellbeing' of https://github.com/jasser050/PIDEV into gestion_wellbeing
+[36m|[m [1;31m|[m[1;32m\[m  
+[36m|[m [1;31m|[m * [33ma9afdf3[m[33m ([m[1;31mpidev/wellbeing[m[33m, [m[1;31mpidev/main[m[33m, [m[1;31mpidev/HEAD[m[33m)[m Delete insert_admin.sql
+[36m|[m [1;31m|[m * [33md30bc9b[m Delete planning_integration.sql
+[36m|[m [1;31m|[m * [33m6a0ac22[m Delete PLANNING_INTEGRATION_GUIDE.md
+[36m|[m [1;31m|[m * [33m31115a0[m Delete PROFILE_UPDATE_GUIDE.md
+[36m|[m [1;31m|[m * [33m44afda2[m Delete USER_REGISTRATION_GUIDE.md
+[36m|[m [1;31m|[m * [33md072f05[m Delete NEW_FEATURES_GUIDE.md
+[36m|[m [1;31m|[m * [33m302cf0a[m Delete DARK_MODE_GUIDE.md
+[36m|[m [1;31m|[m * [33mc98e578[m Delete ADMIN_REDIRECT_INFO.md
+[36m|[m [1;31m|[m * [33m04a7230[m Delete SETUP_GUIDE.md
+[36m|[m [1;31m|[m[36m/[m  
+[36m|[m[36m/[m[1;31m|[m   
+[36m|[m * [33m28da1fb[m Ton message de commit
+[36m|[m * [33ma4aeb9f[m Ton message clair et utile ici
+[36m|[m * [33mbabe54b[m Ajout module gestion wellbeing
+[36m|[m * [33ma2ea8fb[m backup before downgrade symfony 6.4
+[36m|[m[36m/[m  
+[36m|[m * [33md6684af[m[33m ([m[1;31mpidev/revision[m[33m)[m update
+[36m|[m * [33me7283a8[m update
+[36m|[m * [33m983d46e[m update
+[36m|[m * [33m8dd7ff6[m Initial commit - projet Symfony PIDEV
+[36m|[m * [33m9f9c204[m update
+[36m|[m * [33m56402a1[m Delete DOCUMENTATION_TECHNIQUE_RLIFE.md
+[36m|[m * [33m5184268[m Initial commit - projet Symfony PIDEV
+[36m|[m[36m/[m  
+[36m|[m * [33mcb1ceb2[m[33m ([m[1;31mpidev/project[m[33m, [m[1;32mproject[m[33m)[m Message du commit
+[36m|[m *   [33m250418d[m Merge branch 'project' of https://github.com/jasser050/PIDEV into project
+[36m|[m [1;35m|[m[1;36m\[m  
+[36m|[m [1;35m|[m * [33mf7617a9[m Mise à jour du projet
+[36m|[m [1;35m|[m[36m/[m  
+[36m|[m[36m/[m[1;35m|[m   
+[36m|[m * [33m54b766c[m Avancement du projet : fonctionnalités, entités et corrections
+[36m|[m[36m/[m  
+[36m|[m * [33m3b349b4[m[33m ([m[1;31mpidev/gestion_courses-1[m[33m)[m Ton message de commit
+[36m|[m * [33m1402e6e[m Ton message de commit
+[36m|[m * [33m4e73f22[m Ton message de commit
+[36m|[m * [33md060f36[m Ton message de commit
+[36m|[m * [33m7b6a16a[m Ajouter mon code avant push
+[36m|[m * [33m0e89447[m Add files via upload
+[36m|[m[36m/[m  
+* [33me498dcc[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Fix registration flow and add flash messages
+* [33m1cd96dd[m Initial commit: Symfony project setup with planning integration and dark mode features

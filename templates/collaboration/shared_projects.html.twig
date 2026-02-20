@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Projets partagés avec moi{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Projets partagés avec moi</h1>
+
+        {% if shares|length > 0 %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for share in shares %}
+                    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+                        <div class="mb-4">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                {{ share.project.titre }}
+                            </h3>
+                            <p class="text-sm text-gray-600 line-clamp-2">
+                                {{ share.project.description }}
+                            </p>
+                        </div>
+
+                        <div class="mb-4 space-y-2">
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500 w-24">Propriétaire :</span>
+                                <span class="text-gray-700 font-medium">{{ share.project.user.email }}</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500 w-24">Votre rôle :</span>
+                                {% if share.role == 'editor' %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">
+                                        Editor
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
+                                        Viewer
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500 w-24">Statut :</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-semibold rounded">
+                                    {{ share.project.statut }}
+                                </span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <span class="text-gray-500 w-24">Partagé le :</span>
+                                <span class="text-gray-700">{{ share.createdAt|date('d/m/Y') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-4 border-t">
+                            <a 
+                                href="{{ path('app_project_show', {id: share.project.id}) }}" 
+                                class="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                            >
+                                Voir le projet →
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white shadow-md rounded-lg p-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Aucun projet partagé</h3>
+                <p class="text-gray-600">
+                    Aucun projet n'a été partagé avec vous pour le moment.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

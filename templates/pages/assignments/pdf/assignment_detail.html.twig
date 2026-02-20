@@ -116,78 +116,71 @@
             border-bottom: none;
         }
         .info-label {
-            font-weight: bold;
             color: #666;
             font-size: 11px;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
         }
         .info-value {
             font-size: 13px;
-            color: #333;
+            font-weight: bold;
         }
         
         .progress-bar {
-            background: #e5e7eb;
-            height: 25px;
-            border-radius: 5px;
+            background-color: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
             overflow: hidden;
-            position: relative;
+            margin: 15px 0;
         }
         .progress-fill {
-            background: #4f46e5;
             height: 100%;
-            line-height: 25px;
-            color: white;
-            text-align: center;
-            font-weight: bold;
+            background: linear-gradient(90deg, #4f46e5 0%, #3730a3 100%);
+            transition: width 0.3s ease-in-out;
+        }
+        .progress-text {
+            text-align: right;
             font-size: 11px;
-        }
-        .progress-fill.warning {
-            background: #f59e0b;
-        }
-        .progress-fill.success {
-            background: #22c55e;
-        }
-        .progress-fill.danger {
-            background: #ef4444;
+            color: #666;
         }
         
         .alert {
-            padding: 12px 15px;
+            padding: 15px;
             border-radius: 5px;
             margin-bottom: 15px;
-        }
-        .alert-danger {
-            background-color: #fee2e2;
-            border-left: 4px solid #ef4444;
-            color: #991b1b;
-        }
-        .alert-warning {
-            background-color: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            color: #92400e;
+            font-size: 12px;
+            line-height: 1.5;
         }
         .alert-success {
-            background-color: #dcfce7;
+            background-color: #f0fdf4;
+            color: #15803d;
             border-left: 4px solid #22c55e;
-            color: #166534;
+        }
+        .alert-danger {
+            background-color: #fef2f2;
+            color: #b91c1c;
+            border-left: 4px solid #ef4444;
+        }
+        .alert-warning {
+            background-color: #fefce8;
+            color: #854d0e;
+            border-left: 4px solid #f59e0b;
         }
         .alert-info {
-            background-color: #dbeafe;
-            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
             color: #1e40af;
+            border-left: 4px solid #3b82f6;
         }
         
         .timeline {
             position: relative;
             padding-left: 30px;
-            margin: 20px 0;
         }
-        .timeline::before {
+        .timeline:before {
             content: '';
             position: absolute;
-            left: 10px;
+            left: 8px;
             top: 0;
             bottom: 0;
             width: 2px;
@@ -195,16 +188,17 @@
         }
         .timeline-item {
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         .timeline-marker {
             position: absolute;
-            left: -26px;
-            width: 12px;
-            height: 12px;
+            left: -22px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            border: 2px solid white;
             background: #4f46e5;
+            border: 3px solid white;
         }
         .timeline-marker.success {
             background: #22c55e;
@@ -215,216 +209,121 @@
         .timeline-marker.danger {
             background: #ef4444;
         }
-        .timeline-content {
-            padding-left: 10px;
-        }
         .timeline-content .title {
             font-weight: bold;
-            font-size: 12px;
-            color: #333;
+            font-size: 13px;
+            margin-bottom: 3px;
         }
         .timeline-content .date {
-            font-size: 10px;
             color: #666;
+            font-size: 11px;
         }
         
         .footer {
-            margin-top: 40px;
             text-align: center;
             font-size: 10px;
             color: #666;
-            border-top: 2px solid #e5e7eb;
-            padding-top: 15px;
-        }
-        
-        .project-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            border-left: 4px solid #4f46e5;
-        }
-        .project-info .project-title {
-            font-weight: bold;
-            color: #4f46e5;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        .project-info .project-desc {
-            font-size: 11px;
-            color: #666;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
         }
     </style>
 </head>
 <body>
+    {# Header #}
     <div class="header">
         <h1>{{ assignment.titre }}</h1>
         <div class="meta">
-            <strong>Créé le :</strong> {{ assignment.createdAt|date('d/m/Y à H:i') }}
-            {% if assignment.updatedAt %}
-                | <strong>Modifié le :</strong> {{ assignment.updatedAt|date('d/m/Y à H:i') }}
+            Priorité : 
+            {% if assignment.priorite == 'Haute' %}
+                <span class="priority-badge priority-haute">Haute</span>
+            {% elseif assignment.priorite == 'Moyenne' %}
+                <span class="priority-badge priority-moyenne">Moyenne</span>
+            {% else %}
+                <span class="priority-badge priority-basse">Basse</span>
             {% endif %}
             
-            {# Badge Statut #}
             {% if assignment.statut == 'En cours' %}
                 <span class="badge badge-primary">{{ assignment.statut }}</span>
             {% elseif assignment.statut == 'Terminé' %}
                 <span class="badge badge-success">{{ assignment.statut }}</span>
-            {% elseif assignment.statut == 'À faire' %}
+            {% else %}
                 <span class="badge badge-warning">{{ assignment.statut }}</span>
-            {% else %}
-                <span class="badge badge-danger">{{ assignment.statut }}</span>
-            {% endif %}
-            
-            {# Badge Priorité #}
-            {% if assignment.priorite == 'Haute' %}
-                <span class="priority-badge priority-haute">↑ {{ assignment.priorite }}</span>
-            {% elseif assignment.priorite == 'Moyenne' %}
-                <span class="priority-badge priority-moyenne">− {{ assignment.priorite }}</span>
-            {% else %}
-                <span class="priority-badge priority-basse">↓ {{ assignment.priorite }}</span>
             {% endif %}
         </div>
     </div>
 
-    {# Alerte si en retard #}
-    {% set now = date() %}
-    {% set isOverdue = assignment.dateFin < now and assignment.statut != 'Terminé' %}
-    {% if isOverdue %}
-        <div class="alert alert-danger">
-            <strong>⚠ ATTENTION :</strong> Cette tâche est en retard ! L'échéance était le {{ assignment.dateFin|date('d/m/Y') }}.
-        </div>
-    {% endif %}
+    {# Description #}
+    <div class="section">
+        <h2 class="section-title">📝 Description</h2>
+        <p>{{ assignment.description|nl2br }}</p>
+    </div>
 
-    {# Statistiques #}
-    {% set totalDays = date_diff(assignment.dateDebut, assignment.dateFin).days %}
-    {% set elapsedDays = date_diff(assignment.dateDebut, now).days %}
-    {% set remainingDays = date_diff(now, assignment.dateFin).days %}
-    {% set progress = totalDays > 0 ? ((elapsedDays / totalDays * 100) > 100 ? 100 : (elapsedDays / totalDays * 100))|round(0) : 0 %}
-    
+    {# Progress #}
+    <div class="section">
+        <h2 class="section-title">📊 Progression</h2>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ assignmentStats.pourcentageTemps|default(0) }}%"></div>
+        </div>
+        <p class="progress-text">{{ assignmentStats.pourcentageTemps|default(0) }}% du temps écoulé</p>
+    </div>
+
+    {# Stats #}
     <div class="stats-grid">
         <div class="stat-box">
             <div class="icon">📅</div>
-            <span class="value">{{ totalDays }}</span>
-            <span class="label">Durée Totale (jours)</span>
+            <span class="value">{{ assignmentStats.dureeTotale|default('—') }}</span>
+            <div class="label">Jours total</div>
         </div>
         <div class="stat-box">
             <div class="icon">⏳</div>
-            <span class="value">{{ elapsedDays }}</span>
-            <span class="label">Temps Écoulé (jours)</span>
+            <span class="value">{{ assignmentStats.tempsEcoule|default('—') }}</span>
+            <div class="label">Jours écoulés</div>
         </div>
         <div class="stat-box">
-            <div class="icon">🕐</div>
-            <span class="value">{{ remainingDays >= 0 ? remainingDays : 0 }}</span>
-            <span class="label">Jours Restants</span>
-        </div>
-        <div class="stat-box">
-            <div class="icon">
-                {% if assignment.priorite == 'Haute' %}🔴
-                {% elseif assignment.priorite == 'Moyenne' %}🟡
-                {% else %}🔵
-                {% endif %}
-            </div>
-            <span class="value" style="font-size: 16px;">{{ assignment.priorite }}</span>
-            <span class="label">Priorité</span>
+            <div class="icon">⏰</div>
+            <span class="value">{{ assignmentStats.joursRestants|default('—') }}</span>
+            <div class="label">Jours restants</div>
         </div>
     </div>
 
-    {# Progression #}
+    {# Détails #}
     <div class="section">
-        <h2 class="section-title">📊 Progression Temporelle</h2>
-        <div class="progress-bar">
-            <div class="progress-fill {% if progress >= 100 %}success{% elseif progress >= 75 %}warning{% else %}{% endif %}" 
-                 style="width: {{ progress }}%;">
-                {{ progress }}%
-            </div>
+        <h2 class="section-title">🔍 Détails</h2>
+        <div class="info-row">
+            <div class="info-label">Date de début</div>
+            <div class="info-value">{{ assignment.dateDebut|date('d/m/Y') }}</div>
         </div>
-        {% if progress < 50 %}
-            <div class="alert alert-info" style="margin-top: 15px;">
-                ℹ️ Vous êtes dans les temps ! {{ progress }}% du temps s'est écoulé.
-            </div>
-        {% elseif progress < 100 %}
-            <div class="alert alert-warning" style="margin-top: 15px;">
-                ⚠️ Attention ! {{ progress }}% du temps s'est écoulé, il faut accélérer.
-            </div>
-        {% else %}
-            <div class="alert alert-danger" style="margin-top: 15px;">
-                🚨 Échéance dépassée ! Cette tâche nécessite une attention immédiate.
+        <div class="info-row">
+            <div class="info-label">Date de fin</div>
+            <div class="info-value">{{ assignment.dateFin|date('d/m/Y') }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Créé le</div>
+            <div class="info-value">{{ assignment.createdAt|date('d/m/Y H:i') }}</div>
+        </div>
+        {% if assignment.updatedAt %}
+            <div class="info-row">
+                <div class="info-label">Modifié le</div>
+                <div class="info-value">{{ assignment.updatedAt|date('d/m/Y H:i') }}</div>
             </div>
         {% endif %}
-    </div>
-
-    {# Informations de la tâche #}
-    <div class="section">
-        <h2 class="section-title">ℹ️ Informations de la Tâche</h2>
-        
-        <div class="info-row">
-            <div class="info-label">Date de Début</div>
-            <div class="info-value">{{ assignment.dateDebut|date('d/m/Y') }} ({{ assignment.dateDebut|date('l') }})</div>
-        </div>
-        
-        <div class="info-row">
-            <div class="info-label">Date d'Échéance</div>
-            <div class="info-value">
-                {{ assignment.dateFin|date('d/m/Y') }} ({{ assignment.dateFin|date('l') }})
-                {% if isOverdue %}
-                    <span style="color: #ef4444; font-weight: bold; margin-left: 10px;">⚠ EN RETARD</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="info-row">
-            <div class="info-label">Description Détaillée</div>
-            <div class="info-value" style="line-height: 1.8;">{{ assignment.description|nl2br }}</div>
-        </div>
-        
-        <div class="info-row">
-            <div class="info-label">Statut Actuel</div>
-            <div class="info-value">
-                {% if assignment.statut == 'En cours' %}
-                    <span class="badge badge-primary">{{ assignment.statut }}</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">La tâche est en cours de réalisation</span>
-                {% elseif assignment.statut == 'Terminé' %}
-                    <span class="badge badge-success">{{ assignment.statut }}</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">✓ Tâche complétée avec succès</span>
-                {% elseif assignment.statut == 'À faire' %}
-                    <span class="badge badge-warning">{{ assignment.statut }}</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">Tâche non commencée</span>
-                {% else %}
-                    <span class="badge badge-danger">{{ assignment.statut }}</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">Tâche annulée</span>
-                {% endif %}
-            </div>
-        </div>
-        
-        <div class="info-row">
-            <div class="info-label">Niveau de Priorité</div>
-            <div class="info-value">
-                {% if assignment.priorite == 'Haute' %}
-                    <span class="priority-badge priority-haute">↑ Priorité HAUTE</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">⚠️ Nécessite une attention immédiate</span>
-                {% elseif assignment.priorite == 'Moyenne' %}
-                    <span class="priority-badge priority-moyenne">− Priorité MOYENNE</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">📌 À traiter dans les prochains jours</span>
-                {% else %}
-                    <span class="priority-badge priority-basse">↓ Priorité BASSE</span>
-                    <span style="color: #666; margin-left: 10px; font-size: 11px;">📋 Peut attendre si nécessaire</span>
-                {% endif %}
-            </div>
-        </div>
     </div>
 
     {# Projet associé #}
     <div class="section">
         <h2 class="section-title">📁 Projet Associé</h2>
-        <div class="project-info">
-            <div class="project-title">{{ assignment.project.titre }}</div>
-            <div class="project-desc">{{ assignment.project.description }}</div>
-            <div style="margin-top: 10px; font-size: 11px;">
-                <strong>Période du projet :</strong> 
-                {{ assignment.project.dateDebut|date('d/m/Y') }} → {{ assignment.project.dateFin|date('d/m/Y') }}
-            </div>
-            <div style="margin-top: 5px; font-size: 11px;">
-                <strong>Statut du projet :</strong> 
+        <div class="info-row">
+            <div class="info-label">Titre</div>
+            <div class="info-value">{{ assignment.project.titre }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Description</div>
+            <div class="info-value">{{ assignment.project.description }}</div>
+        </div>
+        <div class="info-row">
+            <div class="info-label">Statut</div>
+            <div class="info-value">
                 {% if assignment.project.statut == 'En cours' %}
                     <span class="badge badge-primary">{{ assignment.project.statut }}</span>
                 {% elseif assignment.project.statut == 'Terminé' %}
@@ -449,7 +348,7 @@
             </div>
             
             <div class="timeline-item">
-                <div class="timeline-marker {% if now < assignment.dateFin %}warning{% else %}danger{% endif %}"></div>
+                <div class="timeline-marker {% if 'now'|date('U') < assignment.dateFin|date('U') %}warning{% else %}danger{% endif %}"></div>
                 <div class="timeline-content">
                     <div class="title">Aujourd'hui</div>
                     <div class="date">{{ 'now'|date('d/m/Y à H:i') }}</div>
@@ -457,7 +356,7 @@
             </div>
             
             <div class="timeline-item">
-                <div class="timeline-marker {% if now > assignment.dateFin %}danger{% elseif assignment.statut == 'Terminé' %}success{% else %}{% endif %}"></div>
+                <div class="timeline-marker {% if 'now'|date('U') > assignment.dateFin|date('U') %}danger{% elseif assignment.statut == 'Terminé' %}success{% else %}{% endif %}"></div>
                 <div class="timeline-content">
                     <div class="title">Échéance</div>
                     <div class="date">{{ assignment.dateFin|date('d/m/Y à H:i') }}</div>
@@ -466,20 +365,27 @@
         </div>
     </div>
 
-    {# Recommandations #}
+    {# Recommandations – sans date_diff #}
     <div class="section">
         <h2 class="section-title">💡 Recommandations</h2>
+        
+        {# Calcul manuel de la différence en jours #}
+        {% set diff_seconds = assignment.dateFin|date('U') - 'now'|date('U') %}
+        {% set remaining_days = (diff_seconds / 86400)|round(0, 'floor') %}
+        {% set is_overdue = remaining_days < 0 %}
+        {% set progress = assignmentStats.pourcentageTemps|default(0) %}
+        
         {% if assignment.statut == 'Terminé' %}
             <div class="alert alert-success">
                 ✓ <strong>Bravo !</strong> Cette tâche a été complétée avec succès.
             </div>
-        {% elseif isOverdue %}
+        {% elseif is_overdue %}
             <div class="alert alert-danger">
-                🚨 <strong>Action urgente requise :</strong> Cette tâche est en retard. Contactez votre équipe pour réorganiser les priorités.
+                🚨 <strong>Action urgente requise :</strong> Cette tâche est en retard de {{ remaining_days|abs }} jour(s).
             </div>
         {% elseif progress >= 75 %}
             <div class="alert alert-warning">
-                ⏰ <strong>Attention au délai :</strong> Il ne reste que {{ remainingDays }} jour(s) pour terminer cette tâche.
+                ⏰ <strong>Attention au délai :</strong> Il ne reste que {{ remaining_days }} jour(s) pour terminer cette tâche.
             </div>
         {% else %}
             <div class="alert alert-info">

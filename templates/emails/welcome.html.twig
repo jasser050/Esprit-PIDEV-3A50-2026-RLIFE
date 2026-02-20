@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to RLIFE!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .email-header {
+            background: #fa709a;
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .celebration {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .email-header h1 {
+            color: #ffffff !important;
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 15px 0;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        .email-body {
+            padding: 50px 40px;
+        }
+        
+        .success-badge {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .message {
+            color: #374151;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        
+        .message strong {
+            color: #111827;
+        }
+        
+        .highlight {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .message a {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #667eea !important;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            padding: 18px 50px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            border: 2px solid #667eea;
+        }
+        
+        .email-footer {
+            background: #111827;
+            color: #d1d5db;
+            padding: 40px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .email-footer strong {
+            color: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header" style="background: #fa709a; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); padding: 60px 40px; text-align: center;">
+            <div class="celebration" style="font-size: 60px; margin-bottom: 20px;">🎊</div>
+            <h1 style="color: #ffffff !important; font-size: 36px; font-weight: 700; margin: 0 0 15px 0; text-shadow: 2px 2px 8px rgba(0,0,0,0.3);">You're All Set!</h1>
+        </div>
+        
+        <div class="email-body">
+            <div class="success-badge">
+                <span class="badge">✅ Account Verified</span>
+            </div>
+            
+            <div class="message">
+                <strong>Congratulations, {{ user.firstName }}!</strong>
+            </div>
+            
+            <div class="message">
+                Your account has been successfully verified. You're now part of the <span class="highlight">RLIFE community</span> – join thousands of students who are already transforming their academic journey!
+            </div>
+            
+            <div class="message">
+                Ready to start organizing your semester? Click below to access your personalized dashboard:
+            </div>
+            
+            <div class="cta-container" style="text-align: center; margin: 40px 0;">
+                <a href="{{ url('app_dashboard') }}" class="cta-button" style="display: inline-block; background: #667eea !important; color: #ffffff !important; text-decoration: none !important; padding: 18px 50px; border-radius: 12px; font-size: 18px; font-weight: 600; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); border: 2px solid #667eea;">
+                    🚀 Go to Dashboard
+                </a>
+            </div>
+            
+            <div class="message">
+                Need help getting started? Check out our <a href="#" style="color: #667eea;">quick start guide</a> or reach out to our support team anytime.
+            </div>
+        </div>
+        
+        <div class="email-footer">
+            <div style="margin-bottom: 10px; font-weight: 600; color: #f9fafb;">Happy Studying! 📚</div>
+            <div style="color: #d1d5db;">The RLIFE Team</div>
+        </div>
+    </div>
+</body>
+</html>

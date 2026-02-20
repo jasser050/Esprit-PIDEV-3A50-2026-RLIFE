@@ -17,6 +17,9 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- GSAP for Animations -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
@@ -36,6 +39,7 @@
 
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
+        
         <script>
             // Initialize Lucide icons
             lucide.createIcons();
@@ -43,3 +47,4 @@
     {% endblock %}
 </body>
 </html>
+

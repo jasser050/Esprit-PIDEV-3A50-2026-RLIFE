@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -27,16 +26,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank(message: 'Email is required')]
-    #[Assert\Email(message: 'Please enter a valid email address')]
-    #[Assert\Length(
-        max: 180,
-        maxMessage: 'Email cannot be longer than {{ limit }} characters'
-    )]
     private ?string $email = null;
-
-    #[ORM\Column(length: 255, nullable: true, unique: true)]
-    private ?string $googleId = null;
 
     /**
      * @var list<string> The user roles
@@ -51,45 +41,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'First name is required')]
-    #[Assert\Length(
-        min: 2,
-        max: 100,
-        minMessage: 'First name must be at least {{ limit }} characters',
-        maxMessage: 'First name cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z\s\-\']+$/',
-        message: 'First name can only contain letters, spaces, hyphens and apostrophes'
-    )]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Last name is required')]
-    #[Assert\Length(
-        min: 2,
-        max: 100,
-        minMessage: 'Last name must be at least {{ limit }} characters',
-        maxMessage: 'Last name cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z\s\-\']+$/',
-        message: 'Last name can only contain letters, spaces, hyphens and apostrophes'
-    )]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: 'Username is required')]
-    #[Assert\Length(
-        min: 3,
-        max: 50,
-        minMessage: 'Username must be at least {{ limit }} characters',
-        maxMessage: 'Username cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9_]+$/',
-        message: 'Username can only contain letters, numbers and underscores'
-    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -99,11 +56,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phoneNumber = null;
 
     #[ORM\Column(length: 10)]
-    #[Assert\NotBlank(message: 'Gender is required')]
-    #[Assert\Choice(
-        choices: ['male', 'female', 'other'],
-        message: 'Please select a valid gender'
-    )]
     private ?string $gender = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -531,17 +483,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             }
         }
 
-        return $this;
-    }
-
-    public function getGoogleId(): ?string
-    {
-        return $this->googleId;
-    }
-
-    public function setGoogleId(?string $googleId): self
-    {
-        $this->googleId = $googleId;
         return $this;
     }
 

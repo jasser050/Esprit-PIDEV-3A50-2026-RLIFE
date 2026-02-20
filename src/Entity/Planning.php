@@ -47,9 +47,7 @@ class Planning
             $context->buildViolation('The end date/time must be after the start.')
                 ->atPath('dateFin')->addViolation();
         }
-
-        // 2) Collision d’horaires dans la base (pas possible sans EntityManager ici, donc à faire côté controller)
-        // On te montre la version controller plus bas.
+        
     }
 
     // GETTERS/SETTERS

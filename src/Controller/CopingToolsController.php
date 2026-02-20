@@ -20,7 +20,7 @@ class CopingToolsController extends AbstractController
     {
         $user = $this->getUser();
         $recentSessions = [];
-        
+
         if ($user) {
             $recentSessions = $sessionRepo->findBy(
                 ['user' => $user],
@@ -28,12 +28,12 @@ class CopingToolsController extends AbstractController
                 5
             );
         }
-        
+
         // Calculate stats
         $totalSessions = count($recentSessions);
         $totalMinutes = 0;
         $completedSessions = 0;
-        
+
         foreach ($recentSessions as $session) {
             if ($session->getActualSeconds()) {
                 $totalMinutes += $session->getActualSeconds() / 60;

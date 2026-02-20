@@ -9,67 +9,84 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class DeckType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isEdit = $options['data'] && $options['data']->getIdDeck() !== null;
+
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Title',
-                'attr' => [
-                    'class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white',
-                    'placeholder' => 'Enter deck title'
-                ]
+                'label'    => 'Titre du Deck *',
+                'required' => false, // On laisse les contraintes de l'entité faire le travail
+                'attr'     => [
+                    'placeholder' => 'Exemple : Biologie - Système nerveux, Vocabulaire Espagnol A2...',
+                ],
             ])
             ->add('matiere', TextType::class, [
-                'label' => 'Subject',
-                'attr' => [
-                    'class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white',
-                    'placeholder' => 'e.g., Mathematics, Physics'
-                ]
+                'label'    => 'Matière *',
+                'required' => false,
+                'attr'     => [
+                    'placeholder' => 'Exemple : Biologie, Anglais, Mathématiques...',
+                ],
             ])
             ->add('niveau', TextType::class, [
-                'label' => 'Level',
-                'attr' => [
-                    'class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white',
-                    'placeholder' => 'e.g., Beginner, Intermediate, Advanced'
-                ]
+                'label'    => 'Niveau *',
+                'required' => false,
+                'attr'     => [
+                    'placeholder' => 'Exemple : Lycée, Licence, B1, Terminale...',
+                ],
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description',
+                'label'    => 'Description *',
                 'required' => false,
-                'attr' => [
-                    'class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white resize-y',
-                    'rows' => 4,
-                    'placeholder' => 'Describe the deck content...'
-                ]
+                'attr'     => [
+                    'rows'        => 4,
+                    'placeholder' => 'Décrivez le contenu, les objectifs, les chapitres ou compétences abordées...',
+                ],
             ])
             ->add('imageFile', FileType::class, [
-                'label' => 'Image (optional)',
-                'mapped' => false,
-                'required' => false,
-                'attr' => ['class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white'],
-                'constraints' => [
-                    new File([
-                        'maxSize' => '5M',
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'],
-                        'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, WEBP)',
-                    ])
+                'label'     => $isEdit ? 'Image de couverture' : 'Image de couverture *',
+                'mapped'    => false,
+                'required'  => !$isEdit,
+                'constraints' => $isEdit ? [
+                    new Assert\File([
+                        'maxSize'          => '5M',
+                        'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+                        'mimeTypesMessage' => 'Format invalide (JPG, PNG, WEBP, GIF seulement)',
+                        'maxSizeMessage'   => 'L\'image ne doit pas dépasser 5 Mo',
+                    ]),
+                ] : [
+                    new Assert\NotNull(['message' => 'L\'image est obligatoire']),
+                    new Assert\File([
+                        'maxSize'          => '5M',
+                        'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+                        'mimeTypesMessage' => 'Format invalide (JPG, PNG, WEBP, GIF seulement)',
+                        'maxSizeMessage'   => 'L\'image ne doit pas dépasser 5 Mo',
+                    ]),
                 ],
             ])
             ->add('pdfFile', FileType::class, [
-                'label' => 'PDF (optional)',
-                'mapped' => false,
-                'required' => false,
-                'attr' => ['class' => 'w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white'],
-                'constraints' => [
-                    new File([
-                        'maxSize' => '10M',
-                        'mimeTypes' => ['application/pdf'],
-                        'mimeTypesMessage' => 'Please upload a valid PDF file',
-                    ])
+                'label'     => $isEdit ? 'Fichier PDF' : 'Fichier PDF *',
+                'mapped'    => false,
+                'required'  => !$isEdit,
+                'constraints' => $isEdit ? [
+                    new Assert\File([
+                        'maxSize'          => '10M',
+                        'mimeTypes'        => ['application/pdf'],
+                        'mimeTypesMessage' => 'Format invalide (PDF seulement)',
+                        'maxSizeMessage'   => 'Le PDF ne doit pas dépasser 10 Mo',
+                    ]),
+                ] : [
+                    new Assert\NotNull(['message' => 'Le PDF est obligatoire']),
+                    new Assert\File([
+                        'maxSize'          => '10M',
+                        'mimeTypes'        => ['application/pdf'],
+                        'mimeTypesMessage' => 'Format invalide (PDF seulement)',
+                        'maxSizeMessage'   => 'Le PDF ne doit pas dépasser 10 Mo',
+                    ]),
                 ],
             ]);
     }

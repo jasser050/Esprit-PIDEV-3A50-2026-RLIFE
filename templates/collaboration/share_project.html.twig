@@ -1,0 +1,142 @@
+{# templates/collaboration/share_project.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Partager le projet : {{ project.titre }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <!-- Breadcrumbs -->
+    <nav class="flex text-sm" aria-label="breadcrumb">
+        <ol class="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
+            <li><a href="{{ path('app_project_index') }}" class="hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors">Projets</a></li>
+            <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+            <li><a href="{{ path('app_project_show', {'id': project.id}) }}" class="hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors">{{ project.titre }}</a></li>
+            <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
+            <li class="text-secondary-900 dark:text-white">Partager</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Partager le projet</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">
+                {{ project.titre }} • Partagez l'accès avec d'autres utilisateurs
+            </p>
+        </div>
+        <a href="{{ path('app_project_show', {'id': project.id}) }}" class="btn btn-secondary">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            Retour au projet
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Formulaire de partage -->
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-6">Ajouter un collaborateur</h2>
+
+            <form method="post" class="space-y-6">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Email de l'utilisateur
+                    </label>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        required 
+                        placeholder="exemple@domaine.com"
+                        class="input w-full"
+                    >
+                    <p class="text-sm text-secondary-500 mt-2">
+                        L'utilisateur doit déjà avoir un compte sur l'application.
+                    </p>
+                </div>
+
+                <div>
+                    <label for="role" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">
+                        Rôle
+                    </label>
+                    <select name="role" id="role" class="select w-full">
+                        <option value="viewer">Viewer (lecture seule)</option>
+                        <option value="editor">Editor (peut modifier les tâches et commenter)</option>
+                    </select>
+                    <div class="mt-3 space-y-2 text-sm">
+                        <p class="flex items-center gap-2">
+                            <i data-lucide="eye" class="w-4 h-4 text-secondary-500"></i>
+                            <span><strong>Viewer</strong> : Peut voir le projet et les tâches</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i data-lucide="edit-2" class="w-4 h-4 text-secondary-500"></i>
+                            <span><strong>Editor</strong> : Peut créer/modifier/supprimer des tâches et commenter</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                    <a href="{{ path('app_project_show', {'id': project.id}) }}" class="btn btn-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        Ajouter et notifier
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Liste des collaborateurs actuels -->
+        <div class="card p-6">
+            <h2 class="text-lg font-semibold mb-6">Collaborateurs actuels</h2>
+
+            {% if shares|length > 0 %}
+                <ul class="space-y-4">
+                    {% for share in shares %}
+                        <li class="flex items-center justify-between py-3 border-b border-light-border dark:border-dark-border last:border-0">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                    <span class="text-primary-600 dark:text-primary-400 font-semibold text-sm">
+                                        {{ share.sharedWithUser.email|slice(0,2)|upper }}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="font-medium">{{ share.sharedWithUser.email }}</p>
+                                    <p class="text-sm text-secondary-500">
+                                        Ajouté le {{ share.createdAt|date('d/m/Y') }}
+                                        {% if share.sharedByUser == app.user %}
+                                            <span class="text-xs text-secondary-400">(par vous)</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="badge badge-{{ share.role == 'editor' ? 'primary' : 'info' }}">
+                                    {{ share.role == 'editor' ? 'Editor' : 'Viewer' }}
+                                </span>
+                                {# Optionnel : bouton révoquer (à implémenter plus tard) #}
+                                {# <button class="text-danger-600 hover:text-danger-800">
+                                    <i data-lucide="user-x" class="w-5 h-5"></i>
+                                </button> #}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="text-center py-8">
+                    <i data-lucide="users" class="w-12 h-12 text-secondary-400 mx-auto mb-4"></i>
+                    <p class="text-secondary-500">Ce projet n'est partagé avec personne pour le moment.</p>
+                    <p class="text-sm text-secondary-400 mt-2">Utilisez le formulaire à gauche pour ajouter des collaborateurs.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

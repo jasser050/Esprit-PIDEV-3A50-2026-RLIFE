@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}Edit Event{% endblock %}
 
@@ -7,7 +7,7 @@
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
-            { label: 'Planning', href: path('app_planning') },
+            { label: 'Schedule', href: path('app_planning') },
             { label: 'Edit Event' }
         ]
     } %}
@@ -22,7 +22,7 @@
         <form action="{{ path('app_planning_edit', {id: planning.id}) }}" method="POST" class="space-y-6">
             {% include 'components/select.html.twig' with {
                 name: 'seance_id',
-                label: 'Session',
+                label: 'Séance',
                 required: true,
                 value: planning.seance ? planning.seance.id : '',
                 options: seances|default([])|map(s => { value: s.id, label: s.titre ?? ('Seance #' ~ s.id) })
@@ -126,7 +126,7 @@
 
                         <form action="{{ path('app_planning_delete', {id: planning.id}) }}"
                               method="POST"
-                              onsubmit="return confirm('Do you really want to delete this event?');"
+                              onsubmit="return confirm('Are you sure ?');"
                               class="mt-4 flex items-center justify-end">
                             <button type="submit" class="btn btn-secondary">
                                 <i data-lucide="trash" class="w-4 h-4 mr-2"></i>

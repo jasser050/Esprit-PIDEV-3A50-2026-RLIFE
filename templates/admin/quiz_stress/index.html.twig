@@ -1,0 +1,49 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}Quizzes Stress{% endblock %}
+
+{% block body %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Quizzes Stress</h1>
+        <a href="{{ path('app_admin_quiz_stress_new') }}" class="btn btn-primary">
+            + Nouveau Quiz
+        </a>
+    </div>
+
+    <div class="card">
+        <table class="table w-full">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Score moyen</th>
+                    <th>Créé le</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for quiz in quizzes %}
+                    <tr>
+                        <td>{{ quiz.id }}</td>
+                        <td>{{ quiz.title }}</td>
+                        <td>{{ quiz.score ?? '-' }}</td>
+                        <td>{{ quiz.createdAt ? quiz.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                        <td class="text-right space-x-2">
+                            <a href="{{ path('app_admin_quiz_stress_edit', {id: quiz.id}) }}" class="btn btn-sm btn-info">Modifier</a>
+                            <form method="post" action="{{ path('app_admin_quiz_stress_delete', {id: quiz.id}) }}" class="inline" onsubmit="return confirm('Supprimer ce quiz ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ quiz.id) }}">
+                                <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">Aucun quiz trouvé.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

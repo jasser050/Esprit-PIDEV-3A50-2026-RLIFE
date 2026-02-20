@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Notifications{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-bold mb-8">Mes Notifications</h1>
+
+    {% if notifications|length > 0 %}
+        <div class="space-y-4">
+            {% for notif in notifications %}
+                <div class="p-5 bg-white dark:bg-slate-800 rounded-xl border {{ notif.isRead ? 'border-slate-200 dark:border-slate-700' : 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/30' }}">
+                    <div class="flex items-start gap-4">
+                        <div class="text-2xl">
+                            {% if notif.type == 'coins' %}🪙
+                            {% elseif notif.type starts with 'deadline' %}⏰
+                            {% elseif notif.type == 'project_shared' %}🔗
+                            {% elseif notif.type == 'task_assigned' %}📋
+                            {% elseif notif.type == 'new_comment' %}💬
+                            {% else %}🔔{% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold {{ notif.isRead ? 'text-slate-900 dark:text-white' : 'text-indigo-700 dark:text-indigo-300' }}">
+                                {{ notif.title }}
+                            </h3>
+                            <p class="text-slate-600 dark:text-slate-300 mt-1">{{ notif.message }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
+                                {{ notif.createdAt|date('d/m/Y H:i') }}
+                            </p>
+                            {% if notif.link %}
+                                <a href="{{ notif.link }}" class="text-indigo-600 dark:text-indigo-400 hover:underline mt-2 inline-block">
+                                    Voir →
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12 text-slate-500 dark:text-slate-400">
+            <i data-lucide="bell-off" class="w-16 h-16 mx-auto mb-4"></i>
+            <p class="text-xl">Aucune notification pour le moment</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

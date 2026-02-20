@@ -1,0 +1,12 @@
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        # Active le composant Messenger
+        transports:
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'   # transport asynchrone (vide pour l'instant)
+        routing:
+            # Route toutes les commandes vers le transport async (optionnel)
+            'Symfony\Component\Scheduler\Attribute\AsSchedule': async
+
+        # Active le scheduler (nécessaire pour que la commande soit exécutée automatiquement)
+        
