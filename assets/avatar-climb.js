@@ -265,9 +265,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const avatarContainer = document.getElementById('avatar-climb-container');
     
     if (avatarContainer) {
-        // Determine avatar based on gender
-        const gender = avatarContainer.dataset.gender || 'male';
-        const avatarPath = `/avatars/${gender}-avatar.glb`;
+        // Get selected avatar type from data attribute
+        const avatarType = avatarContainer.dataset.avatarType || 'male-avatar.glb';
+        const avatarPath = `/avatars/${avatarType}`;
         
         // Create animation
         window.avatarClimb = new AvatarClimbAnimation(

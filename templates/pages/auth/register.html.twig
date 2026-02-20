@@ -14,6 +14,67 @@
     .spline-viewer {
         z-index: 1 !important;
     }
+    
+    /* Custom scrollbar for avatar grid */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(203, 213, 225, 0.2);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.5);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.7);
+    }
+    
+    /* Avatar selection animations */
+    .avatar-card {
+        cursor: pointer !important;
+        position: relative;
+        z-index: 10;
+    }
+    
+    .avatar-canvas-container {
+        pointer-events: none !important;
+    }
+    
+    /* Selected state - checkmark */
+    .avatar-card.selected .avatar-check {
+        opacity: 1 !important;
+        display: flex !important;
+    }
+    
+    /* Selected state - border and glow */
+    .avatar-card.selected > div.relative {
+        border-color: rgb(99, 102, 241) !important;
+        border-width: 3px !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3), 0 10px 40px rgba(99, 102, 241, 0.4) !important;
+        transform: scale(1.02) !important;
+    }
+    
+    /* Jump animation */
+    @keyframes avatarJump {
+        0%, 100% { 
+            transform: translateY(0) scale(1); 
+        }
+        30% { 
+            transform: translateY(-28px) scale(1.1); 
+        }
+        50% { 
+            transform: translateY(-10px) scale(1.05); 
+        }
+        70% { 
+            transform: translateY(-18px) scale(1.08); 
+        }
+    }
+    
+    .avatar-card.avatar-jump {
+        animation: avatarJump 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+    }
 </style>
 {% endblock %}
 
@@ -23,10 +84,12 @@
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
 <!-- face-api.js for Face ID -->
 <script src="/js/face-api.min.js"></script>
+<!-- Avatar Selector -->
+{{ encore_entry_script_tags('avatar-selector') }}
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex dark" data-controller="theme wizard password" data-wizard-total-value="3">
+<div class="min-h-screen flex dark" data-controller="theme wizard password" data-wizard-total-value="4">
     <!-- Left Panel - Form -->
     <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900 pt-16 lg:pt-0">
         <div class="w-full max-w-[480px] mx-auto">
@@ -79,26 +142,36 @@
             {% endfor %}
 
             <!-- Step Indicator -->
-            <div class="flex items-center gap-4 mb-8">
-                <div class="flex items-center gap-3" data-wizard-target="indicator">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="flex items-center gap-2" data-wizard-target="indicator">
                     <div class="step-circle w-8 h-8 rounded-full border-2 bg-primary-600 border-primary-600 text-white flex items-center justify-center text-sm font-semibold transition-colors">
                         1
                     </div>
-                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Account</span>
-                    <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors"></div>
+                    <span class="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap leading-none">Account</span>
                 </div>
-                <div class="flex items-center gap-3" data-wizard-target="indicator">
+                <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors flex-shrink-0"></div>
+                
+                <div class="flex items-center gap-2" data-wizard-target="indicator">
                     <div class="step-circle w-8 h-8 rounded-full border-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 flex items-center justify-center text-sm font-semibold transition-colors">
                         2
                     </div>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Preferences</span>
-                    <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors"></div>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap leading-none">Preferences</span>
                 </div>
-                <div class="flex items-center gap-3" data-wizard-target="indicator">
+                <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors flex-shrink-0"></div>
+                
+                <div class="flex items-center gap-2" data-wizard-target="indicator">
                     <div class="step-circle w-8 h-8 rounded-full border-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 flex items-center justify-center text-sm font-semibold transition-colors">
                         3
                     </div>
-                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400">Face ID</span>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap leading-none">Avatar</span>
+                </div>
+                <div class="step-line w-8 h-0.5 bg-slate-200 dark:bg-slate-700 transition-colors flex-shrink-0"></div>
+                
+                <div class="flex items-center gap-2" data-wizard-target="indicator">
+                    <div class="step-circle w-8 h-8 rounded-full border-2 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-500 flex items-center justify-center text-sm font-semibold transition-colors">
+                        4
+                    </div>
+                    <span class="text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap leading-none">Face ID</span>
                 </div>
             </div>
 
@@ -348,23 +421,166 @@
                     </div>
                 </div>
 
+                <!-- Step 3: Avatar Selection -->
+                <div data-wizard-target="step" class="hidden space-y-6">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" 
+                             style="background:linear-gradient(135deg,#ec4899,#8b5cf6);">
+                            <i data-lucide="smile" class="w-7 h-7 text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Choose Your Avatar</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Pick the avatar that represents you</p>
+                    </div>
+
+                    <!-- Hidden input to store selected avatar -->
+                    <input type="hidden" name="avatar_type" id="avatar_type" value="male-avatar.glb">
+
+                    <!-- Avatar Grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-[520px] overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Male Avatars -->
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Classic</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar1.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar1.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Explorer</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar2.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar2.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Scholar</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar3.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar3.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Athlete</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar4.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar4.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Artist</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar5.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-indigo-50 to-violet-50 dark:from-indigo-950/30 dark:to-violet-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar5.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Tech</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar6.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-950/30 dark:to-cyan-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar6.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Creative</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="male-avatar7.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/30 dark:to-orange-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/male-avatar7.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Leader</p>
+                        </div>
+
+                        <!-- Female Avatars -->
+                        <div class="avatar-card group cursor-pointer" data-avatar="female-avatar.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-950/30 dark:to-rose-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/female-avatar.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Classic</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="female-avatar2.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-purple-50 to-fuchsia-50 dark:from-purple-950/30 dark:to-fuchsia-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/female-avatar2.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Elegant</p>
+                        </div>
+
+                        <div class="avatar-card group cursor-pointer" data-avatar="female-avatar3.glb">
+                            <div class="relative aspect-square rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-2 border-slate-200 dark:border-slate-700 group-hover:border-primary-400 dark:group-hover:border-primary-600 transition-all duration-300 overflow-hidden group-hover:shadow-xl group-hover:scale-105">
+                                <div class="avatar-canvas-container w-full h-full" data-avatar-path="/avatars/female-avatar3.glb"></div>
+                                <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center opacity-0 avatar-check transition-opacity duration-200" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);">
+                                    <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                                </div>
+                            </div>
+                            <p class="text-xs text-center mt-2 text-slate-600 dark:text-slate-400 font-medium">Professional</p>
+                        </div>
+                    </div>
+
+                    <!-- Selection Hint -->
+                    <div class="p-4 bg-primary-50 dark:bg-primary-900/20 rounded-xl border border-primary-100 dark:border-primary-800">
+                        <p class="text-sm text-primary-700 dark:text-primary-300 text-center">
+                            <i data-lucide="sparkles" class="w-4 h-4 inline mr-1"></i>
+                            Your avatar will appear in your settings and dashboard
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Navigation Buttons -->
                 <!-- Hidden face descriptor field -->
                 <input type="hidden" name="face_descriptor" id="face_descriptor_input">
 
-                <!-- Step 3: Face ID Setup -->
-                <div data-wizard-target="step" class="hidden space-y-5">
-                    <div class="text-center">
-                        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style="background:linear-gradient(135deg,#6366f1,#a855f7);">
-                            <i data-lucide="scan-face" class="w-7 h-7 text-white"></i>
+                <!-- Step 4: Face ID Setup -->
+                <div data-wizard-target="step" class="hidden space-y-6">
+                    <!-- Header -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-2xl" style="background:linear-gradient(135deg,#6366f1,#a855f7);">
+                                <i data-lucide="scan-face" class="w-6 h-6 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white">Face ID Setup</h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Register your face to log in instantly</p>
+                            </div>
                         </div>
-                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Face ID Setup</h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Register your face to log in instantly</p>
                     </div>
 
                     <!-- Camera viewport -->
                     <!-- Outer wrapper: holds the gradient ring + status dot, no overflow clipping -->
-                    <div class="relative mx-auto" style="width:246px;height:246px;">
+                    <div class="relative mx-auto" style="width:320px;height:320px;">
 
                         <!-- Gradient ring: padding creates the border effect, inner div clips the video -->
                         <div id="face-ring" style="position:absolute;inset:0;border-radius:50%;padding:3px;background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);animation:ringPulse 2.5s ease-in-out infinite;">
@@ -407,35 +623,45 @@
                     </div>
 
                     <!-- Status text -->
-                    <p id="face-status-msg" class="text-center text-sm" style="color:#94a3b8;min-height:20px;">
-                        Click "Open Camera" to get started
-                    </p>
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <p id="face-status-msg" class="text-sm text-slate-600 dark:text-slate-400">
+                            Click "Open Camera" below to start the face registration process
+                        </p>
+                    </div>
 
                     <!-- Buttons -->
                     <div class="space-y-3">
                         <button type="button" id="face-open-btn" onclick="openFaceCamera()"
-                            class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white"
-                            style="background:linear-gradient(135deg,#6366f1,#a855f7);">
+                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5"
+                            style="background:linear-gradient(135deg,#6366f1,#a855f7); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.3);">
                             <i data-lucide="camera" class="w-5 h-5"></i>
                             Open Camera
                         </button>
                         <button type="button" id="face-capture-btn" onclick="captureFace()"
-                            class="w-full items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white"
-                            style="display:none;background:linear-gradient(135deg,#10b981,#059669);">
+                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5"
+                            style="display:none;background:linear-gradient(135deg,#10b981,#059669); box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);">
                             <i data-lucide="scan-face" class="w-5 h-5"></i>
                             Capture My Face
                         </button>
                         <button type="button" id="face-retake-btn" onclick="retakeFace()"
-                            class="w-full items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all hover:-translate-y-0.5"
                             style="display:none;">
                             <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                             Retake
                         </button>
                     </div>
 
-                    <div class="flex items-start gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
-                        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-xs text-indigo-700 dark:text-indigo-300">Your face is stored as a mathematical fingerprint only — no photo is saved.</p>
+                    <!-- Privacy Note -->
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="shield-check" class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <p class="text-sm font-medium text-indigo-800 dark:text-indigo-200">Privacy Protected</p>
+                                <p class="text-sm text-indigo-600 dark:text-indigo-300 mt-0.5">
+                                    Your face is stored as a mathematical fingerprint only — no photo is saved.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -22,6 +22,8 @@ Encore
      */
     .addEntry('app', './assets/app.js')
     .addEntry('avatar-climb', './assets/avatar-climb.js')
+    .addEntry('avatar-selector', './assets/avatar-selector.js')
+    .addEntry('galaxy-admin',   './assets/galaxy-admin.js')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()

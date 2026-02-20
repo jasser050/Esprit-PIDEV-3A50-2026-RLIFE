@@ -41,7 +41,7 @@
                             
                             <!-- 3D Avatar Animation Container (INSIDE profile pic) -->
                             <div id="avatar-climb-container" 
-                                 data-gender="{{ app.user.gender ?? 'male' }}" 
+                                 data-avatar-type="{{ app.user.avatarType ?? 'male-avatar.glb' }}" 
                                  class="absolute inset-0 z-10 pointer-events-none">
                             </div>
                         </div>
@@ -160,7 +160,6 @@
             </div>
         </div>
     </div>
-    
     <!-- Quick Info Grid - Compact -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Email Card -->
@@ -743,4 +742,5 @@ function validateSettingsForm(event) {
     return true;
 }
 </script>
+
 {% endblock %}

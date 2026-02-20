@@ -39,6 +39,12 @@ class UserSettings
     #[ORM\Column(length: 10)]
     private string $language = 'en';
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $starName = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $starType = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -136,6 +142,30 @@ class UserSettings
     public function setLanguage(string $language): static
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    public function getStarName(): ?string
+    {
+        return $this->starName;
+    }
+
+    public function setStarName(?string $starName): static
+    {
+        $this->starName = $starName;
+
+        return $this;
+    }
+
+    public function getStarType(): ?string
+    {
+        return $this->starType;
+    }
+
+    public function setStarType(?string $starType): static
+    {
+        $this->starType = $starType;
 
         return $this;
     }
