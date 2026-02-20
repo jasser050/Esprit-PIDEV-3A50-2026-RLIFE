@@ -1,198 +1,352 @@
 {# templates/pages/assignments/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Tâches{% endblock %}
+{% block title %}Tasks{% endblock %}
 
 {% block body %}
 <div class="space-y-6 animate-fade-in">
-    <!-- Header + Bouton Nouvelle Tâche -->
+    <!-- 1. Page Header (titre + bouton Nouvelle) -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Tâches</h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Suivez et gérez vos tâches</p>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Tasks</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track and manage your tasks</p>
         </div>
         <a href="{{ path('app_assignments_new') }}" class="btn btn-primary">
             <i data-lucide="plus" class="w-5 h-5"></i>
-            Nouvelle Tâche
+            New Task
         </a>
     </div>
 
-    <!-- Recherche + Filtres -->
+    <!-- 1. Recherche + Filtres (tout en haut après le header) -->
     <div class="card p-5 shadow-sm">
         <form method="get" action="{{ path('app_assignments') }}" class="flex flex-col lg:flex-row lg:items-end gap-5 flex-wrap">
+            <!-- Recherche -->
             <div class="flex-1 min-w-[300px] relative">
-                <label for="search" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Rechercher une tâche</label>
+                <label for="search" class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Search for a task</label>
                 <div class="relative">
                     <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary-400 pointer-events-none"></i>
                     <input type="text"
                            id="search"
                            name="search"
                            value="{{ search|default('') }}"
-                           placeholder="Titre, description, mot-clé..."
+                           placeholder="Title, description, keyword..."
                            class="input w-full pl-11 pr-4 py-2.5 text-base border border-slate-300 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all">
                 </div>
             </div>
 
+            <!-- Filtres Statut -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400 whitespace-nowrap">Priorité :</span>
-                <button type="submit" name="priorite" value="" class="badge {{ priorite == '' ? 'badge-primary' : 'badge-outline' }}">Toutes</button>
-                <button type="submit" name="priorite" value="Haute" class="badge badge-danger {{ priorite == 'Haute' ? 'badge-primary' : 'badge-outline' }}">Haute</button>
-                <button type="submit" name="priorite" value="Moyenne" class="badge badge-warning {{ priorite == 'Moyenne' ? 'badge-primary' : 'badge-outline' }}">Moyenne</button>
-                <button type="submit" name="priorite" value="Basse" class="badge badge-info {{ priorite == 'Basse' ? 'badge-primary' : 'badge-outline' }}">Basse</button>
+                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400 whitespace-nowrap">Status:</span>
+                <button type="submit" name="statut" value="" class="badge {{ statut == '' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    All
+                </button>
+                <button type="submit" name="statut" value="À faire" class="badge {{ statut == 'À faire' ? 'badge-warning' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="circle" class="w-3.5 h-3.5"></i> To Do
+                </button>
+                <button type="submit" name="statut" value="En cours" class="badge {{ statut == 'En cours' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="loader" class="w-3.5 h-3.5"></i> In Progress
+                </button>
+                <button type="submit" name="statut" value="Terminé" class="badge {{ statut == 'Terminé' ? 'badge-success' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="check" class="w-3.5 h-3.5"></i> Completed
+                </button>
             </div>
 
+            <!-- Filtres Priorité -->
             <div class="flex items-center gap-2.5 flex-wrap">
-                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400 whitespace-nowrap">Statut :</span>
-                <button type="submit" name="statut" value="" class="badge {{ statut == '' ? 'badge-primary' : 'badge-outline' }}">Tous</button>
-                <button type="submit" name="statut" value="À faire" class="badge {{ statut == 'À faire' ? 'badge-primary' : 'badge-outline' }}">À faire</button>
-                <button type="submit" name="statut" value="En cours" class="badge {{ statut == 'En cours' ? 'badge-primary' : 'badge-outline' }}">En cours</button>
-                <button type="submit" name="statut" value="Terminé" class="badge {{ statut == 'Terminé' ? 'badge-primary' : 'badge-outline' }}">Terminé</button>
+                <span class="text-sm font-medium text-secondary-500 dark:text-secondary-400 whitespace-nowrap">Priority:</span>
+                <button type="submit" name="priorite" value="" class="badge {{ priorite == '' ? 'badge-primary' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    All
+                </button>
+                <button type="submit" name="priorite" value="Haute" class="badge {{ priorite == 'Haute' ? 'badge-danger' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i> High
+                </button>
+                <button type="submit" name="priorite" value="Moyenne" class="badge {{ priorite == 'Moyenne' ? 'badge-warning' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="minus" class="w-3.5 h-3.5"></i> Medium
+                </button>
+                <button type="submit" name="priorite" value="Basse" class="badge {{ priorite == 'Basse' ? 'badge-info' : 'badge-secondary' }} badge-pill px-4 py-1.5 cursor-pointer hover:opacity-90 transition-opacity">
+                    <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i> Low
+                </button>
             </div>
 
-            <button type="submit" class="btn btn-primary">Filtrer</button>
+            <!-- Boutons actions -->
+            <div class="flex items-end gap-3 flex-wrap">
+                <button type="submit" class="btn btn-primary px-5 py-2.5">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    Search
+                </button>
+
+                {% if search or statut or priorite %}
+                    <a href="{{ path('app_assignments') }}" class="btn btn-ghost text-sm text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1.5 px-4 py-2.5">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Clear all
+                    </a>
+                {% endif %}
+            </div>
         </form>
     </div>
 
-    <!-- Liste des tâches (tableau style backlog avec en-tête bleu) -->
-    {% if assignments|length > 0 %}
-        <div class="card overflow-hidden shadow-xl">
-            <div class="overflow-x-auto">
-                <table class="table w-full">
-                    <thead class="bg-blue-600 text-white">
-                        <tr>
-                            <th class="py-4 px-6 text-left font-bold">Tâche</th>
-                            <th class="py-4 px-6 text-left font-bold">Projet</th>
-                            <th class="py-4 px-6 text-left font-bold">Priorité</th>
-                            <th class="py-4 px-6 text-left font-bold">Statut</th>
-                            <th class="py-4 px-6 text-left font-bold">Date fin</th>
-                            <th class="py-4 px-6 text-right font-bold">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-light-border dark:divide-dark-border">
-                        {% for assignment in assignments %}
-                            <tr class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
-                                <td class="py-5 px-6">
-                                    <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="font-semibold text-lg hover:text-primary-600">
-                                        {{ assignment.titre }}
-                                    </a>
-                                </td>
-                                <td class="py-5 px-6 text-secondary-700 dark:text-secondary-300">
-                                    {{ assignment.project.titre }}
-                                </td>
-                                <td class="py-5 px-6">
-                                    <span class="badge badge-{{ assignment.priorite == 'Haute' ? 'danger' : (assignment.priorite == 'Moyenne' ? 'warning' : 'info') }}">
-                                        {{ assignment.priorite }}
-                                    </span>
-                                </td>
-                                <td class="py-5 px-6">
-                                    <span class="badge badge-{{ assignment.statut == 'Terminé' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
-                                        {{ assignment.statut }}
-                                    </span>
-                                </td>
-                                <td class="py-5 px-6 text-secondary-700 dark:text-secondary-300">
-                                    {{ assignment.dateFin ? assignment.dateFin|date('d/m/Y') : '-' }}
-                                </td>
-                                <td class="py-5 px-6 text-right space-x-4">
-                                    <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="text-primary-600 hover:text-primary-800" title="Voir">
-                                        <i data-lucide="eye" class="w-6 h-6"></i>
-                                    </a>
-                                    <a href="{{ path('app_assignments_edit', {'id': assignment.id}) }}" class="text-warning-600 hover:text-warning-800" title="Modifier">
-                                        <i data-lucide="edit-2" class="w-6 h-6"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    {% else %}
-        <div class="card p-12 text-center">
-            <i data-lucide="list-checks" class="w-16 h-16 text-secondary-400 mx-auto mb-4"></i>
-            <h3 class="text-xl font-semibold">Aucune tâche</h3>
-            <p class="text-secondary-500 mt-2">Créez votre première tâche pour commencer !</p>
+    <!-- Indicateur de filtres actifs -->
+    {% if search or statut or priorite %}
+        <div class="text-sm bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+            {% if search %}Results for: <strong>{{ search }}</strong>{% endif %}
+            {% if statut %} • Status: <strong>{{ statut }}</strong>{% endif %}
+            {% if priorite %} • Priority: <strong>{{ priorite }}</strong>{% endif %}
         </div>
     {% endif %}
 
-    <!-- Statistiques et graphiques -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-12">
-        <!-- Stats cartes -->
-        <div class="space-y-6">
-            <div class="card p-6">
-                <h2 class="text-lg font-semibold mb-4">Statistiques rapides</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-primary-600">{{ stats.total|default(0) }}</div>
-                        <div class="text-sm text-secondary-500">Total</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-success-600">{{ stats.termines|default(0) }}</div>
-                        <div class="text-sm text-secondary-500">Terminées</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-blue-600">{{ stats.enCours|default(0) }}</div>
-                        <div class="text-sm text-secondary-500">En cours</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="text-3xl font-bold text-danger-600">{{ stats.enRetard|default(0) }}</div>
-                        <div class="text-sm text-secondary-500">En retard</div>
-                    </div>
-                </div>
+    <!-- 2. Liste des tâches (juste après la recherche) -->
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table-auto w-full">
+                <thead>
+                    <tr class="text-left text-sm text-secondary-500 dark:text-secondary-400 border-b border-light-border dark:border-dark-border">
+                        <th class="px-4 py-3">Task</th>
+                        <th class="px-4 py-3">Project</th>
+                        <th class="px-4 py-3">Due Date</th>
+                        <th class="px-4 py-3">Priority</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Progress</th>
+                        <th class="px-4 py-3 w-12"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr class="border-b border-light-border dark:border-dark-border last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                        <td class="px-4 py-3">
+                            <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="block">
+                                <h6 class="font-medium text-secondary-900 dark:text-white mb-0.5">{{ assignment.titre }}</h6>
+                                <p class="text-sm text-secondary-500 dark:text-secondary-400 truncate mt-0.5">{{ assignment.description }}</p>
+                            </a>
+                        </td>
+                        <td>
+                            <span class="inline-flex items-center gap-1.5 text-sm text-secondary-600 dark:text-secondary-400">
+                                <i data-lucide="folder" class="w-3 h-3 text-secondary-400"></i>
+                                {{ assignment.project.titre }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set today = "now"|date("Y-m-d") %}
+                            {% set due = assignment.dateFin ? assignment.dateFin|date("Y-m-d") : null %}
+                            <div class="flex items-center gap-1.5">
+                                {% if due and due < today and assignment.statut != 'Terminé' %}
+                                    <i data-lucide="alert-triangle" class="w-4 h-4 text-danger-500"></i>
+                                    <span class="text-danger-600 dark:text-danger-400 font-medium">{{ assignment.dateFin|date('d M') }}</span>
+                                {% elseif due and due == today %}
+                                    <i data-lucide="clock" class="w-4 h-4 text-warning-500"></i>
+                                    <span class="text-warning-600 dark:text-warning-400 font-medium">Today</span>
+                                {% elseif due %}
+                                    <span class="text-secondary-600 dark:text-secondary-400">{{ assignment.dateFin|date('d M') }}</span>
+                                {% else %}
+                                    <span class="text-secondary-400 italic">Not set</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ assignment.priorite == 'Haute' ? 'danger' : (assignment.priorite == 'Moyenne' ? 'warning' : 'info') }} badge-pill">
+                                {% if assignment.priorite == 'Haute' %}
+                                    <i data-lucide="arrow-up" class="w-3 h-3"></i>
+                                {% elseif assignment.priorite == 'Moyenne' %}
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                {% else %}
+                                    <i data-lucide="arrow-down" class="w-3 h-3"></i>
+                                {% endif %}
+                                {{ assignment.priorite|upper }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ assignment.statut == 'Terminé' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }} badge-pill">
+                                {{ assignment.statut }}
+                            </span>
+                        </td>
+                        <td>
+                            {% set start = assignment.dateDebut ? assignment.dateDebut|date('U') : null %}
+                            {% set end   = assignment.dateFin   ? assignment.dateFin|date('U')   : null %}
+                            {% set today = 'now'|date('U') %}
+
+                            {% set totalDays   = start and end ? max(1, ((end - start) / 86400)|round(0)) : 1 %}
+                            {% set elapsedDays = start ? max(0, ((today - start) / 86400)|round(0)) : 0 %}
+                            {% set progress    = (elapsedDays / totalDays * 100)|round(0) %}
+                            {% set progress    = progress > 100 ? 100 : (progress < 0 ? 0 : progress) %}
+
+                            <div class="flex items-center gap-2.5 min-w-[100px]">
+                                <div class="flex-1 progress-bar">
+                                    <div class="progress-bar-fill progress-bar-fill-{{ progress >= 100 ? 'success' : (progress >= 50 ? 'primary' : 'warning') }}" style="width: {{ progress }}%"></div>
+                                </div>
+                                <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400 w-10 text-right">{{ progress }}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ path('app_assignments_show', {'id': assignment.id}) }}" class="btn btn-ghost btn-icon-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state py-12">
+                                <i data-lucide="clipboard-x" class="w-12 h-12 empty-state-icon"></i>
+                                <p class="empty-state-title">No tasks found</p>
+                                <p class="empty-state-description">
+                                    {% if search %}
+                                        No results for "<strong>{{ search }}</strong>".
+                                    {% else %}
+                                        Create your first task to start tracking your work.
+                                    {% endif %}
+                                </p>
+                                <a href="{{ path('app_assignments_new') }}" class="btn btn-primary mt-4">
+                                    <i data-lucide="plus" class="w-5 h-5"></i>
+                                    New Task
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. Statistiques (tout en bas) -->
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                <i data-lucide="clipboard-list" class="w-5 h-5 text-slate-600 dark:text-slate-300"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.total }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Total</p>
             </div>
         </div>
-
-        <!-- Graphiques -->
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="card p-6">
-                <h3 class="text-lg font-semibold mb-4">Répartition par statut</h3>
-                <canvas id="statutChart" height="200"></canvas>
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5 text-warning-600 dark:text-warning-400"></i>
             </div>
-            <div class="card p-6">
-                <h3 class="text-lg font-semibold mb-4">Répartition par priorité</h3>
-                <canvas id="prioriteChart" height="200"></canvas>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.aFaire }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">To Do</p>
+            </div>
+        </div>
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                <i data-lucide="loader" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.enCours }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">In Progress</p>
+            </div>
+        </div>
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-success-600 dark:text-success-400"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.termines }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Completed</p>
+            </div>
+        </div>
+        <div class="card p-4 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-xl bg-danger-100 dark:bg-danger-900/30 flex items-center justify-center">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-danger-600 dark:text-danger-400"></i>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-secondary-900 dark:text-white">{{ stats.enRetard }}</p>
+                <p class="text-sm text-secondary-500 dark:text-secondary-400">Overdue</p>
             </div>
         </div>
     </div>
 </div>
+<!-- Graphiques (après les stats) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+    <!-- Pie Chart - Répartition par statut -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-primary-600"></i>
+            Distribution by Status
+        </h3>
+        <div class="h-72">
+            <canvas id="statutChart"></canvas>
+        </div>
+    </div>
 
+    <!-- Bar Chart - Tâches par priorité -->
+    <div class="card p-6">
+        <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-primary-600"></i>
+            Tasks by Priority
+        </h3>
+        <div class="h-72">
+            <canvas id="prioriteChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ parent() }}
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}
+{% block javascripts %}
+{{ parent() }}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Graphique statut
+    lucide.createIcons();
+
+    // Graphique 1 : Répartition par statut (Pie)
     const statutCtx = document.getElementById('statutChart');
     if (statutCtx) {
         new Chart(statutCtx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
-                labels: ['À faire', 'En cours', 'Terminé'],
+                labels: ['To Do', 'In Progress', 'Completed'],
                 datasets: [{
                     data: [{{ stats.aFaire|default(0) }}, {{ stats.enCours|default(0) }}, {{ stats.termines|default(0) }}],
-                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981']
+                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
+                    borderWidth: 1,
+                    borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff'
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { position: 'bottom' } }
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } }
+                }
             }
         });
     }
 
-    // Graphique priorité
+    // Graphique 2 : Tâches par priorité (Bar)
     const prioriteCtx = document.getElementById('prioriteChart');
     if (prioriteCtx) {
         new Chart(prioriteCtx, {
             type: 'bar',
             data: {
-                labels: ['Haute', 'Moyenne', 'Basse'],
+                labels: ['High', 'Medium', 'Low'],
                 datasets: [{
-                    label: 'Nombre',
-                    data: [{{ stats.haute|default(0) }}, {{ stats.moyenne|default(0) }}, {{ stats.basse|default(0) }}],
-                    backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6']
+                    label: 'Number of tasks',
+                    data: [
+                        {{ stats.haute|default(0) }},
+                        {{ stats.moyenne|default(0) }},
+                        {{ stats.basse|default(0) }}
+                    ],
+                    backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6'],
+                    borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true } },
-                plugins: { legend: { display: false } }
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } },
+                    x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
         });
     }
