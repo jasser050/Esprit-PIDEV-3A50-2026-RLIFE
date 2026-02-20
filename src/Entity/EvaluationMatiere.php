@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\EvaluationMatiereRepository;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EvaluationMatiereRepository::class)]
@@ -41,9 +43,16 @@ class EvaluationMatiere
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    /**
+     * @var Collection<int, EvalMat>
+     */
+    #[ORM\OneToMany(mappedBy: 'evaluation', targetEntity: EvalMat::class, orphanRemoval: true)]
+    private Collection $evalMats;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->evalMats = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -142,6 +151,35 @@ class EvaluationMatiere
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, EvalMat>
+     */
+    public function getEvalMats(): Collection
+    {
+        return $this->evalMats;
+    }
+
+    public function addEvalMat(EvalMat $evalMat): static
+    {
+        if (!$this->evalMats->contains($evalMat)) {
+            $this->evalMats->add($evalMat);
+            $evalMat->setEvaluation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEvalMat(EvalMat $evalMat): static
+    {
+        if ($this->evalMats->removeElement($evalMat)) {
+            if ($evalMat->getEvaluation() === $this) {
+                $evalMat->setEvaluation(null);
+            }
+        }
+
         return $this;
     }
 }
