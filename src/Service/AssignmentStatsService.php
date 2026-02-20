@@ -10,147 +10,156 @@ class AssignmentStatsService
 {
     public function __construct(
         private AssignmentRepository $assignmentRepository
-    ) {}
+    ) {
+    }
 
-    /**
-     * Récupère toutes les statistiques des assignments d'un utilisateur
-     *
-     * @param User $user
-     * @return array
-     */
     public function getAssignmentStats(User $user): array
     {
-        $total    = $this->assignmentRepository->countByUser($user);
-        $aFaire   = $this->assignmentRepository->countByUserAndStatus($user, 'À faire');
-        $enCours  = $this->assignmentRepository->countByUserAndStatus($user, 'En cours');
-        $termines = $this->assignmentRepository->countByUserAndStatus($user, 'Terminé');
-        $enRetard = count($this->assignmentRepository->findOverdueByUser($user));
+        $assignments = $this->assignmentRepository->findByUser($user);
+        $total = count($assignments);
 
-        // Statistiques par priorité
-        $haute   = $this->assignmentRepository->countByUserAndPriority($user, 'Haute');
-        $moyenne = $this->assignmentRepository->countByUserAndPriority($user, 'Moyenne');
-        $basse   = $this->assignmentRepository->countByUserAndPriority($user, 'Basse');
+        $doneStatuses = ['Termine', 'Terminé', 'TerminÃ©', 'Completed'];
+        $aFaire = 0;
+        $enCours = 0;
+        $termines = 0;
+        $enRetard = 0;
+        $haute = 0;
+        $moyenne = 0;
+        $basse = 0;
+        $statsByStatus = [];
+        $statsByPriority = [];
+        $assignmentsByWeek = [];
+        $today = new \DateTimeImmutable('today');
+        $weekCutoff = $today->modify('-8 weeks');
 
-        // Statistiques par statut pour le graphique
-        $statsByStatus = $this->assignmentRepository->getStatsByStatus($user);
+        foreach ($assignments as $assignment) {
+            $status = (string) ($assignment->getStatut() ?? 'Unknown');
+            $priority = (string) ($assignment->getPriorite() ?? 'Unknown');
 
-        // Statistiques par priorité pour le graphique
-        $statsByPriority = $this->assignmentRepository->getStatsByPriority($user);
+            $statsByStatus[$status] = ($statsByStatus[$status] ?? 0) + 1;
+            $statsByPriority[$priority] = ($statsByPriority[$priority] ?? 0) + 1;
 
-        // Assignments par semaine pour le graphique de progression
-        $assignmentsByWeek = $this->assignmentRepository->getAssignmentsByWeek($user, 8);
+            if ($status === 'À faire' || $status === 'A faire') {
+                $aFaire++;
+            } elseif ($status === 'En cours') {
+                $enCours++;
+            } elseif (in_array($status, $doneStatuses, true)) {
+                $termines++;
+            }
 
-        // Calcul du taux de complétion
+            if ($priority === 'Haute') {
+                $haute++;
+            } elseif ($priority === 'Moyenne') {
+                $moyenne++;
+            } elseif ($priority === 'Basse') {
+                $basse++;
+            }
+
+            $dateFin = $assignment->getDateFin();
+            if (
+                $dateFin instanceof \DateTimeInterface
+                && $dateFin < $today
+                && !in_array($status, $doneStatuses, true)
+            ) {
+                $enRetard++;
+            }
+
+            $dateDebut = $assignment->getDateDebut();
+            if ($dateDebut instanceof \DateTimeInterface && $dateDebut >= $weekCutoff) {
+                $week = $dateDebut->format('o-W');
+                $assignmentsByWeek[$week] = ($assignmentsByWeek[$week] ?? 0) + 1;
+            }
+        }
+
         $tauxCompletion = $total > 0 ? round(($termines / $total) * 100, 2) : 0;
 
-        // Données pour le graphique circulaire (statuts)
         $chartData = [
             'labels' => array_keys($statsByStatus),
-            'data'   => array_values($statsByStatus),
+            'data' => array_values($statsByStatus),
             'colors' => $this->getStatusColors(array_keys($statsByStatus)),
         ];
 
-        // Données pour le graphique de priorités
         $priorityData = [
             'labels' => array_keys($statsByPriority),
-            'data'   => array_values($statsByPriority),
+            'data' => array_values($statsByPriority),
             'colors' => $this->getPriorityColors(array_keys($statsByPriority)),
         ];
 
-        // Données pour le graphique de progression (par semaine)
-        $progressionData = $this->formatProgressionData($assignmentsByWeek);
+        $progressRows = [];
+        ksort($assignmentsByWeek);
+        foreach ($assignmentsByWeek as $week => $count) {
+            $progressRows[] = ['week' => $week, 'count' => $count];
+        }
+
+        $progressionData = $this->formatProgressionData($progressRows);
 
         return [
-            'total'           => $total,
-            'aFaire'          => $aFaire,
-            'enCours'         => $enCours,
-            'termines'        => $termines,
-            'enRetard'        => $enRetard,
-            'haute'           => $haute,
-            'moyenne'         => $moyenne,
-            'basse'           => $basse,
-            'tauxCompletion'  => $tauxCompletion,
-            'chartData'       => $chartData,
-            'priorityData'    => $priorityData,
+            'total' => $total,
+            'aFaire' => $aFaire,
+            'enCours' => $enCours,
+            'termines' => $termines,
+            'enRetard' => $enRetard,
+            'haute' => $haute,
+            'moyenne' => $moyenne,
+            'basse' => $basse,
+            'tauxCompletion' => $tauxCompletion,
+            'chartData' => $chartData,
+            'priorityData' => $priorityData,
             'progressionData' => $progressionData,
-            'statsByStatus'   => $statsByStatus,
+            'statsByStatus' => $statsByStatus,
             'statsByPriority' => $statsByPriority,
         ];
     }
 
-    /**
-     * Récupère les statistiques d'un assignment spécifique
-     *
-     * @param Assignment $assignment
-     * @return array
-     */
     public function getSingleAssignmentStats(Assignment $assignment): array
     {
         $now = new \DateTime();
         $dateDebut = $assignment->getDateDebut();
         $dateFin = $assignment->getDateFin();
 
-        // Calcul de la durée totale
         $dureeTotale = $dateDebut && $dateFin ? $dateDebut->diff($dateFin)->days : 0;
-
-        // Calcul du temps écoulé
         $tempsEcoule = $dateDebut ? $dateDebut->diff($now)->days : 0;
-
-        // Calcul du pourcentage de progression temporelle
-        $pourcentageTemps = $dureeTotale > 0
-            ? min(100, round(($tempsEcoule / $dureeTotale) * 100, 2))
-            : 0;
-
-        // Nombre de jours restants
+        $pourcentageTemps = $dureeTotale > 0 ? min(100, round(($tempsEcoule / $dureeTotale) * 100, 2)) : 0;
         $joursRestants = $dateFin ? max(0, $now->diff($dateFin)->days) : 0;
-
-        // Statut de l'assignment
-        $estEnRetard = $dateFin && $now > $dateFin && $assignment->getStatut() !== 'Terminé';
+        $estEnRetard = $dateFin && $now > $dateFin && !in_array((string) $assignment->getStatut(), ['Termine', 'Terminé', 'TerminÃ©', 'Completed'], true);
 
         return [
-            'dureeTotale'      => $dureeTotale,
-            'tempsEcoule'      => $tempsEcoule,
+            'dureeTotale' => $dureeTotale,
+            'tempsEcoule' => $tempsEcoule,
             'pourcentageTemps' => $pourcentageTemps,
-            'joursRestants'    => $joursRestants,
-            'estEnRetard'      => $estEnRetard,
+            'joursRestants' => $joursRestants,
+            'estEnRetard' => $estEnRetard,
         ];
     }
 
-    /**
-     * Retourne les couleurs associées aux statuts
-     *
-     * @param array $statuts
-     * @return array
-     */
     private function getStatusColors(array $statuts): array
     {
         $colorMap = [
-            'À faire'  => '#f59e0b',  // Orange/Warning
-            'En cours' => '#3b82f6',  // Bleu/Primary
-            'Terminé'  => '#10b981',  // Vert/Success
-            'Annulé'   => '#ef4444',  // Rouge/Danger
+            'À faire' => '#f59e0b',
+            'A faire' => '#f59e0b',
+            'En cours' => '#3b82f6',
+            'TerminÃ©' => '#10b981',
+            'Terminé' => '#10b981',
+            'Termine' => '#10b981',
+            'Completed' => '#10b981',
+            'AnnulÃ©' => '#ef4444',
+            'Annulé' => '#ef4444',
         ];
 
         $colors = [];
         foreach ($statuts as $statut) {
-            $colors[] = $colorMap[$statut] ?? '#6b7280'; // Couleur par défaut
+            $colors[] = $colorMap[$statut] ?? '#6b7280';
         }
 
         return $colors;
     }
 
-    /**
-     * Retourne les couleurs associées aux priorités
-     *
-     * @param array $priorites
-     * @return array
-     */
     private function getPriorityColors(array $priorites): array
     {
         $colorMap = [
-            'Haute'   => '#ef4444',  // Rouge
-            'Moyenne' => '#f59e0b',  // Orange
-            'Basse'   => '#3b82f6',  // Bleu
+            'Haute' => '#ef4444',
+            'Moyenne' => '#f59e0b',
+            'Basse' => '#3b82f6',
         ];
 
         $colors = [];
@@ -161,33 +170,25 @@ class AssignmentStatsService
         return $colors;
     }
 
-    /**
-     * Formate les données de progression par semaine
-     *
-     * @param array $assignmentsByWeek
-     * @return array
-     */
     private function formatProgressionData(array $assignmentsByWeek): array
     {
         $labels = [];
         $data = [];
 
         foreach ($assignmentsByWeek as $row) {
-            // Format: YYYY-WW (année-semaine)
-            $weekParts = explode('-', $row['week']);
+            $weekParts = explode('-', (string) $row['week']);
             if (count($weekParts) === 2) {
-                $year = $weekParts[0];
-                $week = $weekParts[1];
-                $labels[] = "S{$week}/{$year}";
+                $labels[] = 'S' . $weekParts[1] . '/' . $weekParts[0];
             } else {
-                $labels[] = $row['week'];
+                $labels[] = (string) $row['week'];
             }
             $data[] = (int) $row['count'];
         }
 
         return [
             'labels' => $labels,
-            'data'   => $data,
+            'data' => $data,
         ];
     }
 }
+

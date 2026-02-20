@@ -14,7 +14,7 @@ class CoinTransaction
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'coinTransactions')] // ← AJOUT : inversedBy pour bi-directionnalité
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

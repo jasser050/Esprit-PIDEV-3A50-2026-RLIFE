@@ -1,4 +1,4 @@
-{# templates/project/show.html.twig #}
+﻿{# templates/project/show.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ project.titre }}{% endblock %}
@@ -19,7 +19,7 @@
         <div class="flex-1">
             <div class="flex items-center gap-3 mb-2">
                 <h1 class="text-2xl font-bold">{{ project.titre }}</h1>
-                <span class="badge badge-{{ project.statut == 'En cours' ? 'primary' : (project.statut == 'Terminé' ? 'success' : (project.statut == 'En attente' ? 'warning' : 'danger')) }}">
+                <span class="badge badge-{{ project.statut == 'En cours' ? 'primary' : (project.statut == 'TerminÃ©' ? 'success' : (project.statut == 'En attente' ? 'warning' : 'danger')) }}">
                     {{ project.statut }}
                 </span>
                 {% if project.user.id != app.user.id %}
@@ -91,7 +91,7 @@
         <p class="text-right text-sm font-medium">{{ projectStats.pourcentageTemps }}% completed</p>
     </div>
 
-    <!-- Détails -->
+    <!-- DÃ©tails -->
     <div class="card p-6">
         <h2 class="text-lg font-semibold mb-4">Project Details</h2>
         <dl class="space-y-4">
@@ -105,12 +105,12 @@
             </div>
             <div>
                     <dt class="text-sm text-secondary-500 dark:text-secondary-400">Created On</dt>
-                <dd class="font-medium">{{ project.createdAt|date('d/m/Y à H:i') }}</dd>
+                <dd class="font-medium">{{ project.createdAt|date('d/m/Y Ã  H:i') }}</dd>
             </div>
             {% if project.updatedAt %}
                 <div>
                     <dt class="text-sm text-secondary-500 dark:text-secondary-400">Modified On</dt>
-                    <dd class="font-medium">{{ project.updatedAt|date('d/m/Y à H:i') }}</dd>
+                    <dd class="font-medium">{{ project.updatedAt|date('d/m/Y Ã  H:i') }}</dd>
                 </div>
             {% endif %}
         </dl>
@@ -124,7 +124,7 @@
                 <h2 class="text-lg font-semibold">Project Sharing</h2>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Share this project with other users</p>
             </div>
-            <span class="badge badge-primary">{{ project.shares|length }} shared</span>
+            <span class="badge badge-primary">{{ shares|default([])|length }} shared</span>
         </div>
 
         <!-- Share Form -->
@@ -144,9 +144,9 @@
         </form>
 
         <!-- Shared Users List -->
-        {% if project.shares|length > 0 %}
+        {% if shares|default([])|length > 0 %}
             <div class="space-y-3">
-                {% for share in project.shares %}
+                {% for share in shares %}
                     <div class="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-medium">
@@ -154,10 +154,10 @@
                             </div>
                             <div>
                                 <p class="font-medium">{{ share.sharedWithUser.fullName }}</p>
-                                <p class="text-sm text-secondary-500">Shared by {{ share.sharedByUser.fullName }} • {{ share.role|capitalize }}</p>
+                                <p class="text-sm text-secondary-500">Shared by {{ share.sharedByUser.fullName }} â€¢ {{ share.role|capitalize }}</p>
                             </div>
                         </div>
-                        <form method="post" action="{{ path('app_project_remove_share', {'projectId': project.id, 'shareId': share.id}) }}" onsubmit="return confirm('Remove this share?');">
+                        <form method="post" action="{{ path('app_project_remove_share', {'projectId': project.id, 'shareId': share.id}) }}" data-confirm="Remove this share?">
                             <input type="hidden" name="_token" value="{{ csrf_token('remove-share' ~ share.id) }}">
                             <button type="submit" class="text-danger-500 hover:text-danger-700 p-2">
                                 <i data-lucide="x" class="w-5 h-5"></i>
@@ -172,7 +172,7 @@
     </div>
     {% endif %}
 
-    <!-- Tâches associées -->
+    <!-- TÃ¢ches associÃ©es -->
     <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold">Associated Tasks</h2>
@@ -191,7 +191,7 @@
                                 <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-2">{{ assignment.description }}</p>
                                 <div class="text-xs text-secondary-500 dark:text-secondary-400 flex gap-4">
                                     <span><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>{{ assignment.dateFin|date('d/m/Y') }}</span>
-                                    <span class="badge badge-{{ assignment.statut == 'Terminé' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
+                                    <span class="badge badge-{{ assignment.statut == 'TerminÃ©' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
                                         {{ assignment.statut }}
                                     </span>
                                 </div>
@@ -242,15 +242,15 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
   lucide.createIcons();
-  
+
   function confirmDelete() {
     document.getElementById('delete-modal').classList.remove('hidden');
   }
-  
+
   function closeModal() {
     document.getElementById('delete-modal').classList.add('hidden');
   }
-  
+
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeModal();

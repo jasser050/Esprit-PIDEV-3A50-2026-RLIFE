@@ -10,40 +10,66 @@ class ProjectStatsService
 {
     public function __construct(
         private ProjectRepository $projectRepository
-    ) {}
+    ) {
+    }
 
-    /**
-     * Récupère toutes les statistiques des projets d'un utilisateur
-     *
-     * @param User $user
-     * @return array
-     */
     public function getProjectStats(User $user): array
     {
-        $total = $this->projectRepository->countByUser($user);
-        $enCours = $this->projectRepository->countByUserAndStatus($user, 'En cours');
-        $termines = $this->projectRepository->countByUserAndStatus($user, 'Terminé');
-        $enAttente = $this->projectRepository->countByUserAndStatus($user, 'En attente');
-        $enRetard = count($this->projectRepository->findOverdueByUser($user));
+        $projects = $this->projectRepository->findByUser($user);
+        $total = count($projects);
 
-        // Statistiques par statut pour le graphique
-        $statsByStatus = $this->projectRepository->getStatsByStatus($user);
+        $doneStatuses = ['Termine', 'Terminé', 'TerminÃ©', 'Completed'];
+        $enCours = 0;
+        $termines = 0;
+        $enAttente = 0;
+        $enRetard = 0;
+        $statsByStatus = [];
+        $projectsByMonth = [];
+        $today = new \DateTimeImmutable('today');
 
-        // Projets par mois pour le graphique de progression
-        $projectsByMonth = $this->projectRepository->getProjectsByMonth($user, 6);
+        foreach ($projects as $project) {
+            $status = (string) ($project->getStatut() ?? 'Unknown');
+            $statsByStatus[$status] = ($statsByStatus[$status] ?? 0) + 1;
 
-        // Calcul du taux de complétion
+            if ($status === 'En cours') {
+                $enCours++;
+            } elseif (in_array($status, $doneStatuses, true)) {
+                $termines++;
+            } elseif ($status === 'En attente') {
+                $enAttente++;
+            }
+
+            $dateFin = $project->getDateFin();
+            if (
+                $dateFin instanceof \DateTimeInterface
+                && $dateFin < $today
+                && !in_array($status, $doneStatuses, true)
+            ) {
+                $enRetard++;
+            }
+
+            $createdAt = $project->getCreatedAt();
+            if ($createdAt instanceof \DateTimeInterface) {
+                $month = $createdAt->format('Y-m');
+                $projectsByMonth[$month] = ($projectsByMonth[$month] ?? 0) + 1;
+            }
+        }
+
         $tauxCompletion = $total > 0 ? round(($termines / $total) * 100, 2) : 0;
 
-        // Données pour le graphique circulaire (statuts)
         $chartData = [
             'labels' => array_keys($statsByStatus),
             'data' => array_values($statsByStatus),
             'colors' => $this->getStatusColors(array_keys($statsByStatus)),
         ];
 
-        // Données pour le graphique de progression (par mois)
-        $progressionData = $this->formatProgressionData($projectsByMonth);
+        $progressRows = [];
+        ksort($projectsByMonth);
+        foreach ($projectsByMonth as $month => $count) {
+            $progressRows[] = ['month' => $month, 'count' => $count];
+        }
+
+        $progressionData = $this->formatProgressionData($progressRows);
 
         return [
             'total' => $total,
@@ -58,36 +84,17 @@ class ProjectStatsService
         ];
     }
 
-    /**
-     * Récupère les statistiques d'un projet spécifique
-     *
-     * @param Project $project
-     * @return array
-     */
     public function getSingleProjectStats(Project $project): array
     {
         $now = new \DateTime();
         $dateDebut = $project->getDateDebut();
         $dateFin = $project->getDateFin();
 
-        // Calcul de la durée totale
         $dureeTotale = $dateDebut && $dateFin ? $dateDebut->diff($dateFin)->days : 0;
-
-        // Calcul du temps écoulé
         $tempsEcoule = $dateDebut ? $dateDebut->diff($now)->days : 0;
-
-        // Calcul du pourcentage de progression temporelle
-        $pourcentageTemps = $dureeTotale > 0 
-            ? min(100, round(($tempsEcoule / $dureeTotale) * 100, 2)) 
-            : 0;
-
-        // Nombre de jours restants
+        $pourcentageTemps = $dureeTotale > 0 ? min(100, round(($tempsEcoule / $dureeTotale) * 100, 2)) : 0;
         $joursRestants = $dateFin ? max(0, $now->diff($dateFin)->days) : 0;
-
-        // Statut du projet
-        $estEnRetard = $dateFin && $now > $dateFin && $project->getStatut() !== 'Terminé';
-
-        // Nombre d'assignments
+        $estEnRetard = $dateFin && $now > $dateFin && !in_array((string) $project->getStatut(), ['Termine', 'Terminé', 'TerminÃ©', 'Completed'], true);
         $nombreAssignments = count($project->getAssignments());
 
         return [
@@ -100,44 +107,36 @@ class ProjectStatsService
         ];
     }
 
-    /**
-     * Retourne les couleurs associées aux statuts
-     *
-     * @param array $statuts
-     * @return array
-     */
     private function getStatusColors(array $statuts): array
     {
         $colorMap = [
-            'En cours' => '#3b82f6',      // Bleu
-            'Terminé' => '#10b981',       // Vert
-            'En attente' => '#f59e0b',    // Orange
-            'Annulé' => '#ef4444',        // Rouge
-            'En pause' => '#6b7280',      // Gris
+            'En cours' => '#3b82f6',
+            'TerminÃ©' => '#10b981',
+            'Terminé' => '#10b981',
+            'Termine' => '#10b981',
+            'Completed' => '#10b981',
+            'En attente' => '#f59e0b',
+            'AnnulÃ©' => '#ef4444',
+            'Annulé' => '#ef4444',
+            'En pause' => '#6b7280',
         ];
 
         $colors = [];
         foreach ($statuts as $statut) {
-            $colors[] = $colorMap[$statut] ?? '#94a3b8'; // Couleur par défaut
+            $colors[] = $colorMap[$statut] ?? '#94a3b8';
         }
 
         return $colors;
     }
 
-    /**
-     * Formate les données de progression par mois
-     *
-     * @param array $projectsByMonth
-     * @return array
-     */
     private function formatProgressionData(array $projectsByMonth): array
     {
         $labels = [];
         $data = [];
 
         foreach ($projectsByMonth as $row) {
-            $date = \DateTime::createFromFormat('Y-m', $row['month']);
-            $labels[] = $date ? $date->format('M Y') : $row['month'];
+            $date = \DateTime::createFromFormat('Y-m', (string) $row['month']);
+            $labels[] = $date ? $date->format('M Y') : (string) $row['month'];
             $data[] = (int) $row['count'];
         }
 
@@ -147,3 +146,4 @@ class ProjectStatsService
         ];
     }
 }
+

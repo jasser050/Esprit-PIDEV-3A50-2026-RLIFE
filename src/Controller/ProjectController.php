@@ -13,7 +13,7 @@ use App\Repository\AssignmentRepository;
 use App\Repository\UserRepository;
 use App\Service\ProjectPdfService;
 use App\Service\ProjectStatsService;
-use App\Service\PusherService;
+use App\Service\NotificationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,7 +36,7 @@ class ProjectController extends AbstractController
         $statut    = $request->query->getString('statut', '');
         $search    = $request->query->getString('search', '');
 
-        // Liste des champs autorisés pour éviter les injections
+        // List of allowed fields to prevent injections
         $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
 
         if (!in_array($sort, $allowedSortFields, true)) {
@@ -45,7 +45,7 @@ class ProjectController extends AbstractController
 
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
-        // Récupération des projets avec filtres
+        // Retrieve projects with filters
         $projects = $projectRepository->findByUserWithFilters(
             user: $this->getUser(),
             sort: $sort,
@@ -77,12 +77,27 @@ class ProjectController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (trim((string) $project->getTitre()) === '') {
+                $this->addFlash('error', 'Project title is required.');
+                return $this->render('pages/projects/new.html.twig', [
+                    'project' => $project,
+                    'form' => $form,
+                ]);
+            }
+
+            if ($project->getDateFin() === null) {
+                $project->setDateFin($project->getDateDebut() ?? new \DateTimeImmutable('today'));
+            }
+            if ($project->getDateDebut() === null) {
+                $project->setDateDebut($project->getDateFin() ?? new \DateTimeImmutable('today'));
+            }
+
             $project->setUser($this->getUser());
 
             $entityManager->persist($project);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet créé avec succès !');
+            $this->addFlash('success', 'Project created successfully!');
 
             return $this->redirectToRoute('app_project_index');
         }
@@ -97,18 +112,24 @@ class ProjectController extends AbstractController
     public function show(
         Project $project,
         AssignmentRepository $assignmentRepository,
+        ProjectShareRepository $shareRepository,
         ProjectStatsService $statsService
     ): Response {
-        if ($project->getUser() !== $this->getUser()) {
+        $isOwner = $project->getUser() === $this->getUser();
+        $hasAccess = $shareRepository->hasAccess($project, $this->getUser());
+
+        if (!$isOwner && !$hasAccess) {
             throw $this->createAccessDeniedException();
         }
 
         $assignments = $assignmentRepository->findByProject($project);
+        $shares = $shareRepository->findByProject($project);
         $projectStats = $statsService->getSingleProjectStats($project);
 
         return $this->render('pages/projects/show.html.twig', [
             'project'      => $project,
             'assignments'  => $assignments,
+            'shares'       => $shares,
             'projectStats' => $projectStats,
         ]);
     }
@@ -127,9 +148,24 @@ class ProjectController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (trim((string) $project->getTitre()) === '') {
+                $this->addFlash('error', 'Project title is required.');
+                return $this->render('pages/projects/edit.html.twig', [
+                    'project' => $project,
+                    'form' => $form,
+                ]);
+            }
+
+            if ($project->getDateFin() === null) {
+                $project->setDateFin($project->getDateDebut() ?? new \DateTimeImmutable('today'));
+            }
+            if ($project->getDateDebut() === null) {
+                $project->setDateDebut($project->getDateFin() ?? new \DateTimeImmutable('today'));
+            }
+
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet modifié avec succès !');
+            $this->addFlash('success', 'Project updated successfully!');
 
             return $this->redirectToRoute('app_project_index');
         }
@@ -154,7 +190,7 @@ class ProjectController extends AbstractController
             $entityManager->remove($project);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Projet supprimé avec succès !');
+            $this->addFlash('success', 'Project deleted successfully!');
         }
 
         return $this->redirectToRoute('app_project_index');
@@ -200,7 +236,7 @@ class ProjectController extends AbstractController
         ProjectStatsService $statsService
     ): Response {
         $stats = $statsService->getProjectStats($this->getUser());
-        
+
         return $this->json([
             'total' => $stats['total'],
             'enCours' => $stats['enCours'],
@@ -218,7 +254,7 @@ class ProjectController extends AbstractController
         UserRepository $userRepository,
         ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager,
-        PusherService $pusherService
+        NotificationManager $notificationManager
     ): Response {
         // Security check - only project owner can share
         if ($project->getUser() !== $this->getUser()) {
@@ -257,13 +293,12 @@ class ProjectController extends AbstractController
         $entityManager->persist($projectShare);
         $entityManager->flush();
 
-        // Send real-time notification via Pusher
-        $pusherService->notifyUserProjectShared(
-            $userToShare->getId(),
-            $project->getId(),
-            $project->getTitre(),
-            $this->getUser()->getFullName() ?? $this->getUser()->getEmail(),
-            $role
+        $notificationManager->createNotification(
+            $userToShare,
+            'Project shared with you',
+            sprintf('%s shared "%s" with you.', $this->getUser()->getFullName() ?? $this->getUser()->getEmail(), $project->getTitre()),
+            'project_shared',
+            $this->generateUrl('app_project_show', ['id' => $project->getId()])
         );
 
         $this->addFlash('success', 'Project shared successfully!');

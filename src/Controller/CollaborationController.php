@@ -8,7 +8,7 @@ use App\Entity\Project;
 use App\Repository\AssignmentCollaboratorRepository;
 use App\Repository\ProjectShareRepository;
 use App\Repository\UserRepository;
-use App\Service\PusherService;
+use App\Service\NotificationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +32,7 @@ class CollaborationController extends AbstractController
         UserRepository $userRepository,
         AssignmentCollaboratorRepository $collaboratorRepository,
         ProjectShareRepository $shareRepository,
-        PusherService $pusherService
+        NotificationManager $notificationManager
     ): Response {
         // Security check - only assignment owner can assign
         if ($assignment->getUser() !== $this->getUser()) {
@@ -75,12 +75,12 @@ class CollaborationController extends AbstractController
         $entityManager->persist($collaborator);
         $entityManager->flush();
 
-        // Send real-time notification
-        $pusherService->notifyUserTaskAssigned(
-            $userToAssign->getId(),
-            $assignment->getId(),
-            $assignment->getTitre(),
-            $this->getUser()->getFullName() ?? $this->getUser()->getEmail()
+        $notificationManager->createNotification(
+            $userToAssign,
+            'Task assigned to you',
+            sprintf('%s assigned you "%s".', $this->getUser()->getFullName() ?? $this->getUser()->getEmail(), $assignment->getTitre()),
+            'task_assigned',
+            $this->generateUrl('app_assignments_show', ['id' => $assignment->getId()])
         );
 
         $this->addFlash('success', 'Task assigned successfully!');

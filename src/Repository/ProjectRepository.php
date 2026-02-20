@@ -18,73 +18,55 @@ class ProjectRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère tous les projets d'un utilisateur avec filtres
-     * Inclut les projets créés par l'utilisateur ET les projets partagés avec lui
-     *
-     * @param User $user
-     * @param string $sort
-     * @param string $direction
-     * @param string $statut
-     * @param string $search
+     * @return Project[]
+     */
+    public function findByUser(User $user): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('p.dateFin', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @return Project[]
      */
     public function findByUserWithFilters(
-        User $user, 
-        string $sort = 'createdAt', 
+        User $user,
+        string $sort = 'createdAt',
         string $direction = 'DESC',
         string $statut = '',
         string $search = ''
     ): array {
-        $qb = $this->createQueryBuilder('p')
-            ->leftJoin('p.shares', 'ps')
-            ->addSelect('ps')
-            ->andWhere('p.user = :user OR (ps.sharedWithUser = :user)')
-            ->setParameter('user', $user);
-
-        // Filtre par statut
-        if (!empty($statut)) {
-            $qb->andWhere('p.statut = :statut')
-               ->setParameter('statut', $statut);
-        }
-
-        // Recherche par titre ou description
-        if (!empty($search)) {
-            $qb->andWhere('p.titre LIKE :search OR p.description LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
-        }
-
-        // Security: only allow known sortable fields
-        $allowedFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
-
-        if (!in_array($sort, $allowedFields, true)) {
+        $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'statut', 'createdAt'];
+        if (!in_array($sort, $allowedSortFields, true)) {
             $sort = 'createdAt';
         }
 
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
-        $qb->orderBy('p.' . $sort, $direction);
+        $qb = $this->createQueryBuilder('p')
+            ->andWhere('p.user = :user')
+            ->setParameter('user', $user);
 
-        return $qb->getQuery()->getResult();
+        if ($statut !== '') {
+            $qb->andWhere('p.statut = :statut')
+                ->setParameter('statut', $statut);
+        }
+
+        if ($search !== '') {
+            $qb->andWhere('p.titre LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        return $qb->orderBy('p.' . $sort, $direction)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
-     * Récupère tous les projets d'un utilisateur, triés
-     *
-     * @param User $user
-     * @param string $sort
-     * @param string $direction
-     * @return Project[]
-     */
-    public function findByUser(User $user, string $sort = 'createdAt', string $direction = 'DESC'): array
-    {
-        return $this->findByUserWithFilters($user, $sort, $direction);
-    }
-
-    /**
-     * Récupère les projets d'un utilisateur selon un statut donné
-     *
-     * @param User $user
-     * @param string $statut
      * @return Project[]
      */
     public function findByUserAndStatus(User $user, string $statut): array
@@ -94,17 +76,11 @@ class ProjectRepository extends ServiceEntityRepository
             ->andWhere('p.statut = :statut')
             ->setParameter('user', $user)
             ->setParameter('statut', $statut)
-            ->orderBy('p.createdAt', 'DESC')
+            ->orderBy('p.dateFin', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Compte le nombre total de projets d'un utilisateur
-     *
-     * @param User $user
-     * @return int
-     */
     public function countByUser(User $user): int
     {
         return (int) $this->createQueryBuilder('p')
@@ -115,13 +91,6 @@ class ProjectRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
-    /**
-     * Compte les projets par statut
-     *
-     * @param User $user
-     * @param string $statut
-     * @return int
-     */
     public function countByUserAndStatus(User $user, string $statut): int
     {
         return (int) $this->createQueryBuilder('p')
@@ -135,133 +104,98 @@ class ProjectRepository extends ServiceEntityRepository
     }
 
     /**
-     * Récupère les projets à venir (non terminés et date de fin ≥ aujourd'hui)
-     *
-     * @param User $user
      * @return Project[]
      */
     public function findUpcomingByUser(User $user): array
     {
-        $today = new \DateTime('today');
-
         return $this->createQueryBuilder('p')
             ->andWhere('p.user = :user')
-            ->andWhere('p.statut != :statut')
-            ->andWhere('p.dateFin >= :today OR p.dateFin IS NULL')
+            ->andWhere('p.statut NOT IN (:doneStatuses)')
+            ->andWhere('p.dateFin >= :today')
             ->setParameter('user', $user)
-            ->setParameter('statut', 'Terminé')
-            ->setParameter('today', $today)
+            ->setParameter('doneStatuses', ['Termine', 'Terminé', 'TerminÃ©', 'Completed'])
+            ->setParameter('today', new \DateTime('today'))
             ->orderBy('p.dateFin', 'ASC')
-            ->addOrderBy('p.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * Récupère les projets terminés d'un utilisateur
-     *
-     * @param User $user
-     * @return Project[]
-     */
-    public function findCompletedByUser(User $user): array
-    {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
-            ->andWhere('p.statut = :statut')
-            ->setParameter('user', $user)
-            ->setParameter('statut', 'Terminé')
-            ->orderBy('p.dateFin', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Récupère les projets en retard (dateFin passée et non terminé)
-     *
-     * @param User $user
      * @return Project[]
      */
     public function findOverdueByUser(User $user): array
     {
-        $today = new \DateTime('today');
-
         return $this->createQueryBuilder('p')
             ->andWhere('p.user = :user')
-            ->andWhere('p.statut != :statut')
+            ->andWhere('p.statut NOT IN (:doneStatuses)')
             ->andWhere('p.dateFin < :today')
             ->setParameter('user', $user)
-            ->setParameter('statut', 'Terminé')
-            ->setParameter('today', $today)
+            ->setParameter('doneStatuses', ['Termine', 'Terminé', 'TerminÃ©', 'Completed'])
+            ->setParameter('today', new \DateTime('today'))
             ->orderBy('p.dateFin', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * Récupère les statistiques par statut pour un utilisateur
-     *
-     * @param User $user
-     * @return array
+     * @return array<string, int>
      */
     public function getStatsByStatus(User $user): array
     {
-        $result = $this->createQueryBuilder('p')
-            ->select('p.statut, COUNT(p.id) as count')
+        $rows = $this->createQueryBuilder('p')
+            ->select('p.statut AS statut, COUNT(p.id) AS cnt')
             ->andWhere('p.user = :user')
             ->setParameter('user', $user)
             ->groupBy('p.statut')
             ->getQuery()
-            ->getResult();
+            ->getArrayResult();
 
         $stats = [];
-        foreach ($result as $row) {
-            $stats[$row['statut']] = (int) $row['count'];
+        foreach ($rows as $row) {
+            $label = (string) ($row['statut'] ?? 'Unknown');
+            $stats[$label] = (int) ($row['cnt'] ?? 0);
         }
 
         return $stats;
     }
 
     /**
-     * Récupère les projets créés par mois (pour graphique)
-     *
-     * @param User $user
-     * @param int $months Nombre de mois à afficher
-     * @return array
+     * @return array<int, array{month:string,count:int}>
      */
     public function getProjectsByMonth(User $user, int $months = 6): array
     {
-        $startDate = new \DateTime("-{$months} months");
-        
-        $results = $this->createQueryBuilder('p')
-            ->select('p.createdAt, COUNT(p.id) as count')
+        $start = (new \DateTimeImmutable('first day of this month'))->modify('-' . max(1, $months - 1) . ' months');
+
+        $projects = $this->createQueryBuilder('p')
             ->andWhere('p.user = :user')
-            ->andWhere('p.createdAt >= :startDate')
+            ->andWhere('p.createdAt >= :start')
             ->setParameter('user', $user)
-            ->setParameter('startDate', $startDate)
-            ->groupBy('p.createdAt')
+            ->setParameter('start', $start)
             ->orderBy('p.createdAt', 'ASC')
             ->getQuery()
             ->getResult();
-        
-        // Aggregate by month
-        $monthlyData = [];
-        foreach ($results as $result) {
-            $month = $result['createdAt']->format('Y-m');
-            if (!isset($monthlyData[$month])) {
-                $monthlyData[$month] = 0;
+
+        $grouped = [];
+        foreach ($projects as $project) {
+            $createdAt = $project->getCreatedAt();
+            if (!$createdAt instanceof \DateTimeInterface) {
+                continue;
             }
-            $monthlyData[$month] += (int)$result['count'];
+
+            $month = $createdAt->format('Y-m');
+            $grouped[$month] = ($grouped[$month] ?? 0) + 1;
         }
-        
-        // Convert to array of objects
-        $formatted = [];
-        foreach ($monthlyData as $month => $count) {
-            $formatted[] = [
-                'month' => $month,
-                'count' => $count
+
+        ksort($grouped);
+
+        $result = [];
+        foreach ($grouped as $month => $count) {
+            $result[] = [
+                'month' => (string) $month,
+                'count' => (int) $count,
             ];
         }
-        
-        return $formatted;
+
+        return $result;
     }
 }

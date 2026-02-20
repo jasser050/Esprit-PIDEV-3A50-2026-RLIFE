@@ -16,7 +16,7 @@ class AssignmentCollaborator
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Assignment::class, inversedBy: 'collaborators')]
+    #[ORM\ManyToOne(targetEntity: Assignment::class)]
     #[ORM\JoinColumn(name: 'assignment_id', nullable: false, onDelete: 'CASCADE')]
     private ?Assignment $assignment = null;
 
