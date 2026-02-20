@@ -170,10 +170,4 @@ class PublicController extends AbstractController
     {
         return $this->render('pages/auth/welcome.html.twig');
     }
-
-    #[Route('/cursor-test', name: 'app_cursor_test')]
-    public function cursorTest(): Response
-    {
-        return $this->render('pages/cursor-test.html.twig');
-    }
 }
