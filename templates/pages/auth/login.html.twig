@@ -2,26 +2,10 @@
 
 {% block title %}Sign in{% endblock %}
 
-{% block styles %}
-{{ parent() }}
-<style>
-    spline-viewer {
-        width: 100% !important;
-        height: 100% !important;
-        background: transparent !important;
-    }
-    
-    /* Ensure proper layering */
-    .spline-viewer {
-        z-index: 1 !important;
-    }
-</style>
-{% endblock %}
-
 {% block body %}
-<div class="min-h-screen flex dark" data-controller="theme password">
+<div class="min-h-screen flex" data-controller="theme password">
     <!-- Left Panel - Form -->
-    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900">
+    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-white dark:bg-slate-900">
         <div class="w-full max-w-[440px] mx-auto">
             <!-- Logo and back link -->
             <div class="mb-8">
@@ -31,7 +15,7 @@
                 </a>
 
                 <a href="{{ path('app_landing') }}" class="flex items-center gap-2.5 mb-2">
-                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
+                    <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-10 h-10 rounded-xl shadow-lg object-cover">
                     <span class="text-xl font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                 </a>
             </div>
@@ -86,28 +70,49 @@
             </div>
 
             <!-- Login Form -->
-            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <form action="{{ path('app_login') }}" method="POST" class="space-y-5">
+                <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
                 
                 <!-- Email -->
                 <div>
-                    {{ form_label(form._username, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5'}}) }}
+                    <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                        Email address
+                    </label>
                     <div class="relative">
-                        {{ form_widget(form._username, {'attr': {'class': 'block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors'}}) }}
+                        <input
+                            type="email"
+                            id="email"
+                            name="_username"
+                            value="{{ last_username|default('') }}"
+                            required
+                            autocomplete="email"
+                            placeholder="you@university.edu"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
                     </div>
-                    {{ form_errors(form._username, {'attr': {'class': 'text-sm text-danger-600 dark:text-danger-400 mt-1'}}) }}
                 </div>
 
                 <!-- Password -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
-                        {{ form_label(form._password, null, {'label_attr': {'class': 'block text-sm font-medium text-slate-700 dark:text-slate-300'}}) }}
-                        <a href="{{ path('app_forgot_password') }}" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
+                        <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Password
+                        </label>
+                        <a href="#" class="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
                             Forgot password?
                         </a>
                     </div>
                     <div class="relative" data-password-target="container">
-                        {{ form_widget(form._password, {'attr': {'class': 'block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors', 'data-password-target': 'input'}}) }}
+                        <input
+                            type="password"
+                            id="password"
+                            name="_password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                            data-password-target="input"
+                            class="block w-full px-4 py-3 pr-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors"
+                        >
                         <button
                             type="button"
                             data-password-target="toggle"
@@ -119,13 +124,19 @@
                             <i data-lucide="eye-off" class="w-5 h-5 icon-hide hidden"></i>
                         </button>
                     </div>
-                    {{ form_errors(form._password, {'attr': {'class': 'text-sm text-danger-600 dark:text-danger-400 mt-1'}}) }}
                 </div>
 
                 <!-- Remember me -->
                 <div class="flex items-center gap-3">
-                    {{ form_widget(form.remember, {'attr': {'class': 'w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800'}}) }}
-                    {{ form_label(form.remember, null, {'label_attr': {'class': 'text-sm text-slate-600 dark:text-slate-300'}}) }}
+                    <input
+                        type="checkbox"
+                        id="remember"
+                        name="remember"
+                        class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 bg-slate-50 dark:bg-slate-800"
+                    >
+                    <label for="remember" class="text-sm text-slate-600 dark:text-slate-300">
+                        Remember me for 30 days
+                    </label>
                 </div>
 
                 <!-- Submit -->
@@ -136,7 +147,7 @@
                     Sign in
                     <i data-lucide="arrow-right" class="w-5 h-5"></i>
                 </button>
-            {{ form_end(form) }}
+            </form>
 
             <!-- Divider -->
             <div class="relative my-8">
@@ -144,13 +155,13 @@
                     <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-slate-900 text-slate-400">or continue with</span>
+                    <span class="px-4 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400">or continue with</span>
                 </div>
             </div>
 
             <!-- Social Login -->
-            <a
-                href="{{ path('connect_google_start') }}"
+            <button
+                type="button"
                 class="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-colors"
             >
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -160,110 +171,9 @@
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 Continue with Google
-            </a>
+            </button>
 
-            <!-- Face ID Divider -->
-            <div class="relative my-6">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-slate-900 text-slate-400">or use Face ID</span>
-                </div>
-            </div>
-
-            <!-- Face ID Login Panel -->
-            <div id="faceid-panel">
-                <div id="faceid-trigger">
-                    <button
-                        type="button"
-                        onclick="initFaceLogin()"
-                        class="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-300 dark:hover:border-indigo-700 text-slate-700 dark:text-slate-200 font-medium rounded-xl transition-all"
-                    >
-                        <div class="w-5 h-5 rounded-full flex items-center justify-center" style="background: linear-gradient(135deg, #6366f1, #a855f7);">
-                            <i data-lucide="scan-face" class="w-3 h-3 text-white"></i>
-                        </div>
-                        Login with Face ID
-                    </button>
-                </div>
-
-                <div id="faceid-camera-panel" class="hidden mt-3">
-                    <div class="p-5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl">
-                        <!--
-                            Chrome/Windows GPU compositing bug: overflow:hidden + border-radius on a
-                            video parent causes black frames. Fix: use clip-path:circle() on the video
-                            itself; decorative ring is a separate pointer-events:none border overlay.
-                        -->
-                        <!-- Outer wrapper: holds ring + status dot, no overflow clipping -->
-                        <div class="relative mx-auto mb-4" style="width:166px;height:166px;">
-
-                            <!-- Gradient ring as padding-based wrapper -->
-                            <div id="login-face-ring" style="position:absolute;inset:0;border-radius:50%;padding:3px;background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);animation:loginRingPulse 2.5s ease-in-out infinite;">
-
-                                <!-- Inner clipping circle -->
-                                <div style="width:100%;height:100%;border-radius:50%;background:#0f172a;overflow:hidden;position:relative;">
-
-                                    <!-- Live video -->
-                                    <video id="login-face-video" autoplay muted playsinline
-                                        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:translateZ(0);display:none;"></video>
-
-                                    <!-- Idle placeholder -->
-                                    <div id="login-face-idle" class="absolute inset-0 flex flex-col items-center justify-center">
-                                        <i data-lucide="scan-face" class="w-10 h-10 text-indigo-400 mb-1"></i>
-                                        <span class="text-xs text-slate-400">Camera off</span>
-                                    </div>
-
-                                    <!-- Scan line -->
-                                    <div id="login-face-scanning" class="hidden absolute inset-0 pointer-events-none">
-                                        <div class="scan-line-login absolute left-0 right-0 h-0.5 opacity-70" style="background:linear-gradient(90deg,transparent,#a855f7,#6366f1,transparent);"></div>
-                                    </div>
-
-                                    <!-- Success overlay -->
-                                    <div id="login-face-success" class="hidden absolute inset-0 flex items-center justify-center" style="background:rgba(16,185,129,0.35);">
-                                        <i data-lucide="check-circle" class="w-12 h-12 text-emerald-400"></i>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <!-- Status dot -->
-                            <div id="login-face-dot" class="absolute bottom-2 right-2 w-4 h-4 rounded-full border-2 border-white dark:border-slate-800 bg-slate-400 transition-colors duration-300" style="z-index:10;"></div>
-                        </div>
-
-                        <p id="login-face-msg" class="text-center text-sm text-slate-500 dark:text-slate-400 mb-4 min-h-[20px]">Starting camera...</p>
-
-                        <div id="login-face-error" class="hidden mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                            <p id="login-face-error-msg" class="text-sm text-red-700 dark:text-red-300 text-center"></p>
-                        </div>
-
-                        <div class="space-y-2">
-                            <button
-                                type="button"
-                                id="login-face-capture-btn"
-                                onclick="captureLoginFace()"
-                                class="hidden w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg"
-                                style="background: linear-gradient(135deg, #6366f1, #a855f7);"
-                            >
-                                <i data-lucide="scan-face" class="w-5 h-5"></i>
-                                Scan My Face
-                            </button>
-                            <button
-                                type="button"
-                                onclick="closeFaceLogin()"
-                                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition-all"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-
-                        <p class="mt-3 text-xs text-center text-indigo-600 dark:text-indigo-400">
-                            Your face data is never stored as a photo — only a secure mathematical fingerprint.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-                        <!-- Sign up link -->
+            <!-- Sign up link -->
             <p class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
                 New to RLIFE?
                 <a href="{{ path('app_register') }}" class="font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors">
@@ -273,199 +183,76 @@
         </div>
     </div>
 
-    <!-- Right Panel - Spline 3D -->
-    <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative overflow-hidden">
+    <!-- Right Panel - Brand -->
+    <div class="hidden lg:flex lg:w-[45%] xl:w-1/2 relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 dark:from-slate-800 dark:via-slate-900 dark:to-slate-950">
+        <!-- Pattern overlay -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-        <!-- Spline: full bleed -->
-        <spline-viewer
-            url="https://prod.spline.design/WgPMxQsSYOM7gzlt/scene.splinecode"
-            class="absolute inset-0 w-full h-full"
-            loading="lazy"
-        ></spline-viewer>
-
-        <!-- Left-edge seamless blend with the form panel -->
-        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10"></div>
-
-        <!-- ══ TOP BAND ══ -->
-        <div class="absolute top-0 inset-x-0 z-20 px-10 pt-10 pb-32
-                    bg-gradient-to-b from-black/75 via-black/40 to-transparent
-                    pointer-events-none">
-
-            <!-- Award badge -->
-            <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full mb-6
-                        bg-gradient-to-r from-yellow-400/20 to-amber-500/15
-                        backdrop-blur-sm border border-yellow-400/35
-                        shadow-[0_0_20px_rgba(234,179,8,0.15)]">
-                <i data-lucide="award" class="w-4 h-4 text-yellow-400 flex-shrink-0"></i>
-                <span class="text-xs font-bold text-yellow-200 tracking-wide">Rated #1 Student App Worldwide</span>
-                <span class="text-yellow-400 text-sm leading-none">✦</span>
-            </div>
-
-            <!-- Headline -->
-            <h2 class="text-4xl xl:text-5xl 2xl:text-6xl font-black text-white leading-[1.1] tracking-tight
-                       drop-shadow-[0_4px_24px_rgba(0,0,0,0.5)]">
-                Study<br>
-                <span class="text-transparent bg-clip-text
-                             bg-gradient-to-r from-primary-300 via-purple-300 to-pink-400
-                             drop-shadow-none">smarter.</span><br>
-                <span class="text-white/90">Live</span>
-                <span class="text-transparent bg-clip-text
-                             bg-gradient-to-r from-pink-300 to-primary-300"> better.</span>
-            </h2>
-
-            <!-- Subtitle with coloured keywords -->
-            <p class="mt-5 text-sm xl:text-base text-white/55 max-w-[280px] leading-relaxed">
-                All your
-                <span class="text-primary-300 font-semibold">courses</span>,
-                <span class="text-purple-300 font-semibold">habits</span> &amp;
-                <span class="text-pink-300 font-semibold">wellbeing</span>
-                — one beautiful place.
-            </p>
-        </div>
-
-        <!-- ══ RIGHT SIDE STAT CARDS ══ -->
-        <div class="absolute right-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none
-                    flex flex-col gap-3">
-
-            <!-- Rating -->
-            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl min-w-[165px]
-                        bg-gradient-to-r from-yellow-400/15 to-amber-500/8
-                        backdrop-blur-md border border-yellow-400/30
-                        shadow-[0_0_24px_rgba(234,179,8,0.12)]">
-                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
-                            bg-gradient-to-br from-yellow-400/35 to-amber-500/35
-                            border border-yellow-400/30">
-                    <i data-lucide="star" class="w-5 h-5 text-yellow-400"></i>
-                </div>
-                <div>
-                    <p class="text-2xl font-black text-white leading-none">
-                        4.9<span class="text-yellow-400">★</span>
-                    </p>
-                    <p class="text-[10px] font-semibold text-yellow-200/60 mt-0.5 tracking-widest uppercase">App rating</p>
-                </div>
-            </div>
-
-            <!-- Exam success -->
-            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
-                        bg-gradient-to-r from-purple-500/15 to-pink-500/8
-                        backdrop-blur-md border border-purple-400/30
-                        shadow-[0_0_24px_rgba(168,85,247,0.12)]">
-                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
-                            bg-gradient-to-br from-purple-400/35 to-pink-500/35
-                            border border-purple-400/30">
-                    <i data-lucide="target" class="w-5 h-5 text-purple-300"></i>
-                </div>
-                <div>
-                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
-                               bg-gradient-to-r from-purple-300 to-pink-300">98%</p>
-                    <p class="text-[10px] font-semibold text-purple-200/60 mt-0.5 tracking-widest uppercase">Exam success</p>
-                </div>
-            </div>
-
-            <!-- Free forever -->
-            <div class="flex items-center gap-3.5 px-4 py-3.5 rounded-2xl
-                        bg-gradient-to-r from-emerald-500/15 to-teal-500/8
-                        backdrop-blur-md border border-emerald-400/30
-                        shadow-[0_0_24px_rgba(52,211,153,0.12)]">
-                <div class="w-11 h-11 rounded-xl flex-shrink-0 flex items-center justify-center
-                            bg-gradient-to-br from-emerald-400/35 to-teal-500/35
-                            border border-emerald-400/30">
-                    <i data-lucide="gift" class="w-5 h-5 text-emerald-300"></i>
-                </div>
-                <div>
-                    <p class="text-2xl font-black leading-none text-transparent bg-clip-text
-                               bg-gradient-to-r from-emerald-300 to-teal-300">Free</p>
-                    <p class="text-[10px] font-semibold text-emerald-200/60 mt-0.5 tracking-widest uppercase">Forever plan</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- ══ BOTTOM BAND ══ -->
-        <div class="absolute bottom-0 inset-x-0 z-20 px-10 pb-10 pt-32
-                    bg-gradient-to-t from-black/75 via-black/40 to-transparent
-                    pointer-events-none">
-
-            <!-- Feature cards -->
-            <div class="grid grid-cols-3 gap-3 mb-6">
-
-                <!-- AI Insights -->
-                <div class="p-4 rounded-2xl text-center
-                            bg-gradient-to-b from-primary-500/15 to-primary-900/10
-                            backdrop-blur-sm border border-primary-400/25
-                            shadow-[0_4px_20px_rgba(99,102,241,0.10)]">
-                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
-                                bg-gradient-to-br from-primary-400/40 to-primary-600/40
-                                border border-primary-400/30
-                                shadow-[0_0_16px_rgba(99,102,241,0.25)]">
-                        <i data-lucide="brain" class="w-6 h-6 text-primary-300"></i>
-                    </div>
-                    <p class="text-sm font-extrabold text-white leading-tight">AI Insights</p>
-                    <p class="text-[11px] text-primary-300/70 mt-1 leading-tight">Personalised tips</p>
-                </div>
-
-                <!-- All Courses -->
-                <div class="p-4 rounded-2xl text-center
-                            bg-gradient-to-b from-purple-500/15 to-purple-900/10
-                            backdrop-blur-sm border border-purple-400/25
-                            shadow-[0_4px_20px_rgba(168,85,247,0.10)]">
-                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
-                                bg-gradient-to-br from-purple-400/40 to-purple-600/40
-                                border border-purple-400/30
-                                shadow-[0_0_16px_rgba(168,85,247,0.25)]">
-                        <i data-lucide="layout-dashboard" class="w-6 h-6 text-purple-300"></i>
-                    </div>
-                    <p class="text-sm font-extrabold text-white leading-tight">All Courses</p>
-                    <p class="text-[11px] text-purple-300/70 mt-1 leading-tight">One dashboard</p>
-                </div>
-
-                <!-- Wellbeing -->
-                <div class="p-4 rounded-2xl text-center
-                            bg-gradient-to-b from-pink-500/15 to-pink-900/10
-                            backdrop-blur-sm border border-pink-400/25
-                            shadow-[0_4px_20px_rgba(236,72,153,0.10)]">
-                    <div class="w-12 h-12 rounded-2xl mx-auto mb-3 flex items-center justify-center
-                                bg-gradient-to-br from-pink-400/40 to-pink-600/40
-                                border border-pink-400/30
-                                shadow-[0_0_16px_rgba(236,72,153,0.25)]">
-                        <i data-lucide="heart-pulse" class="w-6 h-6 text-pink-300"></i>
-                    </div>
-                    <p class="text-sm font-extrabold text-white leading-tight">Wellbeing</p>
-                    <p class="text-[11px] text-pink-300/70 mt-1 leading-tight">Mood &amp; habits</p>
-                </div>
-            </div>
-
-            <!-- Social proof -->
-            <div class="flex items-center gap-3.5">
-                <div class="flex -space-x-2.5">
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600
-                                border-2 border-white/30 flex items-center justify-center
-                                text-white text-xs font-black shadow-lg">A</div>
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-600
-                                border-2 border-white/30 flex items-center justify-center
-                                text-white text-xs font-black shadow-lg">B</div>
-                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600
-                                border-2 border-white/30 flex items-center justify-center
-                                text-white text-xs font-black shadow-lg">C</div>
-                </div>
-                <div>
-                    <p class="text-sm font-black text-white leading-none">50,000+ students</p>
-                    <p class="text-xs text-white/40 mt-0.5">already organised their semester</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Theme toggle -->
-        <div class="absolute top-6 right-6 z-30">
+        <div class="relative z-10 flex flex-col justify-center px-12 xl:px-16">
+            <!-- Theme toggle -->
             <button
                 type="button"
                 data-action="click->theme#toggle"
-                class="p-2.5 rounded-xl bg-black/25 hover:bg-black/40 backdrop-blur-sm
-                       text-white/70 hover:text-white transition-all border border-white/10"
+                class="absolute top-6 right-6 p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
                 aria-label="Toggle theme"
             >
-                <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
-                <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
             </button>
+
+            <!-- Content -->
+            <div class="max-w-md">
+                <h2 class="text-3xl xl:text-4xl font-semibold text-white leading-tight mb-6">
+                    Study smarter, not harder
+                </h2>
+
+                <!-- Benefits list -->
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-white/90">Track all your courses, assignments, and deadlines in one place</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-white/90">Boost retention with smart flashcards and spaced repetition</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <i data-lucide="check" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-white/90">Stay balanced with wellbeing check-ins and stress tracking</span>
+                    </li>
+                </ul>
+
+                <!-- Testimonial card -->
+                <div class="p-6 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20">
+                    <div class="flex gap-1 mb-3">
+                        {% for i in 1..5 %}
+                        <i data-lucide="star" class="w-4 h-4 fill-warning-400 text-warning-400"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-white/90 mb-4 leading-relaxed">
+                        "RLIFE helped me go from feeling overwhelmed to actually enjoying my studies. The wellbeing features are a game-changer."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm">
+                            AR
+                        </div>
+                        <div>
+                            <p class="font-semibold text-white text-sm">Alex Rodriguez</p>
+                            <p class="text-sm text-white/60">Psychology, UCLA</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decorative elements -->
+            <div class="absolute bottom-12 right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+            <div class="absolute top-24 right-24 w-20 h-20 bg-secondary-500/20 rounded-full blur-xl"></div>
         </div>
     </div>
 
@@ -487,241 +274,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
-    
-    <!-- Spline 3D Viewer -->
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
-
-    <!-- face-api.js for Face ID login -->
-    <script src="/js/face-api.min.js"></script>
-
-    <style>
-        @keyframes scanLineLogin {
-            0%   { top: 10%; }
-            50%  { top: 85%; }
-            100% { top: 10%; }
-        }
-        .scan-line-login { animation: scanLineLogin 2s ease-in-out infinite; }
-        @keyframes loginRingPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.5); }
-            50%       { box-shadow: 0 0 0 12px rgba(168,85,247,0); }
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20%       { transform: translateX(-8px); }
-            40%       { transform: translateX(8px); }
-            60%       { transform: translateX(-6px); }
-            80%       { transform: translateX(6px); }
-        }
-        .shake { animation: shake 0.5s ease-in-out; }
-    </style>
-
-    <script>
-    const LOGIN_MODEL_URL = '/models';
-    let loginModelsLoaded = false;
-    let loginStream = null;
-
-    function setLoginMsg(msg, color) {
-        const el = document.getElementById('login-face-msg');
-        if (!el) return;
-        const colors = { indigo: '#6366f1', purple: '#a855f7', green: '#10b981', red: '#ef4444', gray: '#94a3b8' };
-        el.style.color = colors[color] || '#94a3b8';
-        el.textContent = msg;
-    }
-
-    function setLoginError(msg) {
-        document.getElementById('login-face-error').classList.remove('hidden');
-        document.getElementById('login-face-error-msg').textContent = msg;
-        const panel = document.getElementById('faceid-camera-panel').querySelector('div');
-        panel.classList.remove('shake');
-        void panel.offsetWidth;
-        panel.classList.add('shake');
-        setTimeout(() => panel.classList.remove('shake'), 600);
-    }
-
-    function clearLoginError() {
-        document.getElementById('login-face-error').classList.add('hidden');
-        document.getElementById('login-face-error-msg').textContent = '';
-    }
-
-    async function initFaceLogin() {
-        document.getElementById('faceid-trigger').classList.add('hidden');
-        document.getElementById('faceid-camera-panel').classList.remove('hidden');
-        setLoginMsg('Loading Face ID models...', 'indigo');
-        document.getElementById('login-face-dot').style.background = '#6366f1';
-
-        if (!loginModelsLoaded) {
-            try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(LOGIN_MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(LOGIN_MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(LOGIN_MODEL_URL),
-                ]);
-                loginModelsLoaded = true;
-            } catch (e) {
-                setLoginMsg('Failed to load models. Check your connection.', 'red');
-                return;
-            }
-        }
-
-        // Check browser support / HTTPS requirement
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            setLoginMsg('Camera not available. Use localhost or HTTPS.', 'red');
-            document.getElementById('login-face-dot').style.background = '#ef4444';
-            console.error('navigator.mediaDevices is undefined — page must be served over HTTPS or localhost.');
-            return;
-        }
-
-        // Release any previous stream
-        stopLoginStream();
-
-        setLoginMsg('Starting camera…', 'indigo');
-        document.getElementById('login-face-dot').style.background = '#6366f1';
-
-        // Acquire stream
-        try {
-            loginStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        } catch (e) {
-            var n = e?.name || '';
-            var msgs = {
-                NotAllowedError:       'Camera permission denied. Allow it in your browser settings.',
-                PermissionDeniedError: 'Camera permission denied. Allow it in your browser settings.',
-                NotFoundError:         'No camera found on this device.',
-                NotReadableError:      'Camera is busy — close other apps using it.',
-            };
-            setLoginMsg(msgs[n] || 'Camera error: ' + (e?.message || n), 'red');
-            document.getElementById('login-face-dot').style.background = '#ef4444';
-            return;
-        }
-
-        // Attach stream and poll until first frame is ready
-        var video = document.getElementById('login-face-video');
-        video.srcObject = loginStream;
-
-        var loginPoll = function() {
-            if (video.readyState >= 2 && video.videoWidth > 0) {
-                video.style.display = 'block';
-                video.play().catch(function() {});
-                document.getElementById('login-face-idle').classList.add('hidden');
-                document.getElementById('login-face-scanning').classList.remove('hidden');
-                document.getElementById('login-face-capture-btn').classList.remove('hidden');
-                document.getElementById('login-face-dot').style.background = '#a855f7';
-                setLoginMsg('Position your face in the circle, then scan', 'purple');
-            } else {
-                setTimeout(loginPoll, 100);
-            }
-        };
-        setTimeout(loginPoll, 200);
-    }
-
-    async function captureLoginFace() {
-        clearLoginError();
-        const video = document.getElementById('login-face-video');
-        const btn = document.getElementById('login-face-capture-btn');
-        btn.disabled = true;
-
-        // Guard: video must be playing with valid dimensions
-        if (video.readyState < 2 || video.videoWidth === 0) {
-            setLoginMsg('Camera not ready. Please wait and try again.', 'red');
-            btn.disabled = false;
-            return;
-        }
-
-        // If video paused (GPU load), restart it
-        if (video.paused) { try { await video.play(); } catch(e) {} }
-
-        setLoginMsg('Capturing frame...', 'indigo');
-
-        // Draw to offscreen canvas so the video keeps displaying during detection
-        const offscreen = document.createElement('canvas');
-        offscreen.width  = video.videoWidth;
-        offscreen.height = video.videoHeight;
-        offscreen.getContext('2d').drawImage(video, 0, 0);
-
-        setLoginMsg('Analyzing face...', 'indigo');
-
-        let detection;
-        try {
-            detection = await faceapi
-                .detectSingleFace(offscreen, new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.4 }))
-                .withFaceLandmarks()
-                .withFaceDescriptor();
-        } catch (e) {
-            console.error('Detection error:', e);
-            setLoginMsg('Detection error. Please try again.', 'red');
-            btn.disabled = false;
-            return;
-        }
-
-        if (!detection) {
-            setLoginMsg('No face detected. Centre your face and try again.', 'red');
-            setLoginError('No face detected. Make sure your face is well-lit and centred.');
-            if (video.paused) { try { await video.play(); } catch(e) {} }
-            btn.disabled = false;
-            return;
-        }
-
-        const descriptor = Array.from(detection.descriptor);
-        setLoginMsg('Verifying identity...', 'indigo');
-
-        try {
-            const res = await fetch('{{ path("app_face_login") }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ descriptor }),
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                document.getElementById('login-face-scanning').classList.add('hidden');
-                document.getElementById('login-face-success').classList.remove('hidden');
-                document.getElementById('login-face-dot').style.background = '#10b981';
-                setLoginMsg(data.message, 'green');
-                stopLoginStream();
-                setTimeout(() => { window.location.href = data.redirect; }, 900);
-            } else {
-                setLoginMsg('Try again', 'red');
-                document.getElementById('login-face-dot').style.background = '#ef4444';
-                setLoginError(data.message || 'Face not recognized. Please use your password.');
-                btn.disabled = false;
-            }
-        } catch (e) {
-            setLoginMsg('Network error. Please try again.', 'red');
-            setLoginError('Could not reach the server. Check your connection.');
-            btn.disabled = false;
-        }
-    }
-
-    function stopLoginStream() {
-        if (loginStream) {
-            loginStream.getTracks().forEach(function(t) { t.stop(); });
-            loginStream = null;
-        }
-        var video = document.getElementById('login-face-video');
-        if (video) {
-            video.pause();
-            video.srcObject = null;
-        }
-    }
-
-    // Release camera on page leave
-    window.addEventListener('beforeunload', stopLoginStream);
-    window.addEventListener('pagehide', stopLoginStream);
-
-    function closeFaceLogin() {
-        stopLoginStream();
-        clearLoginError();
-        document.getElementById('login-face-capture-btn').classList.add('hidden');
-        document.getElementById('login-face-scanning').classList.add('hidden');
-        document.getElementById('login-face-success').classList.add('hidden');
-        document.getElementById('login-face-idle').classList.remove('hidden');
-        document.getElementById('login-face-dot').style.background = '#94a3b8';
-        setLoginMsg('Starting camera...', 'gray');
-        document.getElementById('faceid-camera-panel').classList.add('hidden');
-        document.getElementById('faceid-trigger').classList.remove('hidden');
-    }
-    </script>
 {% endblock %}

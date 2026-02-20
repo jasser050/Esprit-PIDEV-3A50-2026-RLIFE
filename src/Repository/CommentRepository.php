@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Comment;
+use App\Entity\Assignment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,9 +18,12 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find comments by assignment ordered by date desc
+     * Find all comments for a specific assignment
+     *
+     * @param Assignment $assignment
+     * @return Comment[]
      */
-    public function findByAssignment($assignment): array
+    public function findByAssignment(Assignment $assignment): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.assignment = :assignment')
@@ -27,5 +31,21 @@ class CommentRepository extends ServiceEntityRepository
             ->orderBy('c.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Count comments for an assignment
+     *
+     * @param Assignment $assignment
+     * @return int
+     */
+    public function countByAssignment(Assignment $assignment): int
+    {
+        return $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('c.assignment = :assignment')
+            ->setParameter('assignment', $assignment)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

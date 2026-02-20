@@ -80,7 +80,7 @@ class DeckRepository extends ServiceEntityRepository
     public function countByUser(User $user): int
     {
         return $this->createQueryBuilder('d')
-            ->select('COUNT(d.idDeck)')
+            ->select('COUNT(d.id)')
             ->andWhere('d.user = :user')
             ->setParameter('user', $user)
             ->getQuery()

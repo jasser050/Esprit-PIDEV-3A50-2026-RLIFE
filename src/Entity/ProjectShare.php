@@ -16,7 +16,7 @@ class ProjectShare
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'shares')]
+    #[ORM\ManyToOne(targetEntity: Project::class)]
     #[ORM\JoinColumn(name: 'project_id', nullable: false, onDelete: 'CASCADE')]
     private ?Project $project = null;
 

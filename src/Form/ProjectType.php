@@ -18,83 +18,83 @@ class ProjectType extends AbstractType
     {
         $builder
             ->add('titre', TextType::class, [
-                'label' => 'Project Title',
+                'label' => 'Titre du projet',
                 'attr' => [
-                    'placeholder' => 'Ex: Mobile app development',
+                    'placeholder' => 'Ex: Développement application mobile',
                     'class' => 'form-control',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Project title is required',
+                        'message' => 'Le titre est obligatoire',
                     ]),
                     new Assert\Length([
                         'min' => 3,
                         'max' => 255,
-                        'minMessage' => 'Title must be at least {{ limit }} characters long',
-                        'maxMessage' => 'Title cannot exceed {{ limit }} characters',
+                        'minMessage' => 'Le titre doit contenir au moins {{ limit }} caractères',
+                        'maxMessage' => 'Le titre ne peut pas dépasser {{ limit }} caractères',
                     ]),
                 ],
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'attr' => [
-                    'placeholder' => 'Describe your project in detail...',
+                    'placeholder' => 'Décrivez votre projet en détail...',
                     'rows' => 5,
                     'class' => 'form-control',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Description is required',
+                        'message' => 'La description est obligatoire',
                     ]),
                     new Assert\Length([
                         'min' => 10,
-                        'minMessage' => 'Description must be at least {{ limit }} characters long',
+                        'minMessage' => 'La description doit contenir au moins {{ limit }} caractères',
                     ]),
                 ],
             ])
             ->add('dateDebut', DateType::class, [
-                'label' => 'Start Date',
+                'label' => 'Date de début',
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Start date is required',
+                        'message' => 'La date de début est obligatoire',
                     ]),
                 ],
             ])
             ->add('dateFin', DateType::class, [
-                'label' => 'End Date',
+                'label' => 'Date de fin',
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'End date is required',
+                        'message' => 'La date de fin est obligatoire',
                     ]),
                     new Assert\GreaterThan([
                         'propertyPath' => 'parent.all[dateDebut].data',
-                        'message' => 'End date must be later than start date',
+                        'message' => 'La date de fin doit être postérieure à la date de début',
                     ]),
                 ],
             ])
             ->add('statut', ChoiceType::class, [
-                'label' => 'Status',
+                'label' => 'Statut',
                 'choices' => [
-                    'Pending' => 'En attente',
-                    'In Progress' => 'En cours',
-                    'On Hold' => 'En pause',
-                    'Completed' => 'Terminé',
-                    'Canceled' => 'Annulé',
+                    'En attente' => 'En attente',
+                    'En cours' => 'En cours',
+                    'En pause' => 'En pause',
+                    'Terminé' => 'Terminé',
+                    'Annulé' => 'Annulé',
                 ],
                 'attr' => [
                     'class' => 'form-control',
                 ],
                 'constraints' => [
                     new Assert\NotBlank([
-                        'message' => 'Status is required',
+                        'message' => 'Le statut est obligatoire',
                     ]),
                 ],
             ])

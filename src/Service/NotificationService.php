@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Assignment;
 use App\Entity\Project;
+use App\Entity\User;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Address;
@@ -21,11 +22,13 @@ class NotificationService
     ) {
         $this->mailer = $mailer;
         $this->fromEmail = $params->get('mailer_from_email');
-        $this->fromName = $params->get('mailer_from_name');
+
+        $this->fromName  = $params->get('mailer_from_name');
+
     }
 
     /**
-     * Notification pour échéance d'une tâche
+     * Notification pour échéance d'une tâche (Assignment)
      */
     public function notifyTaskDeadline(Assignment $task): void
     {
@@ -35,6 +38,7 @@ class NotificationService
         }
 
         $projectTitle = $task->getProject() ? $task->getProject()->getTitre() : null;
+
         $subject = "Échéance proche : " . $task->getTitre();
 
         $html = $this->getTaskDeadlineHtml(

@@ -1,35 +1,87 @@
 {
+    "type": "project",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.1",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^2.18",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/orm": "^3.6",
+        "symfony/asset": "6.4.*",
+        "symfony/console": "6.4.*",
+        "symfony/dotenv": "6.4.*",
+        "symfony/flex": "^2",
+        "symfony/form": "6.4.*",
+        "symfony/framework-bundle": "6.4.*",
+        "symfony/runtime": "6.4.*",
+        "symfony/security-csrf": "6.4",
+        "symfony/stimulus-bundle": "^2.32",
+        "symfony/twig-bundle": "6.4.*",
+        "symfony/ux-turbo": "^2.32",
+        "symfony/validator": "6.4.*",
+        "symfony/webpack-encore-bundle": "^2.4",
+        "symfony/yaml": "6.4.*"
+    },
+    "config": {
+        "allow-plugins": {
+            "php-http/discovery": true,
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "bump-after-update": true,
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "replace": {
+        "symfony/polyfill-ctype": "*",
+        "symfony/polyfill-iconv": "*",
+        "symfony/polyfill-php72": "*",
+        "symfony/polyfill-php73": "*",
+        "symfony/polyfill-php74": "*",
+        "symfony/polyfill-php80": "*",
+        "symfony/polyfill-php81": "*",
+        "symfony/polyfill-php82": "*"
+    },
+    "scripts": {
+        "auto-scripts": {
+            "cache:clear": "symfony-cmd",
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+        },
+        "post-install-cmd": [
+            "@auto-scripts"
+        ],
+        "post-update-cmd": [
+            "@auto-scripts"
+        ]
+    },
+    "conflict": {
+        "symfony/symfony": "*"
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "6.4.*"
+        }
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.65"
+    },
     "devDependencies": {
-        "@babel/core": "^7.17.0",
-        "@babel/preset-env": "^7.16.0",
         "@hotwired/stimulus": "^3.0.0",
         "@hotwired/turbo": "^7.1.0 || ^8.0",
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
-        "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
-        "@symfony/webpack-encore": "^5.1.0",
-        "@tailwindcss/forms": "^0.5.11",
-        "@tailwindcss/typography": "^0.5.19",
-        "autoprefixer": "^10.4.24",
-        "core-js": "^3.38.0",
-        "postcss": "^8.5.6",
-        "postcss-loader": "^8.2.0",
-        "regenerator-runtime": "^0.13.9",
-        "tailwindcss": "^3.4.19",
-        "webpack": "^5.74.0",
-        "webpack-cli": "^5.1.0"
-    },
-    "license": "UNLICENSED",
-    "private": true,
-    "scripts": {
-        "dev-server": "encore dev-server",
-        "dev": "encore dev",
-        "watch": "encore dev --watch",
-        "build": "encore production --progress"
-    },
-    "dependencies": {
-        "chart.js": "^4.5.1",
-        "face-api.js": "^0.22.2",
-        "gsap": "^3.14.2",
-        "three": "^0.182.0"
+        "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets"
     }
 }

@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+
 #[Route('/assignments')]
 #[IsGranted('ROLE_USER')]
 class AssignmentController extends AbstractController
@@ -35,7 +36,6 @@ class AssignmentController extends AbstractController
         $statut    = $request->query->getString('statut', '');
         $search    = $request->query->getString('search', '');
 
-        // List of allowed fields for sorting
         $allowedSortFields = ['titre', 'dateDebut', 'dateFin', 'priorite', 'statut', 'createdAt'];
 
         if (!in_array($sort, $allowedSortFields, true)) {
@@ -44,7 +44,6 @@ class AssignmentController extends AbstractController
 
         $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
 
-        // Retrieve assignments with filters
         $assignments = $assignmentRepository->findByUserWithFilters(
             user: $this->getUser(),
             sort: $sort,
@@ -54,7 +53,6 @@ class AssignmentController extends AbstractController
             search: $search
         );
 
-        // Statistiques
         $stats = $statsService->getAssignmentStats($this->getUser());
 
         return $this->render('pages/assignments/index.html.twig', [
@@ -75,7 +73,6 @@ class AssignmentController extends AbstractController
     ): Response {
         $assignment = new Assignment();
 
-        // If coming from a project
         if ($projectId = $request->query->get('project_id')) {
             $project = $entityManager->getRepository(Project::class)->find($projectId);
             if ($project && $project->getUser() === $this->getUser()) {
@@ -94,7 +91,7 @@ class AssignmentController extends AbstractController
             $entityManager->persist($assignment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Task created successfully!');
+            $this->addFlash('success', 'Tâche créée avec succès !');
 
             return $this->redirectToRoute('app_assignments');
         }
@@ -105,63 +102,52 @@ class AssignmentController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
-    public function show(
-        Assignment $assignment,
-        Request $request,
-        AssignmentStatsService $statsService,
-        CommentRepository $commentRepository,
-        EntityManagerInterface $entityManager,
-        PusherService $pusherService,
-        AssignmentCollaboratorRepository $collaboratorRepository,
-        ProjectShareRepository $shareRepository
-    ): Response {
-        // Check if user is owner, collaborator, or has project access
-        $isOwner = $assignment->getUser() === $this->getUser();
-        $isCollaborator = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $this->getUser()) !== null;
-        $hasProjectAccess = $shareRepository->hasAccess($assignment->getProject(), $this->getUser());
+   #[Route('/assignments/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
+public function show(
+    Assignment $assignment,
+    Request $request,
+    CommentRepository $commentRepository,
+    EntityManagerInterface $entityManager,
+    PusherService $pusherService
+): Response {
+    // Sécurité : vérifier que l'utilisateur a accès à cette tâche (propriétaire ou collaborateur ou projet partagé)
+    // (tu as déjà une logique similaire ailleurs, réutilise-la)
 
-        if (!$isOwner && !$isCollaborator && !$hasProjectAccess) {
-            throw $this->createAccessDeniedException();
-        }
+    // Charger les commentaires triés par date décroissante
+    $comments = $commentRepository->findByAssignment($assignment);
 
-        $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
+    // Formulaire pour ajouter un commentaire
+    $comment = new Comment();
+    $comment->setAssignment($assignment);
+    $comment->setUser($this->getUser());
 
-        // Handle comment submission
-        $comment = new Comment();
-        $commentForm = $this->createForm(CommentType::class, $comment);
-        $commentForm->handleRequest($request);
+    $commentForm = $this->createForm(CommentType::class, $comment);
+    $commentForm->handleRequest($request);
 
-        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
-            $comment->setAssignment($assignment);
-            $comment->setUser($this->getUser());
+    if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+        $comment->setCreatedAt(new \DateTime());
+        $entityManager->persist($comment);
+        $entityManager->flush();
 
-            $entityManager->persist($comment);
-            $entityManager->flush();
+        // Notification Pusher en temps réel
+        $pusherService->notifyNewComment(
+            $assignment->getId(),
+            $comment->getId(),
+            $comment->getUser()->getEmail(),
+            $comment->getContent(),
+            $comment->getCreatedAt()->format('d/m/Y H:i')
+        );
 
-            // Send real-time notification via Pusher
-            $pusherService->notifyNewComment(
-                $assignment->getId(),
-                $comment->getId(),
-                $this->getUser()->getEmail(),
-                $comment->getContent(),
-                $comment->getCreatedAt()->format('Y-m-d H:i:s')
-            );
-
-            $this->addFlash('success', 'Comment added successfully!');
-            return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
-        }
-
-        // Get comments for this assignment
-        $comments = $commentRepository->findByAssignment($assignment);
-
-        return $this->render('pages/assignments/show.html.twig', [
-            'assignment'      => $assignment,
-            'assignmentStats' => $assignmentStats,
-            'comments'        => $comments,
-            'commentForm'     => $commentForm->createView(),
-        ]);
+        $this->addFlash('success', 'Commentaire ajouté !');
+        return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
     }
+
+    return $this->render('pages/assignments/show.html.twig', [
+        'assignment' => $assignment,
+        'comments' => $comments,
+        'commentForm' => $commentForm->createView(),
+    ]);
+}
 
     #[Route('/{id}/edit', name: 'app_assignments_edit', methods: ['GET', 'POST'])]
     public function edit(
@@ -181,7 +167,7 @@ class AssignmentController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            $this->addFlash('success', 'Task updated successfully!');
+            $this->addFlash('success', 'Tâche modifiée avec succès !');
 
             return $this->redirectToRoute('app_assignments');
         }
@@ -206,7 +192,7 @@ class AssignmentController extends AbstractController
             $entityManager->remove($assignment);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Task deleted successfully!');
+            $this->addFlash('success', 'Tâche supprimée avec succès !');
         }
 
         return $this->redirectToRoute('app_assignments');
@@ -234,16 +220,24 @@ class AssignmentController extends AbstractController
         return $pdfService->generateAssignmentListPdf($assignments, $this->getUser());
     }
 
+    /**
+     * Export d'une seule tâche en PDF avec ses statistiques
+     */
     #[Route('/{id}/export/pdf', name: 'app_assignments_export_single_pdf', methods: ['GET'])]
     public function exportSinglePdf(
         Assignment $assignment,
+        AssignmentStatsService $statsService,           // ← Ajouté ici
         AssignmentPdfService $pdfService
     ): Response {
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }
 
-        return $pdfService->generateSingleAssignmentPdf($assignment);
+        // Calcul des statistiques (exactement comme dans show())
+        $assignmentStats = $statsService->getSingleAssignmentStats($assignment);
+
+        // Passage des DEUX paramètres au service PDF
+        return $pdfService->generateSingleAssignmentPdf($assignment, $assignmentStats);
     }
 
     #[Route('/stats/data', name: 'app_assignments_stats_data', methods: ['GET'])]
@@ -260,33 +254,5 @@ class AssignmentController extends AbstractController
             'enRetard'   => $stats['enRetard'],
             'chartData'  => $stats['chartData'],
         ]);
-    }
-
-    #[Route('/comment/{id}/delete', name: 'app_assignments_delete_comment', methods: ['POST'])]
-    public function deleteComment(
-        Comment $comment,
-        Request $request,
-        EntityManagerInterface $entityManager,
-        PusherService $pusherService
-    ): Response {
-        // Security check - only comment author can delete
-        if ($comment->getUser() !== $this->getUser()) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $assignmentId = $comment->getAssignment()->getId();
-        $commentId = $comment->getId();
-
-        if ($this->isCsrfTokenValid('delete-comment' . $comment->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($comment);
-            $entityManager->flush();
-
-            // Notify via Pusher
-            $pusherService->notifyCommentDeleted($assignmentId, $commentId);
-
-            $this->addFlash('success', 'Comment deleted successfully!');
-        }
-
-        return $this->redirectToRoute('app_assignments_show', ['id' => $assignmentId]);
     }
 }

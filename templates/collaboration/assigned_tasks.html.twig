@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tâches assignées à moi{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Tâches assignées à moi</h1>
+
+        {% if assignments|length > 0 %}
+            <div class="space-y-4">
+                {% for collaborator in assignments %}
+                    {% set assignment = collaborator.assignment %}
+                    <div class="bg-white shadow-md rounded-lg p-6 hover:shadow-lg transition">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                                    {{ assignment.titre }}
+                                </h3>
+                                <p class="text-gray-600 mb-4">
+                                    {{ assignment.description }}
+                                </p>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <span class="text-sm text-gray-500">Projet</span>
+                                        <p class="font-medium text-gray-800">{{ assignment.project.titre }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-500">Priorité</span>
+                                        <p class="font-medium">
+                                            {% if assignment.priorite == 'Haute' %}
+                                                <span class="text-red-600">{{ assignment.priorite }}</span>
+                                            {% elseif assignment.priorite == 'Moyenne' %}
+                                                <span class="text-yellow-600">{{ assignment.priorite }}</span>
+                                            {% else %}
+                                                <span class="text-green-600">{{ assignment.priorite }}</span>
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-500">Statut</span>
+                                        <p class="font-medium text-gray-800">{{ assignment.statut }}</p>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm text-gray-500">Date limite</span>
+                                        <p class="font-medium text-gray-800">
+                                            {% if assignment.dateFin %}
+                                                {{ assignment.dateFin|date('d/m/Y') }}
+                                            {% else %}
+                                                Non définie
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <p class="text-xs text-gray-400">
+                                    Assignée par {{ collaborator.assignedByUser.email }} le {{ collaborator.createdAt|date('d/m/Y à H:i') }}
+                                </p>
+                            </div>
+
+                            <div class="ml-4">
+                                <a 
+                                    href="{{ path('app_assignments_show', {id: assignment.id}) }}" 
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm"
+                                >
+                                    Voir la tâche
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white shadow-md rounded-lg p-12 text-center">
+                <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <h3 class="text-xl font-medium text-gray-900 mb-2">Aucune tâche assignée</h3>
+                <p class="text-gray-600">
+                    Aucune tâche ne vous a été assignée pour le moment.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

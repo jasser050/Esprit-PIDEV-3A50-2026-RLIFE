@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\AssignmentCollaborator;
+use App\Entity\Assignment;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,9 +19,12 @@ class AssignmentCollaboratorRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find collaborators by assignment
+     * Find all collaborators for an assignment
+     *
+     * @param Assignment $assignment
+     * @return AssignmentCollaborator[]
      */
-    public function findByAssignment($assignment): array
+    public function findByAssignment(Assignment $assignment): array
     {
         return $this->createQueryBuilder('ac')
             ->andWhere('ac.assignment = :assignment')
@@ -30,9 +35,12 @@ class AssignmentCollaboratorRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find collaborations by user (assignments assigned to this user)
+     * Find all assignments assigned to a user
+     *
+     * @param User $user
+     * @return AssignmentCollaborator[]
      */
-    public function findByUser($user): array
+    public function findByUser(User $user): array
     {
         return $this->createQueryBuilder('ac')
             ->andWhere('ac.user = :user')
@@ -43,9 +51,13 @@ class AssignmentCollaboratorRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find one by assignment and user
+     * Check if a user is assigned to an assignment
+     *
+     * @param Assignment $assignment
+     * @param User $user
+     * @return AssignmentCollaborator|null
      */
-    public function findOneByAssignmentAndUser($assignment, $user): ?AssignmentCollaborator
+    public function findOneByAssignmentAndUser(Assignment $assignment, User $user): ?AssignmentCollaborator
     {
         return $this->createQueryBuilder('ac')
             ->andWhere('ac.assignment = :assignment')

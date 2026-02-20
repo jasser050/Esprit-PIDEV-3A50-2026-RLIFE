@@ -45,4 +45,11 @@ class TestController extends AbstractController
             ', 500);
         }
     }
+    protected function renderWithPusher(string $view, array $parameters = []): Response
+{
+    $parameters['pusher_key'] = $_ENV['PUSHER_KEY'];
+    $parameters['pusher_cluster'] = $_ENV['PUSHER_CLUSTER'];
+    
+    return $this->render($view, $parameters);
+}
 }

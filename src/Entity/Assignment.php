@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AssignmentRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AssignmentRepository::class)]
 #[ORM\Table(name: 'assignment')]
@@ -22,24 +23,51 @@ class Assignment
 
     #[ORM\ManyToOne(targetEntity: Project::class, inversedBy: 'assignments')]
     #[ORM\JoinColumn(name: 'project_id', nullable: false, onDelete: 'CASCADE')]
+    #[Assert\NotNull(message: 'Le projet est obligatoire')]
     private ?Project $project = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: 'Le titre de la tâche est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères'
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'La description doit contenir au moins {{ limit }} caractères'
+    )]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\NotNull(message: 'La date de début est obligatoire')]
     private ?\DateTimeInterface $dateDebut = null;
 
-    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE, nullable: true)]
+    #[Assert\Expression(
+        expression: "this.getDateFin() === null or this.getDateDebut() === null or this.getDateFin() >= this.getDateDebut()",
+        message: 'La date de fin doit être égale ou postérieure à la date de début'
+    )]
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: 'La priorité est obligatoire')]
+    #[Assert\Choice(
+        choices: ['Haute', 'Moyenne', 'Basse'],
+        message: 'Choisissez une priorité valide'
+    )]
     private ?string $priorite = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: 'Le statut est obligatoire')]
+    #[Assert\Choice(
+        choices: ['À faire', 'En cours', 'Terminé', 'Annulé'],
+        message: 'Choisissez un statut valide'
+    )]
     private ?string $statut = null;
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
@@ -58,6 +86,10 @@ class Assignment
     {
         $this->updatedAt = new \DateTime();
     }
+
+    // ────────────────────────────────────────────────
+    // Getters & Setters
+    // ────────────────────────────────────────────────
 
     public function getId(): ?int
     {
@@ -113,7 +145,7 @@ class Assignment
         return $this->dateDebut;
     }
 
-    public function setDateDebut(\DateTimeInterface $dateDebut): static
+    public function setDateDebut(?\DateTimeInterface $dateDebut): static
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -124,7 +156,7 @@ class Assignment
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTimeInterface $dateFin): static
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;

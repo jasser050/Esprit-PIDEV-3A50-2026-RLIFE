@@ -3,46 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- Prevent caching during development -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
     <title>{% block title %}RLIFE{% endblock %} | RLIFE</title>
-
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
-
     <!-- Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- GSAP for Animations -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-
     {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
-
+    {% block scripts_head %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
     <script>
         // Theme initialization and toggle function
         (function() {
             var theme = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
             // Set initial theme
             if (theme === 'dark' || (!theme && prefersDark)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
-
             // Global toggle function
             window.toggleTheme = function() {
                 var html = document.documentElement;
@@ -54,16 +40,153 @@
                     localStorage.setItem('theme', 'dark');
                 }
             };
-            
-            // Global function to reinitialize Lucide icons
-            window.initIcons = function() {
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            };
         })();
     </script>
+
+    {# Pusher JS SDK – version 8.4 recommandée #}
+    <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+    <script>
+        // Variables depuis twig.yaml globals
+        const pusherAppKey     = '{{ pusher_app_key|default('') }}';
+        const pusherAppCluster = '{{ pusher_app_cluster|default('eu') }}';
+
+        let pusher = null;
+
+        if (pusherAppKey) {
+            pusher = new Pusher(pusherAppKey, {
+                cluster: pusherAppCluster,
+                forceTLS: true,
+            });
+
+            console.log('Pusher initialisé avec succès');
+
+            // ────────────────────────────────────────────────
+            // Channels privés par utilisateur (recommandé)
+            // ────────────────────────────────────────────────
+            {% if app.user %}
+                const userChannel = pusher.subscribe('private-user-' + {{ app.user.id }});
+
+                userChannel.bind('project-shared', function(data) {
+                    showNotification(
+                        'Nouveau partage de projet',
+                        `${data.shared_by} a partagé le projet "${data.project_title || 'un projet'}" avec vous`,
+                        'info'
+                    );
+                    // Recharge la liste si on est sur la page des projets partagés
+                    if (window.location.pathname === '/collaboration/shared-projects') {
+                        location.reload();
+                    }
+                });
+
+                userChannel.bind('task-assigned', function(data) {
+                    showNotification(
+                        'Nouvelle tâche assignée',
+                        `Vous avez été assigné à "${data.task_title || 'une tâche'}" par ${data.assigned_by}`,
+                        'success'
+                    );
+                    if (window.location.pathname === '/collaboration/assigned-tasks') {
+                        location.reload();
+                    }
+                });
+
+                userChannel.bind('new-comment', function(data) {
+                    showNotification(
+                        'Nouveau commentaire',
+                        `${data.author || 'Quelqu’un'} a commenté sur "${data.task_title || 'une tâche'}"`,
+                        'info'
+                    );
+                    // Recharge si on est sur la page de la tâche concernée
+                    if (window.location.pathname.includes(`/assignments/${data.task_id}`)) {
+                        location.reload(); // ou appelle loadComments() si tu l’implémentes
+                    }
+                });
+            {% endif %}
+
+        } else {
+            console.warn('Clé Pusher non définie – vérifiez .env et twig.yaml');
+        }
+
+        // Fonction de notification améliorée (compatible dark/light)
+        function showNotification(title, message, type = 'info') {
+            const container = document.getElementById('toast-container') || document.body;
+
+            const colors = {
+                success: 'bg-emerald-600 border-l-4 border-emerald-400',
+                info:    'bg-blue-600 border-l-4 border-blue-400',
+                warning: 'bg-amber-600 border-l-4 border-amber-400',
+                error:   'bg-red-600 border-l-4 border-red-400'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl text-white pointer-events-auto max-w-sm animate-fade-in-up ${colors[type] || colors.info}`;
+            notification.innerHTML = `
+                <div class="flex-shrink-0">
+                    ${getNotificationIcon(type)}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold">${title}</p>
+                    <p class="text-sm opacity-90">${message}</p>
+                </div>
+                <button type="button" class="ml-2 text-white/80 hover:text-white" onclick="this.parentElement.remove()">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            `;
+
+            container.appendChild(notification);
+            lucide.createIcons(); // régénère les icônes
+
+            setTimeout(() => {
+                if (notification.parentNode) notification.remove();
+            }, 6000);
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                success: '<i data-lucide="check-circle" class="w-6 h-6"></i>',
+                info:    '<i data-lucide="info" class="w-6 h-6"></i>',
+                warning: '<i data-lucide="alert-triangle" class="w-6 h-6"></i>',
+                error:   '<i data-lucide="x-circle" class="w-6 h-6"></i>'
+            };
+            return icons[type] || icons.info;
+        }
+    </script>
 </head>
+<script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!{{ app.user ? 'true' : 'false' }}) return;
+
+        const pusher = new Pusher('{{ pusher_app_key }}', {
+            cluster: '{{ pusher_app_cluster }}',
+            forceTLS: true,
+            authEndpoint: '{{ path('pusher_auth') }}'
+        });
+
+        const channel = pusher.subscribe('private-user-{{ app.user.id }}');
+
+        function showToast(message, icon = 'bell') {
+            const toast = document.createElement('div');
+            toast.className = 'toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg bg-primary-500 text-white animate-fade-in-up cursor-pointer';
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-5 h-5"></i>
+                <span>${message}</span>
+            `;
+            document.getElementById('toast-container').appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.remove(), 8000);
+        }
+
+        channel.bind('project-shared', function(data) {
+            showToast(`Projet "${data.project_title}" partagé avec vous par ${data.shared_by} (${data.role})`, 'share-2');
+        });
+
+        channel.bind('task-assigned', function(data) {
+            showToast(`Tâche "${data.task_title}" vous a été assignée par ${data.assigned_by}`, 'check-square');
+        });
+    });
+</script>
+
 <body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     <div class="min-h-screen" data-controller="sidebar">
         <!-- Sidebar -->
@@ -73,7 +196,9 @@
             <!-- Logo Section -->
             <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5">
-                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
+                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
+                        <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                    </div>
                     <div data-sidebar-target="brandText">
                         <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                     </div>
@@ -85,64 +210,47 @@
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
-
             <!-- Navigation -->
             <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
                 <!-- Main Section -->
                 <div class="mb-6">
                     <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Main</p>
-
                     <a href="{{ path('app_dashboard') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') == 'app_dashboard' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Dashboard</span>
                     </a>
-
                     <a href="{{ path('app_courses') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') starts with 'app_courses' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Courses</span>
                     </a>
-
                     <a href="{{ path('app_assignments') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_assignments' and app.request.attributes.get('_route') != 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                              {{ app.request.attributes.get('_route') starts with 'app_assignments' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Assignments</span>
                         <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
                     </a>
-
-                    <a href="{{ path('app_collaboration_assigned_tasks') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') == 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="user-check" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Assigned to Me</span>
-                    </a>
-
                     <a href="{{ path('app_planning') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') starts with 'app_planning' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="calendar-days" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Schedule</span>
+                        <span data-sidebar-target="navText">Planning</span>
                     </a>
                 </div>
-
                 <!-- Study Section -->
                 <div class="mb-6">
                     <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Study</p>
-
                     <a href="{{ path('app_revisions') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') starts with 'app_revisions' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                         <i data-lucide="brain" class="w-5 h-5 flex-shrink-0"></i>
                         <span data-sidebar-target="navText">Revisions</span>
-                        {% if is_granted('ROLE_USER') %}
-                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full" data-sidebar-target="badge">{{ deck_count() }}</span>
-                        {% endif %}
+                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full" data-sidebar-target="badge">24</span>
                     </a>
-
                     <a href="{{ path('app_project_index') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') starts with 'app_project' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
@@ -150,11 +258,9 @@
                         <span data-sidebar-target="navText">Projects</span>
                     </a>
                 </div>
-
                 <!-- Wellness Section -->
                 <div>
                     <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Wellness</p>
-
                     <a href="{{ path('app_wellbeing') }}"
                        class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
                               {{ app.request.attributes.get('_route') starts with 'app_wellbeing' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
@@ -163,7 +269,6 @@
                     </a>
                 </div>
             </nav>
-
             <!-- Sidebar Footer -->
             <div class="p-3 border-t border-slate-100 dark:border-slate-800">
                 <a href="{{ path('app_settings') }}"
@@ -172,13 +277,12 @@
                     <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
                     <span data-sidebar-target="navText">Settings</span>
                 </a>
-
                 <!-- User Card -->
                 <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl" data-sidebar-target="userCard">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
                             {% if app.user and app.user.profilePic %}
-                                <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
+                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
                                 {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
                             {% endif %}
@@ -191,173 +295,157 @@
                 </div>
             </div>
         </aside>
-
         <!-- Sidebar backdrop for mobile -->
         <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden hidden"
              data-sidebar-target="backdrop"
              data-action="click->sidebar#close"></div>
-
         <!-- Main Content Area -->
         <div class="lg:ml-64 min-h-screen flex flex-col">
             <!-- Top Bar -->
             <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
                 <div class="flex items-center justify-between gap-4 h-full">
-                <!-- Left side -->
-                <div class="flex items-center gap-4">
-                    <!-- Mobile menu button -->
-                    <button type="button"
-                            class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            data-action="click->sidebar#toggle"
-                            aria-label="Open menu">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-
-                    <!-- Global Search -->
-                    <div class="relative hidden sm:block" id="globalSearch">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10"></i>
-                        <input type="search"
-                               id="searchInput"
-                               placeholder="Search courses, projects, assignments..."
-                               autocomplete="off"
-                               class="w-64 lg:w-80 pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all">
-                        
-                        <!-- Search Results Dropdown -->
-                        <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-h-96 overflow-y-auto hidden z-50">
-                            <!-- Results will be inserted here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right side -->
-                <div class="flex items-center gap-2">
-                    <!-- Quick Add -->
-                    <div class="relative" data-controller="dropdown">
+                    <!-- Left side -->
+                    <div class="flex items-center gap-4">
+                        <!-- Mobile menu button -->
                         <button type="button"
-                                class="inline-flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-primary-500/25 transition-all"
-                                data-action="click->dropdown#toggle">
-                            <i data-lucide="plus" class="w-4 h-4"></i>
-                            <span class="hidden sm:inline">New</span>
+                                class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                data-action="click->sidebar#toggle"
+                                aria-label="Open menu">
+                            <i data-lucide="menu" class="w-5 h-5"></i>
                         </button>
-                        <div class="absolute right-0 top-full mt-2 w-56 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
-                             data-dropdown-target="menu">
-                            <a href="{{ path('app_assignments') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="clipboard-plus" class="w-4 h-4 text-primary-500"></i>
-                                New Assignment
-                            </a>
-                            <a href="{{ path('app_planning') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="calendar-plus" class="w-4 h-4 text-accent-500"></i>
-                                New Event
-                            </a>
-                            <a href="{{ path('app_revisions') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="layers-2" class="w-4 h-4 text-success-500"></i>
-                                New Flashcard Deck
-                            </a>
-                            <a href="{{ path('app_courses') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="book-plus" class="w-4 h-4 text-secondary-500"></i>
-                                New Course
-                            </a>
+                        <!-- Search -->
+                        <div class="relative hidden sm:block">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                            <input type="search"
+                                   placeholder="Search..."
+                                   class="w-64 lg:w-80 pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all">
                         </div>
                     </div>
-
-                    <!-- Notifications -->
-                    <div class="relative" data-controller="dropdown">
+                    <!-- Right side -->
+                    <div class="flex items-center gap-2">
+                        <!-- Quick Add -->
+                        <div class="relative" data-controller="dropdown">
+                            <button type="button"
+                                    class="inline-flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-primary-500/25 transition-all"
+                                    data-action="click->dropdown#toggle">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                <span class="hidden sm:inline">New</span>
+                            </button>
+                            <div class="absolute right-0 top-full mt-2 w-56 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+                                 data-dropdown-target="menu">
+                                <a href="{{ path('app_assignments') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="clipboard-plus" class="w-4 h-4 text-primary-500"></i>
+                                    New Assignment
+                                </a>
+                                <a href="{{ path('app_planning') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="calendar-plus" class="w-4 h-4 text-accent-500"></i>
+                                    New Event
+                                </a>
+                                <a href="{{ path('app_revisions') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="layers-2" class="w-4 h-4 text-success-500"></i>
+                                    New Flashcard Deck
+                                </a>
+                                <a href="{{ path('app_courses') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="book-plus" class="w-4 h-4 text-secondary-500"></i>
+                                    New Course
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Notifications -->
+                        <div class="relative" data-controller="dropdown">
+                            <button type="button"
+                                    class="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    data-action="click->dropdown#toggle"
+                                    aria-label="Notifications">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+                            </button>
+                            <div class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+                                 data-dropdown-target="menu">
+                                <div class="p-4 border-b border-slate-100 dark:border-slate-700">
+                                    <h3 class="font-semibold text-slate-900 dark:text-white">Notifications</h3>
+                                </div>
+                                <div class="max-h-80 overflow-y-auto">
+                                    <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <div class="w-9 h-9 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center flex-shrink-0">
+                                            <i data-lucide="alert-circle" class="w-4 h-4 text-warning-600 dark:text-warning-400"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Assignment due tomorrow</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Data Structures - Lab 5</p>
+                                        </div>
+                                    </a>
+                                    <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                        <div class="w-9 h-9 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
+                                            <i data-lucide="check-circle" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-medium text-slate-900 dark:text-white">Cards reviewed today!</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Great job! You reviewed 24 cards</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="p-3 border-t border-slate-100 dark:border-slate-700">
+                                    <a href="#" class="block text-center text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
+                                        View all notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Theme Toggle -->
                         <button type="button"
-                                class="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                data-action="click->dropdown#toggle"
-                                aria-label="Notifications">
-                            <i data-lucide="bell" class="w-5 h-5"></i>
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+                                class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                onclick="toggleTheme()"
+                                aria-label="Toggle theme">
+                            <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
                         </button>
-                        <div class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
-                             data-dropdown-target="menu">
-                            <div class="p-4 border-b border-slate-100 dark:border-slate-700">
-                                <h3 class="font-semibold text-slate-900 dark:text-white">Notifications</h3>
-                            </div>
-                            <div class="max-h-80 overflow-y-auto">
-                                <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <div class="w-9 h-9 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="alert-circle" class="w-4 h-4 text-warning-600 dark:text-warning-400"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">Assignment due tomorrow</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Data Structures - Lab 5</p>
-                                    </div>
-                                </a>
-                                <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <div class="w-9 h-9 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">Cards reviewed today!</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Great job! You reviewed 24 cards</p>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="p-3 border-t border-slate-100 dark:border-slate-700">
-                                <a href="#" class="block text-center text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
-                                    View all notifications
-                                </a>
+                        <!-- Profile -->
+                        <div class="relative" data-controller="dropdown">
+                            <button type="button"
+                                    class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                    data-action="click->dropdown#toggle">
+                                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                                    {% if app.user and app.user.profilePic %}
+                                        <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                    {% else %}
+                                        {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
+                                    {% endif %}
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden sm:block"></i>
+                            </button>
+                            <div class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+                                 data-dropdown-target="menu">
+                                <div class="p-4 border-b border-slate-100 dark:border-slate-700">
+                                    <p class="font-semibold text-slate-900 dark:text-white">{{ app.user ? app.user.fullName : 'User' }}</p>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400">{{ app.user ? app.user.email : '' }}</p>
+                                </div>
+                                <div class="p-2">
+                                    <a href="{{ path('app_settings') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                        Profile Settings
+                                    </a>
+                                    <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                        <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                        Help & Support
+                                    </a>
+                                    <div class="h-px bg-slate-100 dark:bg-slate-700 my-2"></div>
+                                    <a href="{{ path('app_logout') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-lg transition-colors">
+                                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                                        Sign Out
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Theme Toggle -->
-                    <button type="button"
-                            class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            onclick="toggleTheme()"
-                            aria-label="Toggle theme">
-                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
-                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
-                    </button>
-
-                    <!-- Profile -->
-                    <div class="relative" data-controller="dropdown">
-                        <button type="button"
-                                class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                data-action="click->dropdown#toggle">
-                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
-                                {% if app.user and app.user.profilePic %}
-                                    <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
-                                {% else %}
-                                    {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
-                                {% endif %}
-                            </div>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden sm:block"></i>
-                        </button>
-                        <div class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
-                             data-dropdown-target="menu">
-                            <div class="p-4 border-b border-slate-100 dark:border-slate-700">
-                                <p class="font-semibold text-slate-900 dark:text-white">{{ app.user ? app.user.fullName : 'User' }}</p>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ app.user ? app.user.email : '' }}</p>
-                            </div>
-                            <div class="p-2">
-                                <a href="{{ path('app_settings') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                    <i data-lucide="user" class="w-4 h-4"></i>
-                                    Profile Settings
-                                </a>
-                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
-                                    Help & Support
-                                </a>
-                                <div class="h-px bg-slate-100 dark:bg-slate-700 my-2"></div>
-                                <a href="{{ path('app_logout') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-lg transition-colors">
-                                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                                    Sign Out
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 </div>
             </header>
-
             <!-- Main Content -->
             <main class="flex-1 p-4 lg:p-6">
                 {% block body %}{% endblock %}
             </main>
         </div>
     </div>
-
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2" data-controller="toast">
         {% for label, messages in app.flashes %}
@@ -383,317 +471,7 @@
             {% endfor %}
         {% endfor %}
     </div>
-
     {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {{ encore_entry_script_tags('app') }}
-        
-        <script>
-            // Initialize Lucide icons
-            lucide.createIcons();
-        </script>
     {% endblock %}
-    
-    <!-- Global Initialization Script -->
-    <script>
-        // Initialize on DOMContentLoaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Lucide icons
-            window.initIcons();
-            console.log('✅ Page initialized: Icons loaded');
-        });
-        
-        // Also initialize on Turbo navigation (if using Turbo)
-        document.addEventListener('turbo:load', function() {
-            window.initIcons();
-        });
-        
-        // Also initialize on Turbo frame load
-        document.addEventListener('turbo:frame-load', function() {
-            window.initIcons();
-        });
-    </script>
-    
-    <!-- Global Search Script - Full Featured -->
-    <script>
-        (function() {
-            'use strict';
-            
-            const searchInput = document.getElementById('searchInput');
-            const searchResults = document.getElementById('searchResults');
-            const globalSearch = document.getElementById('globalSearch');
-            
-            if (!searchInput || !searchResults) return;
-            
-            let searchTimeout;
-            let isSearching = false;
-            let lastQuery = '';
-            let cachedResults = null;
-            
-            // Type labels and icons
-            const typeLabels = {
-                'course': '📚 Courses',
-                'project': '📁 Projects', 
-                'assignment': '📝 Assignments',
-                'deck': '🗂️ Flashcards',
-                'page': '📄 Pages',
-                'user': '👤 Users'
-            };
-            
-            const typeIcons = {
-                'course': '📚',
-                'project': '📁',
-                'assignment': '📝',
-                'deck': '🗂️',
-                'page': '📄',
-                'user': '👤'
-            };
-            
-            // 1. Input handler with debounce
-            searchInput.addEventListener('input', function(e) {
-                clearTimeout(searchTimeout);
-                const query = e.target.value.trim();
-                
-                // Hide if query is too short
-                if (query.length < 2) {
-                    searchResults.classList.add('hidden');
-                    cachedResults = null;
-                    return;
-                }
-                
-                // Show cached results if query matches
-                if (query === lastQuery && cachedResults) {
-                    displayResults(cachedResults);
-                    return;
-                }
-                
-                // Show loading spinner
-                showLoading();
-                
-                // 2. Debounce: Wait 300ms then search
-                searchTimeout = setTimeout(function() {
-                    performSearch(query);
-                }, 300);
-            });
-            
-            function showLoading() {
-                searchResults.innerHTML = `
-                    <div class="p-4 text-center text-slate-500">
-                        <div class="inline-block animate-spin text-2xl">⏳</div>
-                        <p class="text-xs mt-2">Searching...</p>
-                    </div>
-                `;
-                searchResults.classList.remove('hidden');
-            }
-            
-            function performSearch(query) {
-                if (isSearching) return;
-                isSearching = true;
-                
-                fetch('/api/search?q=' + encodeURIComponent(query))
-                    .then(function(response) {
-                        if (!response.ok) throw new Error('HTTP ' + response.status);
-                        return response.json();
-                    })
-                    .then(function(data) {
-                        lastQuery = query;
-                        cachedResults = data.results;
-                        displayResults(data.results);
-                    })
-                    .catch(function(error) {
-                        searchResults.innerHTML = `
-                            <div class="p-4 text-center text-red-500">
-                                <p class="text-sm">Search failed</p>
-                                <p class="text-xs">${error.message}</p>
-                            </div>
-                        `;
-                        searchResults.classList.remove('hidden');
-                    })
-                    .finally(function() {
-                        isSearching = false;
-                    });
-            }
-            
-            // 3. Display results grouped by type
-            function displayResults(results) {
-                if (!results || results.length === 0) {
-                    searchResults.innerHTML = `
-                        <div class="p-6 text-center text-slate-500">
-                            <div class="text-4xl mb-2">🔍</div>
-                            <p class="text-sm font-medium">No results found</p>
-                            <p class="text-xs mt-1 opacity-60">Try: "math", "project", or "dashboard"</p>
-                        </div>
-                    `;
-                    searchResults.classList.remove('hidden');
-                    return;
-                }
-                
-                // Group results by type
-                const grouped = {};
-                results.forEach(function(result) {
-                    if (!grouped[result.type]) grouped[result.type] = [];
-                    grouped[result.type].push(result);
-                });
-                
-                let html = '<div class="p-2">';
-                
-                Object.keys(grouped).forEach(function(type, index) {
-                    if (index > 0) {
-                        html += '<div class="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>';
-                    }
-                    
-                    html += '<div class="mb-2">';
-                    html += '<p class="px-3 py-1 text-xs font-bold text-slate-500 uppercase">' + typeLabels[type] + '</p>';
-                    
-                    grouped[type].forEach(function(result) {
-                        const icon = typeIcons[result.type] || '•';
-                        html += '<a href="' + result.url + '" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors group">';
-                        html += '<div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-lg">' + icon + '</div>';
-                        html += '<div class="flex-1 min-w-0">';
-                        html += '<p class="text-sm font-semibold text-slate-800 truncate">' + result.title + '</p>';
-                        html += '<p class="text-xs text-slate-500">' + result.subtitle + '</p>';
-                        html += '</div>';
-                        html += '</a>';
-                    });
-                    
-                    html += '</div>';
-                });
-                
-                html += '</div>';
-                searchResults.innerHTML = html;
-                searchResults.classList.remove('hidden');
-            }
-            
-            // 6. Click outside to close
-            document.addEventListener('click', function(e) {
-                const isClickInside = globalSearch && globalSearch.contains(e.target);
-                if (!isClickInside) {
-                    searchResults.classList.add('hidden');
-                }
-            });
-            
-            // 7. Focus again shows cached results
-            searchInput.addEventListener('focus', function() {
-                const query = searchInput.value.trim();
-                if (query.length >= 2) {
-                    if (cachedResults && query === lastQuery) {
-                        displayResults(cachedResults);
-                    } else {
-                        showLoading();
-                        performSearch(query);
-                    }
-                }
-            });
-            
-            // 5. Press Escape to close
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    searchResults.classList.add('hidden');
-                    searchInput.blur();
-                }
-            });
-        })();
-    </script>
-    
-    <!-- Pusher Real-time Notifications -->
-    {% if app.user %}
-    <script src="https://js.pusher.com/8.4/pusher.min.js"></script>
-    <script>
-        // Initialize Pusher for real-time notifications
-        const pusher = new Pusher('262d2d5c7812c0dd8417', {
-            cluster: 'eu',
-            forceTLS: true
-        });
-
-        // Subscribe to user's private channel
-        const userChannel = pusher.subscribe('private-user-{{ app.user.id }}');
-
-        // Listen for project shared notifications
-        userChannel.bind('project-shared', function(data) {
-            // Create toast notification
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer bg-primary-500 text-white';
-            toast.innerHTML = `
-                <i data-lucide="share-2" class="w-5 h-5"></i>
-                <div class="flex-1">
-                    <p class="font-medium">New Project Available!</p>
-                    <p class="text-sm opacity-90">${data.shared_by} shared "${data.project_title}" with you. It's now in your Projects list.</p>
-                </div>
-            `;
-            
-            // Add click handler to navigate to projects page
-            toast.addEventListener('click', function() {
-                window.location.href = '/project';
-            });
-            
-            toastContainer.appendChild(toast);
-            
-            // Initialize Lucide icons in the new toast
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-            
-            // Auto dismiss after 5 seconds
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-                setTimeout(function() {
-                    toast.remove();
-                }, 300);
-            }, 5000);
-            
-            // Update notification badge
-            const badge = document.querySelector('.relative button[aria-label="Notifications"] + div .bg-danger-500');
-            if (badge) {
-                badge.classList.remove('hidden');
-            }
-        });
-
-        // Listen for task assigned notifications
-        userChannel.bind('task-assigned', function(data) {
-            // Create toast notification
-            const toastContainer = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer bg-warning-500 text-white';
-            toast.innerHTML = `
-                <i data-lucide="clipboard-check" class="w-5 h-5"></i>
-                <div class="flex-1">
-                    <p class="font-medium">Task Assigned to You</p>
-                    <p class="text-sm opacity-90">${data.assigned_by} assigned you "${data.task_title}"</p>
-                </div>
-            `;
-            
-            // Add click handler to navigate to assigned tasks
-            toast.addEventListener('click', function() {
-                window.location.href = '/collaboration/assigned-tasks';
-            });
-            
-            toastContainer.appendChild(toast);
-            
-            // Initialize Lucide icons in the new toast
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-            
-            // Auto dismiss after 5 seconds
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(20px)';
-                setTimeout(function() {
-                    toast.remove();
-                }, 300);
-            }, 5000);
-            
-            // Update notification badge
-            const badge = document.querySelector('.relative button[aria-label="Notifications"] + div .bg-danger-500');
-            if (badge) {
-                badge.classList.remove('hidden');
-            }
-        });
-
-        console.log('✅ Pusher notifications initialized for user {{ app.user.id }}');
-    </script>
-    {% endif %}
 </body>
 </html>

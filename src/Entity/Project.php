@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
 #[ORM\Table(name: 'project')]
@@ -23,18 +24,41 @@ class Project
     private ?User $user = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+    )]
     private ?string $titre = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La description est obligatoire')]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'La description doit contenir au moins {{ limit }} caractères'
+    )]
     private ?string $description = null;
 
     #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: 'La date de début est obligatoire')]
     private ?\DateTimeInterface $dateDebut = null;
 
     #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE)]
+    #[Assert\NotBlank(message: 'La date de fin est obligatoire')]
+    #[Assert\Expression(
+        expression: "this.getDateFin() === null or this.getDateDebut() === null or this.getDateFin() >= this.getDateDebut()",
+        message: 'La date de fin doit être égale ou postérieure à la date de début'
+    )]
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
+    #[Assert\NotBlank(message: 'Le statut est obligatoire')]
+    #[Assert\Choice(
+        choices: ['En attente', 'En cours', 'En pause', 'Terminé', 'Annulé'],
+        message: 'Choisissez un statut valide'
+    )]
     private ?string $statut = null;
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
@@ -57,6 +81,10 @@ class Project
     {
         $this->updatedAt = new \DateTime();
     }
+
+    // ────────────────────────────────────────────────
+    // Getters & Setters
+    // ────────────────────────────────────────────────
 
     public function getId(): ?int
     {
@@ -112,7 +140,7 @@ class Project
         return $this->dateFin;
     }
 
-    public function setDateFin(\DateTimeInterface $dateFin): static
+    public function setDateFin(?\DateTimeInterface $dateFin): static
     {
         $this->dateFin = $dateFin;
         return $this;

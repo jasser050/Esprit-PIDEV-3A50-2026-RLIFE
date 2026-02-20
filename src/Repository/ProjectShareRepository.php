@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\ProjectShare;
+use App\Entity\Project;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -17,14 +19,14 @@ class ProjectShareRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find shares by project
+     * Find all users with whom a project is shared
+     *
+     * @param Project $project
+     * @return ProjectShare[]
      */
-    public function findByProject($project): array
+    public function findByProject(Project $project): array
     {
         return $this->createQueryBuilder('ps')
-            ->leftJoin('ps.sharedWithUser', 'swu')
-            ->leftJoin('ps.sharedByUser', 'sbu')
-            ->addSelect('swu', 'sbu')
             ->andWhere('ps.project = :project')
             ->setParameter('project', $project)
             ->orderBy('ps.createdAt', 'DESC')
@@ -33,15 +35,14 @@ class ProjectShareRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find shares by user (projects shared with this user)
+     * Find all projects shared with a user
+     *
+     * @param User $user
+     * @return ProjectShare[]
      */
-    public function findBySharedWithUser($user): array
+    public function findBySharedWithUser(User $user): array
     {
         return $this->createQueryBuilder('ps')
-            ->leftJoin('ps.project', 'p')
-            ->leftJoin('ps.sharedByUser', 'sbu')
-            ->leftJoin('p.user', 'pu')
-            ->addSelect('p', 'sbu', 'pu')
             ->andWhere('ps.sharedWithUser = :user')
             ->setParameter('user', $user)
             ->orderBy('ps.createdAt', 'DESC')
@@ -50,9 +51,13 @@ class ProjectShareRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find one by project and user
+     * Check if a project is shared with a specific user
+     *
+     * @param Project $project
+     * @param User $user
+     * @return ProjectShare|null
      */
-    public function findOneByProjectAndUser($project, $user): ?ProjectShare
+    public function findOneByProjectAndUser(Project $project, User $user): ?ProjectShare
     {
         return $this->createQueryBuilder('ps')
             ->andWhere('ps.project = :project')
@@ -64,10 +69,20 @@ class ProjectShareRepository extends ServiceEntityRepository
     }
 
     /**
-     * Check if user has access to project
+     * Check if user has access to project (owner or shared)
+     *
+     * @param Project $project
+     * @param User $user
+     * @return bool
      */
-    public function hasAccess($project, $user): bool
+    public function hasAccess(Project $project, User $user): bool
     {
+        // Owner always has access
+        if ($project->getUser() === $user) {
+            return true;
+        }
+
+        // Check if shared
         $share = $this->findOneByProjectAndUser($project, $user);
         return $share !== null;
     }
