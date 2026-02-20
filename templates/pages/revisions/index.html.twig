@@ -4,18 +4,11 @@
 
 {% block body %}
 <div class="space-y-6 animate-fade-in">
+
     <!-- Page Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track and manage your Review</p>
-        </div>
-        <div class="flex items-center gap-3">
-            <a href="{{ path('app_admin_deck_new') }}" class="btn btn-primary">
-                <i data-lucide="plus" class="w-5 h-5"></i>
-                New deck
-            </a>
-        </div>
+    <div>
+        <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
+        <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track and manage your Review</p>
     </div>
 
     <!-- Stats Overview Cards -->
@@ -68,33 +61,33 @@
 
     <!-- Gamification Banner -->
     {% if gamification is defined and gamification %}
-    <div class="card overflow-hidden border-0" style="background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);">
+    <div class="card overflow-hidden border-0" style="background:linear-gradient(135deg,#16a34a 0%,#15803d 50%,#166534 100%);">
         <div class="p-5">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div class="flex items-center gap-4">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: rgba(255,255,255,0.2);">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:rgba(255,255,255,0.2);">
                         <span class="text-3xl">🎓</span>
                     </div>
                     <div>
-                        <p class="text-sm" style="color: #bbf7d0;">Your progress</p>
-                        <h3 class="text-2xl font-bold text-white">Level {{ gamification.level }} <span style="color: #bbf7d0;">⭐</span></h3>
-                        <p class="text-sm" style="color: #86efac;">{{ gamification.points }} XP total</p>
+                        <p class="text-sm" style="color:#bbf7d0;">Your progress</p>
+                        <h3 class="text-2xl font-bold text-white">Level {{ gamification.level }} <span style="color:#bbf7d0;">⭐</span></h3>
+                        <p class="text-sm" style="color:#86efac;">{{ gamification.points }} XP total</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-6 flex-wrap">
                     <div class="text-center">
                         <p class="text-2xl font-bold text-white">🔥 {{ gamification.streak }}</p>
-                        <p class="text-xs" style="color: #86efac;">Day streak</p>
+                        <p class="text-xs" style="color:#86efac;">Day streak</p>
                     </div>
-                    <div class="w-px h-8" style="background: rgba(255,255,255,0.3);"></div>
+                    <div class="w-px h-8" style="background:rgba(255,255,255,0.3);"></div>
                     <div class="text-center">
                         <p class="text-2xl font-bold text-white">{{ gamification.totalDecksCompleted }}</p>
-                        <p class="text-xs" style="color: #86efac;">Decks done</p>
+                        <p class="text-xs" style="color:#86efac;">Decks done</p>
                     </div>
-                    <div class="w-px h-8" style="background: rgba(255,255,255,0.3);"></div>
+                    <div class="w-px h-8" style="background:rgba(255,255,255,0.3);"></div>
                     <div class="text-center">
                         <p class="text-2xl font-bold text-white">{{ gamification.totalCorrectAnswers }}</p>
-                        <p class="text-xs" style="color: #86efac;">Correct</p>
+                        <p class="text-xs" style="color:#86efac;">Correct</p>
                     </div>
                 </div>
                 <div class="flex-1 min-w-[200px]">
@@ -103,14 +96,14 @@
                     {% set progress = gamification.points > currentLevelXp ? ((gamification.points - currentLevelXp) / (nextLevelXp - currentLevelXp) * 100)|round : 0 %}
                     {% set progress = progress > 100 ? 100 : progress %}
                     <div class="flex justify-between text-xs mb-2">
-                        <span style="color: #bbf7d0;">Level {{ gamification.level }}</span>
-                        <span style="color: #4ade80;">{{ progress }}% → Lvl {{ gamification.level + 1 }}</span>
+                        <span style="color:#bbf7d0;">Level {{ gamification.level }}</span>
+                        <span style="color:#4ade80;">{{ progress }}% → Lvl {{ gamification.level + 1 }}</span>
                     </div>
-                    <div class="h-2 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.2);">
-                        <div class="h-full rounded-full transition-all duration-500" style="width: {{ progress }}%; background: #4ade80;"></div>
+                    <div class="h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.2);">
+                        <div class="h-full rounded-full transition-all duration-500" style="width:{{ progress }}%;background:#4ade80;"></div>
                     </div>
                 </div>
-                <a href="{{ path('gamification_dashboard') }}" class="btn border-0 text-white font-semibold" style="background: rgba(255,255,255,0.2);">
+                <a href="{{ path('gamification_dashboard') }}" class="btn border-0 text-white font-semibold" style="background:rgba(255,255,255,0.2);">
                     <i data-lucide="trophy" class="w-4 h-4"></i>
                     Full Dashboard
                 </a>
@@ -119,7 +112,7 @@
     </div>
     {% endif %}
 
-    <!-- Search and Filters Section -->
+    <!-- Search and Filters -->
     <div class="card overflow-hidden">
         <div class="p-5 border-b border-secondary-200 dark:border-secondary-800">
             <div class="flex items-center gap-3">
@@ -131,11 +124,11 @@
         </div>
         <div class="p-5 space-y-4">
             <div class="relative">
-                <input type="text" id="deckSearch" placeholder="Search decks by title, subject, level or description..." 
+                <input type="text" id="deckSearch" placeholder="Search decks by title, subject, level or description..."
                        class="w-full px-4 py-3 pl-12 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
                 <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400"></i>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Subject</label>
@@ -146,7 +139,6 @@
                         {% for subject in subjects|sort %}<option value="{{ subject|lower }}">{{ subject }}</option>{% endfor %}
                     </select>
                 </div>
-                
                 <div>
                     <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Level</label>
                     <select id="levelFilter" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
@@ -156,18 +148,16 @@
                         {% for level in levels|sort %}<option value="{{ level|lower }}">{{ level }}</option>{% endfor %}
                     </select>
                 </div>
-                
                 <div>
                     <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date From</label>
                     <input type="date" id="dateFrom" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
                 </div>
-                
                 <div>
                     <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date To</label>
                     <input type="date" id="dateTo" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
                 </div>
             </div>
-            
+
             <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
                 <div class="flex items-center gap-3">
                     <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Sort by:</span>
@@ -186,15 +176,12 @@
                         </button>
                     </div>
                 </div>
-                
-                <div class="flex items-center gap-3">
-                    <button type="button" id="resetFilters" class="btn btn-secondary">
-                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                        Reset All
-                    </button>
-                </div>
+                <button type="button" id="resetFilters" class="btn btn-secondary">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Reset All
+                </button>
             </div>
-            
+
             <div class="flex items-center justify-between pt-4 border-t border-secondary-200 dark:border-secondary-800">
                 <div id="resultCounter" class="text-sm font-medium text-secondary-600 dark:text-secondary-400">
                     Showing {{ decks|length }} deck{% if decks|length != 1 %}s{% endif %}
@@ -217,130 +204,156 @@
             </div>
         {% else %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
                 {% set colorPalettes = [
-                    {bg:'#fef3c7',border:'#f59e0b',text:'#d97706'},
-                    {bg:'#dbeafe',border:'#3b82f6',text:'#2563eb'},
-                    {bg:'#fce7f3',border:'#ec4899',text:'#db2777'},
-                    {bg:'#d1fae5',border:'#10b981',text:'#059669'},
-                    {bg:'#e0e7ff',border:'#6366f1',text:'#4f46e5'},
-                    {bg:'#ffe4e6',border:'#f43f5e',text:'#e11d48'},
-                    {bg:'#f3e8ff',border:'#a855f7',text:'#9333ea'},
-                    {bg:'#ccfbf1',border:'#14b8a6',text:'#0d9488'},
-                    {bg:'#fef08a',border:'#eab308',text:'#ca8a04'},
-                    {bg:'#fbcfe8',border:'#ec4899',text:'#db2777'},
-                    {bg:'#bfdbfe',border:'#3b82f6',text:'#2563eb'},
-                    {bg:'#c7d2fe',border:'#818cf8',text:'#6366f1'}
+                    {bg:'#fef9c3', border:'#eab308', text:'#a16207', icon:'#ca8a04'},
+                    {bg:'#dbeafe', border:'#3b82f6', text:'#1d4ed8', icon:'#2563eb'},
+                    {bg:'#fce7f3', border:'#ec4899', text:'#9d174d', icon:'#db2777'},
+                    {bg:'#dcfce7', border:'#22c55e', text:'#15803d', icon:'#16a34a'},
+                    {bg:'#ede9fe', border:'#8b5cf6', text:'#5b21b6', icon:'#7c3aed'},
+                    {bg:'#ffe4e6', border:'#f43f5e', text:'#be123c', icon:'#e11d48'},
+                    {bg:'#f3e8ff', border:'#a855f7', text:'#7e22ce', icon:'#9333ea'},
+                    {bg:'#ccfbf1', border:'#14b8a6', text:'#0f766e', icon:'#0d9488'},
+                    {bg:'#fef3c7', border:'#f59e0b', text:'#b45309', icon:'#d97706'},
+                    {bg:'#fce7f3', border:'#f472b6', text:'#9d174d', icon:'#ec4899'},
+                    {bg:'#bfdbfe', border:'#60a5fa', text:'#1e40af', icon:'#3b82f6'},
+                    {bg:'#c7d2fe', border:'#818cf8', text:'#3730a3', icon:'#6366f1'}
                 ] %}
 
                 {% for deck in decks %}
                     {% set palette = colorPalettes[loop.index0 % colorPalettes|length] %}
+                    {% set mastered = 0 %}
+                    {% for flashcard in deck.flashcards %}
+                        {% if flashcard.niveauDifficulte == 4 %}{% set mastered = mastered + 1 %}{% endif %}
+                    {% endfor %}
+                    {% set progressPct = deck.flashcards|length > 0 ? ((mastered / deck.flashcards|length) * 100)|round : 0 %}
 
-                    <div class="deck-card card hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
+                    <div class="deck-card card hover:shadow-xl transition-all duration-300 group flex flex-col h-full overflow-hidden"
                          data-title="{{ deck.titre|lower }}"
                          data-matiere="{{ deck.matiere|lower }}"
                          data-niveau="{{ deck.niveau|lower }}"
                          data-description="{{ deck.description|lower }}"
                          data-date="{{ deck.dateCreation ? deck.dateCreation|date('Y-m-d') : '' }}">
 
-                        <div class="h-32 overflow-hidden rounded-t-xl relative">
+                        {# ── Bannière top ── #}
+                        <div class="h-16 overflow-hidden relative flex-shrink-0">
                             {% if deck.image %}
                                 <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}"
                                      class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             {% else %}
-                                <div class="w-full h-full flex items-center justify-center"
-                                     style="background:linear-gradient(135deg,{{ palette.bg }},{{ palette.border }});">
-                                    <i data-lucide="layers" class="w-16 h-16 opacity-80" style="color:{{ palette.text }};"></i>
-                                </div>
+                                <div class="w-full h-full"
+                                     style="background:linear-gradient(135deg,{{ palette.bg }},{{ palette.border }}88);"></div>
                             {% endif %}
                         </div>
 
+                        {# ── Corps ── #}
                         <div class="p-5 flex-1 flex flex-col">
-                            <div class="flex items-start justify-between mb-4">
-                                <div class="w-12 h-12 rounded-xl bg-white dark:bg-secondary-800 shadow-md flex items-center justify-center -mt-8 border-2" style="border-color:{{ palette.border }};">
-                                    <i data-lucide="layers" class="w-6 h-6" style="color:{{ palette.text }};"></i>
+
+                            {# Icône style rounded-square coloré + date #}
+                            <div class="flex items-start justify-between mb-3 -mt-10">
+                                <div class="w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center border-2 border-white dark:border-secondary-900"
+                                     style="background-color:{{ palette.bg }};">
+                                    <i data-lucide="layers" class="w-7 h-7" style="color:{{ palette.icon }};"></i>
                                 </div>
-                                <span class="text-xs text-secondary-500 font-medium">{{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}</span>
+                                <span class="mt-10 text-xs text-secondary-400 dark:text-secondary-500 font-medium">
+                                    {{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}
+                                </span>
                             </div>
-                            
-                            <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color:{{ palette.text }};">{{ deck.titre }}</h3>
-                            
-                            <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-3 flex items-center gap-1.5">
-                                <i data-lucide="book-open" class="w-4 h-4"></i>
+
+                            {# Titre #}
+                            <h3 class="text-lg font-bold mb-1 line-clamp-2" style="color:{{ palette.text }};">
+                                {{ deck.titre }}
+                            </h3>
+
+                            {# Matière • Niveau #}
+                            <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-3 flex items-center gap-1.5">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5 shrink-0"></i>
                                 {{ deck.matiere }} • {{ deck.niveau }}
                             </p>
-                            
-                            <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-4 line-clamp-2">{{ deck.description ?: 'No description available' }}</p>
 
-                            <div class="flex gap-2 mb-4">
-                                <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
-                                      style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1px solid {{ palette.border }};">
-                                    <i data-lucide="layers" class="w-3.5 h-3.5 inline mr-1"></i>{{ deck.flashcards|length }} cards
+                            {# Description #}
+                            <p class="text-sm text-secondary-400 dark:text-secondary-500 mb-4 line-clamp-2 leading-relaxed">
+                                {{ deck.description ?: 'No description available' }}
+                            </p>
+
+                            {# Badges cards / mastered #}
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                                      style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1.5px solid {{ palette.border }};">
+                                    <i data-lucide="layers" class="w-3 h-3"></i>
+                                    {{ deck.flashcards|length }} cards
                                 </span>
-                                <span class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-success-100 text-success-700 border border-success-300 shadow-sm">
-                                    <i data-lucide="check-circle" class="w-3.5 h-3.5 inline mr-1"></i>
-                                    {% set mastered = 0 %}
-                                    {% for flashcard in deck.flashcards %}{% if flashcard.niveauDifficulte == 4 %}{% set mastered = mastered + 1 %}{% endif %}{% endfor %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold"
+                                      style="background-color:#f0fdf4;color:#15803d;border:1.5px solid #86efac;">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i>
                                     {{ mastered }} mastered
                                 </span>
                             </div>
 
-                            <div class="mb-4">
-                                <div class="flex justify-between items-center mb-2">
-                                    <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Progress</span>
-                                    <span class="text-sm font-bold" style="color:{{ palette.text }};">
-                                        {% if deck.flashcards|length > 0 %}{{ ((mastered / deck.flashcards|length)*100)|round }}%{% else %}0%{% endif %}
-                                    </span>
+                            {# Progress bar #}
+                            <div class="mb-5">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <span class="text-xs font-medium text-secondary-500 dark:text-secondary-400">Progress</span>
+                                    <span class="text-xs font-bold" style="color:{{ palette.text }};">{{ progressPct }}%</span>
                                 </div>
-                                <div class="w-full bg-secondary-200 dark:bg-secondary-700 rounded-full h-2.5 overflow-hidden">
+                                <div class="w-full bg-secondary-100 dark:bg-secondary-700 rounded-full h-2 overflow-hidden">
                                     <div class="h-full rounded-full transition-all duration-500"
-                                         style="width:{% if deck.flashcards|length > 0 %}{{ ((mastered / deck.flashcards|length)*100)|round }}%{% else %}0%{% endif %};background-color:{{ palette.text }};"></div>
+                                         style="width:{{ progressPct }}%;background-color:{{ palette.icon }};"></div>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col gap-2 mt-auto">
-                                <!-- Rating Button -->
-                                <div>
+                            {# ══ BOUTONS — tous identiques: h-11 rounded-xl text-sm font-semibold ══ #}
+                            <div class="mt-auto space-y-2">
+
+                                {# Rangée 1 : Rate | Study #}
+                                <div class="grid grid-cols-2 gap-2">
+
+                                    {# Rate — fond violet dégradé, texte blanc #}
                                     <a href="{{ path('app_rating_page', {deckId: deck.id}) }}"
                                        id="rate-btn-{{ deck.id }}"
-                                       class="btn w-full justify-center"
-                                       style="background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color:white; border:none;">
-                                        <span>⭐</span>
-                                        <span id="rate-btn-label-{{ deck.id }}">Rate this deck</span>
-                                        <span class="rate-badge ml-1" id="rate-badge-{{ deck.id }}"></span>
-                                        <span class="btn-mini-stars ml-1" id="rate-btn-stars-{{ deck.id }}">
-                                            <span class="btn-mini-star text-white/30">★</span>
-                                            <span class="btn-mini-star text-white/30">★</span>
-                                            <span class="btn-mini-star text-white/30">★</span>
-                                            <span class="btn-mini-star text-white/30">★</span>
-                                            <span class="btn-mini-star text-white/30">★</span>
-                                        </span>
+                                       class="flex items-center justify-center gap-1.5 h-11 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                                       style="background:linear-gradient(135deg,#7c3aed,#6d28d9);">
+                                        <span class="shrink-0">⭐</span>
+                                        <span id="rate-btn-label-{{ deck.id }}">Rate</span>
+                                        <span class="hidden text-xs font-bold" id="rate-badge-{{ deck.id }}"></span>
                                     </a>
-                                    <div class="deck-community-score mt-1 text-center text-xs" id="dcs-{{ deck.id }}">
-                                        <span class="text-secondary-400">loading...</span>
-                                    </div>
+
+                                    {# Study — fond couleur palette, texte blanc #}
+                                    <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
+                                       class="flex items-center justify-center gap-1.5 h-11 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                                       style="background-color:{{ palette.icon }};">
+                                        <i data-lucide="play-circle" class="w-4 h-4 shrink-0"></i>
+                                        <span>Study</span>
+                                    </a>
                                 </div>
 
-                                <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}"
-                                   class="btn w-full justify-center text-white border-0"
-                                   style="background-color:{{ palette.text }};">
-                                    <i data-lucide="play-circle" class="w-5 h-5 mr-2"></i>
-                                    Study this deck
-                                </a>
+                                {# Rangée 2 : QR Code | Add card
+                                   MÊME style exact que Rate/Study :
+                                   h-11 · rounded-xl · text-sm · font-semibold · texte blanc
+                                   Seule différence : couleurs différentes #}
+                                <div class="grid grid-cols-2 gap-2">
 
-                                <button type="button"
-                                        onclick="showQRModal({{ deck.id }}, '{{ deck.titre|e('js') }}')"
-                                        class="btn btn-secondary w-full justify-center">
-                                    <i data-lucide="qr-code" class="w-4 h-4 mr-2"></i>
-                                    Share with QR Code
-                                </button>
+                                    {# QR Code — fond gris ardoise, texte blanc #}
+                                    <button type="button"
+                                            onclick="showQRModal({{ deck.id }}, '{{ deck.titre|e('js') }}')"
+                                            class="flex items-center justify-center gap-1.5 h-11 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                                            style="background:linear-gradient(135deg,#475569,#334155);">
+                                        <i data-lucide="qr-code" class="w-4 h-4 shrink-0"></i>
+                                        <span>QR Code</span>
+                                    </button>
 
-                                <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
-                                   class="btn w-full justify-center border-2"
-                                   style="background-color:{{ palette.bg }};color:{{ palette.text }};border-color:{{ palette.border }};">
-                                    <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
-                                    Add a flashcard
-                                </a>
+                                    {# Add card — dégradé vert émeraude distinct de Study #}
+                                    <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}"
+                                       class="flex items-center justify-center gap-1.5 h-11 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                                       style="background:linear-gradient(135deg,#059669,#047857);">
+                                        <i data-lucide="plus-circle" class="w-4 h-4 shrink-0"></i>
+                                        <span>Add card</span>
+                                    </a>
+                                </div>
+
                             </div>
+                            {# ══ FIN BOUTONS ══ #}
+
                         </div>
                     </div>
                 {% endfor %}
@@ -350,7 +363,7 @@
 
     <!-- No Results Template -->
     <template id="noResultsTemplate">
-        <div class="card p-12 text-center">
+        <div class="card p-12 text-center no-results">
             <i data-lucide="search-x" class="w-20 h-20 mx-auto text-secondary-300 dark:text-secondary-600 mb-6"></i>
             <h3 class="text-2xl font-semibold text-secondary-900 dark:text-white mb-3">No results found</h3>
             <p class="text-secondary-600 dark:text-secondary-400 mb-6">Try adjusting your filters or search terms</p>
@@ -363,12 +376,12 @@
 </div>
 
 <!-- QR Modal -->
-<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-50" id="qr-modal" onclick="if(event.target===this)closeQRModal()">
+<div class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center hidden z-50"
+     id="qr-modal" onclick="if(event.target===this)closeQRModal()">
     <div class="bg-white dark:bg-secondary-800 rounded-2xl max-w-md w-full mx-4 shadow-2xl animate-fade-in">
         <div class="p-6 text-center">
             <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-1" id="qr-modal-title">Share this deck</h3>
             <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-6">Scan to import instantly</p>
-            
             <div class="bg-secondary-100 dark:bg-secondary-700 rounded-xl p-4 mb-6">
                 <img id="qr-modal-image" src="" alt="QR Code" class="mx-auto rounded-lg max-w-full h-auto" style="display:none;">
                 <div id="qr-loading" class="py-8 text-center">
@@ -376,15 +389,12 @@
                     <p class="text-sm text-secondary-600 dark:text-secondary-400">Generating QR Code...</p>
                 </div>
             </div>
-            
             <div class="flex flex-col sm:flex-row gap-3">
                 <a id="qr-modal-share" href="#" class="btn btn-primary flex-1 justify-center">
-                    <i data-lucide="share-2" class="w-4 h-4 mr-2"></i>
-                    Share Options
+                    <i data-lucide="share-2" class="w-4 h-4 mr-2"></i>Share Options
                 </a>
                 <button type="button" onclick="closeQRModal()" class="btn btn-secondary flex-1 justify-center">
-                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>
-                    Close
+                    <i data-lucide="x" class="w-4 h-4 mr-2"></i>Close
                 </button>
             </div>
         </div>
@@ -392,7 +402,8 @@
 </div>
 
 <!-- Gamification Toast -->
-<div class="fixed bottom-6 right-6 bg-white dark:bg-secondary-800 rounded-xl shadow-2xl border-l-4 border-primary-500 p-4 transform translate-x-[120%] transition-transform duration-300 z-50 max-w-sm" id="gami-toast">
+<div class="fixed bottom-6 right-6 bg-white dark:bg-secondary-800 rounded-xl shadow-2xl border-l-4 border-primary-500 p-4 transform translate-x-[120%] transition-transform duration-300 z-50 max-w-sm"
+     id="gami-toast">
     <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-2xl" id="gami-toast-icon">🎖</div>
         <div>
@@ -403,312 +414,178 @@
 </div>
 
 <script>
-// QR Modal Functions
+/* ── QR Modal ── */
 function showQRModal(id, title) {
-    const modal = document.getElementById('qr-modal');
-    const img = document.getElementById('qr-modal-image');
+    const modal   = document.getElementById('qr-modal');
+    const img     = document.getElementById('qr-modal-image');
     const loading = document.getElementById('qr-loading');
-    const shareLink = document.getElementById('qr-modal-share');
-    
+    const share   = document.getElementById('qr-modal-share');
     document.getElementById('qr-modal-title').textContent = title;
-    shareLink.href = '/qr/share/' + id;
-    
+    share.href = '/qr/share/' + id;
     img.style.display = 'none';
     loading.style.display = 'block';
     modal.classList.remove('hidden');
-    
-    img.onload = function() {
-        img.style.display = 'block';
-        loading.style.display = 'none';
+    img.onload  = () => { img.style.display = 'block'; loading.style.display = 'none'; };
+    img.onerror = () => {
+        const fb = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' +
+                   encodeURIComponent(window.location.origin + '/qr/import/preview-' + id);
+        if (img.src !== fb) { img.src = fb; }
+        else { loading.innerHTML = '<p style="color:#ef4444;">❌ Unable to generate QR code</p>'; }
     };
-    
-    img.onerror = function() {
-        const fallback = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
-                        encodeURIComponent(window.location.origin + '/qr/import/preview-' + id);
-        if (img.src !== fallback) {
-            img.src = fallback;
-        } else {
-            loading.innerHTML = '<p class="text-danger-500">❌ Unable to generate QR code</p>';
-        }
-    };
-    
     img.alt = 'QR - ' + title;
     img.src = '/qr/deck/' + id;
 }
+function closeQRModal() { document.getElementById('qr-modal').classList.add('hidden'); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeQRModal(); });
 
-function closeQRModal() {
-    document.getElementById('qr-modal').classList.add('hidden');
-}
-
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeQRModal();
-});
-
-// Gamification Toast
+/* ── Gamification Toast ── */
 function showGamiToast(icon, title, msg) {
     const toast = document.getElementById('gami-toast');
     if (!toast) return;
-    
-    document.getElementById('gami-toast-icon').textContent = icon;
+    document.getElementById('gami-toast-icon').textContent  = icon;
     document.getElementById('gami-toast-title').textContent = title;
-    document.getElementById('gami-toast-msg').textContent = msg;
-    
+    document.getElementById('gami-toast-msg').textContent   = msg;
     toast.classList.remove('translate-x-[120%]');
     setTimeout(() => toast.classList.add('translate-x-[120%]'), 4000);
 }
-
 function gamiCorrectAnswer() {
-    fetch('/gamification/correct-answer', { 
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
+    fetch('/gamification/correct-answer', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'} })
+    .then(r=>r.json()).then(d => {
         if (!d.success) return;
-        if (d.newBadges && d.newBadges.length > 0) {
-            showGamiToast('🎖', 'Badge unlocked!', d.newBadges[0]);
-        } else {
-            showGamiToast('🎯', '+10 XP', d.message || 'Correct answer!');
-        }
-    })
-    .catch(() => {});
+        showGamiToast(d.newBadges?.length ? '🎖':'🎯',
+                      d.newBadges?.length ? 'Badge unlocked!':'+10 XP',
+                      d.newBadges?.[0] ?? d.message ?? 'Correct!');
+    }).catch(()=>{});
 }
-
 function gamiDeckCompleted(deckId) {
-    fetch('/gamification/deck-completed/' + deckId, { 
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(d => {
+    fetch('/gamification/deck-completed/'+deckId, { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'} })
+    .then(r=>r.json()).then(d => {
         if (!d.success) return;
-        if (d.newBadges && d.newBadges.length > 0) {
-            showGamiToast('🏆', 'Badge earned!', d.newBadges[0]);
-        } else {
-            showGamiToast('🏆', '+50 XP', 'Deck completed!');
-        }
-    })
-    .catch(() => {});
+        showGamiToast('🏆', d.newBadges?.length ? 'Badge earned!':'+50 XP',
+                      d.newBadges?.[0] ?? 'Deck completed!');
+    }).catch(()=>{});
 }
 
-// Load Community Scores
-function loadDeckScore(deckId) {
+/* ── Rating : met à jour le bouton Rate uniquement ── */
+function loadDeckRating(deckId) {
     fetch('/rating/deck/' + deckId + '/my-rating')
     .then(r => r.json())
     .then(data => {
-        if (!data.success) return;
-
-        const dcs = document.getElementById('dcs-' + deckId);
-        if (dcs) {
-            if (data.total > 0 && data.average > 0) {
-                dcs.innerHTML = 
-                    '<span class="text-warning-500">★</span>' +
-                    '<span class="font-semibold text-warning-600 dark:text-warning-400 mx-1">' + 
-                    parseFloat(data.average).toFixed(1) + '</span>' +
-                    '<span class="text-secondary-400">·</span>' +
-                    '<span class="text-secondary-500 ml-1">' + data.total + ' rating' + (data.total > 1 ? 's' : '') + '</span>';
-            } else {
-                dcs.innerHTML = '<span class="text-secondary-400">No ratings yet</span>';
-            }
-        }
-
-        if (data.userStars) {
-            const labelEl = document.getElementById('rate-btn-label-' + deckId);
-            const starsEl = document.getElementById('rate-btn-stars-' + deckId);
-            const badgeEl = document.getElementById('rate-badge-' + deckId);
-
-            if (labelEl) labelEl.textContent = 'My rating';
-            if (badgeEl) {
-                badgeEl.textContent = data.userStars + '★';
-                badgeEl.classList.add('inline');
-            }
-            if (starsEl) {
-                starsEl.querySelectorAll('.btn-mini-star').forEach((s, i) => {
-                    s.className = i < data.userStars ? 'btn-mini-star text-warning-400' : 'btn-mini-star text-white/30';
-                });
-            }
-        }
+        if (!data.success || !data.userStars) return;
+        const labelEl = document.getElementById('rate-btn-label-' + deckId);
+        const badgeEl = document.getElementById('rate-badge-' + deckId);
+        if (labelEl) labelEl.textContent = 'My rating';
+        if (badgeEl) { badgeEl.textContent = data.userStars + '★'; badgeEl.classList.remove('hidden'); }
     })
-    .catch(() => {
-        const dcs = document.getElementById('dcs-' + deckId);
-        if (dcs) dcs.innerHTML = '';
-    });
+    .catch(() => {});
 }
 
-// Search & Filter
-document.addEventListener('DOMContentLoaded', function() {
-    // Load scores
+/* ── Search & Filter ── */
+document.addEventListener('DOMContentLoaded', function () {
+
     document.querySelectorAll('[id^="rate-btn-"]').forEach(btn => {
         const id = btn.id.replace('rate-btn-', '');
-        if (id) loadDeckScore(id);
+        if (id) loadDeckRating(id);
     });
 
-    const DS = document.getElementById('deckSearch');
-    const SF = document.getElementById('subjectFilter');
-    const LF = document.getElementById('levelFilter');
-    const DF = document.getElementById('dateFrom');
-    const DT = document.getElementById('dateTo');
+    const DS    = document.getElementById('deckSearch');
+    const SF    = document.getElementById('subjectFilter');
+    const LF    = document.getElementById('levelFilter');
+    const DF    = document.getElementById('dateFrom');
+    const DT    = document.getElementById('dateTo');
     const SORTS = document.querySelectorAll('.sort-button');
     const RESET = document.getElementById('resetFilters');
     const CARDS = document.querySelectorAll('.deck-card');
-    const CONT = document.getElementById('decksContainer');
-    const RC = document.getElementById('resultCounter');
-    const SI = document.getElementById('sortIndicator');
-    const NRT = document.getElementById('noResultsTemplate');
+    const CONT  = document.getElementById('decksContainer');
+    const RC    = document.getElementById('resultCounter');
+    const SI    = document.getElementById('sortIndicator');
+    const NRT   = document.getElementById('noResultsTemplate');
 
-    let state = { search: '', subject: 'all', level: 'all', dateFrom: '', dateTo: '', sort: 'date-desc' };
-    const sicons = { 'date-desc': 'calendar', 'date': 'calendar', 'title': 'arrow-up-a-z', 'title-desc': 'arrow-down-z-a' };
-    const slabels = { 'date-desc': 'Newest First', 'date': 'Oldest First', 'title': 'Title A-Z', 'title-desc': 'Title Z-A' };
+    let state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', sort:'date-desc' };
+    const sicons  = {'date-desc':'calendar','date':'calendar','title':'arrow-up-a-z','title-desc':'arrow-down-z-a'};
+    const slabels = {'date-desc':'Newest First','date':'Oldest First','title':'Title A-Z','title-desc':'Title Z-A'};
 
     function inRange(ds, from, to) {
         if (!ds) return false;
         const d = new Date(ds);
         if (from && d < new Date(from)) return false;
-        if (to && d > new Date(to)) return false;
+        if (to   && d > new Date(to))   return false;
         return true;
     }
 
     function filter() {
-        let visibleCount = 0;
-        let visibleDecks = [];
-
+        let count = 0, visible = [];
         CARDS.forEach(c => {
-            const t = c.getAttribute('data-title') || '';
-            const m = c.getAttribute('data-matiere') || '';
-            const n = c.getAttribute('data-niveau') || '';
-            const de = c.getAttribute('data-description') || '';
-            const dt = c.getAttribute('data-date') || '';
-            
-            const searchMatch = state.search === '' || 
-                t.includes(state.search) || 
-                m.includes(state.search) || 
-                n.includes(state.search) || 
-                de.includes(state.search);
-            
-            const subjectMatch = state.subject === 'all' || m === state.subject;
-            const levelMatch = state.level === 'all' || n === state.level;
-            const dateMatch = inRange(dt, state.dateFrom, state.dateTo);
-            
-            const ok = searchMatch && subjectMatch && levelMatch && dateMatch;
-            
-            if (ok) {
-                c.style.display = 'flex';
-                visibleCount++;
-                visibleDecks.push({ element: c, title: t, date: dt });
-            } else {
-                c.style.display = 'none';
-            }
+            const ok =
+                (state.search === '' ||
+                 [c.dataset.title, c.dataset.matiere, c.dataset.niveau, c.dataset.description]
+                 .some(v => v && v.includes(state.search)))
+                && (state.subject === 'all' || c.dataset.matiere === state.subject)
+                && (state.level   === 'all' || c.dataset.niveau  === state.level)
+                && inRange(c.dataset.date, state.dateFrom, state.dateTo);
+            if (ok) { c.style.display = 'flex'; count++; visible.push({element:c, title:c.dataset.title||'', date:c.dataset.date||''}); }
+            else    { c.style.display = 'none'; }
         });
-
-        sortCards(visibleDecks);
-        updateUI(visibleCount);
+        sortCards(visible);
+        updateUI(count);
     }
 
     function sortCards(decks) {
         decks.sort((a, b) => {
-            switch(state.sort) {
-                case 'date-desc': return new Date(b.date) - new Date(a.date);
-                case 'date': return new Date(a.date) - new Date(b.date);
-                case 'title': return a.title.localeCompare(b.title);
-                case 'title-desc': return b.title.localeCompare(a.title);
-                default: return 0;
-            }
+            if (state.sort === 'date-desc') return new Date(b.date) - new Date(a.date);
+            if (state.sort === 'date')      return new Date(a.date) - new Date(b.date);
+            if (state.sort === 'title')     return a.title.localeCompare(b.title);
+            if (state.sort === 'title-desc')return b.title.localeCompare(a.title);
+            return 0;
         });
-        
         const grid = CONT.querySelector('.grid');
-        if (grid) {
-            decks.forEach(d => grid.appendChild(d.element));
-        }
+        if (grid) decks.forEach(d => grid.appendChild(d.element));
     }
 
-    function updateUI(visibleCount) {
-        RC.textContent = 'Showing ' + visibleCount + ' deck' + (visibleCount !== 1 ? 's' : '');
-        SI.innerHTML = '<i data-lucide="' + sicons[state.sort] + '" class="w-4 h-4 mr-1"></i> Sorted by: ' + slabels[state.sort];
+    function updateUI(count) {
+        RC.textContent = 'Showing ' + count + ' deck' + (count !== 1 ? 's' : '');
+        SI.innerHTML   = '<i data-lucide="' + sicons[state.sort] + '" class="w-4 h-4 mr-1"></i> Sorted by: ' + slabels[state.sort];
         lucide.createIcons();
-
         const grid = CONT.querySelector('.grid');
         if (!grid) return;
-
-        if (visibleCount === 0) {
+        if (count === 0) {
             grid.style.display = 'none';
-            const nr = NRT.content.cloneNode(true);
-            const existing = CONT.querySelector('.no-results');
-            if (existing) existing.remove();
-            CONT.appendChild(nr);
+            CONT.querySelector('.no-results')?.remove();
+            CONT.appendChild(NRT.content.cloneNode(true));
             setTimeout(() => {
-                const cb = CONT.querySelector('#clearSearch');
-                if (cb) cb.addEventListener('click', resetAll);
+                CONT.querySelector('#clearSearch')?.addEventListener('click', resetAll);
                 lucide.createIcons();
-            }, 100);
+            }, 50);
         } else {
             grid.style.display = 'grid';
-            const nr = CONT.querySelector('.no-results');
-            if (nr) nr.remove();
+            CONT.querySelector('.no-results')?.remove();
         }
     }
 
     function resetAll() {
-        DS.value = '';
-        SF.value = 'all';
-        LF.value = 'all';
-        DF.value = '';
-        DT.value = '';
-        
+        DS.value=''; SF.value='all'; LF.value='all'; DF.value=''; DT.value='';
         SORTS.forEach(b => b.classList.remove('active'));
-        const def = document.querySelector('.sort-button[data-sort="date-desc"]');
-        if (def) def.classList.add('active');
-        
-        state = { search: '', subject: 'all', level: 'all', dateFrom: '', dateTo: '', sort: 'date-desc' };
+        document.querySelector('.sort-button[data-sort="date-desc"]')?.classList.add('active');
+        state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', sort:'date-desc' };
         filter();
     }
 
-    DS.addEventListener('input', () => {
-        state.search = DS.value.trim().toLowerCase();
+    DS.addEventListener('input',   () => { state.search   = DS.value.trim().toLowerCase(); filter(); });
+    DS.addEventListener('keypress', e => { if (e.key==='Enter') { state.search = DS.value.trim().toLowerCase(); filter(); } });
+    SF.addEventListener('change',  () => { state.subject  = SF.value; filter(); });
+    LF.addEventListener('change',  () => { state.level    = LF.value; filter(); });
+    DF.addEventListener('change',  () => { state.dateFrom = DF.value; filter(); });
+    DT.addEventListener('change',  () => { state.dateTo   = DT.value; filter(); });
+    SORTS.forEach(b => b.addEventListener('click', function() {
+        SORTS.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        state.sort = b.dataset.sort;
         filter();
-    });
-
-    DS.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            state.search = DS.value.trim().toLowerCase();
-            filter();
-        }
-    });
-
-    SF.addEventListener('change', () => {
-        state.subject = SF.value;
-        filter();
-    });
-
-    LF.addEventListener('change', () => {
-        state.level = LF.value;
-        filter();
-    });
-
-    DF.addEventListener('change', () => {
-        state.dateFrom = DF.value;
-        filter();
-    });
-
-    DT.addEventListener('change', () => {
-        state.dateTo = DT.value;
-        filter();
-    });
-
-    SORTS.forEach(b => {
-        b.addEventListener('click', function() {
-            SORTS.forEach(x => x.classList.remove('active'));
-            b.classList.add('active');
-            state.sort = b.getAttribute('data-sort');
-            filter();
-        });
-    });
-
+    }));
     RESET.addEventListener('click', resetAll);
-    
-    // Initialize active sort button
+
     SORTS.forEach(b => b.classList.remove('active'));
     document.querySelector('.sort-button[data-sort="date-desc"]')?.classList.add('active');
-    
     filter();
     lucide.createIcons();
 });

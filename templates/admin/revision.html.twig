@@ -5,314 +5,195 @@
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    .search-container { position: relative; max-width: 100%; }
-    .search-input { width: 100%; padding: 12px 48px 12px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 16px; transition: all 0.3s ease; background-color: white; }
-    .search-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-    .dark .search-input { background-color: #1e293b; border-color: #475569; color: white; }
-    .search-button { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #64748b; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s ease; }
-    .search-button:hover { background-color: #f1f5f9; color: #3b82f6; }
-    .controls-container { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
-    .filters-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .filter-group { display: flex; flex-direction: column; gap: 8px; }
-    .filter-label { font-size: 14px; font-weight: 500; color: #64748b; }
-    .dark .filter-label { color: #94a3b8; }
-    .filter-select { padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; background-color: white; cursor: pointer; min-width: 150px; transition: all 0.3s ease; }
-    .filter-select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-    .dark .filter-select { background-color: #1e293b; border-color: #475569; color: white; }
-    .date-search-container { display: flex; gap: 8px; align-items: center; }
-    .date-input { padding: 8px 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 150px; transition: all 0.3s ease; }
-    .date-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-    .dark .date-input { background-color: #1e293b; border-color: #475569; color: white; }
-    .sort-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-    .sort-button { padding: 8px 16px; border-radius: 20px; border: 2px solid #e2e8f0; background-color: white; color: #64748b; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; }
-    .sort-button:hover { border-color: #3b82f6; color: #3b82f6; }
-    .sort-button.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
-    .action-buttons { display: flex; gap: 8px; }
-    .action-button { padding: 8px 16px; border-radius: 8px; border: none; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px; }
-    .action-button.reset { background-color: #f1f5f9; color: #64748b; }
-    .action-button.reset:hover { background-color: #e2e8f0; }
-    .results-info { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
-    .deck-counter { color: #64748b; font-size: 14px; font-weight: 500; }
-    .sort-indicator { color: #3b82f6; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
-    .no-results { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
-    .no-results-icon { width: 80px; height: 80px; margin: 0 auto 20px; color: #cbd5e1; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);} }
     .deck-card { animation: fadeIn 0.3s ease-out; }
-
-    /* ═══════════════════════════════════════════════
-       ⭐ BLOC NOTATION ADMIN — Lu depuis la BDD
-    ═══════════════════════════════════════════════ */
-    .rating-admin-block {
-        background: linear-gradient(135deg, #fffbeb, #fef3c7);
-        border: 1px solid #fde68a;
-        border-radius: 12px;
-        padding: 10px 14px;
-        margin-bottom: 12px;
+    .sort-button.active {
+        background-color: #4f46e5 !important;
+        color: white !important;
+        border-color: #4f46e5 !important;
     }
-
-    .rating-admin-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 6px;
-    }
-
-    .rating-admin-title {
-        font-size: 11px;
-        font-weight: 700;
-        color: #92400e;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-
-    .rating-admin-link {
-        font-size: 11px;
-        color: #d97706;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color .15s;
-    }
+    .rating-admin-block { background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+    .rating-admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .rating-admin-title { font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.06em; }
+    .rating-admin-link { font-size: 11px; color: #d97706; text-decoration: none; font-weight: 600; }
     .rating-admin-link:hover { color: #b45309; text-decoration: underline; }
-
-    /* Étoiles visuelles (lecture seule) */
-    .rating-stars-visual {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .rating-stars-row {
-        display: flex;
-        gap: 2px;
-    }
-
-    .rstar {
-        font-size: 18px;
-        line-height: 1;
-    }
+    .rating-stars-visual { display: flex; align-items: center; gap: 6px; }
+    .rating-stars-row { display: flex; gap: 2px; }
+    .rstar { font-size: 18px; line-height: 1; }
     .rstar.filled { color: #f59e0b; }
     .rstar.half   { color: #f59e0b; opacity: 0.5; }
     .rstar.empty  { color: #d1d5db; }
-
-    .rating-avg-text {
-        font-size: 16px;
-        font-weight: 800;
-        color: #f59e0b;
-    }
-
-    .rating-count-text {
-        font-size: 12px;
-        color: #92400e;
-        font-weight: 500;
-    }
-
-    /* Barre de distribution */
-    .rating-distrib {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        margin-top: 8px;
-    }
-
-    .distrib-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-    }
-
-    .distrib-label {
-        color: #92400e;
-        font-weight: 600;
-        width: 14px;
-        text-align: right;
-        flex-shrink: 0;
-    }
-
-    .distrib-bar-wrap {
-        flex: 1;
-        background: #fde68a;
-        border-radius: 999px;
-        height: 6px;
-        overflow: hidden;
-    }
-
-    .distrib-bar-fill {
-        height: 100%;
-        background: #f59e0b;
-        border-radius: 999px;
-        transition: width .5s ease;
-    }
-
-    .distrib-count {
-        color: #92400e;
-        font-weight: 600;
-        width: 18px;
-        text-align: left;
-        flex-shrink: 0;
-    }
-
-    /* Badge "No ratings yet" */
-    .rating-empty-badge {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #92400e;
-        padding: 4px 0;
-    }
-
-    @media (max-width:768px) {
-        .filters-row { flex-direction:column; align-items:stretch; }
-        .filter-select,.date-input { width:100%; }
-        .date-search-container { flex-direction:column; }
-        .results-info { flex-direction:column; gap:12px; align-items:flex-start; }
-    }
+    .rating-avg-text { font-size: 16px; font-weight: 800; color: #f59e0b; }
+    .rating-count-text { font-size: 12px; color: #92400e; font-weight: 500; }
+    .rating-empty-badge { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #92400e; padding: 4px 0; }
 </style>
 {% endblock %}
 
 {% block body %}
-<div class="space-y-8 animate-fade-in">
+<div class="space-y-6 animate-fade-in">
 
     <!-- Header -->
-    <div class="space-y-6 animate-fade-in">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
-                <p class="text-secondary-500 dark:text-secondary-400 mt-1">Study efficiently with flashcards and spaced repetition</p>
-            </div>
-            <a href="{{ path('app_admin_deck_new') }}"
-               class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition shadow-md">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Create Deck
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">Revisions</h1>
+            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Study efficiently with flashcards and spaced repetition</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ path('app_admin_deck_new') }}" class="btn btn-primary">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                New Deck
             </a>
         </div>
+    </div>
 
-        <!-- Recherche & Filtres -->
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-6">
-            <div class="search-container">
-                <input type="text" id="deckSearch" placeholder="Search decks by title, subject, level or description..." class="search-input">
-                <button type="button" id="searchButton" class="search-button"><i data-lucide="search" class="w-5 h-5"></i></button>
-            </div>
-            <div class="controls-container">
-                <div class="filters-row">
-                    <div class="filter-group">
-                        <label class="filter-label">Subject</label>
-                        <select id="subjectFilter" class="filter-select">
-                            <option value="all">All Subjects</option>
-                            {% set subjects = [] %}
-                            {% for deck in decks %}{% if deck.matiere not in subjects %}{% set subjects = subjects|merge([deck.matiere]) %}{% endif %}{% endfor %}
-                            {% for subject in subjects|sort %}<option value="{{ subject|lower }}">{{ subject }}</option>{% endfor %}
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Level</label>
-                        <select id="levelFilter" class="filter-select">
-                            <option value="all">All Levels</option>
-                            {% set levels = [] %}
-                            {% for deck in decks %}{% if deck.niveau not in levels %}{% set levels = levels|merge([deck.niveau]) %}{% endif %}{% endfor %}
-                            {% for level in levels|sort %}<option value="{{ level|lower }}">{{ level }}</option>{% endfor %}
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Date Created</label>
-                        <div class="date-search-container">
-                            <input type="date" id="dateFrom" class="date-input">
-                            <span class="text-slate-400">to</span>
-                            <input type="date" id="dateTo" class="date-input">
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Progress</label>
-                        <select id="progressFilter" class="filter-select">
-                            <option value="all">All Progress</option>
-                            <option value="0-25">0–25% (Beginner)</option>
-                            <option value="26-50">26–50% (Intermediate)</option>
-                            <option value="51-75">51–75% (Advanced)</option>
-                            <option value="76-100">76–100% (Master)</option>
-                            <option value="100">100% (Completed)</option>
-                        </select>
-                    </div>
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                    <i data-lucide="layers" class="w-8 h-8 text-indigo-600 dark:text-indigo-400"></i>
                 </div>
-                <div class="filters-row">
-                    <div class="filter-group" style="flex-grow:1;">
-                        <label class="filter-label">Sort by</label>
-                        <div class="sort-buttons">
-                            <button type="button" class="sort-button active" data-sort="date-desc"><i data-lucide="calendar" class="w-4 h-4"></i> Newest First</button>
-                            <button type="button" class="sort-button" data-sort="date"><i data-lucide="calendar" class="w-4 h-4"></i> Oldest First</button>
-                            <button type="button" class="sort-button" data-sort="title"><i data-lucide="arrow-up-a-z" class="w-4 h-4"></i> Title A-Z</button>
-                            <button type="button" class="sort-button" data-sort="title-desc"><i data-lucide="arrow-down-z-a" class="w-4 h-4"></i> Title Z-A</button>
-                            <button type="button" class="sort-button" data-sort="progress"><i data-lucide="trending-up" class="w-4 h-4"></i> Progress ↑</button>
-                            <button type="button" class="sort-button" data-sort="progress-desc"><i data-lucide="trending-down" class="w-4 h-4"></i> Progress ↓</button>
-                            <button type="button" class="sort-button" data-sort="cards"><i data-lucide="layers" class="w-4 h-4"></i> Cards Count</button>
-                            <button type="button" class="sort-button" data-sort="rating-desc"><i data-lucide="star" class="w-4 h-4"></i> Best Rated</button>
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label" style="opacity:0;">Actions</label>
-                        <div class="action-buttons">
-                            <button type="button" id="resetFilters" class="action-button reset"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset All</button>
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-3xl font-bold text-secondary-900 dark:text-white">{{ decks|length }}</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Total Decks</p>
                 </div>
-            </div>
-            <div class="results-info">
-                <div id="resultCounter" class="deck-counter">Showing {{ decks|length }} decks</div>
-                <div id="sortIndicator" class="sort-indicator"><i data-lucide="calendar" class="w-4 h-4"></i> Sorted by: Newest First</div>
             </div>
         </div>
-
-        <!-- KPI Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
-                    <i data-lucide="layers" class="w-6 h-6 text-indigo-600 dark:text-indigo-400"></i>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                    <i data-lucide="star" class="w-8 h-8 text-amber-500"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ decks|length }}</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Decks</p>
+                    <p class="text-3xl font-bold text-amber-500" id="kpi-total-ratings">—</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Total Ratings</p>
                 </div>
             </div>
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <i data-lucide="star" class="w-6 h-6 text-amber-500"></i>
+        </div>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-8 h-8 text-green-600"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-amber-500" id="kpi-total-ratings">—</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Total Ratings</p>
+                    <p class="text-3xl font-bold text-green-600" id="kpi-avg-global">—</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Global Average</p>
                 </div>
             </div>
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-6 h-6 text-green-600"></i>
+        </div>
+        <div class="card p-5">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                    <i data-lucide="trophy" class="w-8 h-8 text-purple-600"></i>
                 </div>
                 <div>
-                    <p class="text-2xl font-bold text-green-600" id="kpi-avg-global">—</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Global Average</p>
-                </div>
-            </div>
-            <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 flex items-center gap-5">
-                <div class="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <i data-lucide="trophy" class="w-6 h-6 text-purple-600"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-bold text-purple-600 leading-tight" id="kpi-best-deck" style="font-size:13px;">—</p>
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Best Rated Deck</p>
+                    <p class="text-sm font-bold text-purple-600 leading-tight" id="kpi-best-deck">—</p>
+                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Best Rated Deck</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Liste des decks -->
+    <!-- Search and Filters Section -->
+    <div class="card overflow-hidden">
+        <div class="p-5 border-b border-secondary-200 dark:border-secondary-800">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <i data-lucide="search" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <h2 class="font-semibold text-secondary-900 dark:text-white">Search Decks</h2>
+            </div>
+        </div>
+        <div class="p-5 space-y-4">
+            <!-- Search Input -->
+            <div class="relative">
+                <input type="text" id="deckSearch"
+                       placeholder="Search decks by title, subject, level or description..."
+                       class="w-full px-4 py-3 pl-12 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all">
+                <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-secondary-400"></i>
+            </div>
+
+            <!-- Filters Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Subject</label>
+                    <select id="subjectFilter" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="all">All Subjects</option>
+                        {% set subjects = [] %}
+                        {% for deck in decks %}{% if deck.matiere not in subjects %}{% set subjects = subjects|merge([deck.matiere]) %}{% endif %}{% endfor %}
+                        {% for subject in subjects|sort %}<option value="{{ subject|lower }}">{{ subject }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Level</label>
+                    <select id="levelFilter" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="all">All Levels</option>
+                        {% set levels = [] %}
+                        {% for deck in decks %}{% if deck.niveau not in levels %}{% set levels = levels|merge([deck.niveau]) %}{% endif %}{% endfor %}
+                        {% for level in levels|sort %}<option value="{{ level|lower }}">{{ level }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date From</label>
+                    <input type="date" id="dateFrom" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-secondary-700 dark:text-secondary-300 mb-2">Date To</label>
+                    <input type="date" id="dateTo" class="w-full px-3 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+            </div>
+
+            <!-- Sort + Reset -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">Sort by:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-600 transition-all active" data-sort="date-desc">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>Newest
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-600 transition-all" data-sort="date">
+                            <i data-lucide="calendar" class="w-4 h-4 inline mr-1"></i>Oldest
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-600 transition-all" data-sort="title">
+                            <i data-lucide="arrow-up-a-z" class="w-4 h-4 inline mr-1"></i>A-Z
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-600 transition-all" data-sort="title-desc">
+                            <i data-lucide="arrow-down-z-a" class="w-4 h-4 inline mr-1"></i>Z-A
+                        </button>
+                        <button type="button" class="sort-button px-3 py-1.5 rounded-lg text-sm font-medium border border-secondary-300 dark:border-secondary-700 bg-white dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-600 transition-all" data-sort="rating-desc">
+                            <i data-lucide="star" class="w-4 h-4 inline mr-1"></i>Best Rated
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button type="button" id="resetFilters" class="btn btn-secondary">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        Reset All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Counter + Sort Indicator -->
+            <div class="flex items-center justify-between pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                <div id="resultCounter" class="text-sm font-medium text-secondary-600 dark:text-secondary-400">
+                    Showing {{ decks|length }} deck{% if decks|length != 1 %}s{% endif %}
+                </div>
+                <div id="sortIndicator" class="text-sm text-primary-600 dark:text-primary-400 flex items-center gap-1">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    Sorted by: Newest First
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decks Grid -->
     <div id="decksContainer">
         {% if decks is empty %}
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
-            <i data-lucide="layers-2" class="w-20 h-20 mx-auto text-slate-300 dark:text-slate-600 mb-6"></i>
-            <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks yet</h3>
-            <a href="{{ path('app_admin_deck_new') }}" class="inline-flex items-center px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl transition shadow-lg">
-                <i data-lucide="plus" class="w-6 h-6 mr-3"></i> Create your first Deck
+        <div class="card p-12 text-center">
+            <i data-lucide="layers-2" class="w-20 h-20 mx-auto text-secondary-300 dark:text-secondary-600 mb-6"></i>
+            <h3 class="text-2xl font-semibold text-secondary-900 dark:text-white mb-3">No decks yet</h3>
+            <a href="{{ path('app_admin_deck_new') }}" class="btn btn-primary mx-auto">
+                <i data-lucide="plus" class="w-6 h-6 mr-2"></i> Create your first Deck
             </a>
         </div>
         {% else %}
@@ -342,14 +223,14 @@
             ] %}
 
             {% for deck in decks %}
-                {% set palette    = colorPalettes[loop.index0 % colorPalettes|length] %}
-                {% set di         = loop.index0 % demoStats|length %}
-                {% set deckCards  = demoStats[di].cards %}
-                {% set deckMast   = demoStats[di].mastered %}
-                {% set deckProg   = demoStats[di].progress %}
+                {% set palette   = colorPalettes[loop.index0 % colorPalettes|length] %}
+                {% set di        = loop.index0 % demoStats|length %}
+                {% set deckCards = demoStats[di].cards %}
+                {% set deckMast  = demoStats[di].mastered %}
+                {% set deckProg  = demoStats[di].progress %}
 
-                <div class="deck-card bg-white rounded-2xl shadow-lg border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col"
-                     style="border-color:{{ palette.border }};"
+                <div class="deck-card card hover:shadow-lg transition-all duration-300 group flex flex-col h-full"
+                     style="border-top: 3px solid {{ palette.border }};"
                      data-title="{{ deck.titre|lower }}"
                      data-matiere="{{ deck.matiere|lower }}"
                      data-niveau="{{ deck.niveau|lower }}"
@@ -361,7 +242,7 @@
                      data-deck-id="{{ deck.id }}">
 
                     <!-- Image -->
-                    <div class="h-32 overflow-hidden relative">
+                    <div class="h-32 overflow-hidden rounded-t-xl relative">
                         {% if deck.image %}
                             <img src="{{ asset('uploads/decks/' ~ deck.image) }}" alt="{{ deck.titre }}"
                                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
@@ -373,26 +254,21 @@
                         {% endif %}
                     </div>
 
-                    <!-- Header -->
-                    <div class="p-5 pb-0">
+                    <div class="p-5 flex-1 flex flex-col">
                         <div class="flex items-start justify-between mb-4">
-                            <div class="w-12 h-12 rounded-lg backdrop-blur-sm flex items-center justify-center shadow-lg -mt-8 group-hover:scale-110 transition-transform"
-                                 style="background-color:rgba(255,255,255,0.9);border:2px solid {{ palette.border }};">
+                            <div class="w-12 h-12 rounded-xl bg-white dark:bg-secondary-800 shadow-md flex items-center justify-center -mt-8 border-2" style="border-color:{{ palette.border }};">
                                 <i data-lucide="layers" class="w-6 h-6" style="color:{{ palette.text }};"></i>
                             </div>
-                            <span class="text-xs text-slate-500 font-medium">{{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}</span>
+                            <span class="text-xs text-secondary-500 font-medium">{{ deck.dateCreation ? deck.dateCreation|date('d/m/Y') : '—' }}</span>
                         </div>
+
                         <h3 class="text-xl font-bold mb-2 line-clamp-2" style="color:{{ palette.text }};">{{ deck.titre }}</h3>
-                        <p class="text-sm text-slate-600 mb-3 flex items-center gap-1.5">
+                        <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-3 flex items-center gap-1.5">
                             <i data-lucide="book-open" class="w-4 h-4"></i>
                             {{ deck.matiere }} • {{ deck.niveau }}
                         </p>
-                        <p class="text-sm text-slate-500 mb-4 line-clamp-2">{{ deck.description ?: 'No description available' }}</p>
-                    </div>
+                        <p class="text-sm text-secondary-500 dark:text-secondary-400 mb-4 line-clamp-2">{{ deck.description ?: 'No description available' }}</p>
 
-                    <div class="px-5 pb-4 flex flex-col flex-1">
-
-                        <!-- Stats cartes + progress -->
                         <div class="flex gap-2 mb-4">
                             <span class="px-3 py-1.5 rounded-lg text-sm font-semibold shadow-sm"
                                   style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1px solid {{ palette.border }};">
@@ -405,54 +281,45 @@
 
                         <div class="mb-4">
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-sm font-medium text-slate-600">Progress</span>
+                                <span class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Progress</span>
                                 <span class="text-sm font-bold" style="color:{{ palette.text }};">{{ deckProg }}%</span>
                             </div>
-                            <div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
+                            <div class="w-full bg-secondary-200 dark:bg-secondary-700 rounded-full h-2.5 overflow-hidden">
                                 <div class="h-full rounded-full transition-all duration-500"
                                      style="width:{{ deckProg }}%;background-color:{{ palette.text }};"></div>
                             </div>
                         </div>
 
-                        {# ══════════════════════════════════════════════════
-                           ⭐ BLOC NOTATION — Données étudiants depuis l'API
-                        ══════════════════════════════════════════════════ #}
+                        <!-- Bloc notation -->
                         <div class="rating-admin-block" id="rating-block-{{ deck.id }}">
-
                             <div class="rating-admin-header">
                                 <span class="rating-admin-title">⭐ Student ratings</span>
-                                <a href="{{ path('app_admin_ratings_deck', {'deckId': deck.id}) }}"
-                                   class="rating-admin-link">View details →</a>
+                                <a href="{{ path('app_admin_ratings_deck', {'deckId': deck.id}) }}" class="rating-admin-link">View details →</a>
                             </div>
-
-                            {# Chargé dynamiquement par JS — placeholder initial #}
                             <div id="rating-content-{{ deck.id }}">
-                                <div class="rating-empty-badge" style="color:#d97706; font-size:12px;">
-                                    ⏳ Loading...
-                                </div>
+                                <div class="rating-empty-badge" style="color:#d97706; font-size:12px;">⏳ Loading...</div>
                             </div>
                         </div>
 
-                        <!-- Boutons admin (view / edit / delete) -->
-                        <div class="flex justify-end gap-3 mt-auto pt-2">
-                            <a href="{{ path('app_admin_deck_show', {'id': deck.id}) }}"
-                               class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110 bg-blue-100 text-blue-600 hover:bg-blue-200"
-                               title="View deck">
-                                <i data-lucide="eye" class="w-5 h-5"></i>
+                        <!-- Boutons admin -->
+                        <div class="flex justify-end gap-2 mt-auto pt-2">
+                            <a href="{{ path('app_admin_deck_show', {'id_deck': deck.id}) }}"
+                               class="btn btn-secondary px-3 py-2" title="View deck">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
                             </a>
-                            <a href="{{ path('app_admin_deck_edit', {'id': deck.id}) }}"
-                               class="w-10 h-10 rounded-lg flex items-center justify-center transition-all hover:shadow-md hover:scale-110"
-                               style="background-color:{{ palette.bg }};color:{{ palette.text }};"
+                            <a href="{{ path('app_admin_deck_edit', {'id_deck': deck.id}) }}"
+                               class="btn px-3 py-2"
+                               style="background-color:{{ palette.bg }};color:{{ palette.text }};border:1px solid {{ palette.border }};"
                                title="Edit deck">
-                                <i data-lucide="pencil" class="w-5 h-5"></i>
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
                             </a>
-                            <form method="post" action="{{ path('app_admin_deck_delete', {'id': deck.id}) }}"
+                            <form method="post" action="{{ path('app_admin_deck_delete', {'id_deck': deck.id}) }}"
                                   onsubmit="return confirm('Really delete this deck?');" class="inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deck.id) }}">
                                 <button type="submit"
-                                        class="w-10 h-10 rounded-lg flex items-center justify-center bg-red-100 text-red-600 hover:bg-red-200 transition-all hover:shadow-md hover:scale-110"
+                                        class="btn px-3 py-2 bg-red-100 text-red-600 hover:bg-red-200 border border-red-200"
                                         title="Delete deck">
-                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                             </form>
                         </div>
@@ -462,148 +329,68 @@
         </div>
         {% endif %}
     </div>
-</div>
 
-<template id="noResultsTemplate">
-    <div class="no-results bg-white dark:bg-slate-800 rounded-2xl shadow border border-slate-200 dark:border-slate-700 p-12 text-center">
-        <i data-lucide="search" class="w-20 h-20 mx-auto no-results-icon mb-6"></i>
-        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white mb-3">No decks found</h3>
-        <p class="text-slate-600 dark:text-slate-400 mb-6">Try adjusting your search or filter.</p>
-        <button type="button" id="clearSearch" class="inline-flex items-center px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium rounded-lg transition">
-            <i data-lucide="x" class="w-5 h-5 mr-2"></i> Clear all filters
-        </button>
-    </div>
-</template>
+    <!-- No Results Template -->
+    <template id="noResultsTemplate">
+        <div class="card p-12 text-center">
+            <i data-lucide="search-x" class="w-20 h-20 mx-auto text-secondary-300 dark:text-secondary-600 mb-6"></i>
+            <h3 class="text-2xl font-semibold text-secondary-900 dark:text-white mb-3">No results found</h3>
+            <p class="text-secondary-600 dark:text-secondary-400 mb-6">Try adjusting your filters or search terms</p>
+            <button type="button" id="clearSearch" class="btn btn-secondary mx-auto">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Clear all filters
+            </button>
+        </div>
+    </template>
+</div>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
 <script>
-// ══════════════════════════════════════════════════════
-//  ⭐ CHARGEMENT DES NOTATIONS ÉTUDIANTS (ADMIN)
-//  Utilise l'endpoint GET /rating/deck/{id}/my-rating
-//  mais en mode admin on charge via l'API chart-data
-// ══════════════════════════════════════════════════════
-
-// Charge les stats de notation pour un deck via l'API admin
-function loadDeckRating(deckId) {
-    fetch('/rating/deck/' + deckId + '/my-rating')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.success !== undefined) {
-                renderRatingBlock(deckId, data.average, data.total, null);
-            }
-        })
-        .catch(function() {
-            renderRatingError(deckId);
-        });
-}
-
-// Charge les stats COMPLÈTES depuis l'endpoint admin (distribution incluse)
-function loadDeckRatingAdmin(deckId) {
-    fetch('/admin/ratings/deck/' + deckId, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
-    })
-    .then(function(r) {
-        // Si la page répond en HTML (pas JSON), on fallback sur l'endpoint simple
-        var ct = r.headers.get('content-type') || '';
-        if (ct.indexOf('application/json') === -1) {
-            return loadDeckRatingSimple(deckId);
-        }
-        return r.json().then(function(data) {
-            if (data.stats) {
-                renderRatingBlock(deckId, data.stats.average, data.stats.total, data.stats.distribution);
-            }
-        });
-    })
-    .catch(function() {
-        loadDeckRatingSimple(deckId);
-    });
-}
-
-// Fallback : endpoint simple (moyenne + total seulement)
 function loadDeckRatingSimple(deckId) {
     fetch('/rating/deck/' + deckId + '/my-rating')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            renderRatingBlock(deckId, data.average || 0, data.total || 0, null);
-            // Met à jour l'attribut data-rating pour le tri
+            renderRatingBlock(deckId, data.average || 0, data.total || 0);
             var card = document.querySelector('[data-deck-id="' + deckId + '"]');
             if (card) card.setAttribute('data-rating', data.average || 0);
         })
         .catch(function() { renderRatingError(deckId); });
 }
 
-// Construit le HTML du bloc notation
-function renderRatingBlock(deckId, average, total, distribution) {
+function renderRatingBlock(deckId, average, total) {
     var container = document.getElementById('rating-content-' + deckId);
     if (!container) return;
-
-    // Met à jour data-rating pour le tri
-    var card = document.querySelector('[data-deck-id="' + deckId + '"]');
-    if (card) card.setAttribute('data-rating', average || 0);
-
     if (total === 0 || !average) {
-        container.innerHTML =
-            '<div class="rating-empty-badge">' +
-            '<span style="font-size:16px;">📭</span>' +
-            '<span>No student ratings yet</span>' +
-            '</div>';
+        container.innerHTML = '<div class="rating-empty-badge"><span style="font-size:16px;">📭</span><span>No student ratings yet</span></div>';
         return;
     }
-
-    // Étoiles visuelles
     var starsHtml = '';
     for (var i = 1; i <= 5; i++) {
-        if (i <= Math.floor(average)) {
-            starsHtml += '<span class="rstar filled">★</span>';
-        } else if (i - 0.5 <= average) {
-            starsHtml += '<span class="rstar half">★</span>';
-        } else {
-            starsHtml += '<span class="rstar empty">★</span>';
-        }
+        if (i <= Math.floor(average)) starsHtml += '<span class="rstar filled">★</span>';
+        else if (i - 0.5 <= average) starsHtml += '<span class="rstar half">★</span>';
+        else starsHtml += '<span class="rstar empty">★</span>';
     }
-
-    // Distribution (si disponible)
-    var distribHtml = '';
-    if (distribution) {
-        distribHtml = '<div class="rating-distrib">';
-        for (var star = 5; star >= 1; star--) {
-            var count = distribution[star] || 0;
-            var pct   = total > 0 ? Math.round(count / total * 100) : 0;
-            distribHtml +=
-                '<div class="distrib-row">' +
-                '<span class="distrib-label">' + star + '★</span>' +
-                '<div class="distrib-bar-wrap"><div class="distrib-bar-fill" style="width:' + pct + '%"></div></div>' +
-                '<span class="distrib-count">' + count + '</span>' +
-                '</div>';
-        }
-        distribHtml += '</div>';
-    }
-
     container.innerHTML =
         '<div class="rating-stars-visual">' +
         '<div class="rating-stars-row">' + starsHtml + '</div>' +
         '<span class="rating-avg-text">' + parseFloat(average).toFixed(1) + '</span>' +
         '<span class="rating-count-text">(' + total + ' rating' + (total > 1 ? 's' : '') + ')</span>' +
-        '</div>' +
-        distribHtml;
+        '</div>';
 }
 
 function renderRatingError(deckId) {
     var container = document.getElementById('rating-content-' + deckId);
-    if (container) {
-        container.innerHTML = '<div class="rating-empty-badge" style="color:#ef4444;">⚠️ Unable to load</div>';
-    }
+    if (container) container.innerHTML = '<div class="rating-empty-badge" style="color:#ef4444;">⚠️ Unable to load</div>';
 }
 
-// Charge les stats globales pour les KPI en haut
 function loadGlobalStats() {
     fetch('/admin/ratings/api/chart-data')
         .then(function(r) { return r.json(); })
         .then(function(data) {
             var totRatings = 0, sumAvg = 0, bestLabel = '—', bestAvg = 0;
-            if (data.totals) data.totals.forEach(function(t) { totRatings += t; });
+            if (data.totals)  data.totals.forEach(function(t) { totRatings += t; });
             if (data.averages && data.labels) {
                 data.averages.forEach(function(a, i) {
                     if (a > bestAvg) { bestAvg = a; bestLabel = data.labels[i]; }
@@ -621,53 +408,28 @@ function loadGlobalStats() {
         .catch(function() {});
 }
 
-// ══════════════════════════════════════════════
-//  🔍 SEARCH & FILTER
-// ══════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
-
-    // Charge les notations pour chaque deck
     document.querySelectorAll('[data-deck-id]').forEach(function(card) {
         var id = card.getAttribute('data-deck-id');
         if (id) loadDeckRatingSimple(id);
     });
-
-    // Charge les KPI globaux
     loadGlobalStats();
 
-    var DS = document.getElementById('deckSearch'),
-        SB = document.getElementById('searchButton'),
-        SF = document.getElementById('subjectFilter'),
-        LF = document.getElementById('levelFilter'),
-        DF = document.getElementById('dateFrom'),
-        DT = document.getElementById('dateTo'),
-        PF = document.getElementById('progressFilter'),
-        SORTS  = document.querySelectorAll('.sort-button'),
-        RESET  = document.getElementById('resetFilters'),
-        CARDS  = document.querySelectorAll('.deck-card'),
-        CONT   = document.getElementById('decksContainer'),
-        RC     = document.getElementById('resultCounter'),
-        SI     = document.getElementById('sortIndicator'),
-        NRT    = document.getElementById('noResultsTemplate');
+    var DS    = document.getElementById('deckSearch'),
+        SF    = document.getElementById('subjectFilter'),
+        LF    = document.getElementById('levelFilter'),
+        DF    = document.getElementById('dateFrom'),
+        DT    = document.getElementById('dateTo'),
+        SORTS = document.querySelectorAll('.sort-button'),
+        RESET = document.getElementById('resetFilters'),
+        CARDS = document.querySelectorAll('.deck-card'),
+        CONT  = document.getElementById('decksContainer'),
+        RC    = document.getElementById('resultCounter'),
+        SI    = document.getElementById('sortIndicator'),
+        NRT   = document.getElementById('noResultsTemplate');
 
-    var state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', progress:'all', sort:'date-desc' };
-
-    var sicons  = { 'date-desc':'calendar','date':'calendar','title':'arrow-up-a-z','title-desc':'arrow-down-z-a','progress':'trending-up','progress-desc':'trending-down','cards':'layers','rating-desc':'star' };
-    var slabels = { 'date-desc':'Newest First','date':'Oldest First','title':'Title A-Z','title-desc':'Title Z-A','progress':'Progress ↑','progress-desc':'Progress ↓','cards':'Cards Count','rating-desc':'Best Rated' };
-
-    function inRange(ds, from, to) {
-        if (!ds) return false;
-        var d = new Date(ds);
-        if (from && d < new Date(from)) return false;
-        if (to   && d > new Date(to))   return false;
-        return true;
-    }
-    function progInRange(p, r) {
-        if (r === 'all') return true;
-        if (r === '100') return p == 100;
-        var parts = r.split('-').map(Number);
-        return p >= parts[0] && p <= parts[1];
-    }
+    var state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', sort:'date-desc' };
+    var slabels = { 'date-desc':'Newest First', 'date':'Oldest First', 'title':'Title A-Z', 'title-desc':'Title Z-A', 'rating-desc':'Best Rated' };
 
     function filter() {
         var vc = 0, vd = [];
@@ -681,78 +443,73 @@ document.addEventListener('DOMContentLoaded', function() {
                 ca = parseInt(c.getAttribute('data-cards'))    || 0,
                 rt = parseFloat(c.getAttribute('data-rating')) || 0;
 
-            var ok = (state.search===''||t.includes(state.search)||m.includes(state.search)||n.includes(state.search)||de.includes(state.search))
-                && (state.subject==='all'||m===state.subject)
-                && (state.level==='all'||n===state.level)
-                && inRange(dt, state.dateFrom, state.dateTo)
-                && progInRange(pr, state.progress);
+            var ok = (state.search === '' || t.includes(state.search) || m.includes(state.search) || n.includes(state.search) || de.includes(state.search))
+                && (state.subject === 'all' || m === state.subject)
+                && (state.level   === 'all' || n === state.level);
+            if (state.dateFrom && dt && new Date(dt) < new Date(state.dateFrom)) ok = false;
+            if (state.dateTo   && dt && new Date(dt) > new Date(state.dateTo))   ok = false;
 
-            if (ok) { c.style.display='flex'; vc++; vd.push({element:c,title:t,date:dt,progress:pr,cards:ca,rating:rt}); }
-            else    { c.style.display='none'; }
+            if (ok) { c.style.display = 'flex'; vc++; vd.push({element:c, title:t, date:dt, progress:pr, cards:ca, rating:rt}); }
+            else    { c.style.display = 'none'; }
         });
-        sortCards(vd);
-        updateUI(vc);
-    }
 
-    function sortCards(decks) {
-        decks.sort(function(a, b) {
-            switch(state.sort) {
-                case 'date-desc':    return new Date(b.date)  - new Date(a.date);
-                case 'date':         return new Date(a.date)  - new Date(b.date);
-                case 'title':        return a.title.localeCompare(b.title);
-                case 'title-desc':   return b.title.localeCompare(a.title);
-                case 'progress':     return a.progress - b.progress;
-                case 'progress-desc':return b.progress - a.progress;
-                case 'cards':        return a.cards    - b.cards;
-                case 'rating-desc':  return b.rating   - a.rating;
+        vd.sort(function(a, b) {
+            switch (state.sort) {
+                case 'date-desc':   return new Date(b.date) - new Date(a.date);
+                case 'date':        return new Date(a.date) - new Date(b.date);
+                case 'title':       return a.title.localeCompare(b.title);
+                case 'title-desc':  return b.title.localeCompare(a.title);
+                case 'rating-desc': return b.rating - a.rating;
                 default: return 0;
             }
         });
-        var g = CONT.querySelector('.grid');
-        if (g) decks.forEach(function(d) { g.appendChild(d.element); });
-    }
 
-    function updateUI(vc) {
-        RC.textContent = 'Showing ' + vc + ' deck' + (vc !== 1 ? 's' : '');
-        SI.innerHTML   = '<i data-lucide="' + (sicons[state.sort]||'calendar') + '" class="w-4 h-4"></i> Sorted by: ' + (slabels[state.sort]||'');
-        lucide.createIcons();
         var g = CONT.querySelector('.grid');
+        if (g) vd.forEach(function(d) { g.appendChild(d.element); });
+
+        RC.textContent = 'Showing ' + vc + ' deck' + (vc !== 1 ? 's' : '');
+        SI.innerHTML = '<i data-lucide="calendar" class="w-4 h-4 inline"></i> Sorted by: ' + (slabels[state.sort] || '');
+        lucide.createIcons();
+
         if (!g) return;
         if (vc === 0) {
             g.style.display = 'none';
-            var ex = CONT.querySelector('.no-results'); if (ex) ex.remove();
-            CONT.appendChild(NRT.content.cloneNode(true));
+            var ex = CONT.querySelector('.no-results-msg'); if (ex) ex.remove();
+            var clone = NRT.content.cloneNode(true);
+            clone.firstElementChild && clone.firstElementChild.classList.add('no-results-msg');
+            CONT.appendChild(clone);
             setTimeout(function() {
                 var cb = CONT.querySelector('#clearSearch');
                 if (cb) cb.addEventListener('click', resetAll);
                 lucide.createIcons();
-            }, 100);
+            }, 50);
         } else {
             g.style.display = 'grid';
-            var nr = CONT.querySelector('.no-results'); if (nr) nr.remove();
+            var nr = CONT.querySelector('.no-results-msg'); if (nr) nr.remove();
         }
     }
 
     function resetAll() {
-        DS.value=''; SF.value='all'; LF.value='all'; DF.value=''; DT.value=''; PF.value='all';
-        SORTS.forEach(function(b){b.classList.remove('active');});
-        var def=document.querySelector('.sort-button[data-sort="date-desc"]'); if(def)def.classList.add('active');
-        state={search:'',subject:'all',level:'all',dateFrom:'',dateTo:'',progress:'all',sort:'date-desc'};
+        DS.value = ''; SF.value = 'all'; LF.value = 'all'; DF.value = ''; DT.value = '';
+        SORTS.forEach(function(b) { b.classList.remove('active'); });
+        var def = document.querySelector('.sort-button[data-sort="date-desc"]');
+        if (def) def.classList.add('active');
+        state = { search:'', subject:'all', level:'all', dateFrom:'', dateTo:'', sort:'date-desc' };
         filter();
     }
 
-    DS.addEventListener('input',   function(){state.search=this.value.trim().toLowerCase();filter();});
-    SB.addEventListener('click',   function(){state.search=DS.value.trim().toLowerCase();filter();});
-    DS.addEventListener('keypress',function(e){if(e.key==='Enter'){state.search=this.value.trim().toLowerCase();filter();}});
-    SF.addEventListener('change',  function(){state.subject=this.value;filter();});
-    LF.addEventListener('change',  function(){state.level=this.value;filter();});
-    DF.addEventListener('change',  function(){state.dateFrom=this.value;filter();});
-    DT.addEventListener('change',  function(){state.dateTo=this.value;filter();});
-    PF.addEventListener('change',  function(){state.progress=this.value;filter();});
-    SORTS.forEach(function(b){
-        b.addEventListener('click',function(){
-            SORTS.forEach(function(x){x.classList.remove('active');});
-            b.classList.add('active'); state.sort=b.getAttribute('data-sort'); filter();
+    DS.addEventListener('input',    function() { state.search   = this.value.trim().toLowerCase(); filter(); });
+    DS.addEventListener('keypress', function(e) { if (e.key === 'Enter') { state.search = this.value.trim().toLowerCase(); filter(); } });
+    SF.addEventListener('change',   function() { state.subject  = this.value; filter(); });
+    LF.addEventListener('change',   function() { state.level    = this.value; filter(); });
+    DF.addEventListener('change',   function() { state.dateFrom = this.value; filter(); });
+    DT.addEventListener('change',   function() { state.dateTo   = this.value; filter(); });
+    SORTS.forEach(function(b) {
+        b.addEventListener('click', function() {
+            SORTS.forEach(function(x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            state.sort = b.getAttribute('data-sort');
+            filter();
         });
     });
     RESET.addEventListener('click', resetAll);
