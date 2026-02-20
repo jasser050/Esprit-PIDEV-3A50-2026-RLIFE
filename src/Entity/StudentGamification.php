@@ -36,7 +36,7 @@ class StudentGamification
     private ?\DateTimeInterface $lastActivity = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    private array $badges = [];
+    private ?array $badges = [];
 
     #[ORM\Column(name: 'total_decks_completed', type: Types::INTEGER)]
     private int $totalDecksCompleted = 0;
@@ -150,9 +150,9 @@ class StudentGamification
         return $this->badges ?? [];
     }
 
-    public function setBadges(array $badges): static
+    public function setBadges(?array $badges): static
     {
-        $this->badges = $badges;
+        $this->badges = $badges ?? [];
         return $this;
     }
 

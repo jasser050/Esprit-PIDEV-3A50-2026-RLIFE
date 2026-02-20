@@ -16,12 +16,6 @@ parameters:
     # Mailer Configuration
     mailer_from_email: '%env(MAILER_FROM_EMAIL)%'
     mailer_from_name: '%env(MAILER_FROM_NAME)%'
-    
-    # Pusher Configuration
-    pusher.app_id: '%env(PUSHER_APP_ID)%'
-    pusher.key: '%env(PUSHER_KEY)%'
-    pusher.secret: '%env(PUSHER_SECRET)%'
-    pusher.cluster: '%env(PUSHER_CLUSTER)%'
 
 services:
     # default configuration for services in *this* file
@@ -33,17 +27,18 @@ services:
     App\:
         resource: '../src/'
 
-    # TranslationService — bind the API key (string, not auto-injectable)
+    # TranslationService ??? bind the API key (string, not auto-injectable)
     App\Service\TranslationService:
         bind:
             $openrouterApiKey: '%openrouter_api_key%'
         tags:
             - { name: monolog.logger, channel: translation }
 
-    # PusherService — explicit constructor arguments
+    # PusherService ??? explicit constructor arguments
     App\Service\PusherService:
         arguments:
             $appId: '%pusher.app_id%'
             $key: '%pusher.key%'
             $secret: '%pusher.secret%'
             $cluster: '%pusher.cluster%'
+

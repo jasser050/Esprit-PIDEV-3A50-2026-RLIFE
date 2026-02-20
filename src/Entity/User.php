@@ -106,10 +106,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $resetPasswordTokenExpiresAt = null;
 
+    #[ORM\Column(type: Types::INTEGER, options: ['default' => 0])]
+    private int $coins = 0;
+
     /**
-     
+     * @var Collection<int, Career>
      */
-       private Collection $careers;
+    #[ORM\OneToMany(targetEntity: Career::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $careers;
 
     #[ORM\OneToOne(targetEntity: UserSettings::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserSettings $settings = null;
@@ -126,11 +130,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: EvaluationMatiere::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $evaluations;
 
+    /**
+     * @var Collection<int, Project>
+     */
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $projects;
+
+    /**
+     * @var Collection<int, Assignment>
+     */
+    #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $assignments;
+
+    /**
+     * @var Collection<int, Deck>
+     */
+    #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $decks;
+
+    /**
+     * @var Collection<int, Pet>
+     */
+    #[ORM\OneToMany(targetEntity: Pet::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $pets;
+
+    /**
+     * @var Collection<int, Notification>
+     */
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'user', orphanRemoval: true)]
+    #[ORM\OrderBy(['createdAt' => 'DESC'])]
+    private Collection $notifications;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
         $this->matieres = new ArrayCollection();
         $this->evaluations = new ArrayCollection();
+        $this->projects = new ArrayCollection();
+        $this->assignments = new ArrayCollection();
+        $this->decks = new ArrayCollection();
+        $this->pets = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
@@ -385,19 +425,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     
-     */
     public function getCareers(): Collection
     {
         return $this->careers;
     }
 
-    
-      
-        
+    public function addCareer(Career $career): static
+    {
+        if (!$this->careers->contains($career)) {
+            $this->careers->add($career);
+            $career->setUser($this);
+        }
 
-    
+        return $this;
+    }
+
+    public function removeCareer(Career $career): static
+    {
+        if ($this->careers->removeElement($career)) {
+            if ($career->getUser() === $this) {
+                $career->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 
     public function getSettings(): ?UserSettings
     {
@@ -500,6 +552,93 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @return Collection<int, Project>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(Project $project): static
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(Project $project): static
+    {
+        if ($this->projects->removeElement($project)) {
+            if ($project->getUser() === $this) {
+                $project->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Assignment>
+     */
+    public function getAssignments(): Collection
+    {
+        return $this->assignments;
+    }
+
+    public function addAssignment(Assignment $assignment): static
+    {
+        if (!$this->assignments->contains($assignment)) {
+            $this->assignments->add($assignment);
+            $assignment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignment(Assignment $assignment): static
+    {
+        if ($this->assignments->removeElement($assignment)) {
+            if ($assignment->getUser() === $this) {
+                $assignment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Deck>
+     */
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function addDeck(Deck $deck): static
+    {
+        if (!$this->decks->contains($deck)) {
+            $this->decks->add($deck);
+            $deck->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDeck(Deck $deck): static
+    {
+        if ($this->decks->removeElement($deck)) {
+            if ($deck->getUser() === $this) {
+                $deck->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getAvatarType(): ?string
     {
         return $this->avatarType;
@@ -596,5 +735,100 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             return true;
         }
         return $this->resetPasswordTokenExpiresAt < new \DateTimeImmutable();
+    }
+
+    public function getCoins(): int
+    {
+        return $this->coins;
+    }
+
+    public function setCoins(int $coins): static
+    {
+        $this->coins = max(0, $coins);
+        return $this;
+    }
+
+    public function addCoins(int $amount): static
+    {
+        $this->coins += max(0, $amount);
+        return $this;
+    }
+
+    public function removeCoins(int $amount): static
+    {
+        $this->coins = max(0, $this->coins - max(0, $amount));
+        return $this;
+    }
+
+    public function spendCoins(int $amount): static
+    {
+        return $this->removeCoins($amount);
+    }
+
+    /**
+     * @return Collection<int, Pet>
+     */
+    public function getPets(): Collection
+    {
+        return $this->pets;
+    }
+
+    public function addPet(Pet $pet): static
+    {
+        if (!$this->pets->contains($pet)) {
+            $this->pets->add($pet);
+            $pet->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePet(Pet $pet): static
+    {
+        if ($this->pets->removeElement($pet)) {
+            if ($pet->getUser() === $this) {
+                $pet->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getMainPet(): ?Pet
+    {
+        if ($this->pets->isEmpty()) {
+            return null;
+        }
+
+        return $this->pets->first() ?: null;
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            if ($notification->getUser() === $this) {
+                $notification->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

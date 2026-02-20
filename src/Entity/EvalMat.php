@@ -18,7 +18,7 @@ class EvalMat
     #[ORM\JoinColumn(name: 'matiere_id', referencedColumnName: 'id_matiere', nullable: false, onDelete: 'CASCADE')]
     private ?Matiere $matiere = null;
 
-    #[ORM\ManyToOne(targetEntity: EvaluationMatiere::class)]
+    #[ORM\ManyToOne(targetEntity: EvaluationMatiere::class, inversedBy: 'evalMats')]
     #[ORM\JoinColumn(name: 'evaluation_id', referencedColumnName: 'id_eval', nullable: false, onDelete: 'CASCADE')]
     private ?EvaluationMatiere $evaluation = null;
 
