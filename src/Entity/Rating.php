@@ -19,7 +19,7 @@ class Rating
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(targetEntity: Deck::class, inversedBy: 'ratings')]
+    #[ORM\ManyToOne(targetEntity: Deck::class)]
     #[ORM\JoinColumn(name: 'deck_id', referencedColumnName: 'id_deck', nullable: false, onDelete: 'CASCADE')]
     private ?Deck $deck = null;
 

@@ -8,10 +8,12 @@ use App\Entity\Project;
 use App\Form\AssignmentType;
 use App\Form\CommentType;
 use App\Repository\AssignmentRepository;
+use App\Repository\AssignmentCollaboratorRepository;
 use App\Repository\CommentRepository;
+use App\Repository\ProjectShareRepository;
 use App\Service\AssignmentStatsService;
 use App\Service\AssignmentPdfService;
-use App\Service\PusherService;
+use App\Service\NotificationManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,6 +91,22 @@ class AssignmentController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (trim((string) $assignment->getTitre()) === '') {
+                $this->addFlash('error', 'Task title is required.');
+                return $this->render('pages/assignments/new.html.twig', [
+                    'assignment' => $assignment,
+                    'form' => $form,
+                ]);
+            }
+
+            if ($assignment->getDateFin() === null) {
+                $assignment->setDateFin($assignment->getDateDebut() ?? new \DateTimeImmutable('today'));
+            }
+
+            if ($assignment->getDateDebut() === null) {
+                $assignment->setDateDebut($assignment->getDateFin() ?? new \DateTimeImmutable('today'));
+            }
+
             $assignment->setUser($this->getUser());
 
             $entityManager->persist($assignment);
@@ -112,9 +130,9 @@ class AssignmentController extends AbstractController
         AssignmentStatsService $statsService,
         CommentRepository $commentRepository,
         EntityManagerInterface $entityManager,
-        PusherService $pusherService,
         AssignmentCollaboratorRepository $collaboratorRepository,
-        ProjectShareRepository $shareRepository
+        ProjectShareRepository $shareRepository,
+        NotificationManager $notificationManager
     ): Response {
         // Check if user is owner, collaborator, or has project access
         $isOwner = $assignment->getUser() === $this->getUser();
@@ -139,14 +157,17 @@ class AssignmentController extends AbstractController
             $entityManager->persist($comment);
             $entityManager->flush();
 
-            // Send real-time notification via Pusher
-            $pusherService->notifyNewComment(
-                $assignment->getId(),
-                $comment->getId(),
-                $this->getUser()->getEmail(),
-                $comment->getContent(),
-                $comment->getCreatedAt()->format('Y-m-d H:i:s')
-            );
+            $assignmentOwner = $assignment->getUser();
+            $currentUser = $this->getUser();
+            if ($assignmentOwner && $currentUser && $assignmentOwner->getId() !== $currentUser->getId()) {
+                $notificationManager->createNotification(
+                    $assignmentOwner,
+                    'New comment on assignment',
+                    sprintf('%s commented on "%s".', $currentUser->getFullName(), $assignment->getTitre()),
+                    'new_comment',
+                    $this->generateUrl('app_assignments_show', ['id' => $assignment->getId()])
+                );
+            }
 
             $this->addFlash('success', 'Comment added successfully!');
             return $this->redirectToRoute('app_assignments_show', ['id' => $assignment->getId()]);
@@ -154,10 +175,12 @@ class AssignmentController extends AbstractController
 
         // Get comments for this assignment
         $comments = $commentRepository->findByAssignment($assignment);
+        $collaborators = $collaboratorRepository->findByAssignment($assignment);
 
         return $this->render('pages/assignments/show.html.twig', [
             'assignment'      => $assignment,
             'assignmentStats' => $assignmentStats,
+            'collaborators'   => $collaborators,
             'comments'        => $comments,
             'commentForm'     => $commentForm->createView(),
         ]);
@@ -179,6 +202,22 @@ class AssignmentController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (trim((string) $assignment->getTitre()) === '') {
+                $this->addFlash('error', 'Task title is required.');
+                return $this->render('pages/assignments/edit.html.twig', [
+                    'assignment' => $assignment,
+                    'form' => $form,
+                ]);
+            }
+
+            if ($assignment->getDateFin() === null) {
+                $assignment->setDateFin($assignment->getDateDebut() ?? new \DateTimeImmutable('today'));
+            }
+
+            if ($assignment->getDateDebut() === null) {
+                $assignment->setDateDebut($assignment->getDateFin() ?? new \DateTimeImmutable('today'));
+            }
+
             $entityManager->flush();
 
             $this->addFlash('success', 'Task updated successfully!');
@@ -266,8 +305,7 @@ class AssignmentController extends AbstractController
     public function deleteComment(
         Comment $comment,
         Request $request,
-        EntityManagerInterface $entityManager,
-        PusherService $pusherService
+        EntityManagerInterface $entityManager
     ): Response {
         // Security check - only comment author can delete
         if ($comment->getUser() !== $this->getUser()) {
@@ -275,14 +313,9 @@ class AssignmentController extends AbstractController
         }
 
         $assignmentId = $comment->getAssignment()->getId();
-        $commentId = $comment->getId();
-
         if ($this->isCsrfTokenValid('delete-comment' . $comment->getId(), $request->request->get('_token'))) {
             $entityManager->remove($comment);
             $entityManager->flush();
-
-            // Notify via Pusher
-            $pusherService->notifyCommentDeleted($assignmentId, $commentId);
 
             $this->addFlash('success', 'Comment deleted successfully!');
         }

@@ -17,7 +17,6 @@
         "knpuniversity/oauth2-client-bundle": ">=2.20.2",
         "league/oauth2-google": "^4.1",
         "lexik/jwt-authentication-bundle": "^2.18.1",
-        "pusher/pusher-php-server": "^7.2.7",
         "symfony/asset": "6.4.*",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",

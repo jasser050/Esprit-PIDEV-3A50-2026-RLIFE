@@ -23,7 +23,7 @@ class Career
     #[ORM\Column(nullable: true)]
     private ?int $priority = null;
 
-    #[ORM\ManyToOne(inversedBy: 'careers')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

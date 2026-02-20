@@ -8,6 +8,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,6 +57,8 @@ class ProjectType extends AbstractType
             ->add('dateDebut', DateType::class, [
                 'label' => 'Start Date',
                 'widget' => 'single_text',
+                'required' => false,
+                'empty_data' => (new \DateTimeImmutable('today'))->format('Y-m-d'),
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -67,6 +71,8 @@ class ProjectType extends AbstractType
             ->add('dateFin', DateType::class, [
                 'label' => 'End Date',
                 'widget' => 'single_text',
+                'required' => false,
+                'empty_data' => (new \DateTimeImmutable('today'))->format('Y-m-d'),
                 'attr' => [
                     'class' => 'form-control',
                 ],
@@ -99,6 +105,29 @@ class ProjectType extends AbstractType
                 ],
             ])
         ;
+
+        // Ensure dateDebut/dateFin are always populated before mapping.
+        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event): void {
+            $data = $event->getData();
+            if (!is_array($data)) {
+                return;
+            }
+
+            $dateDebut = trim((string) ($data['dateDebut'] ?? ''));
+            $dateFin = trim((string) ($data['dateFin'] ?? ''));
+
+            if ($dateDebut === '' && $dateFin === '') {
+                $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
+                $data['dateDebut'] = $today;
+                $data['dateFin'] = $today;
+            } elseif ($dateDebut === '') {
+                $data['dateDebut'] = $dateFin;
+            } elseif ($dateFin === '') {
+                $data['dateFin'] = $dateDebut;
+            }
+
+            $event->setData($data);
+        });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
