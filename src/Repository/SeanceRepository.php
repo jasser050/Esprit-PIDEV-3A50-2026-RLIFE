@@ -15,4 +15,36 @@ class SeanceRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Seance::class);
     }
+<<<<<<< HEAD
 }
+=======
+
+    /**
+     * Find all seances for a specific user
+     * @return Seance[]
+     */
+    public function findByUser(int $userId): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.user = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('s.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Find seances by status
+     * @return Seance[]
+     */
+    public function findByStatut(string $statut): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.statut = :statut')
+            ->setParameter('statut', $statut)
+            ->orderBy('s.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

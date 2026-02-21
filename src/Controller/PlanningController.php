@@ -2,11 +2,15 @@
 
 namespace App\Controller;
 
+<<<<<<< HEAD
 use App\Entity\Planning;
 use App\Entity\Seance;
 use App\Entity\User;
 use App\Service\GoogleCalendarClient;
 use Doctrine\ORM\EntityManagerInterface;
+=======
+use App\Data\SampleData;
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 #[Route('/planning')]
 class PlanningController extends AbstractController
 {
+<<<<<<< HEAD
     #[Route('', name: 'app_planning', methods: ['GET'])]
     public function index(
         Request $request,
@@ -236,6 +241,39 @@ usort($upcomingFiltered, static function (array $a, array $b) use ($up_sort): in
 
     return $cmp; // date_asc
 });
+=======
+    #[Route('', name: 'app_planning')]
+    public function index(Request $request): Response
+    {
+        $events = SampleData::getEvents();
+        $today = new \DateTime();
+        
+        $month = $request->query->getInt('month', (int)$today->format('n'));
+        $year = $request->query->getInt('year', (int)$today->format('Y'));
+        
+        $currentDate = new \DateTime("$year-$month-01");
+        $daysInMonth = (int)$currentDate->format('t');
+        $firstDayOfWeek = (int)$currentDate->format('N');
+        
+        // Filter events for current month
+        $monthEvents = array_filter($events, function($e) use ($year, $month) {
+            $eventDate = new \DateTime($e['date']);
+            return (int)$eventDate->format('n') === $month && (int)$eventDate->format('Y') === $year;
+        });
+
+        // Group events by date
+        $eventsByDate = [];
+        foreach ($monthEvents as $event) {
+            $date = $event['date'];
+            if (!isset($eventsByDate[$date])) {
+                $eventsByDate[$date] = [];
+            }
+            $eventsByDate[$date][] = $event;
+        }
+
+        // Find conflicts
+        $conflicts = array_filter($events, fn($e) => isset($e['conflict']) && $e['conflict']);
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
         return $this->render('pages/planning/index.html.twig', [
             'current_month' => $month,
@@ -243,6 +281,7 @@ usort($upcomingFiltered, static function (array $a, array $b) use ($up_sort): in
             'days_in_month' => $daysInMonth,
             'first_day_of_week' => $firstDayOfWeek,
             'events_by_date' => $eventsByDate,
+<<<<<<< HEAD
             'conflicts' => [],
             'today' => $today->format('Y-m-d'),
             'seances' => $seances,
@@ -305,10 +344,50 @@ public function new(Request $request, EntityManagerInterface $em): Response
     {
         $planning = $em->getRepository(Planning::class)->find($id);
         if (!$planning) {
+=======
+            'conflicts' => array_values($conflicts),
+            'today' => $today->format('Y-m-d'),
+        ]);
+    }
+
+    #[Route('/new', name: 'app_planning_new', methods: ['GET', 'POST'])]
+    public function new(Request $request): Response
+    {
+        if ($request->isMethod('POST')) {
+            // In a real app, we would save the event here
+            $this->addFlash('success', 'Event created successfully!');
+            return $this->redirectToRoute('app_planning');
+        }
+
+        $courses = SampleData::getCourses();
+        $preselectedDate = $request->query->get('date');
+
+        return $this->render('pages/planning/new.html.twig', [
+            'courses' => $courses,
+            'preselected_date' => $preselectedDate,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_planning_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, int $id): Response
+    {
+        $events = SampleData::getEvents();
+        $event = null;
+
+        foreach ($events as $e) {
+            if ($e['id'] === $id) {
+                $event = $e;
+                break;
+            }
+        }
+
+        if (!$event) {
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             throw $this->createNotFoundException('Event not found');
         }
 
         if ($request->isMethod('POST')) {
+<<<<<<< HEAD
             $seanceId = (int) $request->request->get('seance_id', 0);
             $date = (string) $request->request->get('date', '');
             $startTime = (string) $request->request->get('start_time', '');
@@ -350,19 +429,31 @@ public function new(Request $request, EntityManagerInterface $em): Response
 
             $em->flush();
 
+=======
+            // In a real app, we would update the event here
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             $this->addFlash('success', 'Event updated successfully!');
             return $this->redirectToRoute('app_planning');
         }
 
+<<<<<<< HEAD
         $seances = $em->getRepository(Seance::class)->findBy([], ['id' => 'DESC']);
 
         return $this->render('pages/planning/edit.html.twig', [
             'planning' => $planning,
             'seances' => $seances,
+=======
+        $courses = SampleData::getCourses();
+
+        return $this->render('pages/planning/edit.html.twig', [
+            'event' => $event,
+            'courses' => $courses,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]);
     }
 
     #[Route('/{id}/delete', name: 'app_planning_delete', methods: ['POST'])]
+<<<<<<< HEAD
     public function delete(int $id, Request $request, EntityManagerInterface $em): Response
     {
         $planning = $em->getRepository(Planning::class)->find($id);
@@ -524,3 +615,12 @@ public function week(
     ]);
 }
 }
+=======
+    public function delete(int $id): Response
+    {
+        // In a real app, we would delete the event here
+        $this->addFlash('success', 'Event deleted successfully!');
+        return $this->redirectToRoute('app_planning');
+    }
+}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
 {% block title %}Add an Evaluation{% endblock %}
 
 {% block body %}
@@ -166,4 +167,100 @@ document.addEventListener('DOMContentLoaded', function() {
     background-color: #fef2f2;
 }
 </style>
+=======
+{% block title %}New Course{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto">
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Courses', href: path('app_courses') },
+            { label: 'New Course' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'New Course',
+        subtitle: 'Add a new course to your schedule'
+    } %}
+
+    <form action="{{ path('app_courses_new') }}" method="POST" class="card p-6">
+        <div class="space-y-6">
+            <!-- Course Name -->
+            {% include 'components/input.html.twig' with {
+                name: 'name',
+                label: 'Course Name',
+                placeholder: 'e.g., Data Structures & Algorithms',
+                required: true
+            } %}
+
+            <!-- Course Code -->
+            <div class="grid grid-cols-2 gap-4">
+                {% include 'components/input.html.twig' with {
+                    name: 'code',
+                    label: 'Course Code',
+                    placeholder: 'e.g., CS201',
+                    required: true
+                } %}
+
+                {% include 'components/input.html.twig' with {
+                    name: 'credits',
+                    label: 'Credits',
+                    type: 'number',
+                    placeholder: '3',
+                    required: true
+                } %}
+            </div>
+
+            <!-- Instructor -->
+            {% include 'components/input.html.twig' with {
+                name: 'instructor',
+                label: 'Instructor',
+                placeholder: 'e.g., Dr. Sarah Chen',
+                required: true
+            } %}
+
+            <!-- Schedule -->
+            {% include 'components/input.html.twig' with {
+                name: 'schedule',
+                label: 'Schedule',
+                placeholder: 'e.g., Mon, Wed 10:00 - 11:30'
+            } %}
+
+            <!-- Room -->
+            {% include 'components/input.html.twig' with {
+                name: 'room',
+                label: 'Room',
+                placeholder: 'e.g., Tech Building 301'
+            } %}
+
+            <!-- Color -->
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color Theme',
+                options: [
+                    { value: 'primary', label: 'Indigo (Primary)' },
+                    { value: 'secondary', label: 'Teal (Secondary)' },
+                    { value: 'accent', label: 'Amber (Accent)' },
+                    { value: 'success', label: 'Green (Success)' },
+                    { value: 'warning', label: 'Orange (Warning)' },
+                    { value: 'danger', label: 'Red (Danger)' }
+                ]
+            } %}
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                <a href="{{ path('app_courses') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Create Course
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

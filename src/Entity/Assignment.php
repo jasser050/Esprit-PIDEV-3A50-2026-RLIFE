@@ -3,8 +3,11 @@
 namespace App\Entity;
 
 use App\Repository\AssignmentRepository;
+<<<<<<< HEAD
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -32,10 +35,17 @@ class Assignment
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+<<<<<<< HEAD
     #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateDebut = null;
 
     #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE, nullable: true)]
+=======
+    #[ORM\Column(name: 'date_debut', type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $dateDebut = null;
+
+    #[ORM\Column(name: 'date_fin', type: Types::DATE_MUTABLE)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?\DateTimeInterface $dateFin = null;
 
     #[ORM\Column(type: Types::STRING, length: 50)]
@@ -50,6 +60,7 @@ class Assignment
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+<<<<<<< HEAD
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'assignment', orphanRemoval: true)]
     private Collection $comments;
 
@@ -61,6 +72,11 @@ class Assignment
         $this->createdAt = new \DateTime();
         $this->comments = new ArrayCollection();
         $this->collaborators = new ArrayCollection();
+=======
+    public function __construct()
+    {
+        $this->createdAt = new \DateTime();
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     #[ORM\PreUpdate]
@@ -69,10 +85,13 @@ class Assignment
         $this->updatedAt = new \DateTime();
     }
 
+<<<<<<< HEAD
     // ────────────────────────────────────────────────
     // Getters & Setters
     // ────────────────────────────────────────────────
 
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     public function getId(): ?int
     {
         return $this->id;
@@ -127,7 +146,11 @@ class Assignment
         return $this->dateDebut;
     }
 
+<<<<<<< HEAD
     public function setDateDebut(?\DateTimeInterface $dateDebut): static
+=======
+    public function setDateDebut(\DateTimeInterface $dateDebut): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->dateDebut = $dateDebut;
         return $this;
@@ -138,7 +161,11 @@ class Assignment
         return $this->dateFin;
     }
 
+<<<<<<< HEAD
     public function setDateFin(?\DateTimeInterface $dateFin): static
+=======
+    public function setDateFin(\DateTimeInterface $dateFin): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->dateFin = $dateFin;
         return $this;
@@ -187,6 +214,7 @@ class Assignment
         $this->updatedAt = $updatedAt;
         return $this;
     }
+<<<<<<< HEAD
 
     /**
      * @return Collection<int, Comment>
@@ -248,3 +276,6 @@ class Assignment
         return $this;
     }
 }
+=======
+}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

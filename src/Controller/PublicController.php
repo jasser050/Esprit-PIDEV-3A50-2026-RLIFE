@@ -4,13 +4,19 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\UserSettings;
+<<<<<<< HEAD
 use App\Form\RegistrationFormType;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+<<<<<<< HEAD
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
@@ -20,16 +26,26 @@ class PublicController extends AbstractController
     #[Route('/', name: 'app_landing')]
     public function landing(): Response
     {
+<<<<<<< HEAD
         // Just show the landing page - don't redirect
+=======
+       
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         return $this->render('pages/landing.html.twig');
     }
 
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+<<<<<<< HEAD
         // Get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // Last username entered by the user
+=======
+       
+        $error = $authenticationUtils->getLastAuthenticationError();
+        
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('pages/auth/login.html.twig', [
@@ -41,11 +57,16 @@ class PublicController extends AbstractController
     #[Route('/logout', name: 'app_logout', methods: ['GET'])]
     public function logout(): void
     {
+<<<<<<< HEAD
         // This method can be blank - it will be intercepted by the logout key on your firewall
+=======
+       
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
+<<<<<<< HEAD
     public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         $errors = [];
@@ -64,12 +85,27 @@ class PublicController extends AbstractController
             $terms = $request->request->get('terms');
             
             // Get form data - Step 2
+=======
+    public function register(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    {
+        
+        if ($request->isMethod('POST')) {
+            
+            $email = $request->request->get('email');
+            $password = $request->request->get('password');
+            $firstName = $request->request->get('first_name');
+            $lastName = $request->request->get('last_name');
+            $username = $request->request->get('username');
+            
+           
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             $gender = $request->request->get('gender', 'male');
             $studyLevel = $request->request->get('study_level', 'beginner');
             $weeklyGoal = $request->request->get('weekly_goal', 5);
             $interests = $request->request->all('interests') ?? [];
             $notifications = $request->request->get('notifications') ? true : false;
             
+<<<<<<< HEAD
             // Server-side validation
             if (!$firstName || strlen($firstName) < 2) {
                 $errors['first_name'] = 'First name must be at least 2 characters';
@@ -197,6 +233,68 @@ class PublicController extends AbstractController
             'submitted' => $submitted,
             'old' => $request->request->all()
         ]);
+=======
+            
+            if (!$email || !$password || !$firstName || !$lastName || !$username) {
+                $this->addFlash('error', 'Please fill in all required fields.');
+                return $this->redirectToRoute('app_register');
+            }
+            
+           
+            $existingUser = $entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
+            if ($existingUser) {
+                $this->addFlash('error', 'An account with this email already exists.');
+                return $this->redirectToRoute('app_register');
+            }
+            
+           
+            $existingUsername = $entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
+            if ($existingUsername) {
+                $this->addFlash('error', 'This username is already taken. Please choose another one.');
+                return $this->redirectToRoute('app_register');
+            }
+            
+            try {
+                
+                $user = new User();
+                $user->setEmail($email);
+                $user->setFirstName($firstName);
+                $user->setLastName($lastName);
+                $user->setUsername($username);
+                $user->setGender($gender);
+                
+                
+                $hashedPassword = $passwordHasher->hashPassword($user, $password);
+                $user->setPassword($hashedPassword);
+                
+               
+                $settings = new UserSettings();
+                $settings->setUser($user);
+                $settings->setStudyLevel($studyLevel);
+                $settings->setWeeklyGoal((int)$weeklyGoal);
+                $settings->setInterests($interests);
+                $settings->setNotificationEnabled($notifications);
+                $settings->setEmailNotifications($notifications);
+                $settings->setThemePreference('light');
+                $settings->setLanguage('en');
+                
+                $user->setSettings($settings);
+                
+               
+                $entityManager->persist($user);
+                $entityManager->persist($settings);
+                $entityManager->flush();
+                
+                $this->addFlash('success', 'Account created successfully! Please log in.');
+                return $this->redirectToRoute('app_login');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
+                return $this->redirectToRoute('app_register');
+            }
+        }
+        
+        return $this->render('pages/auth/register.html.twig');
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     #[Route('/welcome', name: 'app_welcome')]
@@ -204,6 +302,7 @@ class PublicController extends AbstractController
     {
         return $this->render('pages/auth/welcome.html.twig');
     }
+<<<<<<< HEAD
 
     /**
      * Generate HTML for welcome email
@@ -425,4 +524,6 @@ class PublicController extends AbstractController
             </html>
         ', $user->getFirstName(), $reasonText, date('Y'));
     }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

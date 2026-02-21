@@ -3,6 +3,7 @@
 {% block title %}Statistics{% endblock %}
 
 {% block body %}
+<<<<<<< HEAD
 <!-- Animated Background Pattern -->
 <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
     <div class="absolute top-0 right-1/4 w-96 h-96 rounded-full opacity-10 animate-pulse" style="background: radial-gradient(circle, #06b6d4 0%, transparent 70%); animation-duration: 5s;"></div>
@@ -31,10 +32,32 @@
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span>Last 7 Days</span>
             </button>
+=======
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Statistics & Reports</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">Analytics and insights about your users</p>
+</div>
+
+<div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
+    <!-- User Growth Chart -->
+    <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">User Growth (Last 7 Days)</h2>
+        <div class="h-64">
+            <canvas id="userGrowthChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Gender Distribution -->
+    <div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Gender Distribution</h2>
+        <div class="h-64">
+            <canvas id="genderChart"></canvas>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         </div>
     </div>
 </div>
 
+<<<<<<< HEAD
 <!-- Main Charts Grid -->
 <div class="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-2">
     <!-- User Growth Chart with Gradient Card -->
@@ -291,6 +314,51 @@ lineGradient.addColorStop(0, '#06b6d4');
 lineGradient.addColorStop(0.5, '#3b82f6');
 lineGradient.addColorStop(1, '#4f46e5');
 
+=======
+<!-- University Distribution -->
+<div class="bg-white rounded-lg shadow dark:bg-gray-800 p-6">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Top 5 Universities</h2>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th scope="col" class="px-6 py-3">Rank</th>
+                    <th scope="col" class="px-6 py-3">University</th>
+                    <th scope="col" class="px-6 py-3">Student Count</th>
+                    <th scope="col" class="px-6 py-3">Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set total = university_stats|reduce((sum, stat) => sum + stat.count, 0) %}
+                {% for stat in university_stats %}
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <td class="px-6 py-4 font-bold">{{ loop.index }}</td>
+                    <td class="px-6 py-4">{{ stat.university }}</td>
+                    <td class="px-6 py-4">{{ stat.count }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                <div class="bg-indigo-600 h-2.5 rounded-full" style="width: {{ (stat.count / total * 100)|round }}%"></div>
+                            </div>
+                            <span class="text-sm font-medium">{{ (stat.count / total * 100)|round(1) }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-4 text-center text-gray-500">No data available</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 new Chart(userGrowthCtx, {
     type: 'line',
     data: {
@@ -298,6 +366,7 @@ new Chart(userGrowthCtx, {
         datasets: [{
             label: 'New Users',
             data: {{ user_growth|map(g => g.count)|json_encode|raw }},
+<<<<<<< HEAD
             borderColor: lineGradient,
             backgroundColor: gradient,
             borderWidth: 4,
@@ -312,11 +381,18 @@ new Chart(userGrowthCtx, {
             tension: 0.4,
             fill: true,
             cubicInterpolationMode: 'monotone'
+=======
+            borderColor: 'rgb(99, 102, 241)',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            tension: 0.4,
+            fill: true
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
+<<<<<<< HEAD
         animation: {
             duration: 2000,
             easing: 'easeInOutQuart',
@@ -386,12 +462,25 @@ new Chart(userGrowthCtx, {
                     },
                     color: document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b',
                     padding: 10
+=======
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 }
             }
         }
     }
 });
 
+<<<<<<< HEAD
 // Gender Distribution Chart with Beautiful Animations
 const genderCtx = document.getElementById('genderChart').getContext('2d');
 
@@ -438,11 +527,27 @@ new Chart(genderCtx, {
             hoverBorderWidth: 5,
             hoverBorderColor: '#ffffff',
             spacing: 2
+=======
+// Gender Distribution Chart
+const genderCtx = document.getElementById('genderChart').getContext('2d');
+new Chart(genderCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ gender_stats|map(g => g.gender|capitalize)|json_encode|raw }},
+        datasets: [{
+            data: {{ gender_stats|map(g => g.count)|json_encode|raw }},
+            backgroundColor: [
+                'rgb(99, 102, 241)',
+                'rgb(236, 72, 153)',
+                'rgb(168, 85, 247)'
+            ]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
+<<<<<<< HEAD
         animation: {
             animateRotate: true,
             animateScale: true,
@@ -531,5 +636,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.group\\/item').forEach(el => observer.observe(el));
 });
+=======
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </script>
 {% endblock %}
