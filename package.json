@@ -83,5 +83,9 @@
         "@hotwired/turbo": "^7.1.0 || ^8.0",
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
         "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets"
+    },
+    "dependencies": {
+        "@types/three": "^0.183.1",
+        "three": "^0.183.1"
     }
 }
