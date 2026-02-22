@@ -3,6 +3,142 @@
 @tailwind utilities;
 
 /* ============================================
+   ACCESSIBILITY CSS VARIABLES
+   Dynamic values controlled by JS
+   ============================================ */
+
+:root {
+    --font-size-base: 1rem;
+    --font-family-base: system-ui, -apple-system, sans-serif;
+    --line-height-base: 1.6;
+    --letter-spacing-base: 0;
+    --transition-duration: 0.3s;
+    --animation-duration: 0.5s;
+}
+
+/* Apply accessibility settings to body - MORE VISIBLE */
+html {
+    font-size: var(--font-size-base);
+}
+
+body {
+    font-family: var(--font-family-base);
+    line-height: var(--line-height-base);
+    letter-spacing: var(--letter-spacing-base);
+    transition: all 0.3s ease;
+}
+
+/* Make text elements use accessibility settings */
+body p,
+body li,
+body span,
+body div,
+body a,
+body label,
+body input,
+body textarea,
+body select,
+body button,
+body h1, body h2, body h3, body h4, body h5, body h6 {
+    line-height: var(--line-height-base);
+    letter-spacing: var(--letter-spacing-base);
+}
+
+/* Toast animations */
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+/* Reduce Motion Mode */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    scroll-behavior: auto !important;
+}
+
+.reduce-motion .animate-pulse,
+.reduce-motion .animate-bounce,
+.reduce-motion .animate-spin {
+    animation: none !important;
+}
+
+/* High Contrast Mode - MORE DRAMATIC */
+.high-contrast {
+    --text-primary: #000000;
+    --text-secondary: #222222;
+    --border-color: #000000;
+}
+
+.high-contrast.dark {
+    --text-primary: #ffffff;
+    --text-secondary: #f0f0f0;
+    --border-color: #ffffff;
+}
+
+.high-contrast .card,
+.high-contrast .bg-white,
+.high-contrast .bg-slate-50,
+.high-contrast .bg-slate-100,
+.high-contrast .rounded-2xl,
+.high-contrast .rounded-xl,
+.high-contrast [class*="border"] {
+    border-width: 3px !important;
+    border-color: var(--border-color) !important;
+    box-shadow: none !important;
+}
+
+.high-contrast p,
+.high-contrast span:not(.text-white):not([class*="bg-gradient"]),
+.high-contrast li,
+.high-contrast label {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
+
+.high-contrast .text-slate-500,
+.high-contrast .text-slate-600,
+.high-contrast .text-slate-400 {
+    color: var(--text-secondary) !important;
+}
+
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+    border-width: 2px !important;
+    border-color: var(--border-color) !important;
+}
+
+.high-contrast button {
+    border-width: 2px !important;
+}
+
+/* Accent Color Override - Make buttons use the custom color */
+[data-accent] {
+    --tw-bg-opacity: 1;
+}
+
+/* ============================================
    STUDYFLOW - Design System v3.0
    "Calm Focus" - Modern, supportive, premium
    ============================================ */

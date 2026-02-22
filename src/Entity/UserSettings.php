@@ -45,6 +45,30 @@ class UserSettings
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $starType = null;
 
+    #[ORM\Column(length: 10)]
+    private string $fontSize = 'normal';
+
+    #[ORM\Column(length: 50)]
+    private string $fontFamily = 'system';
+
+    #[ORM\Column(length: 20)]
+    private string $accentColor = '#6366f1';
+
+    #[ORM\Column]
+    private bool $reduceMotion = false;
+
+    #[ORM\Column]
+    private bool $highContrast = false;
+
+    #[ORM\Column(length: 20)]
+    private string $lineHeight = 'normal';
+
+    #[ORM\Column(length: 20)]
+    private string $letterSpacing = 'normal';
+
+    #[ORM\Column]
+    private int $zoomLevel = 100;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -166,6 +190,102 @@ class UserSettings
     public function setStarType(?string $starType): static
     {
         $this->starType = $starType;
+
+        return $this;
+    }
+
+    public function getFontSize(): string
+    {
+        return $this->fontSize;
+    }
+
+    public function setFontSize(string $fontSize): static
+    {
+        $this->fontSize = $fontSize;
+
+        return $this;
+    }
+
+    public function getFontFamily(): string
+    {
+        return $this->fontFamily;
+    }
+
+    public function setFontFamily(string $fontFamily): static
+    {
+        $this->fontFamily = $fontFamily;
+
+        return $this;
+    }
+
+    public function getAccentColor(): string
+    {
+        return $this->accentColor;
+    }
+
+    public function setAccentColor(string $accentColor): static
+    {
+        $this->accentColor = $accentColor;
+
+        return $this;
+    }
+
+    public function isReduceMotion(): bool
+    {
+        return $this->reduceMotion;
+    }
+
+    public function setReduceMotion(bool $reduceMotion): static
+    {
+        $this->reduceMotion = $reduceMotion;
+
+        return $this;
+    }
+
+    public function isHighContrast(): bool
+    {
+        return $this->highContrast;
+    }
+
+    public function setHighContrast(bool $highContrast): static
+    {
+        $this->highContrast = $highContrast;
+
+        return $this;
+    }
+
+    public function getLineHeight(): string
+    {
+        return $this->lineHeight;
+    }
+
+    public function setLineHeight(string $lineHeight): static
+    {
+        $this->lineHeight = $lineHeight;
+
+        return $this;
+    }
+
+    public function getLetterSpacing(): string
+    {
+        return $this->letterSpacing;
+    }
+
+    public function setLetterSpacing(string $letterSpacing): static
+    {
+        $this->letterSpacing = $letterSpacing;
+
+        return $this;
+    }
+
+    public function getZoomLevel(): int
+    {
+        return $this->zoomLevel;
+    }
+
+    public function setZoomLevel(int $zoomLevel): static
+    {
+        $this->zoomLevel = $zoomLevel;
 
         return $this;
     }
