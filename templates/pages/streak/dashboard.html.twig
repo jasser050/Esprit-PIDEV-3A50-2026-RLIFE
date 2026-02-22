@@ -1,329 +1,1306 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}🔥 My Streaks{% endblock %}
+{% block title %}🌍 World Tour — My Streaks{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Crimson+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+.wt-page {
+    font-family: 'Crimson Pro', serif;
+    color: #e2e8f0;
+    position: relative;
+}
+.wt-inner {
+    position: relative; z-index: 1;
+    padding: 8px 0 80px;
+}
+
+/* ── Header ── */
+.wt-header {
+    display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.wt-title-block { position: relative; }
+.wt-eyebrow {
+    font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: #c9a84c; margin-bottom: 8px; display: block;
+}
+.wt-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900; line-height: 1.05;
+    color: #e2e8f0;
+    position: relative;
+}
+.wt-title span { color: #c9a84c; }
+.wt-subtitle {
+    margin-top: 10px; font-size: 1.1rem;
+    color: #94a3b8; font-style: italic;
+}
+
+
+/* ── Passport stats bar ── */
+.passport-bar {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 20px;
+}
+.passport-stat {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px; padding: 18px 20px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.3s;
+}
+.passport-stat:hover { border-color: rgba(201,168,76,0.4); }
+.passport-stat::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #c9a84c, #e8cc7a, transparent);
+}
+.passport-stat-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.passport-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; font-weight: 700; color: #c9a84c;
+    line-height: 1;
+}
+.passport-stat-lbl {
+    font-size: 12px; color: #94a3b8;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 4px;
+}
+@media (max-width: 700px) { .passport-bar { grid-template-columns: 1fr 1fr; } }
+
+/* ── Main layout ── */
+.wt-main { display: grid; grid-template-columns: 1fr 380px; gap: 20px; }
+@media (max-width: 1100px) { .wt-main { grid-template-columns: 1fr; } }
+
+/* ── Map area ── */
+.map-container {
+    background: linear-gradient(160deg, rgba(13,33,55,0.8) 0%, rgba(10,25,41,0.8) 40%, rgba(7,20,32,0.8) 100%);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 20px; overflow: hidden;
+    position: relative;
+    min-height: 500px;
+}
+.map-container::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(45,106,159,0.08) 0%, transparent 70%);
+}
+
+.map-title-bar {
+    padding: 16px 22px;
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(0,0,0,0.2);
+}
+.map-title-bar h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; color: #c9a84c;
+    letter-spacing: 0.05em;
+}
+.map-legend {
+    margin-left: auto; display: flex; align-items: center; gap: 16px;
+    font-size: 11px; color: #94a3b8;
+}
+.map-legend-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px;
+}
+
+.svg-map-wrap {
+    padding: 20px; position: relative;
+}
+.svg-map-wrap svg { width: 100%; height: auto; display: block; }
+
+/* Country paths */
+.country-path {
+    fill: #1e3a52;
+    stroke: rgba(201,168,76,0.15);
+    stroke-width: 0.5;
+    transition: fill 0.4s ease;
+    cursor: default;
+}
+.country-unlocked {
+    fill: #2d6a4f !important;
+    stroke: rgba(201,168,76,0.5) !important;
+    cursor: pointer;
+    filter: drop-shadow(0 0 6px rgba(46,164,79,0.4));
+    animation: pulse-country 3s ease-in-out infinite;
+}
+.country-current {
+    fill: #c9a84c !important;
+    stroke: rgba(255,220,100,0.8) !important;
+    filter: drop-shadow(0 0 12px rgba(201,168,76,0.7));
+    animation: pulse-gold 2s ease-in-out infinite;
+}
+@keyframes pulse-country {
+    0%,100% { filter: drop-shadow(0 0 4px rgba(46,164,79,0.3)); }
+    50% { filter: drop-shadow(0 0 10px rgba(46,164,79,0.6)); }
+}
+@keyframes pulse-gold {
+    0%,100% { filter: drop-shadow(0 0 8px rgba(201,168,76,0.5)); }
+    50% { filter: drop-shadow(0 0 20px rgba(201,168,76,0.9)); }
+}
+
+/* Destination pins */
+.dest-pin {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s;
+}
+.dest-pin:hover { transform: translate(-50%, -100%) scale(1.2); }
+.dest-pin-inner {
+    width: 32px; height: 32px; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    position: relative;
+}
+.dest-pin-inner::after {
+    content: '';
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    position: absolute;
+}
+.dest-pin-emoji {
+    position: absolute;
+    top: -8px; left: 50%; transform: translateX(-50%) rotate(45deg);
+    font-size: 14px; white-space: nowrap;
+}
+.dest-pin.unlocked .dest-pin-inner { background: linear-gradient(135deg, #2d6a4f, #40916c); }
+.dest-pin.current .dest-pin-inner { background: linear-gradient(135deg, #c9a84c, #e8cc7a); }
+.dest-pin.locked .dest-pin-inner { background: rgba(255,255,255,0.1); opacity: 0.4; }
+
+/* Tooltip */
+.map-tooltip {
+    position: absolute; z-index: 20;
+    background: linear-gradient(160deg, rgba(20,12,0,0.97), rgba(10,10,20,0.97));
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 12px; padding: 14px 16px;
+    min-width: 200px; max-width: 240px;
+    pointer-events: none;
+    opacity: 0; transition: opacity 0.2s;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+.map-tooltip.visible { opacity: 1; }
+.map-tooltip-flag { font-size: 2rem; margin-bottom: 6px; }
+.map-tooltip-city { font-family: 'Playfair Display', serif; font-size: 16px; color: #c9a84c; }
+.map-tooltip-country { font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+.map-tooltip-req { font-size: 12px; color: #e2e8f0; margin-bottom: 4px; }
+.map-tooltip-fact { font-size: 11px; color: #94a3b8; font-style: italic; border-top: 1px solid rgba(201,168,76,0.15); padding-top: 8px; margin-top: 8px; }
+
+/* ── Right sidebar ── */
+.wt-sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+/* Journey card */
+.journey-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 16px; overflow: hidden;
+    backdrop-filter: blur(4px);
+}
+.journey-card-head {
+    padding: 16px 20px;
+    background: rgba(201,168,76,0.07);
+    border-bottom: 1px solid rgba(201,168,76,0.15);
+    display: flex; align-items: center; gap: 10px;
+}
+.journey-card-head h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 14px; color: #c9a84c; letter-spacing: 0.04em;
+}
+.journey-card-body { padding: 20px; }
+
+/* Destination list */
+.dest-list { display: flex; flex-direction: column; gap: 0; }
+.dest-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    position: relative; cursor: pointer;
+    transition: background 0.2s;
+}
+.dest-item:last-child { border-bottom: none; }
+.dest-item:hover { background: rgba(201,168,76,0.04); border-radius: 8px; padding-left: 8px; }
+.dest-item-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+}
+.dest-item-num.done { background: rgba(46,164,79,0.2); color: #4ade80; border: 1px solid rgba(46,164,79,0.3); }
+.dest-item-num.current { background: rgba(201,168,76,0.2); color: #c9a84c; border: 1px solid rgba(201,168,76,0.5); }
+.dest-item-num.locked { background: rgba(255,255,255,0.05); color: #94a3b8; border: 1px solid rgba(255,255,255,0.08); }
+.dest-item-info { flex: 1; min-width: 0; }
+.dest-item-name { font-size: 14px; font-weight: 600; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dest-item-sub { font-size: 11px; color: #94a3b8; }
+.dest-item-flag { font-size: 1.4rem; }
+.dest-item-badge {
+    font-size: 10px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.05em; white-space: nowrap;
+}
+.dest-item-badge.done { background: rgba(46,164,79,0.15); color: #4ade80; }
+.dest-item-badge.current { background: rgba(201,168,76,0.2); color: #c9a84c; }
+.dest-item-badge.locked { background: rgba(255,255,255,0.05); color: #94a3b8; }
+
+/* Progress path */
+.path-visual {
+    position: relative; padding: 20px 0;
+    display: flex; flex-direction: column; gap: 0;
+}
+.path-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    position: relative;
+}
+.path-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 14px; top: 28px; bottom: -12px;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.4), rgba(201,168,76,0.05));
+}
+.path-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    flex-shrink: 0; position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+}
+.path-dot.done { background: #2d6a4f; border: 2px solid #40916c; color: white; }
+.path-dot.current {
+    background: #c9a84c; border: 2px solid #e8cc7a; color: transparent;
+    animation: pulse-gold 2s ease-in-out infinite;
+    box-shadow: 0 0 16px rgba(201,168,76,0.5);
+}
+.path-dot.locked { background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); color: #94a3b8; }
+.path-content { padding-bottom: 20px; flex: 1; }
+.path-req { font-size: 12px; color: #94a3b8; }
+.path-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+.path-fact { font-size: 11px; color: #94a3b8; font-style: italic; margin-top: 2px; }
+
+/* Current destination highlight */
+.current-dest-card {
+    background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(0,0,0,0.2));
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px; padding: 22px;
+    position: relative; overflow: hidden;
+}
+.current-dest-card::before {
+    content: '';
+    position: absolute; top: -30px; right: -30px;
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+}
+.current-dest-flag { font-size: 3rem; margin-bottom: 8px; }
+.current-dest-city {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; color: #c9a84c; font-weight: 700;
+}
+.current-dest-country { font-size: 13px; color: #94a3b8; margin-bottom: 12px; }
+.current-dest-fact { font-size: 13px; color: #e2e8f0; font-style: italic; line-height: 1.6; }
+.current-dest-progress {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 999px; height: 6px;
+    overflow: hidden;
+}
+.current-dest-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #c9a84c, #e8cc7a);
+    transition: width 1.5s cubic-bezier(0.34,1.56,0.64,1);
+    width: 0%;
+}
+.current-dest-label {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #94a3b8;
+    margin-top: 6px;
+}
+
+/* Next unlock teaser */
+.next-teaser {
+    background: rgba(255,255,255,0.04);
+    border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+}
+.next-teaser-lock { font-size: 1.4rem; opacity: 0.4; }
+.next-teaser-text { font-size: 12px; color: #94a3b8; }
+.next-teaser-city { font-size: 14px; color: #e2e8f0; font-weight: 600; }
+
+/* Subject streaks */
+.subject-grid { display: flex; flex-direction: column; gap: 10px; }
+.subject-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: border-color 0.2s;
+}
+.subject-row:hover { border-color: rgba(201,168,76,0.2); }
+.subject-flag { font-size: 1.3rem; }
+.subject-name { font-size: 13px; font-weight: 600; color: #e2e8f0; flex: 1; }
+.subject-streak {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 700; color: #c9a84c;
+}
+.subject-bar-wrap {
+    width: 60px; height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px; overflow: hidden;
+}
+.subject-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #c9a84c, #e8cc7a);
+    border-radius: 99px;
+    width: 0%;
+    transition: width 1.2s ease;
+}
+
+/* Badges */
+.badge-scroll { display: flex; flex-wrap: wrap; gap: 8px; }
+.wt-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 999px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08));
+    border: 1px solid rgba(201,168,76,0.3);
+    font-size: 12px; color: #c9a84c;
+    font-weight: 600; letter-spacing: 0.03em;
+}
+
+/* Animations */
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeSlide 0.5s ease both; }
+.fade-in-1 { animation-delay: 0.05s; }
+.fade-in-2 { animation-delay: 0.10s; }
+.fade-in-3 { animation-delay: 0.15s; }
+.fade-in-4 { animation-delay: 0.20s; }
+.fade-in-5 { animation-delay: 0.25s; }
+.fade-in-6 { animation-delay: 0.30s; }
+
+/* Plane */
+#planeDot {
+    position: absolute;
+    font-size: 1.4rem;
+    pointer-events: none;
+    z-index: 10;
+    transition: left 3s cubic-bezier(0.45,0,0.55,1), top 3s cubic-bezier(0.45,0,0.55,1), opacity 0.4s;
+    filter: drop-shadow(0 0 6px rgba(201,168,76,0.8));
+    transform: translate(-50%, -50%);
+    opacity: 0;
+}
+.flight-trail {
+    position: absolute; pointer-events: none; z-index: 4;
+    overflow: hidden; inset: 0;
+}
+#flightPath {
+    fill: none;
+    stroke: rgba(201,168,76,0.25);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 5;
+    vector-effect: non-scaling-stroke;
+}
+.flight-label {
+    position: absolute;
+    background: rgba(10,8,0,0.85);
+    border: 1px solid rgba(201,168,76,0.5);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 11px;
+    color: #c9a84c;
+    pointer-events: none;
+    z-index: 15;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.4s;
+    transform: translate(-50%, -180%);
+    font-family: 'Crimson Pro', serif;
+    letter-spacing: 0.04em;
+}
+.flight-label.visible { opacity: 1; }
+
+/* Stamp decoration */
+.stamp {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 60px; height: 60px; border-radius: 50%;
+    border: 3px dashed rgba(201,168,76,0.4);
+    font-size: 1.6rem; opacity: 0.8;
+    transform: rotate(-12deg);
+}
+
+/* Sound button */
+.sound-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: #94a3b8; font-size: 13px;
+    cursor: pointer; transition: all 0.3s;
+    font-family: 'Crimson Pro', serif;
+}
+.sound-btn:hover { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+.sound-btn.active {
+    background: rgba(201,168,76,0.12);
+    border-color: rgba(201,168,76,0.5);
+    color: #c9a84c;
+    box-shadow: 0 0 16px rgba(201,168,76,0.15);
+}
+.sound-icon { font-size: 1rem; }
+#volumeSlider {
+    -webkit-appearance: none;
+    width: 80px; height: 3px; border-radius: 99px;
+    background: rgba(201,168,76,0.2); outline: none; cursor: pointer;
+    vertical-align: middle;
+}
+#volumeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: #c9a84c; cursor: pointer;
+}
+@keyframes sound-wave { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.8); } }
+.wave-bar { display: inline-block; width: 3px; height: 10px; border-radius: 99px; background: #c9a84c; margin: 0 1px; transform-origin: bottom; }
+.sound-btn.active .wave-bar:nth-child(1) { animation: sound-wave 0.6s ease-in-out infinite; }
+.sound-btn.active .wave-bar:nth-child(2) { animation: sound-wave 0.6s ease-in-out 0.1s infinite; }
+.sound-btn.active .wave-bar:nth-child(3) { animation: sound-wave 0.6s ease-in-out 0.2s infinite; }
+</style>
+{% endblock %}
 
 {% block body %}
-<div class="space-y-6 animate-fade-in">
-    
+<div class="wt-page">
+<div class="wt-inner space-y-6">
+
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-secondary-900 dark:text-white">🔥 My Streaks</h1>
-            <p class="text-secondary-500 dark:text-secondary-400 mt-1">Track your progress and personal records</p>
+    <div class="wt-header fade-in">
+        <div class="wt-title-block">
+            <span class="wt-eyebrow">✈ Student Passport · RLIFE Academy</span>
+            <h1 class="wt-title" style="color:#e2e8f0">World <span style="color:#c9a84c">Tour</span></h1>
+            <p class="wt-subtitle" style="color:#94a3b8">Your knowledge unlocks the world — one streak at a time</p>
         </div>
         <a href="{{ path('app_courses') }}" class="btn btn-secondary inline-flex items-center gap-2">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             Back to Courses
         </a>
     </div>
-    
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="card p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <i data-lucide="award" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
-            </div>
-            <div>
-                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ allBadges|length }}</div>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400">🏅 Total Badges</p>
-            </div>
+
+    <!-- Sound Control Bar -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;" class="fade-in">
+        <button class="sound-btn" id="soundToggle">
+            <span class="sound-icon">🔇</span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span id="soundLabel">Ambient Music</span>
+        </button>
+        <span style="font-size:11px;color:#94a3b8">🎵</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="60" title="Volume">
+        <span style="font-size:11px;color:#94a3b8;font-style:italic">Travel atmosphere</span>
+    </div>
+
+    <!-- Passport Stats -->
+    <div class="passport-bar">
+        <div class="passport-stat fade-in fade-in-1">
+            <div class="passport-stat-icon">🛂</div>
+            <div class="passport-stat-val">{{ globalStats.high_score.current }}</div>
+            <div class="passport-stat-lbl">Current Streak</div>
         </div>
-        
-        <div class="card p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
-                <i data-lucide="trophy" class="w-6 h-6 text-success-600 dark:text-success-400"></i>
-            </div>
-            <div>
-                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ globalStats.high_score.longest }}</div>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400">🏆 Best Record</p>
-            </div>
+        <div class="passport-stat fade-in fade-in-2">
+            <div class="passport-stat-icon">🏆</div>
+            <div class="passport-stat-val">{{ globalStats.high_score.longest }}</div>
+            <div class="passport-stat-lbl">Best Record</div>
         </div>
-        
-        <div class="card p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
-                <i data-lucide="flame" class="w-6 h-6 text-warning-600 dark:text-warning-400"></i>
-            </div>
-            <div>
-                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ globalStats.high_score.current }}</div>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400">🔥 Current Streak</p>
-            </div>
+        <div class="passport-stat fade-in fade-in-3">
+            <div class="passport-stat-icon">📍</div>
+            <div class="passport-stat-val" id="citiesCount">0</div>
+            <div class="passport-stat-lbl">Cities Visited</div>
         </div>
-        
-        <div class="card p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-900/30 flex items-center justify-center">
-                <i data-lucide="book-open" class="w-6 h-6 text-info-600 dark:text-info-400"></i>
-            </div>
-            <div>
-                <div class="text-3xl font-bold text-secondary-900 dark:text-white">{{ streaksByMatiere|length }}</div>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400">📚 Subjects</p>
-            </div>
+        <div class="passport-stat fade-in fade-in-4">
+            <div class="passport-stat-icon">🎖</div>
+            <div class="passport-stat-val">{{ allBadges|length }}</div>
+            <div class="passport-stat-lbl">Badges Earned</div>
         </div>
     </div>
-    
-    <!-- Global Streaks -->
-    <div>
-        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">🌍 Global Streaks</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            
-            <!-- High Score Streak -->
-            <div class="card overflow-hidden bg-gradient-to-br from-orange-500 to-red-600 text-white">
-                <div class="p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="text-6xl animate-bounce">{{ globalStats.high_score.status.emoji }}</div>
-                        <div>
-                            <h4 class="text-xl font-bold">High Scores (≥75%)</h4>
-                            <p class="text-white/90 text-sm">{{ globalStats.high_score.status.message }}</p>
-                        </div>
+
+    <!-- Main content -->
+    <div class="wt-main">
+
+        <!-- Left: Map + Journey list -->
+        <div>
+
+            <!-- Current Destination -->
+            <div class="current-dest-card fade-in fade-in-2" style="margin-bottom:20px" id="currentDestCard">
+                <div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
+                    <div>
+                        <div class="current-dest-flag" id="currentFlag">✈️</div>
+                        <div class="current-dest-city" id="currentCity">Loading...</div>
+                        <div class="current-dest-country" id="currentCountry">Your journey awaits</div>
+                        <div class="current-dest-fact" id="currentFact">Keep scoring above 75% to unlock your next destination!</div>
                     </div>
-                    <div class="flex gap-8 mb-4">
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.high_score.current }}</div>
-                            <div class="text-sm text-white/80 mt-1">Current</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.high_score.longest }}</div>
-                            <div class="text-sm text-white/80 mt-1">Record</div>
-                        </div>
+                    <div style="margin-left:auto">
+                        <div class="stamp" id="currentStamp">?</div>
                     </div>
-                    {% if globalStats.high_score.badges|length > 0 %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for badge in globalStats.high_score.badges %}
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
-                            {{ badge }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+                </div>
+                <div class="current-dest-progress" style="margin-top:14px">
+                    <div class="current-dest-progress-fill" id="destProgress"></div>
+                </div>
+                <div class="current-dest-label">
+                    <span id="progressLabel">Progress to next destination</span>
+                    <span id="progressPct">0%</span>
                 </div>
             </div>
-            
-            <!-- Perfect Score Streak -->
-            <div class="card overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-600 text-white">
-                <div class="p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="text-6xl animate-bounce">{{ globalStats.perfect_score.status.emoji }}</div>
-                        <div>
-                            <h4 class="text-xl font-bold">Perfect Scores (≥90%)</h4>
-                            <p class="text-white/90 text-sm">{{ globalStats.perfect_score.status.message }}</p>
-                        </div>
+
+            <!-- Interactive Map -->
+            <div class="map-container fade-in fade-in-3" style="margin-bottom:20px">
+                <div class="map-title-bar">
+                    <span style="font-size:1.1rem">🗺</span>
+                    <h3>World Map — Your Journey</h3>
+                    <div class="map-legend">
+                        <span><span class="map-legend-dot" style="background:#40916c"></span>Visited</span>
+                        <span><span class="map-legend-dot" style="background:#c9a84c"></span>Current</span>
+                        <span><span class="map-legend-dot" style="background:#1e3a52"></span>Locked</span>
                     </div>
-                    <div class="flex gap-8 mb-4">
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.perfect_score.current }}</div>
-                            <div class="text-sm text-white/80 mt-1">Current</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.perfect_score.longest }}</div>
-                            <div class="text-sm text-white/80 mt-1">Record</div>
-                        </div>
+                </div>
+                <div class="svg-map-wrap" style="position:relative">
+                    <!-- Flight path SVG overlay -->
+                    <svg class="flight-trail" id="flightTrailSvg" viewBox="0 0 100 100" preserveAspectRatio="none"
+                         style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4">
+                        <path id="flightPath" d=""/>
+                    </svg>
+                    <!-- Animated plane -->
+                    <div id="planeDot">✈️</div>
+                    <!-- Flight label -->
+                    <div class="flight-label" id="flightLabel"></div>
+
+                    <!-- Simplified world SVG map -->
+                    <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg" id="worldSvg">
+                        <!-- Ocean background -->
+                        <rect width="1000" height="500" fill="#0d2137"/>
+
+                        <!-- Grid lines -->
+                        <g stroke="rgba(255,255,255,0.04)" stroke-width="0.5">
+                            <line x1="0" y1="250" x2="1000" y2="250"/>
+                            <line x1="500" y1="0" x2="500" y2="500"/>
+                            <line x1="0" y1="125" x2="1000" y2="125"/>
+                            <line x1="0" y1="375" x2="1000" y2="375"/>
+                            <line x1="250" y1="0" x2="250" y2="500"/>
+                            <line x1="750" y1="0" x2="750" y2="500"/>
+                        </g>
+
+                        <!-- Simplified continents as polygons -->
+                        <!-- North America -->
+                        <polygon class="country-path" id="map-northamerica"
+                            points="80,60 200,50 230,80 240,110 220,150 200,180 170,200 140,220 100,200 80,170 60,140 55,100"/>
+                        <!-- Greenland -->
+                        <polygon class="country-path"
+                            points="260,20 320,15 340,40 320,65 280,70 255,50"/>
+                        <!-- South America -->
+                        <polygon class="country-path" id="map-southamerica"
+                            points="170,230 220,220 240,250 250,300 240,360 220,400 190,420 170,400 150,360 140,300 150,260"/>
+                        <!-- Europe -->
+                        <polygon class="country-path" id="map-europe"
+                            points="430,60 490,55 510,75 520,95 500,115 480,125 460,130 440,120 420,100 415,80"/>
+                        <!-- Africa -->
+                        <polygon class="country-path" id="map-africa"
+                            points="430,150 490,140 520,160 530,200 525,260 510,320 490,370 460,390 430,370 410,320 400,260 405,200 415,160"/>
+                        <!-- Russia/North Asia -->
+                        <polygon class="country-path"
+                            points="510,40 700,30 800,50 820,90 780,110 700,105 600,100 530,90 510,70"/>
+                        <!-- Middle East -->
+                        <polygon class="country-path" id="map-middleeast"
+                            points="520,140 580,130 610,150 610,180 580,195 540,190 515,170"/>
+                        <!-- South Asia -->
+                        <polygon class="country-path" id="map-southasia"
+                            points="600,140 660,135 690,155 700,185 680,210 650,220 620,210 600,185 590,160"/>
+                        <!-- East Asia -->
+                        <polygon class="country-path" id="map-eastasia"
+                            points="700,80 790,70 830,100 840,140 820,170 780,180 740,170 710,145 695,115"/>
+                        <!-- Southeast Asia -->
+                        <polygon class="country-path"
+                            points="700,200 750,190 780,210 775,240 750,255 710,245 695,225"/>
+                        <!-- Australia -->
+                        <polygon class="country-path" id="map-australia"
+                            points="760,300 840,285 880,305 890,350 870,390 830,410 780,400 750,370 745,330"/>
+                        <!-- Japan -->
+                        <polygon class="country-path" id="map-japan"
+                            points="830,100 845,95 855,110 848,125 832,120"/>
+                        <!-- UK -->
+                        <polygon class="country-path"
+                            points="420,75 432,70 438,80 434,90 422,88"/>
+                        <!-- Iceland -->
+                        <polygon class="country-path"
+                            points="370,45 395,40 400,55 385,65 368,60"/>
+                    </svg>
+
+                    <!-- City pins will be injected by JS -->
+                    <div id="cityPins"></div>
+
+                    <!-- Tooltip -->
+                    <div class="map-tooltip" id="mapTooltip">
+                        <div class="map-tooltip-flag" id="ttFlag"></div>
+                        <div class="map-tooltip-city" id="ttCity"></div>
+                        <div class="map-tooltip-country" id="ttCountry"></div>
+                        <div id="ttAirport" style="font-size:11px;color:#c9a84c;margin-bottom:6px;display:flex;align-items:center;gap:5px"></div>
+                        <div class="map-tooltip-req" id="ttReq"></div>
+                        <div class="map-tooltip-fact" id="ttFact"></div>
                     </div>
-                    {% if globalStats.perfect_score.badges|length > 0 %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for badge in globalStats.perfect_score.badges %}
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
-                            {{ badge }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
                 </div>
             </div>
-            
-            <!-- Progression Streak -->
-            <div class="card overflow-hidden bg-gradient-to-br from-green-500 to-teal-600 text-white">
-                <div class="p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="text-6xl animate-bounce">{{ globalStats.progression.status.emoji }}</div>
-                        <div>
-                            <h4 class="text-xl font-bold">Continuous Progress</h4>
-                            <p class="text-white/90 text-sm">{{ globalStats.progression.status.message }}</p>
-                        </div>
-                    </div>
-                    <div class="flex gap-8 mb-4">
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.progression.current }}</div>
-                            <div class="text-sm text-white/80 mt-1">Current</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.progression.longest }}</div>
-                            <div class="text-sm text-white/80 mt-1">Record</div>
-                        </div>
-                    </div>
-                    {% if globalStats.progression.badges|length > 0 %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for badge in globalStats.progression.badges %}
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
-                            {{ badge }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
+
+            <!-- Subject Streaks -->
+            {% if streaksByMatiere|length > 0 %}
+            <div class="journey-card fade-in fade-in-5">
+                <div class="journey-card-head">
+                    <span>📚</span>
+                    <h4>Streaks by Subject</h4>
                 </div>
-            </div>
-            
-            <!-- Urgent Priority Streak -->
-            <div class="card overflow-hidden bg-gradient-to-br from-purple-500 to-pink-600 text-white">
-                <div class="p-6">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="text-6xl animate-bounce">{{ globalStats.urgent_priority.status.emoji }}</div>
-                        <div>
-                            <h4 class="text-xl font-bold">Urgent Priorities</h4>
-                            <p class="text-white/90 text-sm">{{ globalStats.urgent_priority.status.message }}</p>
+                <div class="journey-card-body">
+                    <div class="subject-grid">
+                        {% for id, data in streaksByMatiere %}
+                        {% set score = data.high_score.current %}
+                        <div class="subject-row">
+                            <span class="subject-flag">
+                                {% if score >= 5 %}🔥
+                                {% elseif score >= 3 %}⚡
+                                {% elseif score >= 1 %}✨
+                                {% else %}💤{% endif %}
+                            </span>
+                            <span class="subject-name">{{ data.matiere.nomMatiere }}</span>
+                            <div class="subject-bar-wrap">
+                                <div class="subject-bar-fill" data-w="{{ score > 10 ? 100 : score * 10 }}"></div>
+                            </div>
+                            <span class="subject-streak">{{ score }}</span>
                         </div>
-                    </div>
-                    <div class="flex gap-8 mb-4">
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.urgent_priority.current }}</div>
-                            <div class="text-sm text-white/80 mt-1">Current</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-5xl font-bold">{{ globalStats.urgent_priority.longest }}</div>
-                            <div class="text-sm text-white/80 mt-1">Record</div>
-                        </div>
-                    </div>
-                    {% if globalStats.urgent_priority.badges|length > 0 %}
-                    <div class="flex flex-wrap gap-2">
-                        {% for badge in globalStats.urgent_priority.badges %}
-                        <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm text-sm font-semibold">
-                            {{ badge }}
-                        </span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-        </div>
-    </div>
-    
-    <!-- Streaks by Subject -->
-    {% if streaksByMatiere|length > 0 %}
-    <div>
-        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">📚 Streaks by Subject</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {% for id, data in streaksByMatiere %}
-            <div class="card card-hover p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h5 class="font-bold text-lg text-secondary-900 dark:text-white">{{ data.matiere.nomMatiere }}</h5>
-                    <span class="badge badge-primary">{{ data.matiere.code }}</span>
-                </div>
-                
-                <div class="space-y-3">
-                    <!-- High Score -->
-                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
-                        <span class="text-sm text-secondary-600 dark:text-secondary-400">High Scores:</span>
-                        <span class="font-semibold text-secondary-900 dark:text-white">
-                            {{ data.high_score.status.emoji }} {{ data.high_score.current }}
-                            <span class="text-xs text-secondary-500">(Record: {{ data.high_score.longest }})</span>
-                        </span>
-                    </div>
-                    
-                    <!-- Perfect Score -->
-                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
-                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Perfect Scores:</span>
-                        <span class="font-semibold text-secondary-900 dark:text-white">
-                            {{ data.perfect_score.status.emoji }} {{ data.perfect_score.current }}
-                            <span class="text-xs text-secondary-500">(Record: {{ data.perfect_score.longest }})</span>
-                        </span>
-                    </div>
-                    
-                    <!-- Progression -->
-                    <div class="flex justify-between items-center p-3 rounded-lg bg-secondary-50 dark:bg-secondary-800/50">
-                        <span class="text-sm text-secondary-600 dark:text-secondary-400">Progress:</span>
-                        <span class="font-semibold text-secondary-900 dark:text-white">
-                            {{ data.progression.status.emoji }} {{ data.progression.current }}
-                            <span class="text-xs text-secondary-500">(Record: {{ data.progression.longest }})</span>
-                        </span>
-                    </div>
-                </div>
-                
-                <!-- Subject Badges -->
-                {% set matiereBadges = [] %}
-                {% for badge in data.high_score.badges %}
-                    {% set matiereBadges = matiereBadges|merge([badge]) %}
-                {% endfor %}
-                {% for badge in data.perfect_score.badges %}
-                    {% set matiereBadges = matiereBadges|merge([badge]) %}
-                {% endfor %}
-                {% for badge in data.progression.badges %}
-                    {% set matiereBadges = matiereBadges|merge([badge]) %}
-                {% endfor %}
-                
-                {% if matiereBadges|length > 0 %}
-                <div class="mt-4 pt-4 border-t border-secondary-200 dark:border-secondary-700">
-                    <div class="flex flex-wrap gap-2">
-                        {% for badge in matiereBadges %}
-                        <span class="badge badge-warning text-xs">{{ badge }}</span>
                         {% endfor %}
                     </div>
                 </div>
-                {% endif %}
             </div>
-            {% endfor %}
+            {% endif %}
         </div>
-    </div>
-    {% endif %}
-    
-    <!-- All Badges -->
-    {% if allBadges|length > 0 %}
-    <div>
-        <h3 class="text-xl font-bold text-secondary-900 dark:text-white mb-4">🏆 Badge Collection</h3>
-        <div class="card p-6">
-            <div class="flex flex-wrap gap-3">
-                {% for badge in allBadges %}
-                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 text-white font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
-                    <span>{{ badge.name }}</span>
-                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/20 text-xs font-bold">
-                        {{ badge.streak }}
-                    </span>
+
+        <!-- Right Sidebar -->
+        <div class="wt-sidebar">
+
+            <!-- Journey Itinerary -->
+            <div class="journey-card fade-in fade-in-2">
+                <div class="journey-card-head">
+                    <span>✈️</span>
+                    <h4>Your Itinerary</h4>
                 </div>
-                {% endfor %}
+                <div class="journey-card-body" style="padding:16px">
+                    <div class="path-visual" id="pathVisual">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="card p-8 text-center">
-        <i data-lucide="award" class="w-16 h-16 mx-auto mb-4 text-secondary-400"></i>
-        <h4 class="text-lg font-semibold text-secondary-900 dark:text-white mb-2">No badges yet</h4>
-        <p class="text-secondary-500 dark:text-secondary-400 mb-4">Keep getting good grades to unlock your first badges!</p>
-        <a href="{{ path('app_courses') }}" class="btn btn-primary inline-flex items-center gap-2">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            Add Evaluation
-        </a>
-    </div>
-    {% endif %}
-    
-    <!-- Motivation Message -->
-    <div class="card p-6 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white">
-        <div class="flex items-center gap-4">
-            <div class="text-5xl">💪</div>
-            <div>
-                <h4 class="text-xl font-bold mb-1">Keep it up!</h4>
-                <p class="text-white/90">
+
+            <!-- Next unlock -->
+            <div class="next-teaser fade-in fade-in-4" id="nextTeaser" style="display:none">
+                <div class="next-teaser-lock">🔒</div>
+                <div>
+                    <div class="next-teaser-city" id="nextCity">???</div>
+                    <div class="next-teaser-text" id="nextHint">Keep going to unlock!</div>
+                </div>
+            </div>
+
+            <!-- Badges -->
+            {% if allBadges|length > 0 %}
+            <div class="journey-card fade-in fade-in-5">
+                <div class="journey-card-head">
+                    <span>🎖</span>
+                    <h4>Travel Badges</h4>
+                </div>
+                <div class="journey-card-body">
+                    <div class="badge-scroll">
+                        {% for badge in allBadges %}
+                        <span class="wt-badge">{{ badge.name }} <strong>{{ badge.streak }}</strong></span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Motivation -->
+            <div style="background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(10,10,15,0));border:1px solid rgba(201,168,76,0.2);border-radius:16px;padding:22px;" class="fade-in fade-in-6">
+                <div style="font-size:2rem;margin-bottom:10px">
+                    {% if globalStats.high_score.current >= 5 %}🌟
+                    {% elseif globalStats.high_score.current >= 3 %}✈️
+                    {% elseif globalStats.high_score.current >= 1 %}🗺
+                    {% else %}🧭{% endif %}
+                </div>
+                <div style="font-family:'Playfair Display',serif;font-size:15px;color:#c9a84c;margin-bottom:6px">
+                    {% if globalStats.high_score.current >= 5 %}Legendary Explorer!
+                    {% elseif globalStats.high_score.current >= 3 %}Seasoned Traveler
+                    {% elseif globalStats.high_score.current >= 1 %}Journey Begun
+                    {% else %}Passport Ready{% endif %}
+                </div>
+                <p style="font-size:13px;color:#94a3b8;line-height:1.6;font-style:italic">
                     {% if globalStats.high_score.current >= 5 %}
-                        You're on fire! Keep this pace to unlock even more badges.
+                        You're exploring the world! Keep your streak alive to reach legendary destinations.
                     {% elseif globalStats.high_score.current >= 3 %}
-                        Great work! A few more good grades to reach the next level.
+                        Great progress! A few more high scores and exotic destinations await you.
                     {% elseif globalStats.high_score.current >= 1 %}
-                        Good start! Keep getting good grades to build your streak.
+                        Your journey has started! Score ≥75% to unlock more cities.
                     {% else %}
-                        Start your streak now with a grade > 75%!
+                        Score ≥75% on your next evaluation to stamp your passport and begin your world tour!
                     {% endif %}
                 </p>
             </div>
         </div>
     </div>
-    
+
+</div>
 </div>
 
 <script>
-    // Initialize Lucide Icons
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
+// ══════════════════════════════════════════════════════
+// World Tour — Destination Data
+// ══════════════════════════════════════════════════════
+const DESTINATIONS = [
+    {
+        id: 'paris', city: 'Paris', country: 'France', flag: '🇫🇷',
+        streak: 1, stamp: '🥐',
+        fact: 'The Eiffel Tower was built in 1889 and stands 330 meters tall. It was originally a temporary structure!',
+        pin: { x: '44%', y: '27%' }, region: 'europe',
+        culture: 'City of Light · Art · Gastronomy'
+    },
+    {
+        id: 'cairo', city: 'Cairo', country: 'Egypt', flag: '🇪🇬',
+        streak: 2, stamp: '🪬',
+        fact: 'The Great Pyramid of Giza is the only one of the Seven Wonders of the Ancient World still standing.',
+        pin: { x: '51%', y: '42%' }, region: 'africa',
+        culture: 'Ancient Wonders · Desert · Nile'
+    },
+    {
+        id: 'tokyo', city: 'Tokyo', country: 'Japan', flag: '🇯🇵',
+        streak: 3, stamp: '🗾',
+        fact: 'Tokyo is home to 37 million people, making it the world\'s most populous metropolitan area.',
+        pin: { x: '84%', y: '28%' }, region: 'eastasia',
+        culture: 'Technology · Tradition · Cuisine'
+    },
+    {
+        id: 'rio', city: 'Rio de Janeiro', country: 'Brazil', flag: '🇧🇷',
+        streak: 4, stamp: '🌴',
+        fact: 'Rio\'s Carnival is the world\'s largest festival, attracting over 5 million visitors every year!',
+        pin: { x: '22%', y: '70%' }, region: 'southamerica',
+        culture: 'Samba · Beaches · Carnival'
+    },
+    {
+        id: 'dubai', city: 'Dubai', country: 'UAE', flag: '🇦🇪',
+        streak: 5, stamp: '🏙',
+        fact: 'The Burj Khalifa stands at 828 meters — the tallest building on Earth, visible from 95 km away.',
+        pin: { x: '58%', y: '40%' }, region: 'middleeast',
+        culture: 'Innovation · Luxury · Desert'
+    },
+    {
+        id: 'newyork', city: 'New York', country: 'USA', flag: '🇺🇸',
+        streak: 6, stamp: '🗽',
+        fact: 'New York City has over 800 languages spoken — the most linguistically diverse city on Earth.',
+        pin: { x: '16%', y: '30%' }, region: 'northamerica',
+        culture: 'Ambition · Diversity · Culture'
+    },
+    {
+        id: 'mumbai', city: 'Mumbai', country: 'India', flag: '🇮🇳',
+        streak: 7, stamp: '🕌',
+        fact: 'Bollywood produces over 1,000 films per year — more than any other film industry in the world.',
+        pin: { x: '62%', y: '42%' }, region: 'southasia',
+        culture: 'Cinema · Spices · Spirit'
+    },
+    {
+        id: 'sydney', city: 'Sydney', country: 'Australia', flag: '🇦🇺',
+        streak: 8, stamp: '🦘',
+        fact: 'Australia is the only continent that is also a country, and it\'s home to 80% of unique species.',
+        pin: { x: '83%', y: '76%' }, region: 'australia',
+        culture: 'Nature · Surf · Discovery'
+    },
+    {
+        id: 'nairobi', city: 'Nairobi', country: 'Kenya', flag: '🇰🇪',
+        streak: 9, stamp: '🦁',
+        fact: 'Nairobi National Park is the only wildlife reserve in the world located within a capital city.',
+        pin: { x: '54%', y: '58%' }, region: 'africa',
+        culture: 'Safari · Wildlife · Innovation'
+    },
+    {
+        id: 'beijing', city: 'Beijing', country: 'China', flag: '🇨🇳',
+        streak: 10, stamp: '🐉',
+        fact: 'The Great Wall of China stretches over 21,000 km — long enough to circle the Earth half a time.',
+        pin: { x: '77%', y: '28%' }, region: 'eastasia',
+        culture: 'History · Power · Tradition'
+    },
+    {
+        id: 'buenos_aires', city: 'Buenos Aires', country: 'Argentina', flag: '🇦🇷',
+        streak: 12, stamp: '💃',
+        fact: 'Buenos Aires is called the "Paris of South America" and is the birthplace of Tango.',
+        pin: { x: '20%', y: '82%' }, region: 'southamerica',
+        culture: 'Tango · Steak · Passion'
+    },
+    {
+        id: 'moscow', city: 'Moscow', country: 'Russia', flag: '🇷🇺',
+        streak: 15, stamp: '🏰',
+        fact: 'Moscow\'s Metro system is famous for its ornate stations — often called "people\'s palaces."',
+        pin: { x: '56%', y: '22%' }, region: 'northasia',
+        culture: 'Art · History · Resilience'
+    }
+];
+
+// ══════════════════════════════════════════════════════
+// Get current streak from Twig
+// ══════════════════════════════════════════════════════
+const currentStreak = {{ globalStats.high_score.current }};
+
+// ══════════════════════════════════════════════════════
+// Compute unlocked destinations
+// ══════════════════════════════════════════════════════
+function getStatus(dest) {
+    if (currentStreak >= dest.streak) return 'done';
+    // Current = the first locked one after all done
+    const prevDone = DESTINATIONS.filter(d => currentStreak >= d.streak);
+    const nextLocked = DESTINATIONS.find(d => currentStreak < d.streak);
+    if (nextLocked && nextLocked.id === dest.id) return 'current';
+    return 'locked';
+}
+
+const unlockedCount = DESTINATIONS.filter(d => currentStreak >= d.streak).length;
+const currentDest = DESTINATIONS.find(d => currentStreak < d.streak) || DESTINATIONS[DESTINATIONS.length - 1];
+const nextDest = DESTINATIONS.find(d => d.streak > currentStreak);
+
+// ══════════════════════════════════════════════════════
+// Update passport stat
+// ══════════════════════════════════════════════════════
+document.getElementById('citiesCount').textContent = unlockedCount;
+
+// ══════════════════════════════════════════════════════
+// Update current destination card
+// ══════════════════════════════════════════════════════
+function updateCurrentCard() {
+    const lastUnlocked = DESTINATIONS.filter(d => currentStreak >= d.streak).pop();
+    const target = lastUnlocked || DESTINATIONS[0];
+
+    if (currentStreak === 0) {
+        document.getElementById('currentFlag').textContent = '🧭';
+        document.getElementById('currentCity').textContent = 'Start Your Journey';
+        document.getElementById('currentCountry').textContent = 'No destination yet';
+        document.getElementById('currentFact').textContent = 'Score ≥75% on your first evaluation to unlock Paris!';
+        document.getElementById('currentStamp').textContent = '?';
+        document.getElementById('destProgress').style.width = '0%';
+        document.getElementById('progressPct').textContent = '0%';
+        document.getElementById('progressLabel').textContent = 'Score ≥75% to unlock Paris 🇫🇷';
+        return;
+    }
+
+    document.getElementById('currentFlag').textContent = target.flag;
+    document.getElementById('currentCity').textContent = target.city;
+    document.getElementById('currentCountry').innerHTML = target.country + ' · ' + target.culture
+        + `<span style="display:block;margin-top:3px;font-size:11px;color:#c9a84c;letter-spacing:0.05em">✈️ ${target.iata} · ${target.airport}</span>`;
+    document.getElementById('currentFact').textContent = target.fact;
+    document.getElementById('currentStamp').textContent = target.stamp;
+
+    if (nextDest) {
+        const needed = nextDest.streak;
+        const prev = target.streak;
+        const pct = Math.round(((currentStreak - prev) / (needed - prev)) * 100);
+        document.getElementById('destProgress').style.width = Math.max(0, pct) + '%';
+        document.getElementById('progressPct').textContent = pct + '%';
+        document.getElementById('progressLabel').textContent = `${needed - currentStreak} more to unlock ${nextDest.city} ${nextDest.flag}`;
+    } else {
+        document.getElementById('destProgress').style.width = '100%';
+        document.getElementById('progressPct').textContent = '100%';
+        document.getElementById('progressLabel').textContent = '🏆 All destinations unlocked!';
+    }
+}
+updateCurrentCard();
+
+// ══════════════════════════════════════════════════════
+// Build path visual (itinerary)
+// ══════════════════════════════════════════════════════
+function buildPath() {
+    const container = document.getElementById('pathVisual');
+    container.innerHTML = '';
+
+    DESTINATIONS.forEach((dest, i) => {
+        const status = getStatus(dest);
+        const step = document.createElement('div');
+        step.className = 'path-step';
+        step.innerHTML = `
+            <div class="path-dot ${status}">${status === 'done' ? '✓' : status === 'current' ? dest.flag : i + 1}</div>
+            <div class="path-content">
+                <div class="path-name" style="color:${status === 'done' ? '#4ade80' : status === 'current' ? '#c9a84c' : '#94a3b8'}">
+                    ${dest.flag} ${dest.city}
+                </div>
+                <div class="path-req">${dest.streak} streak${dest.streak > 1 ? 's' : ''} required</div>
+                <div style="font-size:10px;color:rgba(201,168,76,0.6);margin-top:1px">✈️ ${dest.iata} — ${dest.airport}</div>
+                ${status === 'done' ? '<div style="font-size:11px;color:#4ade80;margin-top:2px">Visited ✓</div>' : ''}
+            </div>
+        `;
+        step.style.animationDelay = (i * 0.04) + 's';
+        step.classList.add('fade-in');
+        container.appendChild(step);
     });
+}
+buildPath();
+
+// ══════════════════════════════════════════════════════
+// Next teaser
+// ══════════════════════════════════════════════════════
+if (nextDest) {
+    document.getElementById('nextTeaser').style.display = 'flex';
+    document.getElementById('nextCity').textContent = `${nextDest.flag} ${nextDest.city}, ${nextDest.country}`;
+    document.getElementById('nextHint').textContent = `${nextDest.streak - currentStreak} more high score${nextDest.streak - currentStreak > 1 ? 's' : ''} needed`;
+}
+
+// ══════════════════════════════════════════════════════
+// City pins on map
+// ══════════════════════════════════════════════════════
+function buildPins() {
+    const container = document.getElementById('cityPins');
+    const tooltip = document.getElementById('mapTooltip');
+    const mapWrap = document.querySelector('.svg-map-wrap');
+    container.innerHTML = '';
+
+    DESTINATIONS.forEach(dest => {
+        const status = getStatus(dest);
+
+        const pin = document.createElement('div');
+        pin.className = `dest-pin ${status}`;
+        pin.style.left = dest.pin.x;
+        pin.style.top = dest.pin.y;
+        pin.innerHTML = `
+            <div class="dest-pin-inner"></div>
+            <span class="dest-pin-emoji">${status !== 'locked' ? dest.flag : '🔒'}</span>
+        `;
+
+        pin.addEventListener('mouseenter', (e) => {
+            const rect = mapWrap.getBoundingClientRect();
+            const pinRect = pin.getBoundingClientRect();
+            const x = pinRect.left - rect.left + 20;
+            const y = pinRect.top - rect.top - 10;
+
+            document.getElementById('ttFlag').textContent = dest.flag;
+            document.getElementById('ttCity').textContent = dest.city;
+            document.getElementById('ttCountry').textContent = dest.country + ' · ' + dest.culture;
+            document.getElementById('ttAirport').innerHTML = status !== 'locked'
+                ? `✈️ <span style="font-weight:600">${dest.iata}</span> · ${dest.airport}`
+                : `✈️ <span style="opacity:0.4">Airport locked</span>`;
+            document.getElementById('ttReq').textContent = status === 'done'
+                ? '✅ Visited!'
+                : status === 'current'
+                ? `🎯 ${dest.streak - currentStreak} more needed`
+                : `🔒 Requires ${dest.streak} streak`;
+            document.getElementById('ttFact').textContent = status !== 'locked' ? dest.fact : '???';
+
+            const tt = document.getElementById('mapTooltip');
+            tt.style.left = Math.min(x, mapWrap.clientWidth - 260) + 'px';
+            tt.style.top = Math.max(y - 160, 10) + 'px';
+            tt.classList.add('visible');
+        });
+
+        pin.addEventListener('mouseleave', () => {
+            document.getElementById('mapTooltip').classList.remove('visible');
+        });
+
+        container.appendChild(pin);
+    });
+}
+buildPins();
+
+// ══════════════════════════════════════════════════════
+// ✈️ Step-by-step plane animation between unlocked cities
+// ══════════════════════════════════════════════════════
+(function initPlane() {
+    const plane     = document.getElementById('planeDot');
+    const label     = document.getElementById('flightLabel');
+    const pathEl    = document.getElementById('flightPath');
+    const mapWrap   = document.querySelector('.svg-map-wrap');
+
+    // Only animate over unlocked + current destinations
+    const route = DESTINATIONS.filter(d => getStatus(d) !== 'locked');
+    if (route.length < 2) {
+        // Only one city unlocked — just park plane there
+        if (route.length === 1) {
+            plane.style.left  = route[0].pin.x;
+            plane.style.top   = route[0].pin.y;
+            plane.style.opacity = '0.9';
+        }
+        return;
+    }
+
+    let step = 0; // index in route we're flying TO
+
+    // Convert "44%" style to a number
+    function pct(str) { return parseFloat(str); }
+
+    // Compute angle between two points to rotate plane emoji
+    function getAngle(from, to) {
+        const dx = pct(to.pin.x) - pct(from.pin.x);
+        const dy = pct(to.pin.y) - pct(from.pin.y);
+        return Math.atan2(dy, dx) * 180 / Math.PI;
+    }
+
+    // Build the SVG dashed path through all route points
+    function drawRoutePath() {
+        if (!pathEl) return;
+        const pts = route.map(d => `${pct(d.pin.x)},${pct(d.pin.y)}`);
+        // Use smooth curves
+        let d = `M ${pts[0]}`;
+        for (let i = 1; i < pts.length; i++) {
+            const prev = route[i-1], cur = route[i];
+            const mx = (pct(prev.pin.x) + pct(cur.pin.x)) / 2;
+            const my = (pct(prev.pin.y) + pct(cur.pin.y)) / 2 - 8; // arc up slightly
+            d += ` Q ${mx},${my} ${pct(cur.pin.x)},${pct(cur.pin.y)}`;
+        }
+        pathEl.setAttribute('d', d);
+    }
+    drawRoutePath();
+
+    // Place plane at first city
+    plane.style.left    = route[0].pin.x;
+    plane.style.top     = route[0].pin.y;
+    plane.style.opacity = '0.95';
+    plane.style.transition = 'none';
+
+    function flyToNext() {
+        step = (step + 1) % route.length;
+        const dest = route[step];
+        const from = route[(step - 1 + route.length) % route.length];
+
+        const angle = getAngle(from, dest);
+        // Flip emoji direction based on going left or right
+        const scaleX = (pct(dest.pin.x) >= pct(from.pin.x)) ? 1 : -1;
+
+        // Re-enable smooth transition
+        plane.style.transition = 'left 2.8s cubic-bezier(0.45,0,0.55,1), top 2.8s cubic-bezier(0.45,0,0.55,1), opacity 0.5s, transform 0.3s';
+        plane.style.transform  = `translate(-50%,-50%) scaleX(${scaleX})`;
+        plane.style.left       = dest.pin.x;
+        plane.style.top        = dest.pin.y;
+
+        // Show label mid-flight (1.4s into the 2.8s trip)
+        setTimeout(() => {
+            label.style.left = dest.pin.x;
+            label.style.top  = dest.pin.y;
+            label.innerHTML  = `${dest.flag} <strong>${dest.city}</strong> · <span style="opacity:.7">${dest.iata}</span>`;
+            label.classList.add('visible');
+            setTimeout(() => label.classList.remove('visible'), 1800);
+        }, 1200);
+
+        // After arriving, wait 1.5s then fly to next
+        setTimeout(flyToNext, 4800); // 2.8s flight + 2s pause
+    }
+
+    // Start flying after 1 second
+    setTimeout(flyToNext, 1000);
+})();
+
+// ══════════════════════════════════════════════════════
+// Animate bars
+// ══════════════════════════════════════════════════════
+setTimeout(() => {
+    document.querySelectorAll('.subject-bar-fill[data-w]').forEach(b => {
+        b.style.width = b.dataset.w + '%';
+    });
+    document.querySelectorAll('.flame-progress-fill[data-width]').forEach(b => {
+        b.style.width = b.dataset.width + '%';
+    });
+    // Current dest progress
+    const fill = document.getElementById('destProgress');
+    if (fill && fill.style.width) {
+        const w = fill.style.width;
+        fill.style.width = '0%';
+        setTimeout(() => { fill.style.width = w; }, 100);
+    }
+}, 400);
+
+if (typeof lucide !== 'undefined') lucide.createIcons();
+
+// ══════════════════════════════════════════════════════
+// Fix emoji flags (render as images for cross-browser)
+// ══════════════════════════════════════════════════════
+function flagToImg(flag, size = 28) {
+    // Convert flag emoji to twemoji-style image via CDN
+    const cp = [...flag].map(c => c.codePointAt(0).toString(16)).join('-');
+    return `<img src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/${cp}.svg"
+        style="width:${size}px;height:${size}px;vertical-align:middle;display:inline-block"
+        onerror="this.parentNode.textContent='${flag}'" alt="${flag}">`;
+}
+
+// Re-render flags in current dest card
+function fixFlags() {
+    const flagEl = document.getElementById('currentFlag');
+    if (flagEl && flagEl.textContent && flagEl.textContent !== '🧭' && flagEl.textContent !== '✈️') {
+        const raw = flagEl.textContent.trim();
+        flagEl.innerHTML = `<span style="font-size:3rem;font-family:system-ui,serif">${raw}</span>`;
+    }
+}
+setTimeout(fixFlags, 100);
+
+// ══════════════════════════════════════════════════════
+// 🎵 Ambient Travel Sound — Web Audio API
+// Generates looping ambient travel/airport atmosphere
+// ══════════════════════════════════════════════════════
+let audioCtx = null;
+let masterGain = null;
+let isPlaying = false;
+let nodes = [];
+
+function createAmbientTravel() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    masterGain.connect(audioCtx.destination);
+
+    // 1. Soft wind / air noise (white noise filtered)
+    function makeWind() {
+        const bufferSize = audioCtx.sampleRate * 4;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 400;
+        filter.Q.value = 0.3;
+
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.06;
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        source.start();
+        nodes.push(source);
+    }
+
+    // 2. Deep hum (airplane engine feel)
+    function makeHum(freq, vol) {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+
+        const gain = audioCtx.createGain();
+        gain.gain.value = vol;
+
+        // Slight LFO modulation for movement feel
+        const lfo = audioCtx.createOscillator();
+        lfo.frequency.value = 0.08;
+        const lfoGain = audioCtx.createGain();
+        lfoGain.gain.value = freq * 0.01;
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start();
+
+        osc.connect(gain);
+        gain.connect(masterGain);
+        osc.start();
+        nodes.push(osc, lfo);
+    }
+
+    // 3. Gentle chime / bell tones (departure bell feel)
+    function scheduleChimes() {
+        const chimeFreqs = [523, 659, 784, 1047, 880, 698, 587];
+        let time = audioCtx.currentTime + 2;
+
+        function playChime() {
+            const freq = chimeFreqs[Math.floor(Math.random() * chimeFreqs.length)];
+            const osc = audioCtx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const env = audioCtx.createGain();
+            env.gain.setValueAtTime(0, time);
+            env.gain.linearRampToValueAtTime(0.04, time + 0.02);
+            env.gain.exponentialRampToValueAtTime(0.001, time + 2.5);
+
+            osc.connect(env);
+            env.connect(masterGain);
+            osc.start(time);
+            osc.stop(time + 2.5);
+
+            time += 2 + Math.random() * 6;
+            if (isPlaying) setTimeout(playChime, (time - audioCtx.currentTime) * 500);
+        }
+        playChime();
+    }
+
+    // 4. Low rumble (aircraft/travel atmosphere)
+    function makeRumble() {
+        const bufferSize = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 80;
+
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.15;
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+        source.start();
+        nodes.push(source);
+    }
+
+    makeWind();
+    makeHum(55, 0.04);
+    makeHum(110, 0.025);
+    makeHum(82, 0.02);
+    makeRumble();
+    scheduleChimes();
+
+    // Fade in
+    masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 2);
+}
+
+function stopAmbient() {
+    if (!audioCtx) return;
+    masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+    setTimeout(() => {
+        nodes.forEach(n => { try { n.stop(); } catch(e) {} });
+        nodes = [];
+        audioCtx.close();
+        audioCtx = null;
+    }, 1600);
+}
+
+// Sound control button
+const soundBtn = document.getElementById('soundToggle');
+const soundLabel = document.getElementById('soundLabel');
+
+soundBtn.addEventListener('click', () => {
+    if (!isPlaying) {
+        isPlaying = true;
+        createAmbientTravel();
+        soundBtn.classList.add('active');
+        soundLabel.textContent = 'Music On';
+        soundBtn.querySelector('.sound-icon').textContent = '🔊';
+    } else {
+        isPlaying = false;
+        stopAmbient();
+        soundBtn.classList.remove('active');
+        soundLabel.textContent = 'Music Off';
+        soundBtn.querySelector('.sound-icon').textContent = '🔇';
+    }
+});
+
+// Volume slider
+document.getElementById('volumeSlider').addEventListener('input', (e) => {
+    if (masterGain) {
+        masterGain.gain.setValueAtTime(e.target.value / 100 * 0.7, audioCtx.currentTime);
+    }
+});
 </script>
 {% endblock %}

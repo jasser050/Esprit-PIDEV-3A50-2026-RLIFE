@@ -21,6 +21,10 @@ parameters:
     pusher.secret: '%env(PUSHER_SECRET)%'
     pusher.cluster: '%env(PUSHER_CLUSTER)%'
 
+
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
+
+
 services:
     # default configuration for services in *this* file
     _defaults:
