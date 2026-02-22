@@ -67,16 +67,25 @@ class EvaluationMatiereType extends AbstractType
                 ],
             ])
 
+            // 🔥 Priority — validation ajoutée
             ->add('prioriteE', ChoiceType::class, [
-                'label' => 'Priority',
-                'choices' => [
-                    'Low' => 'low',
+                'label'       => 'Priority',
+                'choices'     => [
+                    'Low'    => 'low',
                     'Medium' => 'medium',
-                    'High' => 'high',
+                    'High'   => 'high',
                     'Urgent' => 'urgent',
                 ],
                 'placeholder' => 'Select a priority',
-                'required' => false,
+                'required'    => true,   // <-- était false, maintenant true
+                'constraints' => [
+                    new NotBlank(['message' => 'Please select a priority level.']),
+                    new Assert\NotNull(['message' => 'Priority cannot be null.']),
+                    new Assert\Choice([
+                        'choices' => ['low', 'medium', 'high', 'urgent'],
+                        'message' => 'Invalid priority value "{{ value }}". Choose: low, medium, high or urgent.',
+                    ]),
+                ],
             ]);
     }
 

@@ -224,19 +224,21 @@
             </div>
         </div>
 
-        {# Priority #}
+        {# ── Priority — avec * obligatoire et affichage erreur Symfony ── #}
         <div class="form-control w-full mb-8">
             <label class="label">
                 <span class="label-text font-semibold text-base">
-                    Priority
+                    Priority <span class="text-error">*</span>
                 </span>
             </label>
             {{ form_widget(form.prioriteE, {
                 'attr': {
+                    'id': 'priority-select',
                     'class': 'select select-bordered w-full' ~ (form.prioriteE.vars.errors|length > 0 ? ' select-error' : ''),
                     'style': 'background-color: white; color: black;'
                 }
             }) }}
+            {# Erreurs retournées par Symfony (côté serveur) #}
             {% if form.prioriteE.vars.errors|length > 0 %}
                 <label class="label">
                     <span class="label-text-alt text-error flex items-center gap-1">
@@ -248,12 +250,15 @@
                     </span>
                 </label>
             {% endif %}
+            {# Zone réservée pour les erreurs JS #}
+            <div id="priority-js-error"></div>
             <label class="label">
                 <span class="label-text-alt text-gray-500">
-                    Optional - How important is this evaluation?
+                    Required — How important is this evaluation?
                 </span>
             </label>
         </div>
+
 
         {# Buttons #}
         <div class="flex justify-end gap-4">
