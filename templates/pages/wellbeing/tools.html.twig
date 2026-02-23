@@ -1,17 +1,9 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
-<<<<<<< HEAD
 {% block title %}Coping Tools - Wellbeing{% endblock %}
 
 {% block body %}
 <div class="space-y-6">
-=======
-{% block title %}Coping Tools{% endblock %}
-
-{% block body %}
-<div class="space-y-6 animate-fade-in">
-    {# Breadcrumb + Header (si tu utilises ces components, sinon tu peux enlever) #}
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Wellbeing', url: path('app_wellbeing') },
@@ -24,7 +16,19 @@
         subtitle: 'Techniques and exercises to help you manage stress and improve wellbeing'
     } %}
 
-<<<<<<< HEAD
+    <div class="card p-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <label for="quote-type-select" class="text-sm font-medium text-slate-700 dark:text-slate-200">Quote Type</label>
+            <select id="quote-type-select" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                <option value="motivation">Motivation</option>
+                <option value="funny">Funny</option>
+                <option value="calm">Calm</option>
+                <option value="focus">Focus</option>
+            </select>
+            <p class="text-xs text-light-muted dark:text-dark-muted">Student can choose quote style for floating quotes.</p>
+        </div>
+    </div>
+
     <!-- Quick Actions -->
     <div class="card p-6 bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
         <div class="flex items-center justify-between">
@@ -32,15 +36,12 @@
                 <h2 class="text-xl font-bold mb-2">Feeling overwhelmed?</h2>
                 <p class="text-primary-100">Try a quick breathing exercise to help you relax and refocus.</p>
             </div>
-            <button class="btn bg-white text-primary-600 hover:bg-primary-50" 
-                    data-controller="modal" 
-                    data-action="click->modal#open"
-                    data-modal-target-param="breathing-modal">
+            <button id="breathing-quick-cta" class="btn bg-white text-primary-600 hover:bg-primary-50">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                Start Now
+                Go to Breathing Tool
             </button>
         </div>
     </div>
@@ -72,7 +73,12 @@
                     <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ tool.description }}</p>
                     <div class="flex items-center justify-between">
                         <span class="badge badge-{{ tool.color }}">{{ tool.duration }}</span>
-                        <button class="btn btn-sm btn-{{ tool.color }}">
+                        <button
+                            class="btn btn-sm btn-{{ tool.color }} tool-start-btn"
+                            data-tool-key="{{ tool.key|default('') }}"
+                            data-tool-name="{{ tool.name|e('html_attr') }}"
+                            data-tool-duration="{{ tool.duration|e('html_attr') }}"
+                        >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -109,96 +115,10 @@
                 <div class="text-2xl mb-2">🎯</div>
                 <h3 class="font-medium mb-1">Set Boundaries</h3>
                 <p class="text-sm text-light-muted dark:text-dark-muted">It's okay to say no sometimes</p>
-=======
-    {# Banner #}
-    <div class="rounded-2xl p-6 bg-gradient-to-r from-primary-600 to-accent-500 text-white flex items-center justify-between gap-4">
-        <div>
-            <h3 class="text-xl font-semibold">Feeling overwhelmed?</h3>
-            <p class="text-white/90 mt-1">Try a quick breathing exercise to help you relax and refocus.</p>
-        </div>
-        <button
-            class="btn btn-white inline-flex items-center gap-2"
-            data-open-tool="breathing"
-            type="button"
-        >
-            <i data-lucide="play" class="w-4 h-4"></i>
-            Start Now
-        </button>
-    </div>
-
-    {# Tools cards #}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {% for tool in tools %}
-            <div class="card p-5 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-12 h-12 rounded-2xl bg-{{ tool.color }}-900/30 flex items-center justify-center flex-shrink-0">
-                        {% if tool.icon == 'wind' %}
-                            <i data-lucide="wind" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'sparkles' %}
-                            <i data-lucide="sparkles" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'heart' %}
-                            <i data-lucide="heart" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'clock' %}
-                            <i data-lucide="timer" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'book' %}
-                            <i data-lucide="book-open" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% else %}
-                            <i data-lucide="music" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% endif %}
-                    </div>
-
-                    <div class="min-w-0">
-                        <h3 class="font-semibold text-white truncate">{{ tool.name }}</h3>
-                        <p class="text-sm text-dark-muted mt-0.5 truncate">{{ tool.description }}</p>
-                        <div class="mt-2 text-xs text-{{ tool.color }}-400 inline-flex items-center gap-1">
-                            <i data-lucide="clock" class="w-3 h-3"></i>
-                            {{ tool.duration }}
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    class="btn btn-secondary inline-flex items-center gap-2"
-                    type="button"
-                    data-open-tool="{{ tool.key }}"
-                    data-duration-seconds="{{ tool.durationSeconds }}"
-                >
-                    <i data-lucide="play" class="w-4 h-4"></i>
-                    Start
-                </button>
-            </div>
-        {% endfor %}
-    </div>
-
-    {# Tips #}
-    <div class="card p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Quick Wellbeing Tips</h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">💧</div>
-                <div class="font-semibold mt-2 text-white">Stay Hydrated</div>
-                <div class="text-sm text-dark-muted mt-1">Drink at least 8 glasses of water daily</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">🚶</div>
-                <div class="font-semibold mt-2 text-white">Take Breaks</div>
-                <div class="text-sm text-dark-muted mt-1">Walk for 5 mins every hour of studying</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">😴</div>
-                <div class="font-semibold mt-2 text-white">Sleep Well</div>
-                <div class="text-sm text-dark-muted mt-1">Aim for 7-8 hours of quality sleep</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">🎯</div>
-                <div class="font-semibold mt-2 text-white">Set Boundaries</div>
-                <div class="text-sm text-dark-muted mt-1">It’s okay to say no sometimes</div>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             </div>
         </div>
     </div>
 
-<<<<<<< HEAD
     <!-- Resources -->
     <div class="card p-6">
         <h2 class="text-lg font-semibold mb-4">Additional Resources</h2>
@@ -236,158 +156,166 @@
                     <p class="text-sm text-light-muted dark:text-dark-muted">Articles & resources</p>
                 </div>
             </a>
-=======
-    {# Modal simple (un seul modal, contenu change selon tool) #}
-    <div id="tool-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
-        <div class="w-full max-w-md rounded-3xl bg-dark-card shadow-soft-xl p-6 relative">
-            <button id="tool-modal-close" class="absolute top-4 right-4 btn btn-ghost" type="button">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex flex-col items-center text-center gap-3">
-                <div id="tool-modal-icon" class="w-20 h-20 rounded-full bg-primary-900/30 flex items-center justify-center">
-                    <i data-lucide="wind" class="w-10 h-10 text-primary-400"></i>
-                </div>
-
-                <h3 id="tool-modal-title" class="text-xl font-semibold text-white">Tool</h3>
-                <p id="tool-modal-desc" class="text-sm text-dark-muted">Description</p>
-
-                <div id="tool-modal-timer" class="mt-2 text-sm text-dark-muted hidden">
-                    Time left: <span id="tool-modal-time">00:00</span>
-                </div>
-
-                <button id="tool-modal-start" class="btn btn-primary w-full mt-4" type="button">
-                    Start Exercise
-                </button>
-                <button id="tool-modal-later" class="btn btn-secondary w-full" type="button">
-                    Maybe Later
-                </button>
-            </div>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         </div>
     </div>
+
+    <section id="journal-focus" class="hidden space-y-6">
+        <div class="card p-6">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-light-muted dark:text-dark-muted">Focus Session</p>
+                    <h2 class="text-2xl font-bold">Gratitude Journal</h2>
+                    <p class="text-light-muted dark:text-dark-muted">Write three things you're grateful for</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="badge badge-primary">2 min</span>
+                    <span class="badge badge-secondary">Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <h3 class="text-xl font-semibold">Gratitude Journal</h3>
+            <p class="text-light-muted dark:text-dark-muted">Write what you are grateful for. You can also dictate by voice.</p>
+
+            <textarea id="journal-input" class="w-full min-h-[160px] rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      placeholder="Example: 1) I am grateful for..."></textarea>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="start-voice-journal" class="btn btn-secondary">
+                    <span class="inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 1v11m0 0a3 3 0 003-3V6a3 3 0 10-6 0v3a3 3 0 003 3zm-7 0a7 7 0 0014 0m-7 7v4m-4 0h8"/></svg>
+                        Start Voice Input
+                    </span>
+                </button>
+                <button id="stop-voice-journal" class="btn btn-danger">Stop</button>
+                <label for="journal-lang" class="text-sm font-medium">Language</label>
+                <select id="journal-lang" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+                    <option value="">Auto (AI detect)</option>
+                    <option value="en-US">English</option>
+                    <option value="fr-FR">Francais</option>
+                    <option value="ar-SA">Arabic</option>
+                    <option value="ar-TN">Tunisian Arabic</option>
+                </select>
+                <span id="journal-status" class="text-sm text-light-muted dark:text-dark-muted">Voice: idle</span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="save-journal-entry" class="btn btn-primary">Save</button>
+                <button id="new-journal-entry" class="btn btn-secondary">New Journal</button>
+                <button id="back-to-tools" class="btn btn-secondary">Back to Coping Tools</button>
+            </div>
+        </div>
+
+        <div class="card p-6">
+            <h3 class="text-xl font-semibold mb-4">Recent Journal Entries</h3>
+            <div id="journal-list" class="space-y-3"></div>
+        </div>
+    </section>
+
+    <section id="yoga-focus" class="hidden space-y-6">
+        <div class="card p-6">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-light-muted dark:text-dark-muted">Focus Session</p>
+                    <h2 class="text-2xl font-bold">Yoga Coach</h2>
+                    <p class="text-light-muted dark:text-dark-muted">Follow guided yoga exercises to reduce stress.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="badge badge-secondary">20 sec</span>
+                    <span id="yoga-step-count" class="badge badge-primary">1/4</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 id="yoga-exercise-title" class="text-xl font-semibold">Child Pose</h3>
+                    <p id="yoga-exercise-desc" class="text-light-muted dark:text-dark-muted">Relax your back and breathe slowly.</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-light-muted dark:text-dark-muted">Time left</p>
+                    <p id="yoga-timer" class="text-2xl font-bold">20s</p>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-light-bg dark:bg-dark-bg p-3">
+                <div id="yoga-demo-canvas" class="w-full rounded-xl bg-gradient-to-br from-primary-100/70 to-secondary-100/70 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center relative overflow-hidden" style="min-height:300px;">
+                    <div id="yoga-demo-shape" class="relative w-full h-full" style="height:300px;"></div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <button id="yoga-start-btn" class="btn btn-primary">Start Yoga</button>
+                <button id="yoga-next-btn" class="btn btn-secondary">Next Exercise</button>
+                <button id="yoga-back-btn" class="btn btn-secondary">Back to Coping Tools</button>
+            </div>
+            <p id="yoga-status" class="text-sm text-light-muted dark:text-dark-muted">Click Start Yoga to begin.</p>
+        </div>
+    </section>
+
+    <section id="ai-chat-focus" class="hidden space-y-6">
+        <div class="card p-6">
+            <div class="flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-light-muted dark:text-dark-muted">Focus Session</p>
+                    <h2 class="text-2xl font-bold">AI Chat Coach</h2>
+                    <p class="text-light-muted dark:text-dark-muted">Discuss with AI for motivation, guidance, and practical support in any language.</p>
+                </div>
+                <span class="badge badge-accent">24/7</span>
+            </div>
+        </div>
+
+        <div class="card p-6 space-y-4">
+            <div id="ai-chat-messages" class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-light-bg dark:bg-dark-bg p-4 h-[380px] overflow-y-auto space-y-3">
+                <div class="text-sm text-light-muted dark:text-dark-muted">AI Coach: Bonjour, je suis la pour vous aider. De quoi avez-vous besoin maintenant ?</div>
+            </div>
+
+            <div class="space-y-3">
+                <textarea id="ai-chat-input" class="w-full min-h-[110px] rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-3 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Write your message in any language..."></textarea>
+                <div class="flex flex-wrap items-center gap-3">
+                    <button id="ai-chat-send-btn" class="btn btn-primary">Send</button>
+                    <button id="ai-chat-clear-btn" class="btn btn-secondary">New conversation</button>
+                    <button id="ai-chat-back-btn" class="btn btn-secondary">Back to Coping Tools</button>
+                    <span id="ai-chat-status" class="text-sm text-light-muted dark:text-dark-muted">Ready</span>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 
-<<<<<<< HEAD
 <!-- Breathing Exercise Modal -->
-<div id="breathing-modal" class="modal" data-controller="modal">
-    <div class="modal-content max-w-md text-center">
-        <div class="p-8">
-            <div class="w-32 h-32 mx-auto mb-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <span class="text-6xl">🌬️</span>
+<div id="breathing-modal" class="modal hidden" data-controller="modal">
+    <div class="modal-content max-w-xl">
+        <div class="p-8 space-y-6 bg-gradient-to-b from-[#0f1c4d] to-[#0a1438] rounded-2xl">
+            <div class="text-center">
+                <p class="text-xs uppercase tracking-widest text-cyan-200/80">Relax Session</p>
+                <h3 class="text-2xl font-bold text-white mt-1">Assistant Respiration</h3>
+                <p class="text-cyan-100/90 mt-2">Voix douce et guidage lent pour calmer le stress.</p>
             </div>
-            <h3 class="text-xl font-bold mb-2">4-7-8 Breathing</h3>
-            <p class="text-light-muted dark:text-dark-muted mb-6">
-                Breathe in for 4 seconds, hold for 7 seconds, exhale for 8 seconds. Repeat 4 times.
-            </p>
-            <div class="space-y-4">
-                <button class="btn btn-primary w-full">Start Exercise</button>
-                <button class="btn btn-secondary w-full" data-action="click->modal#close">Maybe Later</button>
+
+            <div class="rounded-2xl border border-cyan-300/20 bg-cyan-900/10 p-6">
+                <div class="mx-auto relative w-40 h-40 flex items-center justify-center">
+                    <div id="breathing-aura" class="absolute inset-0 rounded-full bg-cyan-300/20 blur-md transition-all duration-1000"></div>
+                    <div id="breathing-orb" class="w-32 h-32 rounded-full bg-gradient-to-br from-cyan-300/70 to-blue-400/70 shadow-[0_0_45px_rgba(59,130,246,0.45)] transition-all duration-1000"></div>
+                </div>
+                <p id="breathing-phase" class="text-center text-cyan-100 font-semibold mt-4">Ready to breathe</p>
+                <p class="text-center text-cyan-100/80 text-sm mt-1">Pattern: Inhale 4s, Hold 7s, Exhale 8s</p>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button id="breathing-voice-start" class="btn btn-primary w-full">Start Voice Assistant</button>
+                <button id="breathing-voice-stop" class="btn btn-danger w-full">Stop Voice</button>
+                <button id="breathing-manual-start" class="btn btn-secondary w-full">Start Visual Only</button>
+                <button id="breathing-close-btn" class="btn btn-secondary w-full" data-action="click->modal#close">Close</button>
+            </div>
+
+            <p id="breathing-status" class="text-center text-sm text-cyan-100/80">Assistant status: idle</p>
         </div>
     </div>
 </div>
-=======
-<script>
-(function () {
-    const tools = {{ tools|json_encode|raw }};
 
-    const modal = document.getElementById('tool-modal');
-    const closeBtn = document.getElementById('tool-modal-close');
-    const laterBtn = document.getElementById('tool-modal-later');
-    const startBtn = document.getElementById('tool-modal-start');
+{% include 'pages/wellbeing/_tools_script.html.twig' %}
 
-    const titleEl = document.getElementById('tool-modal-title');
-    const descEl = document.getElementById('tool-modal-desc');
-    const iconWrap = document.getElementById('tool-modal-icon');
-
-    const timerWrap = document.getElementById('tool-modal-timer');
-    const timerText = document.getElementById('tool-modal-time');
-
-    let currentTool = null;
-    let interval = null;
-    let remaining = 0;
-
-    function openModal(toolKey) {
-        currentTool = tools.find(t => t.key === toolKey);
-        if (!currentTool) return;
-
-        titleEl.textContent = currentTool.name;
-        descEl.textContent = currentTool.description;
-
-        // reset timer
-        clearInterval(interval);
-        interval = null;
-        remaining = Number(currentTool.durationSeconds || 0);
-        timerWrap.classList.toggle('hidden', remaining <= 0);
-
-        // icon (simple mapping)
-        const iconMap = {
-            wind: 'wind',
-            sparkles: 'sparkles',
-            heart: 'heart',
-            clock: 'timer',
-            book: 'book-open',
-            music: 'music'
-        };
-        const lucideName = iconMap[currentTool.icon] || 'heart';
-        iconWrap.innerHTML = `<i data-lucide="${lucideName}" class="w-10 h-10"></i>`;
-
-        // refresh lucide icons
-        if (window.lucide) window.lucide.createIcons();
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
-
-    function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        clearInterval(interval);
-        interval = null;
-    }
-
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    }
-
-    function startTimer() {
-        if (!currentTool) return;
-
-        if (!remaining || remaining <= 0) {
-            // Ongoing tool
-            closeModal();
-            return;
-        }
-
-        timerWrap.classList.remove('hidden');
-        timerText.textContent = formatTime(remaining);
-
-        clearInterval(interval);
-        interval = setInterval(() => {
-            remaining -= 1;
-            timerText.textContent = formatTime(Math.max(remaining, 0));
-
-            if (remaining <= 0) {
-                clearInterval(interval);
-                interval = null;
-                closeModal();
-            }
-        }, 1000);
-    }
-
-    document.querySelectorAll('[data-open-tool]').forEach(btn => {
-        btn.addEventListener('click', () => openModal(btn.getAttribute('data-open-tool')));
-    });
-
-    closeBtn.addEventListener('click', closeModal);
-    laterBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-    startBtn.addEventListener('click', startTimer);
-})();
-</script>
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

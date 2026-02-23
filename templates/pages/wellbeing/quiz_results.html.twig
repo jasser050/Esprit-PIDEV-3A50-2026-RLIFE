@@ -122,6 +122,23 @@
         {% endif %}
     </div>
 
+    <div class="card p-6 border border-indigo-300/30 bg-gradient-to-br from-indigo-700/35 via-slate-800/70 to-cyan-700/30">
+        <div class="flex items-center justify-between gap-3 mb-3">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <i data-lucide="brain" class="w-5 h-5"></i>
+                Other AI Recommendations
+            </h3>
+            <button id="load-ai-suggestions"
+                    class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm transition-colors">
+                Show AI Suggestions
+            </button>
+        </div>
+        <p id="ai-suggestions-message" class="text-cyan-100/80 text-sm mb-3">
+            Click the button to generate extra recommendations adapted to your stress result.
+        </p>
+        <div id="ai-suggestions-list" class="space-y-3"></div>
+    </div>
+
     <div class="card p-6 md:p-7 border border-cyan-300/35 bg-gradient-to-br from-blue-700/36 via-indigo-700/30 to-violet-700/36 shadow-[0_0_70px_rgba(99,102,241,0.30)] backdrop-blur-xl relative overflow-hidden">
         <div class="absolute -top-20 left-8 w-44 h-44 rounded-full bg-sky-300/20 blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-20 right-12 w-52 h-52 rounded-full bg-violet-300/20 blur-3xl pointer-events-none"></div>
@@ -183,6 +200,52 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('turbo:load', () => {
     if (typeof window.initIcons === 'function') {
         window.initIcons();
+    }
+});
+
+function renderAiSuggestions(data) {
+    const list = document.getElementById('ai-suggestions-list');
+    const message = document.getElementById('ai-suggestions-message');
+    if (!list || !message) return;
+
+    message.textContent = data.message || 'AI suggestions generated.';
+    const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+    list.innerHTML = recs.map((rec) => (
+        `<div class="rounded-xl border border-indigo-300/35 bg-indigo-300/10 p-4">
+            <p class="font-bold text-white">${rec.title ?? 'Suggestion'}</p>
+            <p class="text-sm text-cyan-100/85 mt-1">${rec.content ?? ''}</p>
+        </div>`
+    )).join('');
+}
+
+async function fetchAiSuggestions() {
+    const btn = document.getElementById('load-ai-suggestions');
+    if (!btn) return;
+
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Loading...';
+
+    try {
+        const res = await fetch('{{ path('app_wellbeing_quiz_ai_suggestions', {id: quiz.id}) }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error('Invalid AI response');
+        renderAiSuggestions(data);
+    } catch (e) {
+        const message = document.getElementById('ai-suggestions-message');
+        if (message) message.textContent = 'Unable to load AI suggestions now. Please try again.';
+    } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+    }
+}
+
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    if (target && target.id === 'load-ai-suggestions') {
+        fetchAiSuggestions();
     }
 });
 </script>

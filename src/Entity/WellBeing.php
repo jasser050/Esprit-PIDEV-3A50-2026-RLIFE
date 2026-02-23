@@ -15,7 +15,6 @@ class WellBeing
     #[ORM\Column]
     private ?int $id = null;
 
-<<<<<<< HEAD
     #[ORM\Column(name: 'entry_date_well', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $entryDate = null;
 
@@ -39,39 +38,16 @@ class WellBeing
 
     #[ORM\Column(name: 'updated_at_well', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
-=======
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $entryDate_well = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $mood_well = null;
-
-    #[ORM\Column]
-    private ?int $stressLevel_well = null;
-
-    #[ORM\Column]
-    private ?int $energyLevel_well = null;
-
-    #[ORM\Column]
-    private ?float $sleepHours_well = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $note_well = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $createdAt_well = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $updatedAt_well = null;
-
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-<<<<<<< HEAD
     public function getEntryDate(): ?\DateTimeInterface
     {
         return $this->entryDate;
@@ -159,94 +135,15 @@ class WellBeing
         $this->updatedAt = $updatedAt;
         return $this;
     }
-}
-=======
-    public function getEntryDateWell(): ?\DateTimeInterface
+
+    public function getUser(): ?User
     {
-        return $this->entryDate_well;
+        return $this->user;
     }
 
-    public function setEntryDateWell(\DateTimeInterface $entryDate_well): self
+    public function setUser(?User $user): static
     {
-        $this->entryDate_well = $entryDate_well;
-        return $this;
-    }
-
-    public function getMoodWell(): ?string
-    {
-        return $this->mood_well;
-    }
-
-    public function setMoodWell(string $mood_well): self
-    {
-        $this->mood_well = $mood_well;
-        return $this;
-    }
-
-    public function getStressLevelWell(): ?int
-    {
-        return $this->stressLevel_well;
-    }
-
-    public function setStressLevelWell(int $stressLevel_well): self
-    {
-        $this->stressLevel_well = $stressLevel_well;
-        return $this;
-    }
-
-    public function getEnergyLevelWell(): ?int
-    {
-        return $this->energyLevel_well;
-    }
-
-    public function setEnergyLevelWell(int $energyLevel_well): self
-    {
-        $this->energyLevel_well = $energyLevel_well;
-        return $this;
-    }
-
-    public function getSleepHoursWell(): ?float
-    {
-        return $this->sleepHours_well;
-    }
-
-    public function setSleepHoursWell(float $sleepHours_well): self
-    {
-        $this->sleepHours_well = $sleepHours_well;
-        return $this;
-    }
-
-    public function getNoteWell(): ?string
-    {
-        return $this->note_well;
-    }
-
-    public function setNoteWell(?string $note_well): self
-    {
-        $this->note_well = $note_well;
-        return $this;
-    }
-
-    public function getCreatedAtWell(): ?\DateTimeInterface
-    {
-        return $this->createdAt_well;
-    }
-
-    public function setCreatedAtWell(\DateTimeInterface $createdAt_well): self
-    {
-        $this->createdAt_well = $createdAt_well;
-        return $this;
-    }
-
-    public function getUpdatedAtWell(): ?\DateTimeInterface
-    {
-        return $this->updatedAt_well;
-    }
-
-    public function setUpdatedAtWell(?\DateTimeInterface $updatedAt_well): self
-    {
-        $this->updatedAt_well = $updatedAt_well;
+        $this->user = $user;
         return $this;
     }
 }
->>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
