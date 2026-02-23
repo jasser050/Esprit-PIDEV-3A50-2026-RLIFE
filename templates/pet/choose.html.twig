@@ -20,7 +20,7 @@
                     Which companion do you want?
                 </label>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {% for value, label in petOptions %}
                         <label class="pet-choice-card group cursor-pointer">
                             <input type="radio" name="petType" value="{{ value }}" class="hidden peer" required>
@@ -87,6 +87,8 @@
                 createPet3D('pet3d-fox', 0xfb923c);
                 createPet3D('pet3d-bird', 0x4ade80);
                 createPet3D('pet3d-hamster', 0xfbbf24);
+                createPet3D('pet3d-panda', 0x94a3b8);
+                createPet3D('pet3d-rabbit', 0xfda4af);
             });
         }
 
@@ -94,7 +96,7 @@
         document.addEventListener('turbo:load', initChoose3D);
 
         document.addEventListener('turbo:before-cache', () => {
-            ['pet3d-cat', 'pet3d-dog', 'pet3d-dragon', 'pet3d-fox', 'pet3d-bird', 'pet3d-hamster'].forEach((id) => {
+            ['pet3d-cat', 'pet3d-dog', 'pet3d-dragon', 'pet3d-fox', 'pet3d-bird', 'pet3d-hamster', 'pet3d-panda', 'pet3d-rabbit'].forEach((id) => {
                 const container = document.getElementById(id);
                 if (container && window.RLife3D) {
                     window.RLife3D.dispose(container);

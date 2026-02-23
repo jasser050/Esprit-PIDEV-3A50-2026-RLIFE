@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ProjectShareRepository;
 use App\Service\NotificationManager;
 use App\Service\RewardService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,7 +39,7 @@ class PetController extends AbstractController
             $petType = (string) $request->request->get('petType');
             $petName = trim((string) $request->request->get('petName', ''));
 
-            $validTypes = ['cat', 'dog', 'dragon', 'fox', 'bird', 'hamster'];
+            $validTypes = ['cat', 'dog', 'dragon', 'fox', 'bird', 'hamster', 'panda', 'rabbit'];
 
             if (!in_array($petType, $validTypes, true)) {
                 $this->addFlash('error', 'Invalid companion type.');
@@ -59,6 +60,8 @@ class PetController extends AbstractController
                 'fox' => 'Fox',
                 'bird' => 'Bird',
                 'hamster' => 'Hamster',
+                'panda' => 'Panda',
+                'rabbit' => 'Rabbit',
             ],
         ]);
     }
@@ -206,7 +209,7 @@ class PetController extends AbstractController
 
         if ($request->isMethod('POST')) {
             $newType = (string) $request->request->get('petType');
-            $validTypes = ['cat', 'dog', 'dragon', 'fox', 'bird', 'hamster'];
+            $validTypes = ['cat', 'dog', 'dragon', 'fox', 'bird', 'hamster', 'panda', 'rabbit'];
 
             if (!in_array($newType, $validTypes, true)) {
                 $this->addFlash('error', 'Invalid companion type.');
@@ -244,8 +247,74 @@ class PetController extends AbstractController
                 'fox' => 'Fox',
                 'bird' => 'Bird',
                 'hamster' => 'Hamster',
+                'panda' => 'Panda',
+                'rabbit' => 'Rabbit',
             ],
             'changeCost' => 300,
+        ]);
+    }
+
+    #[Route('/metaverse', name: 'app_pet_metaverse', methods: ['GET'])]
+    public function metaverse(ProjectShareRepository $projectShareRepository): Response
+    {
+        $user = $this->getUser();
+        $connections = $projectShareRepository->findConnectionsForUser($user);
+
+        $sharedProjectMap = [];
+        foreach ($connections as $share) {
+            $owner = $share->getSharedByUser();
+            $guest = $share->getSharedWithUser();
+            $project = $share->getProject();
+            if (!$owner || !$guest || !$project) {
+                continue;
+            }
+
+            $other = null;
+            if ($owner->getId() === $user->getId()) {
+                $other = $guest;
+            } elseif ($guest->getId() === $user->getId()) {
+                $other = $owner;
+            }
+
+            if (!$other) {
+                continue;
+            }
+
+            $otherId = $other->getId();
+            if (!isset($sharedProjectMap[$otherId])) {
+                $sharedProjectMap[$otherId] = [];
+            }
+
+            $sharedProjectMap[$otherId][$project->getId()] = $project->getTitre();
+        }
+
+        $community = [];
+        $currentPet = $user->getMainPet();
+        if ($currentPet) {
+            $community[] = [
+                'user' => $user,
+                'pet' => $currentPet,
+                'is_self' => true,
+                'shared_projects' => [],
+            ];
+        }
+
+        foreach ($projectShareRepository->findConnectedUsers($user) as $connectedUser) {
+            $pet = $connectedUser->getMainPet();
+            if (!$pet) {
+                continue;
+            }
+
+            $community[] = [
+                'user' => $connectedUser,
+                'pet' => $pet,
+                'is_self' => false,
+                'shared_projects' => array_values($sharedProjectMap[$connectedUser->getId()] ?? []),
+            ];
+        }
+
+        return $this->render('pet/metaverse.html.twig', [
+            'community' => $community,
         ]);
     }
 

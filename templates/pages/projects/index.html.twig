@@ -3,6 +3,59 @@
 
 {% block title %}My Projects{% endblock %}
 
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .ai-panel {
+        position: relative;
+        overflow: hidden;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        background:
+            radial-gradient(circle at 15% 12%, rgba(56, 189, 248, 0.14), transparent 40%),
+            radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.14), transparent 38%),
+            linear-gradient(140deg, rgba(248, 250, 252, 0.96), rgba(236, 253, 245, 0.9));
+    }
+    .dark .ai-panel {
+        border-color: rgba(8, 145, 178, 0.45);
+        background:
+            radial-gradient(circle at 15% 12%, rgba(34, 211, 238, 0.18), transparent 42%),
+            radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.16), transparent 40%),
+            linear-gradient(150deg, rgba(12, 26, 42, 0.9), rgba(6, 24, 34, 0.88));
+    }
+    .ai-reco-card {
+        border-radius: 1rem;
+        border: 1px solid rgba(125, 211, 252, 0.45);
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+    }
+    .dark .ai-reco-card {
+        border-color: rgba(14, 116, 144, 0.6);
+        background: rgba(2, 20, 33, 0.62);
+        box-shadow: 0 14px 30px rgba(2, 8, 23, 0.35);
+    }
+    .ai-chip {
+        border-radius: 9999px;
+        border: 1px solid rgba(125, 211, 252, 0.6);
+        background: rgba(240, 249, 255, 0.9);
+    }
+    .dark .ai-chip {
+        border-color: rgba(14, 116, 144, 0.7);
+        background: rgba(8, 47, 73, 0.5);
+    }
+    .ai-focus {
+        border-radius: 0.875rem;
+        border: 1px solid rgba(252, 211, 77, 0.5);
+        background: rgba(254, 252, 232, 0.86);
+    }
+    .dark .ai-focus {
+        border-color: rgba(180, 83, 9, 0.6);
+        background: rgba(69, 26, 3, 0.35);
+    }
+</style>
+{% endblock %}
+
 {% block body %}
 <div class="space-y-6 animate-fade-in">
     <!-- 1. Header + Recherche + Filtres -->
@@ -16,6 +69,120 @@
                 <i data-lucide="plus" class="w-5 h-5"></i>
                 New Project
             </a>
+        </div>
+
+        <div class="ai-panel">
+            <div class="absolute -top-16 right-8 w-40 h-40 rounded-full bg-cyan-300/20 dark:bg-cyan-500/20 blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-16 left-12 w-40 h-40 rounded-full bg-emerald-300/20 dark:bg-emerald-500/20 blur-3xl pointer-events-none"></div>
+            <div class="relative p-5 sm:p-6 space-y-5">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-2xl bg-white/90 dark:bg-slate-800 border border-cyan-200 dark:border-cyan-700 flex items-center justify-center shadow-sm">
+                            <i data-lucide="swords" class="w-5 h-5 text-cyan-600 dark:text-cyan-300"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-300 font-semibold">AI Delivery Engine</p>
+                            <h2 class="text-xl font-bold text-slate-900 dark:text-white">AI Project Challenge Mode</h2>
+                            <p class="text-sm text-slate-600 dark:text-slate-300">Project-level hard challenges with bottleneck analysis and execution tactics.</p>
+                        </div>
+                    </div>
+                    <form method="post" action="{{ path('app_ai_productivity_generate') }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('generate_ai_plan') }}">
+                        <button type="submit" class="btn btn-primary shadow-sm">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            Generate Hard Plan
+                        </button>
+                    </form>
+                </div>
+
+                {% if ai_plan.recommendations is defined and ai_plan.recommendations|length > 0 %}
+                    <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                        <span class="inline-flex items-center gap-1.5">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-300"></i>
+                            {{ ai_plan.summary|default('Project-focused recommendations to keep delivery on track.') }}
+                        </span>
+                        <span class="ai-chip px-2.5 py-1 font-semibold text-slate-700 dark:text-slate-200">{{ ai_plan.source|default('fallback')|upper }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+                        {% set hasProjectRecommendations = false %}
+                        {% for recIndex, rec in ai_plan.recommendations %}
+                            {% if rec.type == 'project' %}
+                                {% set hasProjectRecommendations = true %}
+                                {% set challengeKey = rec.type ~ ':' ~ rec.target_id %}
+                                {% set challenge = ai_challenges[challengeKey]|default(null) %}
+                                <div class="ai-reco-card p-4 space-y-3">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ rec.title }}</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Project #{{ rec.target_id }}</p>
+                                        </div>
+                                        <span class="badge badge-primary badge-pill">{{ rec.reward_coins }} coins</span>
+                                    </div>
+
+                                    <div class="ai-focus px-3 py-2">
+                                        <p class="text-xs font-semibold text-amber-800 dark:text-amber-300">Problem focus</p>
+                                        <p class="text-xs text-amber-700 dark:text-amber-200 mt-1">{{ rec.reason|default('Critical project bottleneck detected.') }}</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 px-2 py-1.5">
+                                            <p class="text-slate-500 dark:text-slate-400">Estimate</p>
+                                            <p class="font-semibold text-slate-900 dark:text-white">{{ rec.estimated_minutes }} min</p>
+                                        </div>
+                                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 px-2 py-1.5">
+                                            <p class="text-slate-500 dark:text-slate-400">Hard Challenge</p>
+                                            <p class="font-semibold text-slate-900 dark:text-white">{{ rec.challenge_minutes }} min</p>
+                                        </div>
+                                    </div>
+
+                                    {% if rec.tips is defined and rec.tips|length > 0 %}
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-medium text-slate-700 dark:text-slate-300">Tactical tips</p>
+                                            {% for tip in rec.tips|slice(0, 3) %}
+                                                <p class="text-xs text-slate-600 dark:text-slate-400">• {{ tip }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if challenge %}
+                                        {% if challenge.claimed|default(false) %}
+                                            <div class="inline-flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                                Reward claimed
+                                            </div>
+                                        {% else %}
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <form method="post" action="{{ path('app_ai_productivity_claim') }}">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('claim_ai_challenge') }}">
+                                                    <input type="hidden" name="type" value="{{ rec.type }}">
+                                                    <input type="hidden" name="target_id" value="{{ rec.target_id }}">
+                                                    <button type="submit" class="btn btn-success btn-sm">Claim Reward</button>
+                                                </form>
+                                                <span class="text-xs text-slate-500 dark:text-slate-400">Ends: {{ challenge.expires_at|date('H:i') }}</span>
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <form method="post" action="{{ path('app_ai_productivity_accept') }}">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('accept_ai_recommendation') }}">
+                                            <input type="hidden" name="recommendation_index" value="{{ recIndex }}">
+                                            <button type="submit" class="btn btn-secondary btn-sm">Start Hard Challenge</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if not hasProjectRecommendations %}
+                            <div class="rounded-2xl border border-dashed border-cyan-300 dark:border-cyan-700 p-6 text-center xl:col-span-2">
+                                <p class="text-sm text-slate-600 dark:text-slate-300">No project-focused items in the current plan. Regenerate to get project challenges.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="rounded-2xl border border-dashed border-cyan-300 dark:border-cyan-700 p-6 text-center">
+                        <p class="text-sm text-slate-600 dark:text-slate-300">No AI project recommendations yet. Generate your plan to get strict challenge targets and tips.</p>
+                    </div>
+                {% endif %}
+            </div>
         </div>
 
         <!-- Barre de recherche + filtres -->

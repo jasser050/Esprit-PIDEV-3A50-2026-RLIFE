@@ -1,0 +1,404 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pet Metaverse{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap');
+
+        .metaverse-shell {
+            --mv-bg-1: #06142d;
+            --mv-bg-2: #0a1f3f;
+            --mv-bg-3: #051024;
+            --mv-neon: #42e8ff;
+            --mv-neon-2: #ff6adf;
+            --mv-text: #d9f3ff;
+            --mv-muted: #8cb3c7;
+            position: relative;
+            overflow: hidden;
+            border-radius: 28px;
+            background:
+                radial-gradient(circle at 20% 15%, #153e73 0%, var(--mv-bg-2) 38%, var(--mv-bg-1) 100%),
+                linear-gradient(180deg, transparent 48%, rgba(4, 11, 26, 0.88) 100%);
+            border: 1px solid rgba(66, 232, 255, 0.22);
+            box-shadow: 0 40px 120px rgba(0, 8, 28, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .metaverse-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 80% 12%, rgba(255, 106, 223, 0.25), transparent 44%),
+                radial-gradient(circle at 15% 68%, rgba(66, 232, 255, 0.22), transparent 42%),
+                repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 7px);
+            pointer-events: none;
+        }
+
+        .metaverse-shell::after {
+            content: "";
+            position: absolute;
+            inset: -10% -10% auto -10%;
+            height: 70%;
+            background: radial-gradient(circle at 50% 62%, rgba(66, 232, 255, 0.24), rgba(66, 232, 255, 0) 60%);
+            filter: blur(16px);
+            opacity: 0.8;
+            animation: mv-aurora 9s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .metaverse-grid {
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            bottom: -120px;
+            height: 380px;
+            transform: perspective(700px) rotateX(65deg);
+            transform-origin: bottom center;
+            background:
+                linear-gradient(to top, rgba(66, 232, 255, 0.35), rgba(66, 232, 255, 0) 60%),
+                repeating-linear-gradient(to right, rgba(66, 232, 255, 0.22) 0 1px, transparent 1px 52px),
+                repeating-linear-gradient(to top, rgba(66, 232, 255, 0.18) 0 1px, transparent 1px 44px);
+            opacity: 0.8;
+            pointer-events: none;
+            animation: mv-grid-shift 12s linear infinite;
+        }
+
+        .metaverse-stars {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 12% 20%, rgba(255,255,255,0.75) 1px, transparent 2px),
+                radial-gradient(circle at 72% 14%, rgba(255,255,255,0.65) 1px, transparent 2px),
+                radial-gradient(circle at 33% 46%, rgba(255,255,255,0.45) 1px, transparent 2px),
+                radial-gradient(circle at 86% 35%, rgba(255,255,255,0.55) 1px, transparent 2px),
+                radial-gradient(circle at 54% 25%, rgba(255,255,255,0.52) 1px, transparent 2px);
+            animation: mv-stars-flicker 7s ease-in-out infinite alternate;
+        }
+
+        .metaverse-horizon {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(66, 232, 255, 0.8), transparent);
+            box-shadow: 0 0 20px rgba(66, 232, 255, 0.55);
+            pointer-events: none;
+        }
+
+        .metaverse-orb {
+            position: absolute;
+            right: 9%;
+            top: 10%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.95), rgba(85, 184, 255, 0.75) 35%, rgba(11, 48, 80, 0.12) 72%);
+            box-shadow: 0 0 42px rgba(66, 232, 255, 0.45);
+            opacity: 0.76;
+            animation: mv-orb-float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .mv-title {
+            font-family: "Orbitron", "Segoe UI", Tahoma, sans-serif;
+            letter-spacing: 0.06em;
+            color: var(--mv-text);
+            text-shadow: 0 0 20px rgba(66, 232, 255, 0.35);
+        }
+
+        .mv-subtitle {
+            color: var(--mv-muted);
+            font-family: "Rajdhani", "Segoe UI", sans-serif;
+            font-size: 1.1rem;
+        }
+
+        .mv-chip {
+            border: 1px solid rgba(66, 232, 255, 0.35);
+            color: #b9f6ff;
+            background: linear-gradient(120deg, rgba(17, 44, 72, 0.75), rgba(15, 33, 61, 0.5));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 18px rgba(66, 232, 255, 0.2);
+        }
+
+        .mv-card {
+            position: relative;
+            border-radius: 20px;
+            border: 1px solid rgba(113, 171, 210, 0.24);
+            background: linear-gradient(145deg, rgba(12, 32, 55, 0.82), rgba(8, 24, 44, 0.78));
+            box-shadow: 0 20px 45px rgba(0, 7, 24, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            transform-style: preserve-3d;
+            transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+        }
+
+        .mv-card:hover {
+            transform: translateY(-6px) rotateX(4deg);
+            border-color: rgba(66, 232, 255, 0.48);
+            box-shadow: 0 28px 55px rgba(0, 9, 29, 0.52), 0 0 20px rgba(66, 232, 255, 0.18);
+        }
+
+        .mv-pet-stage {
+            border-radius: 16px;
+            border: 1px solid rgba(66, 232, 255, 0.28);
+            background:
+                radial-gradient(circle at 50% 25%, rgba(66, 232, 255, 0.28), rgba(66, 232, 255, 0) 62%),
+                linear-gradient(180deg, rgba(13, 45, 75, 0.66), rgba(6, 21, 41, 0.78));
+            box-shadow: inset 0 0 30px rgba(3, 11, 22, 0.58);
+        }
+
+        .mv-meta {
+            color: #b9d6e8;
+            font-family: "Rajdhani", "Segoe UI", sans-serif;
+            letter-spacing: 0.03em;
+        }
+
+        .mv-projects {
+            border: 1px solid rgba(66, 232, 255, 0.2);
+            background: linear-gradient(140deg, rgba(7, 26, 45, 0.86), rgba(5, 19, 35, 0.85));
+        }
+
+        .mv-presence {
+            border: 1px solid rgba(88, 226, 255, 0.28);
+            background: rgba(5, 22, 40, 0.58);
+            color: #b8ebff;
+            font-family: "Rajdhani", "Segoe UI", sans-serif;
+            letter-spacing: 0.03em;
+        }
+
+        .mv-spline-viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 16px;
+            filter: saturate(1.04) contrast(1.03);
+        }
+
+        .mv-presence-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: #42e8ff;
+            box-shadow: 0 0 10px rgba(66, 232, 255, 0.7);
+            animation: mv-presence-pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes mv-aurora {
+            0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.75; }
+            50% { transform: translate3d(0, 8px, 0) scale(1.08); opacity: 1; }
+        }
+
+        @keyframes mv-grid-shift {
+            from { background-position: 0 0, 0 0, 0 0; }
+            to { background-position: 0 0, 18px 0, 0 38px; }
+        }
+
+        @keyframes mv-stars-flicker {
+            0% { opacity: 0.45; }
+            100% { opacity: 0.92; }
+        }
+
+        @keyframes mv-orb-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes mv-presence-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.88; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="max-w-7xl mx-auto py-6">
+    <div class="metaverse-shell p-6 md:p-8">
+        <div class="metaverse-stars"></div>
+        <div class="metaverse-horizon"></div>
+        <div class="metaverse-grid"></div>
+        <div class="metaverse-orb"></div>
+
+        <div class="relative z-10 space-y-6">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <p class="text-xs tracking-[0.24em] uppercase text-cyan-300/85 mb-2">Social Habitat</p>
+                    <h1 class="mv-title text-3xl md:text-4xl font-bold">Pet Metaverse</h1>
+                    <p class="mv-subtitle mt-2 max-w-2xl">
+                        A shared holographic world where companions of project collaborators gather in one immersive space.
+                    </p>
+                </div>
+                <div class="mv-chip px-4 py-2.5 rounded-full text-sm font-semibold self-start lg:self-auto">
+                    {{ community|length }} companion{{ community|length > 1 ? 's' : '' }} connected
+                </div>
+            </div>
+
+            {% if community|length > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {% for member in community %}
+                        <div class="mv-card p-5 space-y-4 {{ member.is_self ? 'ring-1 ring-cyan-300/45' : '' }}">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs uppercase tracking-wide text-cyan-200/80">{{ member.is_self ? 'You' : member.user.fullName }}</p>
+                                    <p class="text-xl font-semibold text-cyan-50 mt-0.5">{{ member.pet.name }}</p>
+                                </div>
+                                <span class="mv-chip px-3 py-1.5 rounded-full text-xs font-semibold">Lv. {{ member.pet.level }}</span>
+                            </div>
+
+                            <div id="pet3d-metaverse-{{ member.user.id }}"
+                                 data-pet-type="{{ member.pet.type }}"
+                                 data-hunger="{{ member.pet.hunger }}"
+                                 data-mood="{{ member.pet.mood|default('calm') }}"
+                                 class="mv-pet-stage h-48"></div>
+
+                            <div class="mv-meta text-xs flex items-center justify-between">
+                                <span>Type: <strong>{{ member.pet.type|capitalize }}</strong></span>
+                                <span>Mood: <strong>{{ member.pet.mood }}</strong></span>
+                            </div>
+                            <div class="mv-presence rounded-lg px-3 py-2 text-xs flex items-center gap-2">
+                                <span class="mv-presence-dot"></span>
+                                <span data-pet-status>Scanning horizon...</span>
+                            </div>
+
+                            {% if not member.is_self %}
+                                <div class="mv-projects rounded-xl p-3.5">
+                                    <p class="text-xs font-semibold text-cyan-100 mb-1.5">Shared projects</p>
+                                    {% if member.shared_projects|length > 0 %}
+                                        {% for p in member.shared_projects|slice(0, 3) %}
+                                            <p class="text-xs text-cyan-200/85">- {{ p }}</p>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-xs text-cyan-200/65">Connected collaborator</p>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="mv-card p-10 text-center">
+                    <p class="text-xl font-semibold text-cyan-50">No companions in your metaverse yet</p>
+                    <p class="text-sm text-cyan-200/75 mt-2">
+                        Share projects with other users and this world will come alive.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
+    <script>
+        (function() {
+            const METAVERSE_SPLINE_URL = 'https://app.spline.design/file/b3af51c6-e447-4d4e-ae2f-8f846b560286';
+
+            function normalizeMood(mood) {
+                return String(mood || 'calm').trim().toLowerCase();
+            }
+
+            function behaviorFromMood(mood, hunger) {
+                const base = {
+                    spin: 0.009 + (hunger / 100) * 0.004,
+                    bobAmp: 0.05,
+                    bobSpeed: 1.9,
+                    tiltAmp: 0.03,
+                    driftAmp: 0.08,
+                    driftSpeed: 0.9,
+                    hoverAmp: 0.02,
+                    hoverSpeed: 1.6,
+                    burstMultiplier: 2.1,
+                    burstDurationMs: 620,
+                    burstEveryMinMs: 3800,
+                    burstEveryMaxMs: 7800,
+                    wander: true,
+                    arenaRadius: 1.1,
+                    baseMoveSpeed: 0.42,
+                    turnEase: 0.13
+                };
+
+                if (['happy', 'excited', 'playful', 'joyful'].includes(mood)) {
+                    return { ...base, spin: 0.014, bobAmp: 0.072, bobSpeed: 2.7, driftAmp: 0.12, burstMultiplier: 2.5, baseMoveSpeed: 0.52 };
+                }
+                if (['sad', 'tired', 'sleepy'].includes(mood)) {
+                    return { ...base, spin: 0.006, bobAmp: 0.03, bobSpeed: 1.2, driftAmp: 0.05, hoverAmp: 0.012, burstEveryMinMs: 6200, burstEveryMaxMs: 9800, baseMoveSpeed: 0.28 };
+                }
+                if (['angry', 'wild', 'aggressive'].includes(mood)) {
+                    return { ...base, spin: 0.017, bobAmp: 0.064, bobSpeed: 3.1, tiltAmp: 0.045, burstMultiplier: 3.0, burstDurationMs: 760, baseMoveSpeed: 0.58 };
+                }
+                return base;
+            }
+
+            function messagesFromMood(mood, hunger) {
+                if (hunger >= 78) return ['I need food soon.', 'Searching for snacks...', 'Energy dropping...'];
+                if (['happy', 'excited', 'playful', 'joyful'].includes(mood)) return ['Zooming around!', 'Ready for missions!', 'Let us build together!'];
+                if (['sad', 'tired', 'sleepy'].includes(mood)) return ['Taking a calm breath.', 'Need a short rest.', 'Still watching over projects.'];
+                if (['angry', 'wild', 'aggressive'].includes(mood)) return ['Guard mode active.', 'Scanning for threats.', 'Powering up instincts.'];
+                return ['Patrolling shared space.', 'Staying synced with team.', 'Exploring the metaverse.'];
+            }
+
+            function canUseSpline() {
+                return typeof customElements !== 'undefined' && customElements.get('spline-viewer');
+            }
+
+            function renderSplinePet(stage) {
+                if (!stage) return false;
+                try {
+                    if (window.RLife3D) window.RLife3D.dispose(stage);
+                    stage.innerHTML = '';
+                    const viewer = document.createElement('spline-viewer');
+                    viewer.setAttribute('url', METAVERSE_SPLINE_URL);
+                    viewer.className = 'mv-spline-viewer';
+                    stage.appendChild(viewer);
+                    stage.dataset.petEngine = 'spline';
+                    return true;
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function initMetaversePets() {
+                const stages = Array.from(document.querySelectorAll('[id^="pet3d-metaverse-"]'));
+                if (!stages.length || !window.RLife3D) return;
+
+                window.RLife3D.ensureThree(function() {
+                    stages.forEach(function(stage, index) {
+                        const hunger = Math.max(0, Math.min(100, parseInt(stage.dataset.hunger || '50', 10)));
+                        const mood = normalizeMood(stage.dataset.mood);
+                        const behavior = behaviorFromMood(mood, hunger);
+                        const useSpline = canUseSpline();
+
+                        if (!useSpline || !renderSplinePet(stage)) {
+                            window.RLife3D.renderPet(stage, {
+                                type: stage.dataset.petType || 'cat',
+                                hunger: hunger,
+                                ...behavior
+                            });
+                            stage.dataset.petEngine = 'three';
+                        }
+
+                        const status = stage.closest('.mv-card')?.querySelector('[data-pet-status]');
+                        if (!status) return;
+                        const messages = messagesFromMood(mood, hunger);
+                        status.textContent = (stage.dataset.petEngine === 'spline' ? 'Spline live mode active.' : messages[0]);
+
+                        if (!status.dataset.intervalBound) {
+                            status.dataset.intervalBound = '1';
+                            window.setInterval(function() {
+                                const next = messages[Math.floor(Math.random() * messages.length)];
+                                const engineText = stage.dataset.petEngine === 'spline' ? 'Spline live mode active.' : next;
+                                status.textContent = engineText;
+                            }, 3200 + (index * 270));
+                        }
+                    });
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', initMetaversePets);
+            document.addEventListener('turbo:load', initMetaversePets);
+            window.setTimeout(initMetaversePets, 350);
+        })();
+    </script>
+{% endblock %}

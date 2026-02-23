@@ -10,7 +10,10 @@
             <h1 class="text-3xl font-bold">{{ pet.name }}</h1>
             <p class="text-slate-500 dark:text-slate-400">Level {{ pet.level }} - {{ pet.mood }}</p>
         </div>
-        <a href="{{ path('app_pet_change_type') }}" class="btn btn-secondary">Change Type</a>
+        <div class="flex gap-2">
+            <a href="{{ path('app_pet_metaverse') }}" class="btn btn-primary">Pet Metaverse</a>
+            <a href="{{ path('app_pet_change_type') }}" class="btn btn-secondary">Change Type</a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -71,7 +74,9 @@
             dragon: '🐉',
             fox: '🦊',
             bird: '🐦',
-            hamster: '🐹'
+            hamster: '🐹',
+            panda: '🐼',
+            rabbit: '🐰'
         };
         const emoji = emojiByType[type] || '🐾';
         if (!document.getElementById('pet-manage-fallback-style')) {

@@ -58,6 +58,11 @@ class AssignmentController extends AbstractController
 
         // Statistiques
         $stats = $statsService->getAssignmentStats($this->getUser());
+        $aiPlan = $request->getSession()->get('ai_productivity_plan', []);
+        $aiChallenges = $request->getSession()->get('ai_productivity_challenges', []);
+        if (!is_array($aiChallenges)) {
+            $aiChallenges = [];
+        }
 
         return $this->render('pages/assignments/index.html.twig', [
             'assignments' => $assignments,
@@ -67,6 +72,8 @@ class AssignmentController extends AbstractController
             'statut'      => $statut,
             'search'      => $search,
             'stats'       => $stats,
+            'ai_plan'     => is_array($aiPlan) ? $aiPlan : [],
+            'ai_challenges' => $aiChallenges,
         ]);
     }
 

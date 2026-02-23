@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ProjectShare;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -70,5 +71,45 @@ class ProjectShareRepository extends ServiceEntityRepository
     {
         $share = $this->findOneByProjectAndUser($project, $user);
         return $share !== null;
+    }
+
+    /**
+     * @return ProjectShare[]
+     */
+    public function findConnectionsForUser(User $user): array
+    {
+        return $this->createQueryBuilder('ps')
+            ->leftJoin('ps.project', 'p')
+            ->leftJoin('ps.sharedByUser', 'sbu')
+            ->leftJoin('ps.sharedWithUser', 'swu')
+            ->addSelect('p', 'sbu', 'swu')
+            ->andWhere('ps.sharedByUser = :user OR ps.sharedWithUser = :user')
+            ->setParameter('user', $user)
+            ->orderBy('ps.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findConnectedUsers(User $user): array
+    {
+        $connections = $this->findConnectionsForUser($user);
+        $unique = [];
+
+        foreach ($connections as $share) {
+            $by = $share->getSharedByUser();
+            $with = $share->getSharedWithUser();
+
+            if ($by && $by->getId() !== $user->getId()) {
+                $unique[$by->getId()] = $by;
+            }
+            if ($with && $with->getId() !== $user->getId()) {
+                $unique[$with->getId()] = $with;
+            }
+        }
+
+        return array_values($unique);
     }
 }

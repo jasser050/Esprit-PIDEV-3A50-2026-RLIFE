@@ -1897,4 +1897,457 @@ private function getMotivationalQuote(float $average): string
 
         return $this;
     }
+
+    /**
+     * Backward-compatible accessor used by Twig templates.
+     *
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    public function getGlobalStreak(): array
+    {
+        return $this->getHighScoreStreak();
+    }
+
+    /**
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    public function getHighScoreStreak(): array
+    {
+        $series = array_map(
+            fn (EvaluationMatiere $e): bool => $this->percentageFromEvaluation($e) >= 75.0,
+            $this->getSortedEvaluations()
+        );
+
+        return $this->computeStreakFromBooleanSeries($series, 'High Score');
+    }
+
+    /**
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    public function getPerfectScoreStreak(): array
+    {
+        $series = array_map(
+            fn (EvaluationMatiere $e): bool => $this->percentageFromEvaluation($e) >= 90.0,
+            $this->getSortedEvaluations()
+        );
+
+        return $this->computeStreakFromBooleanSeries($series, 'Perfect');
+    }
+
+    /**
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    public function getProgressionStreak(): array
+    {
+        $evaluations = $this->getSortedEvaluations();
+        $series = [];
+        $previous = null;
+
+        foreach ($evaluations as $evaluation) {
+            $percentage = $this->percentageFromEvaluation($evaluation);
+            if ($previous === null) {
+                $series[] = true;
+            } else {
+                $series[] = $percentage >= $previous;
+            }
+            $previous = $percentage;
+        }
+
+        return $this->computeStreakFromBooleanSeries($series, 'Progress');
+    }
+
+    /**
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    public function getUrgentPriorityStreak(): array
+    {
+        $evaluations = $this->getSortedEvaluations();
+        $series = [];
+
+        foreach ($evaluations as $evaluation) {
+            $priority = mb_strtolower((string) $evaluation->getPriorite());
+            $isUrgent = str_contains($priority, 'urgent') || str_contains($priority, 'haut') || str_contains($priority, 'high');
+            if ($isUrgent) {
+                $series[] = $this->percentageFromEvaluation($evaluation) >= 70.0;
+            }
+        }
+
+        return $this->computeStreakFromBooleanSeries($series, 'Urgent');
+    }
+
+    /**
+     * @return array{
+     *   high_score: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>},
+     *   perfect_score: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>},
+     *   progression: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>},
+     *   urgent_priority: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     * }
+     */
+    public function getAllStreakStats(): array
+    {
+        return [
+            'high_score' => $this->getHighScoreStreak(),
+            'perfect_score' => $this->getPerfectScoreStreak(),
+            'progression' => $this->getProgressionStreak(),
+            'urgent_priority' => $this->getUrgentPriorityStreak(),
+        ];
+    }
+
+    /**
+     * @return array<int, array{
+     *   matiere: Matiere,
+     *   high_score: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>},
+     *   perfect_score: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>},
+     *   progression: array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     * }>
+     */
+    public function getStreaksByMatiere(): array
+    {
+        $grouped = [];
+
+        foreach ($this->getSortedEvaluations() as $evaluation) {
+            $matiere = $this->getMatiereForEvaluation($evaluation);
+            if (!$matiere) {
+                continue;
+            }
+
+            $id = $matiere->getId();
+            if ($id === null) {
+                continue;
+            }
+
+            $grouped[$id]['matiere'] = $matiere;
+            $grouped[$id]['evaluations'][] = $evaluation;
+        }
+
+        $result = [];
+        foreach ($grouped as $id => $data) {
+            $evals = $data['evaluations'] ?? [];
+            $highSeries = [];
+            $perfectSeries = [];
+            $progressSeries = [];
+            $previous = null;
+
+            foreach ($evals as $evaluation) {
+                $percentage = $this->percentageFromEvaluation($evaluation);
+                $highSeries[] = $percentage >= 75.0;
+                $perfectSeries[] = $percentage >= 90.0;
+                $progressSeries[] = $previous === null || $percentage >= $previous;
+                $previous = $percentage;
+            }
+
+            $result[$id] = [
+                'matiere' => $data['matiere'],
+                'high_score' => $this->computeStreakFromBooleanSeries($highSeries, 'High Score'),
+                'perfect_score' => $this->computeStreakFromBooleanSeries($perfectSeries, 'Perfect'),
+                'progression' => $this->computeStreakFromBooleanSeries($progressSeries, 'Progress'),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<int, array{name:string,streak:int}>
+     */
+    public function getAllBadges(): array
+    {
+        $badges = [];
+        $stats = $this->getAllStreakStats();
+        $sources = [
+            'High Score' => $stats['high_score']['longest'],
+            'Perfect Score' => $stats['perfect_score']['longest'],
+            'Progress' => $stats['progression']['longest'],
+            'Urgent Priority' => $stats['urgent_priority']['longest'],
+        ];
+
+        foreach ($sources as $label => $value) {
+            foreach ([3, 5, 10] as $threshold) {
+                if ($value >= $threshold) {
+                    $badges[] = [
+                        'name' => sprintf('%s x%d', $label, $threshold),
+                        'streak' => $threshold,
+                    ];
+                }
+            }
+        }
+
+        return $badges;
+    }
+
+    public function calculateOverallAverage(): float
+    {
+        $evaluations = $this->getSortedEvaluations();
+        if ($evaluations === []) {
+            return 0.0;
+        }
+
+        $sum = 0.0;
+        foreach ($evaluations as $evaluation) {
+            $sum += $this->percentageFromEvaluation($evaluation);
+        }
+
+        return round($sum / count($evaluations), 2);
+    }
+
+    /**
+     * Lightweight AI-coach data generator used by the existing AI coach pages.
+     *
+     * @return array<string,mixed>
+     */
+    public function getAIRecommendations(): array
+    {
+        $byMatiere = $this->getStreaksByMatiere();
+        $atRisk = [];
+        $opportunities = [];
+
+        foreach ($byMatiere as $entry) {
+            /** @var Matiere $matiere */
+            $matiere = $entry['matiere'];
+            $evaluations = [];
+
+            foreach ($this->getSortedEvaluations() as $evaluation) {
+                $evalMatiere = $this->getMatiereForEvaluation($evaluation);
+                if ($evalMatiere && $evalMatiere->getId() === $matiere->getId()) {
+                    $evaluations[] = $evaluation;
+                }
+            }
+
+            if ($evaluations === []) {
+                continue;
+            }
+
+            $percentages = array_map(fn (EvaluationMatiere $e) => $this->percentageFromEvaluation($e), $evaluations);
+            $recent = array_slice($percentages, -3);
+            $previous = array_slice($percentages, -6, 3);
+            $recentAvg = array_sum($recent) / max(1, count($recent));
+            $previousAvg = $previous ? (array_sum($previous) / count($previous)) : $recentAvg;
+            $trend = round($recentAvg - $previousAvg, 2);
+
+            $riskScore = (int) max(0, min(100, round(100 - $recentAvg)));
+            if ($riskScore >= 40) {
+                $urgency = $riskScore >= 70 ? 'critical' : ($riskScore >= 55 ? 'high' : 'moderate');
+                $atRisk[] = [
+                    'matiere' => $matiere,
+                    'recent_average' => round($recentAvg, 2),
+                    'risk_score' => $riskScore,
+                    'trend' => $trend,
+                    'urgency' => $urgency,
+                    'recommendation' => $riskScore >= 70
+                        ? 'Prioritize this subject immediately with daily focused sessions.'
+                        : 'Schedule 2-3 revision sessions this week and practice targeted exercises.',
+                ];
+            } else {
+                $opportunities[] = [
+                    'matiere' => $matiere,
+                    'icon' => '🚀',
+                    'message' => 'You are performing well in this subject.',
+                    'action' => 'Push for mastery with one advanced practice session per week.',
+                    'current_average' => round($recentAvg, 2),
+                ];
+            }
+        }
+
+        usort($atRisk, fn (array $a, array $b) => $b['risk_score'] <=> $a['risk_score']);
+        usort($opportunities, fn (array $a, array $b) => ($b['current_average'] ?? 0) <=> ($a['current_average'] ?? 0));
+
+        $priorityLevel = 'relaxed';
+        if (($atRisk[0]['risk_score'] ?? 0) >= 80) {
+            $priorityLevel = 'critical';
+        } elseif (($atRisk[0]['risk_score'] ?? 0) >= 65) {
+            $priorityLevel = 'high';
+        } elseif (($atRisk[0]['risk_score'] ?? 0) >= 50) {
+            $priorityLevel = 'moderate';
+        } elseif (($atRisk[0]['risk_score'] ?? 0) >= 35) {
+            $priorityLevel = 'low';
+        }
+
+        $schedule = [];
+        $days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        foreach (array_slice($atRisk, 0, 6) as $i => $risk) {
+            $schedule[] = [
+                'day' => $days[$i] ?? 'Sunday',
+                'matiere' => $risk['matiere'],
+                'duration_minutes' => $risk['risk_score'] >= 70 ? 90 : 60,
+                'reason' => 'Selected by AI due to current risk level and trend.',
+            ];
+        }
+
+        $overallAvg = $this->calculateOverallAverage();
+        $target = max(1, (int) ceil($overallAvg + 8));
+
+        return [
+            'priority_level' => $priorityLevel,
+            'motivational_message' => [
+                'main' => 'Your plan is ready. Focus on consistency and targeted practice.',
+                'additional' => [
+                    'Small daily wins create long-term performance gains.',
+                    'Track results weekly and adapt quickly.',
+                ],
+                'quote' => 'Discipline beats motivation when deadlines get close.',
+            ],
+            'at_risk_subjects' => array_slice($atRisk, 0, 5),
+            'improvement_opportunities' => array_slice($opportunities, 0, 4),
+            'study_schedule' => $schedule,
+            'learning_strategies' => [
+                [
+                    'icon' => '🧠',
+                    'title' => 'Active Recall',
+                    'description' => 'Force your brain to retrieve information instead of rereading notes.',
+                    'techniques' => [
+                        'Close notes and answer from memory.',
+                        'Use quick self-quizzes after each study block.',
+                        'Teach concepts out loud in simple words.',
+                    ],
+                ],
+                [
+                    'icon' => '⏱️',
+                    'title' => 'Time Boxing',
+                    'description' => 'Limit each study block to a clear objective and fixed duration.',
+                    'techniques' => [
+                        'Use 25/5 or 50/10 focus cycles.',
+                        'Set one concrete output for each block.',
+                        'Stop when timer ends and review progress.',
+                    ],
+                ],
+            ],
+            'smart_goals' => [
+                [
+                    'type' => 'score',
+                    'deadline' => '4 weeks',
+                    'current' => (int) round($overallAvg),
+                    'target' => $target,
+                    'specific' => 'Increase average score by targeted revision.',
+                    'measurable' => sprintf('Reach at least %d%% average.', $target),
+                    'achievable' => 'Use 4 focused sessions per week.',
+                    'relevant' => 'Improves semester outcome and confidence.',
+                    'time_bound' => 'Achieve within one month.',
+                ],
+                [
+                    'type' => 'streak',
+                    'deadline' => '2 weeks',
+                    'current' => $this->getHighScoreStreak()['current'],
+                    'target' => max(3, $this->getHighScoreStreak()['current'] + 3),
+                    'specific' => 'Build a stable high-score streak.',
+                    'measurable' => 'Consecutive evaluations >= 75%.',
+                    'achievable' => 'Prioritize weak subjects first.',
+                    'relevant' => 'Creates momentum and consistency.',
+                    'time_bound' => 'Achieve in 14 days.',
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return list<EvaluationMatiere>
+     */
+    private function getSortedEvaluations(): array
+    {
+        $evaluations = $this->evaluations->toArray();
+        usort($evaluations, static function (EvaluationMatiere $a, EvaluationMatiere $b): int {
+            $aTs = $a->getDateEvaluation()?->getTimestamp() ?? 0;
+            $bTs = $b->getDateEvaluation()?->getTimestamp() ?? 0;
+            return $aTs <=> $bTs;
+        });
+
+        return $evaluations;
+    }
+
+    private function percentageFromEvaluation(EvaluationMatiere $evaluation): float
+    {
+        $score = (float) ($evaluation->getScoreEval() ?? 0.0);
+        $max = (float) ($evaluation->getNoteMaximaleEval() ?? 0.0);
+
+        if ($max <= 0.0) {
+            return 0.0;
+        }
+
+        return round(($score / $max) * 100, 2);
+    }
+
+    /**
+     * @return array{current:int,longest:int,status:array{emoji:string,message:string},badges:array<int,string>}
+     */
+    private function computeStreakFromBooleanSeries(array $series, string $label): array
+    {
+        $current = 0;
+        for ($i = count($series) - 1; $i >= 0; --$i) {
+            if ($series[$i] === true) {
+                ++$current;
+                continue;
+            }
+            break;
+        }
+
+        $longest = 0;
+        $running = 0;
+        foreach ($series as $ok) {
+            if ($ok === true) {
+                ++$running;
+                $longest = max($longest, $running);
+            } else {
+                $running = 0;
+            }
+        }
+
+        return [
+            'current' => $current,
+            'longest' => $longest,
+            'status' => $this->buildStreakStatus($current),
+            'badges' => $this->buildBadgesForStreak($label, $longest),
+        ];
+    }
+
+    /**
+     * @return array{emoji:string,message:string}
+     */
+    private function buildStreakStatus(int $current): array
+    {
+        if ($current >= 10) {
+            return ['emoji' => '🏆', 'message' => 'Legendary streak'];
+        }
+        if ($current >= 5) {
+            return ['emoji' => '🔥', 'message' => 'Excellent consistency'];
+        }
+        if ($current >= 3) {
+            return ['emoji' => '⚡', 'message' => 'Great momentum'];
+        }
+        if ($current >= 1) {
+            return ['emoji' => '🙂', 'message' => 'Good start'];
+        }
+
+        return ['emoji' => '💤', 'message' => 'Start your streak'];
+    }
+
+    /**
+     * @return array<int,string>
+     */
+    private function buildBadgesForStreak(string $label, int $value): array
+    {
+        $badges = [];
+        if ($value >= 3) {
+            $badges[] = sprintf('%s x3', $label);
+        }
+        if ($value >= 5) {
+            $badges[] = sprintf('%s x5', $label);
+        }
+        if ($value >= 10) {
+            $badges[] = sprintf('%s x10', $label);
+        }
+
+        return $badges;
+    }
+
+    private function getMatiereForEvaluation(EvaluationMatiere $evaluation): ?Matiere
+    {
+        $evalMats = $evaluation->getEvalMats();
+        foreach ($evalMats as $evalMat) {
+            $matiere = $evalMat->getMatiere();
+            if ($matiere !== null && $matiere->getUser()?->getId() === $this->getId()) {
+                return $matiere;
+            }
+        }
+
+        return null;
+    }
 }

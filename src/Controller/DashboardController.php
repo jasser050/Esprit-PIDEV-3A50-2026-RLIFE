@@ -4,13 +4,14 @@ namespace App\Controller;
 
 use App\Data\SampleData;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard')]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         // Redirect admins to admin dashboard
         if ($this->isGranted('ROLE_ADMIN')) {
@@ -36,12 +37,20 @@ class DashboardController extends AbstractController
         
         usort($upcomingAssignments, fn($a, $b) => strcmp($a['due_date'], $b['due_date']));
 
+        $aiPlan = $request->getSession()->get('ai_productivity_plan', []);
+        $aiChallenges = $request->getSession()->get('ai_productivity_challenges', []);
+        if (!is_array($aiChallenges)) {
+            $aiChallenges = [];
+        }
+
         return $this->render('pages/dashboard.html.twig', [
             'stats' => $stats,
             'today_events' => array_values($todayEvents),
             'upcoming_assignments' => array_slice($upcomingAssignments, 0, 5),
             'activity_feed' => $activityFeed,
             'courses' => $courses,
+            'ai_plan' => is_array($aiPlan) ? $aiPlan : [],
+            'ai_challenges' => $aiChallenges,
         ]);
     }
 }

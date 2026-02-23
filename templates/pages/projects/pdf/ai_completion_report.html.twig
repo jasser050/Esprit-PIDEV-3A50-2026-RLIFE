@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI Completion Report - {{ project.titre }}</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; color: #1f2937; line-height: 1.5; }
+        .header { background: #0f766e; color: #fff; padding: 18px; margin-bottom: 18px; }
+        .header h1 { margin: 0; font-size: 22px; }
+        .muted { font-size: 11px; opacity: .9; margin-top: 6px; }
+        .card { border: 1px solid #d1d5db; border-radius: 6px; padding: 14px; margin-bottom: 12px; }
+        .title { font-size: 14px; font-weight: bold; margin: 0 0 8px; color: #0f766e; }
+        ul { margin: 6px 0 0 18px; padding: 0; }
+        li { margin: 4px 0; }
+        .grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .grid th, .grid td { border: 1px solid #e5e7eb; padding: 8px; font-size: 11px; text-align: left; }
+        .grid th { background: #f3f4f6; }
+        .footer { margin-top: 16px; font-size: 10px; color: #6b7280; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI Project Completion Report</h1>
+        <div class="muted">
+            Project: {{ project.titre }} | Status: {{ project.statut }} | Generated: {{ generatedAt|date('Y-m-d H:i') }}
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="title">Executive Summary</p>
+        <p>{{ report.executive_summary|default('No summary available.') }}</p>
+    </div>
+
+    <div class="card">
+        <p class="title">Key Metrics</p>
+        <table class="grid">
+            <thead>
+                <tr>
+                    <th>Total Tasks</th>
+                    <th>Completed Tasks</th>
+                    <th>Completion Rate</th>
+                    <th>Project Duration (days)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ report.metrics.total_tasks|default(assignments|length) }}</td>
+                    <td>{{ report.metrics.completed_tasks|default(0) }}</td>
+                    <td>{{ report.metrics.completion_rate|default(0) }}%</td>
+                    <td>{{ report.metrics.project_duration_days|default(0) }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <p class="title">Achievements</p>
+        <ul>
+            {% for item in report.achievements|default([]) %}
+                <li>{{ item }}</li>
+            {% else %}
+                <li>No achievements captured.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <p class="title">Challenges</p>
+        <ul>
+            {% for item in report.challenges|default([]) %}
+                <li>{{ item }}</li>
+            {% else %}
+                <li>No challenges captured.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <p class="title">Lessons Learned</p>
+        <ul>
+            {% for item in report.lessons_learned|default([]) %}
+                <li>{{ item }}</li>
+            {% else %}
+                <li>No lessons captured.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card">
+        <p class="title">Next Steps</p>
+        <ul>
+            {% for item in report.next_steps|default([]) %}
+                <li>{{ item }}</li>
+            {% else %}
+                <li>No next steps captured.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="footer">
+        AI report generated for {{ project.titre }} on {{ generatedAt|date('Y-m-d H:i') }}
+    </div>
+</body>
+</html>
+
