@@ -194,6 +194,28 @@ class RevisionController extends AbstractController
     }
 
     // ─────────────────────────────────────────────────────────────
+    // ✨ AI GUIDE — GUIDE PÉDAGOGIQUE IA
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/flashcard/ai-guide/{deck_id}', name: 'app_flashcard_ai_guide', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function aiGuide(
+        int $deck_id,
+        DeckRepository $deckRepository
+    ): Response {
+        $deck = $deckRepository->find($deck_id);
+
+        if (!$deck) {
+            throw $this->createNotFoundException('Deck introuvable');
+        }
+
+        return $this->render('pages/flashcard/ai_guide.html.twig', [
+            'deck'   => $deck,
+            'deckId' => $deck_id,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // EDIT FLASHCARD
     // ─────────────────────────────────────────────────────────────
 
@@ -342,7 +364,6 @@ PROMPT;
                 $aiData = $response->toArray();
                 $content = $aiData['choices'][0]['message']['content'] ?? '[]';
 
-                // Nettoyage JSON
                 $content = preg_replace('/```json\s*/i', '', $content);
                 $content = preg_replace('/```/', '', $content);
                 $content = trim($content);
@@ -395,7 +416,6 @@ PROMPT;
                     $theme
                 ));
             } else {
-                // Fallback sans IA
                 for ($i = 0; $i < $count; $i++) {
                     $flashcard = new Flashcard();
                     $flashcard->setDeck($deck);
@@ -555,7 +575,6 @@ PROMPT;
             return $this->json(['error' => 'Aucune carte à analyser.'], 400);
         }
 
-        // Préparer les cartes pour l'IA
         $cardsText = '';
         foreach ($flashcards as $i => $fc) {
             $cardsText .= sprintf(
@@ -633,7 +652,6 @@ PROMPT;
             $body    = $response->toArray();
             $content = $body['choices'][0]['message']['content'] ?? '{}';
 
-            // Nettoyer la réponse (enlever les backticks markdown si présents)
             $content = preg_replace('/^```json\s*/i', '', trim($content));
             $content = preg_replace('/\s*```$/', '', $content);
 
@@ -646,7 +664,6 @@ PROMPT;
                 $cartes = [];
             }
 
-            // Enrichir chaque carte avec ses données originales
             foreach ($cartes as &$carte) {
                 $fcId = $carte['id'] ?? null;
                 if ($fcId) {
