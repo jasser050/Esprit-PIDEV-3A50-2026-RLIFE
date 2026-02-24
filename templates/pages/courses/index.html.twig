@@ -151,6 +151,10 @@
                 <button id="sortAsc" class="btn btn-secondary">A → Z</button>
                 <button id="sortDesc" class="btn btn-secondary">Z → A</button>
             </div>
+            
+            <a href="{{ path('app_my_city') }}" class="btn btn-success inline-flex items-center gap-2">
+                <i data-lucide="bar-chart-2" class="w-4 h-4"></i> my city
+            </a>
             <a href="{{ path('app_stats_dashboard') }}" class="btn btn-success inline-flex items-center gap-2">
                 <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Statistics
             </a>
@@ -213,7 +217,7 @@
        🌍 WORLD TOUR — Streak Widget
        Replaces the old 🔥 fire streak section
     ══════════════════════════════════════════════════════ #}
-    {% set globalStreak = app.user.globalStreak %}
+{% set globalStreak = app.user.highScoreStreak %}
     {% set streakVal    = globalStreak.current %}
 
     {% if streakVal > 0 %}

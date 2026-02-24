@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
-
+use Symfony\Component\Validator\Constraints\Range;
 class EvaluationMatiereType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -63,8 +63,11 @@ class EvaluationMatiereType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'The duration is required']),
-                    new Positive(['message' => 'The duration must be positive']),
-                ],
+new Range([                          // ← remplace Positive
+            'min'               => 1,
+            'max'               => 600,
+            'notInRangeMessage' => 'Duration must be between {{ min }} and {{ max }} minutes.',
+        ]),                ],
             ])
 
             // 🔥 Priority — validation ajoutée

@@ -288,57 +288,27 @@ public function edit(
     MatiereRepository $matiereRepository
 ): Response {
 
-    $allMatieres = $matiereRepository->findAll();
-
     $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-
-        $matiereId = $request->request->get('matiere_id');
-
-        if ($matiereId) {
-
-            $matiere = $matiereRepository->find((int) $matiereId);
-
-            if (!$matiere) {
-                $this->addFlash('error', 'Matière invalide.');
-                return $this->redirectToRoute('app_courses_edit', [
-                    'id' => $evaluation->getId()
-                ]);
-            }
-
-            // 🔥 Supprimer proprement les anciennes relations
-            foreach ($evaluation->getEvalMats() as $evalMat) {
-                $evaluation->removeEvalMat($evalMat);
-                $entityManager->remove($evalMat);
-            }
-
-            // 🔥 Ajouter la nouvelle relation
-            $evalMat = new EvalMat();
-            $evalMat->setEvaluation($evaluation);
-            $evalMat->setMatiere($matiere);
-
-            $evaluation->addEvalMat($evalMat);
-
-            $entityManager->persist($evalMat);
-        }
-
+        // ✅ La matière ne change pas en edit — juste flush()
         $entityManager->flush();
 
-        $this->addFlash('success', 'Évaluation mise à jour avec succès 🎉');
-
+        $this->addFlash('success', 'Evaluation updated successfully!');
         return $this->redirectToRoute('app_courses');
     }
 
+    if ($form->isSubmitted() && !$form->isValid()) {
+        $this->addFlash('error', 'Please correct the errors below before submitting.');
+    }
+
     return $this->render('pages/courses/edit.html.twig', [
-        'form' => $form->createView(),
+        'form'       => $form->createView(),
         'evaluation' => $evaluation,
-        'allMatieres' => $allMatieres,
+        'allMatieres' => $matiereRepository->findAll(),
     ]);
 }
-
-
 
 
 

@@ -26,6 +26,8 @@ parameters:
 
 
 services:
+
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -46,3 +48,6 @@ services:
             $key: '%pusher.key%'
             $secret: '%pusher.secret%'
             $cluster: '%pusher.cluster%'
+    App\Service\CityService:
+        arguments:
+            $streakService: '@App\Service\StreakService'

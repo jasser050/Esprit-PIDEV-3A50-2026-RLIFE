@@ -3,42 +3,33 @@
 {% block title %}Edit Evaluation{% endblock %}
 
 {% block body %}
+
 <!-- Animated Background -->
 <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-    <!-- Gradient Orbs -->
     <div class="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
     <div class="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
     <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-    
-    <!-- Floating Particles -->
     <div class="particles-container">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        <div class="particle"></div><div class="particle"></div>
     </div>
-    
-    <!-- Grid Pattern -->
     <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
 </div>
 
 <div class="max-w-6xl mx-auto px-6 py-8 relative z-10">
+
     <!-- Flash Messages -->
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="mb-6 p-4 rounded-lg border animate-slide-down {% if label == 'success' %}bg-green-900/20 border-green-700/50 text-green-300{% elseif label == 'error' %}bg-red-900/20 border-red-700/50 text-red-300{% else %}bg-blue-900/20 border-blue-700/50 text-blue-300{% endif %}">
+            <div class="mb-6 p-4 rounded-lg border animate-slide-down
+                {% if label == 'success' %}bg-green-900/20 border-green-700/50 text-green-300
+                {% elseif label == 'error' %}bg-red-900/20 border-red-700/50 text-red-300
+                {% else %}bg-blue-900/20 border-blue-700/50 text-blue-300{% endif %}">
                 <div class="flex items-center gap-3">
-                    {% if label == 'success' %}
-                        <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
-                    {% elseif label == 'error' %}
-                        <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
-                    {% else %}
-                        <i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>
-                    {% endif %}
+                    {% if label == 'success' %}<i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% elseif label == 'error' %}<i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    {% else %}<i data-lucide="info" class="w-5 h-5 flex-shrink-0"></i>{% endif %}
                     <span class="font-medium">{{ message }}</span>
                 </div>
             </div>
@@ -50,234 +41,215 @@
         <a href="{{ path('app_courses') }}"
            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all hover:scale-105">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            Retour
+            Back to Evaluations
         </a>
-
         <h1 class="mt-6 text-3xl font-bold text-white animate-fade-in flex items-center gap-3">
             <i data-lucide="edit-3" class="w-8 h-8"></i>
-            Modifier l'évaluation
+            Edit Evaluation
         </h1>
         <p class="text-slate-400 mt-1 animate-fade-in animation-delay-100">
-            {% for evalMat in evaluation.evalMats %}
-                {{ evalMat.matiere.nomMatiere }}
-            {% else %}
-                Aucune matière
-            {% endfor %}
+            {% for evalMat in evaluation.evalMats %}{{ evalMat.matiere.nomMatiere }}{% else %}No subject{% endfor %}
         </p>
     </div>
 
-    <!-- Form Card with Glass Effect -->
+    <!-- Form Card -->
     <div class="bg-slate-800/40 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8 shadow-2xl shadow-black/20 animate-slide-up">
-        {{ form_start(form, {'attr': {'class': 'space-y-8', 'novalidate': 'novalidate'}}) }}
 
-        <!-- Matière (Read-only) -->
-        <div class="form-group animate-fade-in animation-delay-200">
-            <label class="block text-sm font-medium text-slate-300 mb-2">
-                <i data-lucide="book-open" class="w-4 h-4 inline-block mr-1"></i>
-                Matière
-            </label>
-            <div class="w-full px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-slate-400 flex items-center gap-2">
-                <i data-lucide="lock" class="w-4 h-4"></i>
-                {% for evalMat in evaluation.evalMats %}
-                    {{ evalMat.matiere.nomMatiere }}
-                {% else %}
-                    Aucune matière
-                {% endfor %}
+        {{ form_start(form, {'attr': {'id': 'edit-form', 'class': 'space-y-8', 'novalidate': 'novalidate'}}) }}
+
+        <!-- Server-side global error banner -->
+        {% if form.vars.submitted is defined and form.vars.submitted and not form.vars.valid %}
+            <div class="p-4 rounded-lg border bg-red-900/20 border-red-700/50 text-red-300">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="font-medium">Please correct the errors highlighted below.</span>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- JS global error banner (hidden by default) -->
+        <div id="js-banner" class="hidden p-4 rounded-lg border bg-red-900/20 border-red-700/50 text-red-300">
+            <div class="flex items-center gap-3">
+                <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="font-medium">Please correct the errors highlighted below before submitting.</span>
             </div>
         </div>
 
-        <!-- Score & Note Maximale -->
+        <!-- ══════════════════════════════════════
+             SUBJECT (read-only)
+        ══════════════════════════════════════ -->
+        <div class="form-group animate-fade-in animation-delay-200">
+            <label class="block text-sm font-medium text-slate-300 mb-2">
+                <i data-lucide="book-open" class="w-4 h-4 inline-block mr-1"></i>
+                Subject
+            </label>
+            <div class="w-full px-4 py-3 bg-slate-900/30 border border-slate-700/50 rounded-lg text-slate-400 flex items-center gap-2">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+                {% for evalMat in evaluation.evalMats %}{{ evalMat.matiere.nomMatiere }}{% else %}No subject{% endfor %}
+            </div>
+            <p class="info-hint mt-2"><i data-lucide="info" class="w-4 h-4"></i><span>Subject cannot be changed after creation.</span></p>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             SCORE & MAXIMUM SCORE
+        ══════════════════════════════════════ -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Score -->
             <div class="form-group animate-fade-in animation-delay-300">
-                {{ form_label(form.scoreEval, 'Score obtenu *', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
-                }) }}
+                <label for="evaluation_scoreEval" class="block text-sm font-medium text-slate-300 mb-2">
+                    Score obtained <span class="text-red-400">*</span>
+                </label>
                 <div class="relative">
-                    <i data-lucide="award" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <i data-lucide="award" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     {{ form_widget(form.scoreEval, {
                         'attr': {
-                            'class': (form.scoreEval.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                            'placeholder': 'ex: 15',
-                            'id': 'evaluation_scoreEval'
+                            'id': 'evaluation_scoreEval',
+                            'class': 'field-input' ~ (form.scoreEval.vars.errors|length > 0 ? ' field-error' : ''),
+                            'placeholder': 'e.g. 15'
                         }
                     }) }}
                 </div>
                 {% if form.scoreEval.vars.errors|length > 0 %}
-                    <div class="error-alert">
-                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        {{ form_errors(form.scoreEval) }}
-                    </div>
-                {% else %}
-                    <div class="info-hint">
-                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <span>Doit être zéro ou positif</span>
+                    <div class="error-alert mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>{{ form_errors(form.scoreEval) }}</div>
                     </div>
                 {% endif %}
+                <div id="js-error-evaluation_scoreEval" class="error-alert mt-2 hidden"></div>
+                <p class="info-hint mt-2" id="hint-evaluation_scoreEval">
+                    <i data-lucide="info" class="w-4 h-4"></i><span>Must be zero or positive. Example: 0, 10, 50</span>
+                </p>
             </div>
 
+            <!-- Maximum score -->
             <div class="form-group animate-fade-in animation-delay-400">
-                {{ form_label(form.noteMaximaleEval, 'Note maximale *', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
-                }) }}
+                <label for="evaluation_noteMaximaleEval" class="block text-sm font-medium text-slate-300 mb-2">
+                    Maximum score <span class="text-red-400">*</span>
+                </label>
                 <div class="relative">
-                    <i data-lucide="target" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <i data-lucide="target" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     {{ form_widget(form.noteMaximaleEval, {
                         'attr': {
-                            'class': (form.noteMaximaleEval.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                            'placeholder': 'ex: 20',
-                            'id': 'evaluation_noteMaximaleEval'
+                            'id': 'evaluation_noteMaximaleEval',
+                            'class': 'field-input' ~ (form.noteMaximaleEval.vars.errors|length > 0 ? ' field-error' : ''),
+                            'placeholder': 'e.g. 20'
                         }
                     }) }}
                 </div>
                 {% if form.noteMaximaleEval.vars.errors|length > 0 %}
-                    <div class="error-alert">
-                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        {{ form_errors(form.noteMaximaleEval) }}
-                    </div>
-                {% else %}
-                    <div class="info-hint">
-                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <span>Doit être strictement positif</span>
+                    <div class="error-alert mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>{{ form_errors(form.noteMaximaleEval) }}</div>
                     </div>
                 {% endif %}
+                <div id="js-error-evaluation_noteMaximaleEval" class="error-alert mt-2 hidden"></div>
+                <p class="info-hint mt-2" id="hint-evaluation_noteMaximaleEval">
+                    <i data-lucide="info" class="w-4 h-4"></i><span>Must be strictly positive. Example: 10, 20, 100</span>
+                </p>
             </div>
         </div>
 
-        <!-- Date & Durée -->
+        <!-- ══════════════════════════════════════
+             DATE & DURATION
+        ══════════════════════════════════════ -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            <!-- Date -->
             <div class="form-group animate-fade-in animation-delay-500">
-                {{ form_label(form.dateEvaluation, 'Date d\'évaluation *', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
-                }) }}
+                <label for="evaluation_dateEvaluation" class="block text-sm font-medium text-slate-300 mb-2">
+                    Evaluation date <span class="text-red-400">*</span>
+                </label>
                 <div class="relative">
-                    <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <i data-lucide="calendar" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     {{ form_widget(form.dateEvaluation, {
                         'attr': {
-                            'class': (form.dateEvaluation.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
-                            'id': 'evaluation_dateEvaluation'
+                            'id': 'evaluation_dateEvaluation',
+                            'class': 'field-input' ~ (form.dateEvaluation.vars.errors|length > 0 ? ' field-error' : '')
                         }
                     }) }}
                 </div>
                 {% if form.dateEvaluation.vars.errors|length > 0 %}
-                    <div class="error-alert">
-                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        {{ form_errors(form.dateEvaluation) }}
-                    </div>
-                {% else %}
-                    <div class="info-hint">
-                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <span>Date de l'évaluation</span>
+                    <div class="error-alert mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>{{ form_errors(form.dateEvaluation) }}</div>
                     </div>
                 {% endif %}
+                <div id="js-error-evaluation_dateEvaluation" class="error-alert mt-2 hidden"></div>
+                <p class="info-hint mt-2" id="hint-evaluation_dateEvaluation">
+                    <i data-lucide="info" class="w-4 h-4"></i><span>When did the evaluation take place?</span>
+                </p>
             </div>
 
+            <!-- Duration -->
             <div class="form-group animate-fade-in animation-delay-600">
-                {{ form_label(form.dureeEvaluation, 'Durée (minutes) *', {
-                    'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
-                }) }}
+                <label for="evaluation_dureeEvaluation" class="block text-sm font-medium text-slate-300 mb-2">
+                    Duration (minutes) <span class="text-red-400">*</span>
+                </label>
                 <div class="relative">
-                    <i data-lucide="clock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <i data-lucide="clock" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     {{ form_widget(form.dureeEvaluation, {
                         'attr': {
-                            'class': (form.dureeEvaluation.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all hover:border-slate-600',
-                            'placeholder': 'ex: 120',
-                            'id': 'evaluation_dureeEvaluation'
+                            'id': 'evaluation_dureeEvaluation',
+                            'class': 'field-input' ~ (form.dureeEvaluation.vars.errors|length > 0 ? ' field-error' : ''),
+                            'placeholder': 'e.g. 120'
                         }
                     }) }}
                 </div>
                 {% if form.dureeEvaluation.vars.errors|length > 0 %}
-                    <div class="error-alert">
-                        <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        {{ form_errors(form.dureeEvaluation) }}
-                    </div>
-                {% else %}
-                    <div class="info-hint">
-                        <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="8" x2="12" y2="12"></line>
-                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                        </svg>
-                        <span>Nombre entre 1 et 600 minutes</span>
+                    <div class="error-alert mt-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div>{{ form_errors(form.dureeEvaluation) }}</div>
                     </div>
                 {% endif %}
+                <div id="js-error-evaluation_dureeEvaluation" class="error-alert mt-2 hidden"></div>
+                <p class="info-hint mt-2" id="hint-evaluation_dureeEvaluation">
+                    <i data-lucide="info" class="w-4 h-4"></i><span>Between 1 and 600 minutes</span>
+                </p>
             </div>
         </div>
 
-        <!-- Priorité -->
+        <!-- ══════════════════════════════════════
+             PRIORITY
+        ══════════════════════════════════════ -->
         <div class="form-group animate-fade-in animation-delay-700">
-            {{ form_label(form.prioriteE, 'Priorité', {
-                'label_attr': {'class': 'block text-sm font-medium text-slate-300 mb-2 flex items-center gap-2'}
-            }) }}
+            <label for="evaluation_prioriteE" class="block text-sm font-medium text-slate-300 mb-2">
+                Priority <span class="text-red-400">*</span>
+            </label>
             <div class="relative">
                 <i data-lucide="flag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                 {{ form_widget(form.prioriteE, {
                     'attr': {
-                        'class': (form.prioriteE.vars.errors|length > 0 ? 'field-error' : '') ~ ' w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white transition-all hover:border-slate-600',
-                        'id': 'evaluation_prioriteE'
+                        'id': 'evaluation_prioriteE',
+                        'class': 'field-input' ~ (form.prioriteE.vars.errors|length > 0 ? ' field-error' : '')
                     }
                 }) }}
             </div>
             {% if form.prioriteE.vars.errors|length > 0 %}
-                <div class="error-alert">
-                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    {{ form_errors(form.prioriteE) }}
-                </div>
-            {% else %}
-                <div class="info-hint">
-                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span>Sélectionner une priorité</span>
+                <div class="error-alert mt-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <div>{{ form_errors(form.prioriteE) }}</div>
                 </div>
             {% endif %}
+            <div id="js-error-evaluation_prioriteE" class="error-alert mt-2 hidden"></div>
+            <p class="info-hint mt-2" id="hint-evaluation_prioriteE">
+                <i data-lucide="info" class="w-4 h-4"></i><span>Required — how important is this evaluation?</span>
+            </p>
         </div>
 
-        <!-- Actions -->
+        <!-- ══════════════════════════════════════
+             BUTTONS
+        ══════════════════════════════════════ -->
         <div class="flex flex-wrap gap-4 pt-6 border-t border-slate-700/50 animate-fade-in animation-delay-800">
-            <button type="submit" 
-                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 hover:shadow-indigo-600/50 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
+            <button type="submit"
+                    class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
                 <i data-lucide="save" class="w-4 h-4"></i>
-                Enregistrer
+                Save Changes
             </button>
-
             <a href="{{ path('app_courses') }}"
                class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium rounded-lg transition-all duration-200 flex items-center gap-2 hover:scale-105 active:scale-95">
                 <i data-lucide="x" class="w-4 h-4"></i>
-                Annuler
+                Cancel
             </a>
         </div>
 
@@ -286,552 +258,218 @@
 </div>
 
 <style>
-/* Form Inputs Styling */
-input[type="text"],
-input[type="number"],
-input[type="date"],
-input[type="time"],
-select,
-textarea {
-    color: #ffffff !important;
+.field-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
     background-color: rgba(15, 23, 42, 0.5) !important;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="date"]:focus,
-input[type="time"]:focus,
-select:focus,
-textarea:focus {
-    outline: none;
-    border-color: #6366f1 !important;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-    background-color: rgba(15, 23, 42, 0.7) !important;
-}
-
-/* Error Field Styling - Red border on error fields */
-.field-error {
-    border-color: #ef4444 !important;
-    background-color: rgba(254, 226, 226, 0.05) !important;
-}
-
-.field-error:focus {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
-}
-
-/* Valid Field Styling - Green border on valid fields */
-.field-valid {
-    border-color: #10b981 !important;
-}
-
-.field-valid:focus {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
-}
-
-/* Error Alert Styling */
-.error-alert {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    color: #ffffff;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.error-icon {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-    stroke: currentColor;
-}
-
-.error-alert ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.error-alert li {
-    margin: 0;
-}
-
-/* Info Hint Styling */
-.info-hint {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    color: #94a3b8;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-}
-
-.info-icon {
-    flex-shrink: 0;
-    margin-top: 0.125rem;
-    stroke: currentColor;
-}
-
-/* Date input styling */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);
-    cursor: pointer;
-}
-
-select {
+    border: 1px solid #334155;
+    border-radius: 0.5rem;
+    color: #ffffff !important;
+    transition: all 0.2s ease-in-out;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+.field-input::placeholder { color: #64748b; }
+.field-input:hover  { border-color: #475569; }
+.field-input:focus  { outline: none; border-color: #6366f1 !important; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+
+.field-error { border-color: #ef4444 !important; }
+.field-error:focus { border-color: #ef4444 !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.2) !important; }
+.field-valid { border-color: #10b981 !important; }
+.field-valid:focus { border-color: #10b981 !important; box-shadow: 0 0 0 3px rgba(16,185,129,0.2) !important; }
+
+.error-alert { display:flex; align-items:flex-start; gap:0.5rem; color:#fca5a5; font-size:0.875rem; }
+.error-alert ul { list-style:none; padding:0; margin:0; }
+.error-alert li { margin:0; }
+.info-hint { display:flex; align-items:center; gap:0.5rem; color:#94a3b8; font-size:0.875rem; }
+
+select.field-input {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ffffff'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1.25rem;
-    padding-right: 2.5rem !important;
+    padding-right: 2.5rem;
 }
-
-select option {
-    background-color: #1e293b;
-    color: #ffffff;
-}
-
-::placeholder {
-    color: #64748b !important;
-    opacity: 1;
-}
-
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px rgba(15, 23, 42, 0.5) inset !important;
+select.field-input option { background-color: #1e293b; color: #ffffff; }
+input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+input:-webkit-autofill, input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px rgba(15,23,42,0.5) inset !important;
     -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Animated Background - Blob Animation */
 @keyframes blob {
-    0%, 100% {
-        transform: translate(0px, 0px) scale(1);
-    }
-    33% {
-        transform: translate(30px, -50px) scale(1.1);
-    }
-    66% {
-        transform: translate(-20px, 20px) scale(0.9);
-    }
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(30px,-50px) scale(1.1); }
+    66%      { transform: translate(-20px,20px) scale(0.9); }
 }
+.animate-blob { animation: blob 7s infinite; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
 
-.animate-blob {
-    animation: blob 7s infinite;
+.particles-container { position:absolute; width:100%; height:100%; overflow:hidden; }
+.particle { position:absolute; background:rgba(139,92,246,0.3); border-radius:50%; animation:floatUp 15s infinite; }
+.particle:nth-child(1){width:80px;height:80px;left:10%;animation-duration:12s}
+.particle:nth-child(2){width:60px;height:60px;left:70%;animation-delay:2s;animation-duration:15s;background:rgba(99,102,241,0.3)}
+.particle:nth-child(3){width:100px;height:100px;left:40%;animation-delay:4s;animation-duration:18s}
+.particle:nth-child(4){width:50px;height:50px;left:80%;animation-delay:6s;animation-duration:14s;background:rgba(59,130,246,0.3)}
+.particle:nth-child(5){width:70px;height:70px;left:25%;animation-delay:3s;animation-duration:16s}
+.particle:nth-child(6){width:90px;height:90px;left:55%;animation-delay:5s;animation-duration:13s;background:rgba(168,85,247,0.3)}
+.particle:nth-child(7){width:65px;height:65px;left:15%;animation-delay:7s;animation-duration:17s}
+.particle:nth-child(8){width:75px;height:75px;left:90%;animation-delay:1s;animation-duration:19s;background:rgba(79,70,229,0.3)}
+@keyframes floatUp {
+    0%{transform:translateY(100vh) rotate(0deg);opacity:0} 10%{opacity:1} 90%{opacity:1}
+    100%{transform:translateY(-100vh) rotate(360deg);opacity:0}
 }
-
-.animation-delay-2000 {
-    animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-    animation-delay: 4s;
-}
-
-/* Floating Particles */
-.particles-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.particle {
-    position: absolute;
-    background: rgba(139, 92, 246, 0.3);
-    border-radius: 50%;
-    animation: float 15s infinite;
-}
-
-.particle:nth-child(1) {
-    width: 80px;
-    height: 80px;
-    left: 10%;
-    animation-delay: 0s;
-    animation-duration: 12s;
-}
-
-.particle:nth-child(2) {
-    width: 60px;
-    height: 60px;
-    left: 70%;
-    animation-delay: 2s;
-    animation-duration: 15s;
-    background: rgba(99, 102, 241, 0.3);
-}
-
-.particle:nth-child(3) {
-    width: 100px;
-    height: 100px;
-    left: 40%;
-    animation-delay: 4s;
-    animation-duration: 18s;
-}
-
-.particle:nth-child(4) {
-    width: 50px;
-    height: 50px;
-    left: 80%;
-    animation-delay: 6s;
-    animation-duration: 14s;
-    background: rgba(59, 130, 246, 0.3);
-}
-
-.particle:nth-child(5) {
-    width: 70px;
-    height: 70px;
-    left: 25%;
-    animation-delay: 3s;
-    animation-duration: 16s;
-}
-
-.particle:nth-child(6) {
-    width: 90px;
-    height: 90px;
-    left: 55%;
-    animation-delay: 5s;
-    animation-duration: 13s;
-    background: rgba(168, 85, 247, 0.3);
-}
-
-.particle:nth-child(7) {
-    width: 65px;
-    height: 65px;
-    left: 15%;
-    animation-delay: 7s;
-    animation-duration: 17s;
-}
-
-.particle:nth-child(8) {
-    width: 75px;
-    height: 75px;
-    left: 90%;
-    animation-delay: 1s;
-    animation-duration: 19s;
-    background: rgba(79, 70, 229, 0.3);
-}
-
-@keyframes float {
-    0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-100vh) rotate(360deg);
-        opacity: 0;
-    }
-}
-
-/* Grid Pattern */
 .bg-grid-pattern {
-    background-image: 
-        linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(148,163,184,0.1) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(148,163,184,0.1) 1px,transparent 1px);
     background-size: 50px 50px;
 }
-
-/* Fade In Animation */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-    opacity: 0;
-}
-
-.animation-delay-100 { animation-delay: 0.1s; }
-.animation-delay-200 { animation-delay: 0.2s; }
-.animation-delay-300 { animation-delay: 0.3s; }
-.animation-delay-400 { animation-delay: 0.4s; }
-.animation-delay-500 { animation-delay: 0.5s; }
-.animation-delay-600 { animation-delay: 0.6s; }
-.animation-delay-700 { animation-delay: 0.7s; }
-.animation-delay-800 { animation-delay: 0.8s; }
-.animation-delay-900 { animation-delay: 0.9s; }
-
-/* Slide Up Animation */
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-slide-up {
-    animation: slideUp 0.8s ease-out;
-}
-
-/* Slide Down Animation for Flash Messages */
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-slide-down {
-    animation: slideDown 0.5s ease-out;
-}
-
-/* Smooth transitions */
-input, select, textarea, button, a {
-    transition: all 0.2s ease-in-out;
-}
-
-/* Hover effects for form groups */
-.form-group:hover label {
-    color: #a5b4fc;
-}
-
-/* Icon color adjustments */
-i[data-lucide] {
-    color: inherit;
-}
+@keyframes fadeIn   { from{opacity:0;transform:translateY(10px)}  to{opacity:1;transform:translateY(0)} }
+@keyframes slideUp  { from{opacity:0;transform:translateY(30px)}  to{opacity:1;transform:translateY(0)} }
+@keyframes slideDown{ from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+.animate-fade-in   { animation: fadeIn   0.6s ease-out forwards; opacity:0; }
+.animate-slide-up  { animation: slideUp  0.8s ease-out; }
+.animate-slide-down{ animation: slideDown 0.5s ease-out; }
+.animation-delay-100{animation-delay:.1s} .animation-delay-200{animation-delay:.2s}
+.animation-delay-300{animation-delay:.3s} .animation-delay-400{animation-delay:.4s}
+.animation-delay-500{animation-delay:.5s} .animation-delay-600{animation-delay:.6s}
+.animation-delay-700{animation-delay:.7s} .animation-delay-800{animation-delay:.8s}
+input,select,textarea,button,a { transition: all 0.2s ease-in-out; }
+.form-group:hover label { color: #a5b4fc; }
 </style>
 
 <script>
-// Initialize Lucide icons after page load
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+document.addEventListener('DOMContentLoaded', function () {
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    const form = document.getElementById('edit-form');
+    if (!form) return;
+
+    // ── Même sélecteur que le Add ──
+    const inputs = form.querySelectorAll('input[type="number"], input[type="date"], input[type="datetime-local"]');
+
+    // ── showError / clearError — copie exacte du Add ──
+    function showError(field, message) {
+        field.classList.add('input-error');
+        let errorLabel = field.parentNode.querySelector('.label-text-alt.text-error-js');
+        if (!errorLabel) {
+            errorLabel = document.createElement('span');
+            errorLabel.className = 'label-text-alt text-error text-error-js flex items-center gap-1';
+            field.parentNode.appendChild(errorLabel);
+        }
+        errorLabel.textContent = message;
     }
 
-    // Real-time validation rules
-    const validationRules = {
-        'evaluation_scoreEval': {
-            min: 0,
-            type: 'number',
-            errorMessages: {
-                min: 'Le score doit être zéro ou positif',
-                type: 'Le score doit être un nombre valide',
-                required: 'Le score est obligatoire'
-            }
-        },
-        'evaluation_noteMaximaleEval': {
-            min: 0.01,
-            type: 'number',
-            errorMessages: {
-                min: 'La note maximale doit être strictement positive',
-                type: 'La note maximale doit être un nombre valide',
-                required: 'La note maximale est obligatoire'
-            }
-        },
-        'evaluation_dateEvaluation': {
-            errorMessages: {
-                required: 'La date d\'évaluation est obligatoire'
-            }
-        },
-        'evaluation_dureeEvaluation': {
-            min: 1,
-            max: 600,
-            type: 'number',
-            errorMessages: {
-                min: 'La durée doit être au moins 1 minute',
-                max: 'La durée ne doit pas dépasser 600 minutes',
-                type: 'La durée doit être un nombre valide',
-                required: 'La durée est obligatoire'
-            }
-        },
-        'evaluation_prioriteE': {
-            errorMessages: {
-                required: 'La priorité est obligatoire'
-            }
-        }
-    };
+    function clearError(field) {
+        field.classList.remove('input-error');
+        const errorLabel = field.parentNode.querySelector('.label-text-alt.text-error-js');
+        if (errorLabel) errorLabel.remove();
+    }
 
-    // Function to validate a single field
-    function validateField(input) {
-        const fieldName = input.id;
-        const rules = validationRules[fieldName];
-        
-        if (!rules) return;
+    // ── validateField — copie exacte du Add ──
+    function validateField(field) {
+        const value = field.value.trim();
+        const name  = field.name;
+        let error   = '';
 
-        const value = input.value.trim();
-        const parentGroup = input.closest('.form-group');
-        const existingError = parentGroup.querySelector('.error-alert');
-        const existingHint = parentGroup.querySelector('.info-hint');
-        let errorMessage = '';
-
-        // Remove existing error/hint
-        if (existingError) existingError.remove();
-        if (existingHint) existingHint.remove();
-
-        // Required validation
-        if (input.hasAttribute('required') && !value) {
-            errorMessage = rules.errorMessages.required;
-        }
-
-        // Number validation
-        if (!errorMessage && rules.type === 'number' && value) {
-            const numValue = parseFloat(value);
-            
-            if (isNaN(numValue)) {
-                errorMessage = rules.errorMessages.type;
-            } else {
-                // Min validation
-                if (rules.min !== undefined && numValue < rules.min) {
-                    errorMessage = rules.errorMessages.min;
-                }
-                
-                // Max validation
-                if (rules.max !== undefined && numValue > rules.max) {
-                    errorMessage = rules.errorMessages.max;
-                }
+        if (name.includes('scoreEval')) {
+            if (!value)
+                error = 'Score obtained is required';
+            else if (parseFloat(value) < 0)
+                error = 'Score must be zero or positive';
+            else {
+                const maxField = form.querySelector('input[name$="[noteMaximaleEval]"]');
+                if (maxField && maxField.value && parseFloat(value) > parseFloat(maxField.value))
+                    error = 'Score cannot exceed maximum score';
             }
         }
 
-        // Date validation (basic check)
-        if (!errorMessage && input.type === 'date' && input.hasAttribute('required') && !value) {
-            errorMessage = rules.errorMessages.required;
+        if (name.includes('noteMaximaleEval')) {
+            if (!value)
+                error = 'Maximum score is required';
+            else if (parseFloat(value) <= 0)
+                error = 'Maximum score must be strictly positive';
+            else {
+                const scoreField = form.querySelector('input[name$="[scoreEval]"]');
+                if (scoreField && scoreField.value && parseFloat(scoreField.value) > parseFloat(value))
+                    error = 'Score cannot exceed maximum score';
+            }
         }
 
-        // Show error or hint
-        if (errorMessage) {
-            input.classList.add('field-error');
-            input.classList.remove('field-valid');
-            
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-alert';
-            errorDiv.innerHTML = `
-                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
-                <span>${errorMessage}</span>
-            `;
-            
-            // Insert after the input's parent div (which contains the icon)
-            const inputWrapper = input.parentElement;
-            inputWrapper.parentElement.appendChild(errorDiv);
-        } else if (value) {
-            input.classList.remove('field-error');
-            input.classList.add('field-valid');
-            
-            // Show hint if no error and field has value
-            const hintText = getHintText(fieldName);
-            if (hintText) {
-                const hintDiv = document.createElement('div');
-                hintDiv.className = 'info-hint';
-                hintDiv.innerHTML = `
-                    <svg class="info-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        if (name.includes('dureeEvaluation')) {
+            if (!value)
+                error = 'Duration is required';
+            else if (parseInt(value) <= 0)
+                error = 'Duration must be positive';
+            else if (parseInt(value) > 600)
+                error = 'Cannot exceed 600 minutes';
+        }
+
+        if (name.includes('dateEvaluation')) {
+            if (!value)
+                error = 'Evaluation date is required';
+        }
+
+        if (error) showError(field, error);
+        else       clearError(field);
+    }
+
+    // ── Priority — copie exacte du Add ──
+    const prioritySelect  = document.getElementById('priority-select');
+    const priorityJsError = document.getElementById('priority-js-error');
+
+    function validatePriority() {
+        if (!prioritySelect || prioritySelect.value) {
+            if (prioritySelect) prioritySelect.classList.remove('select-error');
+            if (priorityJsError) priorityJsError.innerHTML = '';
+            return true;
+        }
+        prioritySelect.classList.add('select-error');
+        if (priorityJsError) {
+            priorityJsError.innerHTML = `
+                <span class="label-text-alt text-error flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>${hintText}</span>
-                `;
-                
-                const inputWrapper = input.parentElement;
-                inputWrapper.parentElement.appendChild(hintDiv);
-            }
-        } else {
-            input.classList.remove('field-error');
-            input.classList.remove('field-valid');
+                    Please select a priority
+                </span>`;
         }
+        return false;
     }
 
-    // Get hint text for field
-    function getHintText(fieldName) {
-        const hints = {
-            'evaluation_scoreEval': 'Doit être zéro ou positif',
-            'evaluation_noteMaximaleEval': 'Doit être strictement positif',
-            'evaluation_dateEvaluation': 'Date de l\'évaluation',
-            'evaluation_dureeEvaluation': 'Nombre entre 1 et 600 minutes',
-            'evaluation_prioriteE': 'Sélectionner une priorité'
-        };
-        return hints[fieldName] || '';
-    }
-
-    // Add event listeners to all form fields
-    const formFields = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], input[type="time"], select, textarea');
-    
-    formFields.forEach(field => {
-        // Validate on input (real-time)
-        field.addEventListener('input', function() {
-            validateField(this);
-        });
-
-        // Validate on blur
-        field.addEventListener('blur', function() {
-            validateField(this);
-        });
-
-        // Validate on change (for select and date)
-        field.addEventListener('change', function() {
-            validateField(this);
-        });
+    // ── Listeners — copie exacte du Add ──
+    inputs.forEach(input => {
+        input.addEventListener('blur',  () => validateField(input));
+        input.addEventListener('input', () => validateField(input));
     });
 
-    // Additional validation: Score cannot exceed Note Maximale
-    const scoreField = document.getElementById('evaluation_scoreEval');
-    const noteMaxField = document.getElementById('evaluation_noteMaximaleEval');
-    
-    if (scoreField && noteMaxField) {
-        function validateScoreAgainstMax() {
-            const score = parseFloat(scoreField.value);
-            const noteMax = parseFloat(noteMaxField.value);
-            
-            if (!isNaN(score) && !isNaN(noteMax) && score > noteMax) {
-                const parentGroup = scoreField.closest('.form-group');
-                const existingError = parentGroup.querySelector('.error-alert');
-                const existingHint = parentGroup.querySelector('.info-hint');
-                
-                if (existingError) existingError.remove();
-                if (existingHint) existingHint.remove();
-                
-                scoreField.classList.add('field-error');
-                scoreField.classList.remove('field-valid');
-                
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'error-alert';
-                errorDiv.innerHTML = `
-                    <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <span>Le score ne peut pas dépasser la note maximale (${noteMax})</span>
-                `;
-                
-                scoreField.parentElement.parentElement.appendChild(errorDiv);
-            } else if (!isNaN(score)) {
-                validateField(scoreField);
+    if (prioritySelect) {
+        prioritySelect.addEventListener('change', validatePriority);
+    }
+
+    // ── Submit — copie exacte du Add, sans matiereSelect ──
+    form.addEventListener('submit', function (e) {
+        let valid = true;
+
+        inputs.forEach(field => {
+            validateField(field);
+            if (field.classList.contains('input-error')) valid = false;
+        });
+
+        if (!validatePriority()) valid = false;
+
+        if (!valid) {
+            e.preventDefault();
+            const firstError = form.querySelector('.input-error, .select-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
             }
         }
-        
-        scoreField.addEventListener('input', validateScoreAgainstMax);
-        noteMaxField.addEventListener('input', validateScoreAgainstMax);
-        scoreField.addEventListener('blur', validateScoreAgainstMax);
-        noteMaxField.addEventListener('blur', validateScoreAgainstMax);
-    }
+    });
 });
 </script>
+
 {% endblock %}
