@@ -66,33 +66,4 @@ class StudentGamificationRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['user' => $user]);
     }
-
-    public function findTopUsersByPoints(int $limit = 10): array
-    {
-        return $this->createQueryBuilder('g')
-            ->orderBy('g.points', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findTopUsersByStreak(int $limit = 10): array
-    {
-        return $this->createQueryBuilder('g')
-            ->orderBy('g.streak', 'DESC')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
-
-    public function findUsersWithBadges(): array
-    {
-        return $this->createQueryBuilder('g')
-            ->andWhere('g.badges IS NOT NULL')
-            ->andWhere('g.badges != :empty')
-            ->setParameter('empty', '[]')
-            ->orderBy('g.points', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
 }

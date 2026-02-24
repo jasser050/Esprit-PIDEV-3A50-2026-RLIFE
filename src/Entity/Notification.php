@@ -29,7 +29,7 @@ class Notification
     private ?string $type = null; // 'coins', 'deadline_project', 'deadline_task', 'project_shared', 'task_assigned', 'new_comment'
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $link = null; // lien vers la page concernée (projet, tâche, etc.)
+    private ?string $link = null; // lien vers la page concernÃ©e (projet, tÃ¢che, etc.)
 
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $isRead = false;

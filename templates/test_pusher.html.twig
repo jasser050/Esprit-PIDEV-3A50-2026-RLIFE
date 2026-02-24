@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pusher - RLIFE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white shadow-lg rounded-lg p-8 mb-6">
+                <h1 class="text-3xl font-bold mb-4 text-center">🧪 Test Pusher - RLIFE</h1>
+                
+                <div id="status" class="mb-6 p-4 rounded-lg text-center">
+                    <p class="text-lg">Connexion à Pusher...</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-blue-800 mb-2">Configuration</h3>
+                        <p class="text-sm"><strong>Key:</strong> {{ pusher_app_key }}</p>
+                        <p class="text-sm"><strong>Cluster:</strong> {{ pusher_app_cluster }}</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-green-800 mb-2">État</h3>
+                        <p class="text-sm" id="connection-state">En attente...</p>
+                        <p class="text-sm" id="message-count">Messages reçus : 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow-lg rounded-lg p-8">
+                <h2 class="text-2xl font-semibold mb-4">📨 Messages en temps réel</h2>
+                <div id="messages" class="space-y-3 min-h-[200px]">
+                    <p class="text-gray-500">En attente de messages...</p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <a href="/" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition inline-block">
+                    Retour à l'accueil
+                </a>
+                <a href="/collaboration/shared-projects" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition inline-block ml-4">
+                    Tester la collaboration
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        let messageCount = 0;
+
+        // Configuration Pusher
+        const pusher = new Pusher('{{ pusher_app_key }}', {
+            cluster: '{{ pusher_app_cluster }}'
+        });
+
+        // S'abonner au canal de test
+        const channel = pusher.subscribe('test-channel');
+
+        // Écouter les événements de test
+        channel.bind('test-event', function(data) {
+            messageCount++;
+            console.log('✅ Message reçu:', data);
+            
+            const messagesDiv = document.getElementById('messages');
+            if (messagesDiv.querySelector('.text-gray-500')) {
+                messagesDiv.innerHTML = '';
+            }
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = 'p-4 bg-green-50 border-l-4 border-green-500 rounded animate-pulse';
+            messageElement.innerHTML = `
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">✅</span>
+                    <div>
+                        <p class="font-semibold text-green-800">Message reçu en temps réel!</p>
+                        <p class="text-sm text-gray-700 mt-1">${data.message}</p>
+                        <p class="text-xs text-gray-500 mt-1">Reçu à ${data.timestamp}</p>
+                    </div>
+                </div>
+            `;
+            messagesDiv.insertBefore(messageElement, messagesDiv.firstChild);
+            
+            document.getElementById('message-count').textContent = `Messages reçus : ${messageCount}`;
+            
+            setTimeout(() => {
+                messageElement.classList.remove('animate-pulse');
+            }, 2000);
+        });
+
+        // Gestion de la connexion
+        pusher.connection.bind('connected', function() {
+            console.log('✅ Connecté à Pusher');
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'mb-6 p-4 rounded-lg text-center bg-green-100 border-2 border-green-500';
+            statusDiv.innerHTML = `
+                <p class="text-lg font-semibold text-green-800">
+                    ✅ Pusher est opérationnel!
+                </p>
+                <p class="text-sm text-green-700 mt-2">
+                    Connecté au cluster {{ pusher_app_cluster }}
+                </p>
+            `;
+            
+            document.getElementById('connection-state').innerHTML = 
+                '<span class="text-green-600 font-semibold">● Connecté</span>';
+        });
+
+        pusher.connection.bind('disconnected', function() {
+            console.log('❌ Déconnecté de Pusher');
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'mb-6 p-4 rounded-lg text-center bg-yellow-100 border-2 border-yellow-500';
+            statusDiv.innerHTML = `
+                <p class="text-lg font-semibold text-yellow-800">
+                    ⚠️ Déconnecté de Pusher
+                </p>
+            `;
+            
+            document.getElementById('connection-state').innerHTML = 
+                '<span class="text-yellow-600 font-semibold">● Déconnecté</span>';
+        });
+
+        pusher.connection.bind('error', function(err) {
+            console.error('❌ Erreur Pusher:', err);
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'mb-6 p-4 rounded-lg text-center bg-red-100 border-2 border-red-500';
+            statusDiv.innerHTML = `
+                <p class="text-lg font-semibold text-red-800">
+                    ❌ Erreur de connexion
+                </p>
+                <p class="text-sm text-red-700 mt-2">
+                    Vérifiez vos clés Pusher dans .env
+                </p>
+            `;
+            
+            document.getElementById('connection-state').innerHTML = 
+                '<span class="text-red-600 font-semibold">● Erreur</span>';
+        });
+
+        // Ajouter un message automatique après 2 secondes
+        setTimeout(() => {
+            const messagesDiv = document.getElementById('messages');
+            const infoElement = document.createElement('div');
+            infoElement.className = 'p-4 bg-blue-50 border-l-4 border-blue-500 rounded';
+            infoElement.innerHTML = `
+                <div class="flex items-start">
+                    <span class="text-2xl mr-3">ℹ️</span>
+                    <div>
+                        <p class="font-semibold text-blue-800">Test réussi!</p>
+                        <p class="text-sm text-gray-700 mt-1">
+                            Vous recevrez un message de test si Pusher fonctionne correctement.
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Allez dans la console Pusher pour voir les statistiques.
+                        </p>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(infoElement);
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+{#
+    ╔══════════════════════════════════════════════════════════════╗
+    ║  COMPOSANT ÉTOILES - À inclure dans chaque carte de deck    ║
+    ║  Usage: {% include 'components/rating_stars.html.twig' %}   ║
+    ║  Variables requises: deck (Deck entity)                      ║
+    ╚══════════════════════════════════════════════════════════════╝
+#}
+
+<div class="rating-component"
+     data-deck-id="{{ deck.id }}"
+     id="rating-deck-{{ deck.id }}">
+
+    <div class="stars-row">
+        <div class="stars-interactive"
+             role="group"
+             aria-label="Notez ce deck de 1 à 5 étoiles">
+            {% for i in 1..5 %}
+            <span class="star-btn"
+                  data-value="{{ i }}"
+                  role="button"
+                  tabindex="0"
+                  aria-label="{{ i }} étoile{{ i > 1 ? 's' : '' }}"
+                  title="{{ i }} étoile{{ i > 1 ? 's' : '' }}">
+                ★
+            </span>
+            {% endfor %}
+        </div>
+
+        <div class="rating-summary">
+            <span class="rating-average">—</span>
+            <span class="rating-count">(0 avis)</span>
+        </div>
+    </div>
+
+    <div class="rating-feedback" style="display: none;">
+        <span class="rating-feedback-text"></span>
+        <button class="rating-delete-btn" title="Supprimer ma note">✕</button>
+    </div>
+</div>
+
+<style>
+.rating-component { margin-top: 8px; user-select: none; }
+.stars-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.stars-interactive { display: flex; gap: 2px; }
+
+.star-btn {
+    font-size: 22px;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.1s ease;
+    line-height: 1;
+    pointer-events: auto;
+}
+
+.star-btn:hover { color: #f59e0b; transform: scale(1.2); }
+.star-btn.hovered { color: #f59e0b; transform: scale(1.1); }
+.star-btn.selected, .star-btn.user-rated { color: #f59e0b; }
+
+.rating-summary { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+.rating-average { font-weight: 700; color: #f59e0b; }
+.rating-count { color: #6b7280; font-size: 12px; }
+
+.rating-feedback {
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.rating-feedback-text { font-weight: 500; }
+
+.rating-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ef4444;
+    font-size: 11px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.rating-delete-btn:hover { background: #fee2e2; }
+
+[data-theme="dark"] .star-btn { color: #4b5563; }
+[data-theme="dark"] .rating-count { color: #9ca3af; }
+</style>
+
+<script>
+(function() {
+    if (window._ratingInitialized) return;
+    window._ratingInitialized = true;
+
+    function initRatingComponent(component) {
+        const deckId    = component.dataset.deckId;
+        const stars     = component.querySelectorAll('.star-btn');
+        const avgEl     = component.querySelector('.rating-average');
+        const countEl   = component.querySelector('.rating-count');
+        const feedback  = component.querySelector('.rating-feedback');
+        const fbText    = component.querySelector('.rating-feedback-text');
+        const deleteBtn = component.querySelector('.rating-delete-btn');
+
+        let userRating = null;
+
+        // Charger la note initiale
+        fetch(`/rating/deck/${deckId}/my-rating`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    updateDisplay(data.average, data.total, data.userStars);
+                }
+            })
+            .catch(() => {});
+
+        // Survol
+        stars.forEach((star, index) => {
+            star.addEventListener('mouseenter', () => highlightStars(index + 1));
+        });
+
+        component.querySelector('.stars-interactive').addEventListener('mouseleave', () => {
+            highlightStars(userRating || 0);
+        });
+
+        // Clic sur une étoile
+        stars.forEach(star => {
+            star.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                submitRating(parseInt(star.dataset.value));
+            });
+
+            star.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    submitRating(parseInt(star.dataset.value));
+                }
+            });
+        });
+
+        // Supprimer la note — POST vers /remove (comme défini dans RatingController)
+        deleteBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!confirm('Supprimer votre note ?')) return;
+            fetch(`/rating/deck/${deckId}/remove`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    updateDisplay(data.average, data.total, null);
+                    showFeedback('Note supprimée', '#ef4444');
+                    setTimeout(() => hideFeedback(), 2000);
+                }
+            });
+        });
+
+        function highlightStars(count) {
+            stars.forEach((s, i) => {
+                s.classList.remove('hovered', 'selected');
+                if (i < count) {
+                    s.classList.add(userRating ? 'selected' : 'hovered');
+                }
+            });
+        }
+
+        function submitRating(value) {
+            fetch(`/rating/deck/${deckId}/rate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ stars: value }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    updateDisplay(data.average, data.total, data.userStars);
+                    showFeedback('⭐ ' + data.message, '#10b981');
+                    setTimeout(() => hideFeedback(), 3000);
+                } else {
+                    showFeedback('❌ ' + (data.message || 'Erreur'), '#ef4444');
+                    setTimeout(() => hideFeedback(), 3000);
+                }
+            })
+            .catch(() => {
+                showFeedback('❌ Connexion impossible', '#ef4444');
+                setTimeout(() => hideFeedback(), 3000);
+            });
+        }
+
+        function updateDisplay(average, total, userStars) {
+            userRating = userStars;
+            avgEl.textContent   = average > 0 ? `${average}★` : '—';
+            countEl.textContent = total === 0 ? '(0 avis)' : `(${total} avis)`;
+
+            stars.forEach((s, i) => {
+                s.classList.remove('hovered', 'selected', 'user-rated');
+                if (userStars && i < userStars) s.classList.add('user-rated');
+            });
+
+            deleteBtn.style.display = userStars ? 'inline' : 'none';
+        }
+
+        function showFeedback(message, color) {
+            fbText.textContent  = message;
+            fbText.style.color  = color;
+            feedback.style.display = 'flex';
+        }
+
+        function hideFeedback() {
+            feedback.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.rating-component').forEach(initRatingComponent);
+    });
+})();
+</script>

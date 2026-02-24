@@ -1,11 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajouter une Flashcard - {{ deck.titre }} - RLIFE{% endblock %}
+{% block title %}Add a Flashcard - {{ deck.titre }} - RLIFE{% endblock %}
 
 {% block stylesheets %}
 {{ parent() }}
 <style>
-    /* Style épuré - uniquement pour l'affichage */
     .error-message {
         color: #ef4444;
         font-size: 0.875rem;
@@ -13,24 +12,18 @@
         font-weight: 500;
         display: block;
     }
-    
-    .error-message:empty {
-        display: none;
-    }
-    
+    .error-message:empty { display: none; }
     .help-text {
         color: #64748b;
         font-size: 0.75rem;
         margin-top: 0.375rem;
         display: block;
     }
-    
     label.required::after {
         content: " *";
         color: #ef4444;
         font-weight: bold;
     }
-    
     .btn-cancel {
         padding: 0.875rem 1.75rem;
         background: #e5e7eb;
@@ -41,7 +34,6 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
     .btn-save {
         padding: 0.875rem 2rem;
         background: linear-gradient(to right, #4f46e5, #7c3aed);
@@ -52,7 +44,6 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
     .file-preview {
         margin-top: 0.75rem;
         padding: 0.75rem;
@@ -61,10 +52,115 @@
         border-radius: 0.5rem;
         font-size: 0.875rem;
     }
-    
     .dark .file-preview {
         background: #1f2937;
         border-color: #374151;
+    }
+
+    /* ═══ AI GUIDE BANNER ═══ */
+    .ai-guide-banner {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 40%, #0f172a 100%);
+        border: 1px solid rgba(139, 92, 246, 0.4);
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .ai-guide-banner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.15) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 50%, rgba(59,130,246,0.1) 0%, transparent 60%);
+        pointer-events: none;
+    }
+    .ai-guide-banner-text {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+    }
+    .ai-guide-banner-icon {
+        font-size: 2.2rem;
+        animation: float 3s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+    .ai-guide-banner h3 {
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.2rem;
+        letter-spacing: 0.01em;
+    }
+    .ai-guide-banner p {
+        color: #a5b4fc;
+        font-size: 0.82rem;
+        margin: 0;
+    }
+    .btn-ai-guide {
+        position: relative;
+        background: linear-gradient(135deg, #7c3aed, #4f46e5, #0ea5e9);
+        background-size: 200% 200%;
+        animation: gradientShift 3s ease infinite;
+        color: white;
+        font-weight: 700;
+        font-size: 0.88rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .btn-ai-guide:hover {
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 8px 30px rgba(124, 58, 237, 0.6);
+        color: white;
+        text-decoration: none;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .btn-ai-guide .pulse-dot {
+        width: 8px; height: 8px;
+        background: #4ade80;
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.4); }
+    }
+    .badge-new {
+        background: linear-gradient(90deg, #f59e0b, #ef4444);
+        color: white;
+        font-size: 0.6rem;
+        font-weight: 800;
+        padding: 0.15rem 0.45rem;
+        border-radius: 99px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-left: 0.25rem;
+        vertical-align: middle;
     }
 </style>
 {% endblock %}
@@ -76,37 +172,48 @@
 
             <!-- Header -->
             <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-10 text-white">
-                <h1 class="text-3xl font-bold mb-2">Créer une nouvelle Flashcard</h1>
+                <h1 class="text-3xl font-bold mb-2">Create a new Flashcard</h1>
                 <p class="text-indigo-100/90 text-lg">
-                    Deck : <strong class="text-white">{{ deck.titre }}</strong>
+                    Deck: <strong class="text-white">{{ deck.titre }}</strong>
                     <span class="opacity-80">({{ deck.matiere }} • {{ deck.niveau }})</span>
                 </p>
             </div>
 
             <!-- Form Body -->
             <div class="p-8 lg:p-10">
-                {# 
-                    ✅ CORRECTION : activation de 'novalidate' pour désactiver la validation HTML5
-                    ✅ La validation est UNIQUEMENT côté serveur avec Symfony Validator
-                #}
+
+                <!-- ═══ AI GUIDE BANNER ═══ -->
+                <div class="ai-guide-banner">
+                    <div class="ai-guide-banner-text">
+                        <span class="ai-guide-banner-icon">🤖</span>
+                        <div>
+                            <h3>Not sure how to create a good flashcard?
+                                <span class="badge-new">AI</span>
+                            </h3>
+                            <p>Discover AI-generated templates, tips, and examples to create high-quality cards!</p>
+                        </div>
+                    </div>
+                    <a href="{{ path('app_flashcard_ai_guide', {deck_id: deck.id}) }}" class="btn-ai-guide" target="_blank">
+                        <span class="pulse-dot"></span>
+                        ✨ AI Guide — Create the perfect flashcard
+                    </a>
+                </div>
+                <!-- ═══ END AI GUIDE BANNER ═══ -->
+
                 {{ form_start(form, {'attr': {'class': 'space-y-7', 'novalidate': 'novalidate'}}) }}
 
-                <!-- Titre -->
+                <!-- Title -->
                 <div class="space-y-2">
-                    {{ form_label(form.titre, 'Titre de la flashcard', {
+                    {{ form_label(form.titre, 'Flashcard Title', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
-                    
                     {{ form_widget(form.titre, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm',
-                            'placeholder': 'Ex : Définition du système nerveux, Théorème de Pythagore...'
+                            'placeholder': 'Ex: Definition of the nervous system, Pythagorean theorem...'
                         }
                     }) }}
-                    
-                    <p class="help-text">📌 Obligatoire – Min 3 caractères – Ne doit pas commencer par un chiffre – Max 255 caractères</p>
-                    
-                    {# ✅ CORRECTION : utilisation de form_errors() comme dans le workshop #}
+                    <p class="help-text">📌 Required – Min 3 characters – Must not start with a number – Max 255 characters</p>
                     {{ form_errors(form.titre, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
@@ -115,147 +222,119 @@
                     {{ form_label(form.question, 'Question', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
-                    
                     {{ form_widget(form.question, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition shadow-sm min-h-[130px]',
-                            'placeholder': 'Quelle est la capitale de la France ? Expliquez le théorème de Pythagore...'
+                            'placeholder': 'What is the capital of France? Explain the Pythagorean theorem...'
                         }
                     }) }}
-                    
-                    <p class="help-text">📌 Obligatoire – Min 5 caractères – Max 2000 caractères</p>
-                    
+                    <p class="help-text">📌 Required – Min 5 characters – Max 2000 characters</p>
                     {{ form_errors(form.question, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Réponse -->
+                <!-- Answer -->
                 <div class="space-y-2">
-                    {{ form_label(form.reponse, 'Réponse', {
+                    {{ form_label(form.reponse, 'Answer', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                     }) }}
-                    
                     {{ form_widget(form.reponse, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition shadow-sm min-h-[160px]',
-                            'placeholder': 'Paris\n\nDans un triangle rectangle, le carré de l\'hypoténuse est égal à la somme des carrés des deux autres côtés...'
+                            'placeholder': 'Paris\n\nIn a right triangle, the square of the hypotenuse equals the sum of the squares of the other two sides...'
                         }
                     }) }}
-                    
-                    <p class="help-text">📌 Obligatoire – Min 1 caractère – Max 2000 caractères</p>
-                    
+                    <p class="help-text">📌 Required – Min 1 character – Max 2000 characters</p>
                     {{ form_errors(form.reponse, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Description (optionnel) -->
+                <!-- Description -->
                 <div class="space-y-2">
-                    {{ form_label(form.description, 'Notes / Explications supplémentaires (optionnel)', {
+                    {{ form_label(form.description, 'Notes / Additional explanations (optional)', {
                         'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                     }) }}
-                    
                     {{ form_widget(form.description, {
                         'attr': {
                             'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition shadow-sm min-h-[110px]',
-                            'placeholder': 'Contexte supplémentaire, exemples, pièges classiques, démonstration...'
+                            'placeholder': 'Additional context, examples, common pitfalls, demonstration...'
                         }
                     }) }}
-                    
-                    <p class="help-text">💡 Optionnel – Max 2000 caractères</p>
-                    
+                    <p class="help-text">💡 Optional – Max 2000 characters</p>
                     {{ form_errors(form.description, {'attr': {'class': 'error-message'}}) }}
                 </div>
 
-                <!-- Niveau de difficulté + État -->
+                <!-- Difficulty Level + Status -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-2">
-                        {{ form_label(form.niveauDifficulte, 'Niveau de difficulté', {
+                        {{ form_label(form.niveauDifficulte, 'Difficulty Level', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
-                        
                         {{ form_widget(form.niveauDifficulte, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
                             }
                         }) }}
-                        
-                        <p class="help-text">📌 Obligatoire – Entre 1 (facile) et 5 (difficile)</p>
-                        
+                        <p class="help-text">📌 Required – Between 1 (easy) and 5 (hard)</p>
                         {{ form_errors(form.niveauDifficulte, {'attr': {'class': 'error-message'}}) }}
                     </div>
-
                     <div class="space-y-2">
-                        {{ form_label(form.etat, 'État de la carte', {
+                        {{ form_label(form.etat, 'Card Status', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300 required'}
                         }) }}
-                        
                         {{ form_widget(form.etat, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition shadow-sm'
                             }
                         }) }}
-                        
-                        <p class="help-text">📌 Obligatoire – Statut de la flashcard</p>
-                        
+                        <p class="help-text">📌 Required – Current status of the flashcard</p>
                         {{ form_errors(form.etat, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- Fichiers -->
+                <!-- Files -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <div class="space-y-2">
-                        {{ form_label(form.imageFile, 'Image (optionnel)', {
+                        {{ form_label(form.imageFile, 'Image (optional)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
-                        
                         {{ form_widget(form.imageFile, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-gray-700 dark:file:text-indigo-300 shadow-sm',
                                 'accept': 'image/jpeg,image/png,image/webp,image/gif'
                             }
                         }) }}
-                        
-                        <p class="help-text">💡 Optionnel – Max 5 Mo – JPG, PNG, WEBP, GIF</p>
-                        
-                        {# ✅ CORRECTION : affichage du nom du fichier uniquement pour l'UX #}
+                        <p class="help-text">💡 Optional – Max 5 MB – JPG, PNG, WEBP, GIF</p>
                         <div id="imagePreview" class="file-preview" style="display: none;">
-                            <strong>Fichier sélectionné :</strong> <span id="imageName"></span>
+                            <strong>Selected file:</strong> <span id="imageName"></span>
                         </div>
-                        
                         {{ form_errors(form.imageFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
-
                     <div class="space-y-2">
-                        {{ form_label(form.pdfFile, 'Document PDF (optionnel)', {
+                        {{ form_label(form.pdfFile, 'PDF Document (optional)', {
                             'label_attr': {'class': 'block text-base font-medium text-gray-700 dark:text-gray-300'}
                         }) }}
-                        
                         {{ form_widget(form.pdfFile, {
                             'attr': {
                                 'class': 'w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-5 file:rounded file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-gray-700 dark:file:text-purple-300 shadow-sm',
                                 'accept': 'application/pdf'
                             }
                         }) }}
-                        
-                        <p class="help-text">💡 Optionnel – Max 10 Mo – PDF uniquement</p>
-                        
+                        <p class="help-text">💡 Optional – Max 10 MB – PDF only</p>
                         <div id="pdfPreview" class="file-preview" style="display: none;">
-                            <strong>Fichier sélectionné :</strong> <span id="pdfName"></span>
+                            <strong>Selected file:</strong> <span id="pdfName"></span>
                         </div>
-                        
                         {{ form_errors(form.pdfFile, {'attr': {'class': 'error-message'}}) }}
                     </div>
                 </div>
 
-                <!-- Boutons d'action -->
+                <!-- Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <a href="{{ path('app_revisions_deck_study', {id: deck.idDeck}) }}"
-                       class="btn-cancel">
+                    <a href="{{ path('app_revisions_deck_study', {id: deck.id}) }}" class="btn-cancel">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        Annuler
+                        Cancel
                     </a>
-
                     <button type="submit" class="btn-save">
                         <i data-lucide="save" class="w-5 h-5"></i>
-                        Enregistrer la flashcard
+                        Save flashcard
                     </button>
                 </div>
 
@@ -270,38 +349,22 @@
 {{ parent() }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ✅ CORRECTION : Uniquement pour l'aperçu des fichiers, PAS pour la validation
-    // La validation est 100% côté serveur via Symfony Validator
-    
-    // Aperçu image
     const imageFile = document.getElementById('flashcard_imageFile');
     if (imageFile) {
-        imageFile.addEventListener('change', function(e) {
+        imageFile.addEventListener('change', function() {
             const preview = document.getElementById('imagePreview');
             const name = document.getElementById('imageName');
-
-            if (this.files.length > 0) {
-                name.textContent = this.files[0].name;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
+            if (this.files.length > 0) { name.textContent = this.files[0].name; preview.style.display = 'block'; }
+            else { preview.style.display = 'none'; }
         });
     }
-
-    // Aperçu PDF
     const pdfFile = document.getElementById('flashcard_pdfFile');
     if (pdfFile) {
-        pdfFile.addEventListener('change', function(e) {
+        pdfFile.addEventListener('change', function() {
             const preview = document.getElementById('pdfPreview');
             const name = document.getElementById('pdfName');
-
-            if (this.files.length > 0) {
-                name.textContent = this.files[0].name;
-                preview.style.display = 'block';
-            } else {
-                preview.style.display = 'none';
-            }
+            if (this.files.length > 0) { name.textContent = this.files[0].name; preview.style.display = 'block'; }
+            else { preview.style.display = 'none'; }
         });
     }
 });

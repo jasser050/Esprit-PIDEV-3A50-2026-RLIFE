@@ -124,7 +124,7 @@
                 <h2 class="text-lg font-semibold">Project Sharing</h2>
                 <p class="text-sm text-secondary-500 dark:text-secondary-400">Share this project with other users</p>
             </div>
-            <span class="badge badge-primary">{{ project.shares|length }} shared</span>
+            <span class="badge badge-primary">{{ shares|default([])|length }} shared</span>
         </div>
 
         <!-- Share Form -->
@@ -144,9 +144,9 @@
         </form>
 
         <!-- Shared Users List -->
-        {% if project.shares|length > 0 %}
+        {% if shares|default([])|length > 0 %}
             <div class="space-y-3">
-                {% for share in project.shares %}
+                {% for share in shares %}
                     <div class="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-medium">

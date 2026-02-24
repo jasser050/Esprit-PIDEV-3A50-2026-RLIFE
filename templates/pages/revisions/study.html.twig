@@ -3,7 +3,7 @@
 
 {% block body %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -38,7 +38,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .tl{background:var(--lemon-lt);color:#7a6000}
 .hero-title{font-family:'Poppins',sans-serif;font-size:1.8rem;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:.5rem}
 .hero-desc{font-size:.875rem;color:var(--muted);line-height:1.6;margin-bottom:1rem}
-.hero-btns{display:flex;flex-wrap:wrap;gap:.6rem}
+.hero-btns{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--border)}
 .stat{padding:1rem 1.5rem;display:flex;align-items:center;gap:.8rem;background:var(--card)}
 .stat+.stat{border-left:1px solid var(--border)}
@@ -73,76 +73,35 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .bg:hover{background:var(--border)}
 
 /* ══════════════════════════════════════════════
-   🤖 VOCAL AVATAR — THE STAR OF THE SHOW
+   🤖 VOCAL AVATAR
 ══════════════════════════════════════════════ */
 .vocal-layout{display:grid;grid-template-columns:280px 1fr;gap:1.5rem;padding:1.75rem}
-
-/* ─── AVATAR PANEL ─── */
 .avatar-panel{display:flex;flex-direction:column;align-items:center;gap:1.1rem;position:relative}
-
-.avatar-stage{
-  width:200px;height:200px;border-radius:50%;position:relative;flex-shrink:0;
-}
-
-/* Outer glow rings */
-.avatar-ring{
-  position:absolute;inset:-10px;border-radius:50%;
-  border:2px solid rgba(255,107,107,.2);
-  animation:ring-idle 3s ease-in-out infinite;
-}
+.avatar-stage{width:200px;height:200px;border-radius:50%;position:relative;flex-shrink:0}
+.avatar-ring{position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(255,107,107,.2);animation:ring-idle 3s ease-in-out infinite}
 .avatar-ring:nth-child(2){inset:-20px;border-color:rgba(255,107,107,.1);animation-delay:.5s}
 .avatar-ring:nth-child(3){inset:-32px;border-color:rgba(255,107,107,.06);animation-delay:1s}
 @keyframes ring-idle{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.04);opacity:1}}
-
-/* Active rings when speaking */
 .avatar-stage.speaking .avatar-ring{animation:ring-speak .6s ease-in-out infinite}
 .avatar-stage.speaking .avatar-ring:nth-child(2){animation-delay:.15s}
 .avatar-stage.speaking .avatar-ring:nth-child(3){animation-delay:.3s}
 @keyframes ring-speak{0%,100%{transform:scale(1);border-color:rgba(32,201,160,.4)}50%{transform:scale(1.08);border-color:rgba(32,201,160,.9)}}
-
-/* Listening rings */
 .avatar-stage.listening .avatar-ring{animation:ring-listen .8s ease-in-out infinite}
 .avatar-stage.listening .avatar-ring:nth-child(2){animation-delay:.2s}
 .avatar-stage.listening .avatar-ring:nth-child(3){animation-delay:.4s}
 @keyframes ring-listen{0%,100%{transform:scale(1);border-color:rgba(255,107,107,.3)}50%{transform:scale(1.06);border-color:rgba(255,107,107,.8)}}
-
-/* Thinking rings */
 .avatar-stage.thinking .avatar-ring{animation:ring-think 1.2s ease-in-out infinite}
 @keyframes ring-think{0%,100%{transform:scale(1);border-color:rgba(255,217,61,.3)}50%{transform:scale(1.05);border-color:rgba(255,217,61,.8)}}
-
-/* Avatar face circle */
-.avatar-face{
-  width:200px;height:200px;border-radius:50%;overflow:hidden;
-  position:relative;z-index:2;
-  box-shadow:0 8px 32px rgba(30,27,58,.18);
-  transition:transform .3s ease;
-  border:4px solid #fff;
-}
+.avatar-face{width:200px;height:200px;border-radius:50%;overflow:hidden;position:relative;z-index:2;box-shadow:0 8px 32px rgba(30,27,58,.18);transition:transform .3s ease;border:4px solid #fff}
 .avatar-stage.speaking .avatar-face{animation:face-speak .4s ease-in-out infinite alternate}
 @keyframes face-speak{0%{transform:scale(1) translateY(0)}100%{transform:scale(1.02) translateY(-2px)}}
 .avatar-stage.thinking .avatar-face{animation:face-think 1s ease-in-out infinite alternate}
 @keyframes face-think{0%{transform:rotate(-2deg)}100%{transform:rotate(2deg)}}
-
-/* DiceBear SVG avatar */
 .avatar-face img{width:100%;height:100%;object-fit:cover}
-.avatar-face .av-bg{
-  width:100%;height:100%;
-  background:linear-gradient(135deg,#FFE8E8 0%,#E8F4FF 50%,#E8FFF6 100%);
-  display:flex;align-items:center;justify-content:center;font-size:5rem;
-}
-
-/* Mouth animation overlay */
-.avatar-mouth-anim{
-  position:absolute;bottom:38px;left:50%;transform:translateX(-50%);
-  width:36px;height:16px;z-index:3;pointer-events:none;
-  opacity:0;transition:opacity .2s;
-}
+.avatar-face .av-bg{width:100%;height:100%;background:linear-gradient(135deg,#FFE8E8 0%,#E8F4FF 50%,#E8FFF6 100%);display:flex;align-items:center;justify-content:center;font-size:5rem}
+.avatar-mouth-anim{position:absolute;bottom:38px;left:50%;transform:translateX(-50%);width:36px;height:16px;z-index:3;pointer-events:none;opacity:0;transition:opacity .2s}
 .avatar-stage.speaking .avatar-mouth-anim{opacity:1}
-.mouth-bar{
-  position:absolute;bottom:0;border-radius:99px;
-  background:rgba(255,255,255,.7);
-  animation:mba .25s ease-in-out infinite alternate;
-}
+.mouth-bar{position:absolute;bottom:0;border-radius:99px;background:rgba(255,255,255,.7);animation:mba .25s ease-in-out infinite alternate}
 .mb1{width:4px;left:2px;height:8px;animation-delay:.00s}
 .mb2{width:4px;left:8px;height:14px;animation-delay:.05s}
 .mb3{width:4px;left:14px;height:10px;animation-delay:.10s}
@@ -150,93 +109,41 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .mb5{width:4px;left:26px;height:8px;animation-delay:.10s}
 .mb6{width:4px;left:32px;height:12px;animation-delay:.05s}
 @keyframes mba{0%{transform:scaleY(.3)}100%{transform:scaleY(1)}}
-
-/* Avatar name & status */
 .av-name{font-family:'Poppins',sans-serif;font-size:1rem;font-weight:800;color:var(--ink);text-align:center}
-.av-status{
-  font-size:.8rem;font-weight:700;text-align:center;
-  padding:.35rem 1rem;border-radius:99px;transition:all .35s;
-  background:var(--bg);color:var(--muted);
-}
+.av-status{font-size:.8rem;font-weight:700;text-align:center;padding:.35rem 1rem;border-radius:99px;transition:all .35s;background:var(--bg);color:var(--muted)}
 .av-status.speaking{background:var(--teal-lt);color:var(--teal-dk);animation:st-pulse .8s infinite}
 .av-status.listening{background:var(--coral-lt);color:var(--coral-dk);animation:st-pulse .8s infinite}
 .av-status.thinking{background:var(--lemon-lt);color:#7a6000;animation:st-pulse 1.2s infinite}
 .av-status.correct{background:var(--teal-lt);color:var(--teal-dk)}
 .av-status.wrong{background:var(--coral-lt);color:var(--coral-dk)}
 @keyframes st-pulse{0%,100%{opacity:1}50%{opacity:.6}}
-
-/* Speech bubble */
-.av-bubble{
-  width:100%;background:#fff;border-radius:16px;border:2px solid var(--border);
-  padding:.9rem 1rem;font-size:.82rem;color:var(--ink-2);line-height:1.55;
-  min-height:60px;position:relative;box-shadow:var(--sh);
-  transition:all .3s;
-}
-.av-bubble::before{
-  content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
-  border:5px solid transparent;border-bottom-color:var(--border);
-}
-.av-bubble::after{
-  content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);
-  border:4px solid transparent;border-bottom-color:#fff;
-}
+.av-bubble{width:100%;background:#fff;border-radius:16px;border:2px solid var(--border);padding:.9rem 1rem;font-size:.82rem;color:var(--ink-2);line-height:1.55;min-height:60px;position:relative;box-shadow:var(--sh);transition:all .3s}
+.av-bubble::before{content:'';position:absolute;top:-10px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:var(--border)}
+.av-bubble::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border:4px solid transparent;border-bottom-color:#fff}
 .av-bubble.speaking-bubble{border-color:rgba(32,201,160,.4);background:var(--teal-lt)}
 .av-bubble.listening-bubble{border-color:rgba(255,107,107,.4);background:var(--coral-lt)}
 .av-bubble.thinking-bubble{border-color:rgba(255,217,61,.5);background:var(--lemon-lt)}
 .av-bubble.correct-bubble{border-color:rgba(32,201,160,.5);background:var(--teal-lt)}
 .av-bubble.wrong-bubble{border-color:rgba(255,107,107,.4);background:var(--coral-lt)}
-
-/* Typing dots animation */
 .typing-dots{display:inline-flex;gap:3px;align-items:center}
 .td{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:td-b .9s ease-in-out infinite}
-.td:nth-child(1){animation-delay:.0s}
-.td:nth-child(2){animation-delay:.2s}
-.td:nth-child(3){animation-delay:.4s}
+.td:nth-child(1){animation-delay:.0s}.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
 @keyframes td-b{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
-
-/* Quick actions */
 .av-actions{display:flex;flex-direction:column;gap:.45rem;width:100%}
-
-/* ─── VOCAL RIGHT PANEL ─── */
 .vocal-right{display:flex;flex-direction:column;gap:1.25rem}
-
-/* Progress */
 .pb-wrap{width:100%}
 .pb-track{height:10px;background:var(--bg);border-radius:99px;overflow:hidden}
 .pb-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--coral),var(--lemon),var(--teal));transition:width .5s ease}
 .pb-row{display:flex;justify-content:space-between;margin-top:.35rem;font-size:.75rem;color:var(--muted);font-weight:700}
-
-/* FC display */
-.fc-show{
-  border-radius:18px;
-  background:linear-gradient(135deg,#fff9f0 0%,#f0fff8 100%);
-  border:2px solid var(--border);
-  padding:2rem 1.75rem 1.5rem;
-  min-height:170px;
-  display:flex;flex-direction:column;justify-content:center;align-items:center;
-  text-align:center;gap:.75rem;position:relative;
-  box-shadow:0 3px 16px rgba(255,107,107,.07);
-}
-.fc-badge{
-  position:absolute;top:.85rem;left:50%;transform:translateX(-50%);
-  padding:.25rem .85rem;border-radius:99px;font-size:.67rem;font-weight:800;
-  text-transform:uppercase;letter-spacing:.1em;
-  background:var(--coral-lt);color:var(--coral-dk);white-space:nowrap;
-}
+.fc-show{border-radius:18px;background:linear-gradient(135deg,#fff9f0 0%,#f0fff8 100%);border:2px solid var(--border);padding:2rem 1.75rem 1.5rem;min-height:170px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:.75rem;position:relative;box-shadow:0 3px 16px rgba(255,107,107,.07)}
+.fc-badge{position:absolute;top:.85rem;left:50%;transform:translateX(-50%);padding:.25rem .85rem;border-radius:99px;font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;background:var(--coral-lt);color:var(--coral-dk);white-space:nowrap}
 .fc-text{font-size:1.1rem;font-weight:700;color:var(--ink);line-height:1.55;margin-top:1.2rem}
-.fc-ans{
-  border-radius:14px;background:var(--teal-lt);border:2px solid rgba(32,201,160,.25);
-  padding:1.1rem 1.35rem;display:none;
-}
+.fc-ans{border-radius:14px;background:var(--teal-lt);border:2px solid rgba(32,201,160,.25);padding:1.1rem 1.35rem;display:none}
 .fc-ans.on{display:block}
 .fca-l{font-size:.67rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--teal-dk);margin-bottom:.35rem}
 .fca-t{font-size:.88rem;color:var(--ink-2);line-height:1.55}
-
-/* Nav */
 .nav-row{display:flex;align-items:center;gap:.65rem;flex-wrap:wrap}
 .npill{font-family:'Poppins',sans-serif;font-weight:700;font-size:.88rem;color:var(--muted);background:var(--bg);border-radius:8px;padding:.42rem .95rem}
-
-/* Mic */
 .mic-zone{background:var(--bg);border-radius:16px;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;align-items:center;border:2px dashed var(--border);transition:all .3s}
 .mic-zone.active{border-color:var(--coral);border-style:solid;background:var(--coral-lt)}
 .mic-zone.analysing{border-color:var(--teal);border-style:solid;background:var(--teal-lt)}
@@ -258,8 +165,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .wf.live .wb{opacity:1}
 .t-box{width:100%;background:#fff;border:2px solid var(--border);border-radius:11px;padding:.85rem 1.1rem;font-size:.87rem;color:var(--ink-2);font-style:italic;line-height:1.55;display:none;min-height:48px}
 .t-box.on{display:block}
-
-/* Score result */
 .ai-res{border-radius:18px;overflow:hidden;box-shadow:var(--sh-lg);display:none;border:2px solid transparent}
 .ai-res.on{display:block}
 .air-h{display:flex;align-items:center;gap:.85rem;padding:1rem 1.35rem;font-family:'Poppins',sans-serif;font-weight:700;font-size:.92rem}
@@ -279,8 +184,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .cl{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem}
 .cv{font-size:.81rem;color:var(--ink-2);line-height:1.5}
 .nxt{display:flex;align-items:center;gap:.65rem;padding:.7rem 1rem;border-radius:9px;background:var(--lemon-lt);font-size:.81rem;font-weight:700;color:var(--ink-2)}
-
-/* ─── AI GENERATOR ─── */
 .gen-body{padding:1.35rem 1.6rem}
 .cnt-row{display:flex;align-items:center;gap:.85rem;margin-bottom:.9rem;flex-wrap:wrap}
 .cnt-l{font-size:.83rem;font-weight:800;color:var(--ink-2)}
@@ -293,8 +196,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .gin:focus{border-color:var(--coral);background:#fff;box-shadow:0 0 0 3px rgba(255,107,107,.1)}
 .gin::placeholder{color:var(--muted)}
 .gen-tip{font-size:.75rem;color:var(--muted);margin-top:.6rem}
-
-/* ─── FC GRID ─── */
 .fcg{padding:1.4rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1rem}
 .fcc{border-radius:17px;background:#fff;border:2px solid var(--border);overflow:hidden;transition:all .2s;display:flex;flex-direction:column}
 .fcc:hover{transform:translateY(-4px);box-shadow:var(--sh-lg);border-color:transparent}
@@ -319,13 +220,9 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 .fsb:hover{background:var(--coral);color:#fff;border-color:var(--coral)}
 .delb{flex:1}.delb button{width:100%;padding:.4rem;border-radius:9px;border:none;background:var(--coral-lt);color:var(--coral-dk);font-weight:800;font-family:'Nunito',sans-serif;font-size:.76rem;cursor:pointer;transition:all .18s}
 .delb button:hover{background:var(--coral);color:#fff}
-
-/* ─── EMPTY ─── */
 .empty{display:flex;flex-direction:column;align-items:center;padding:3rem 1.5rem;gap:.75rem;text-align:center}
 .eico{font-size:3rem}.etit{font-family:'Poppins',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink)}
 .esub{font-size:.84rem;color:var(--muted)}
-
-/* ─── TOAST ─── */
 .ta{position:fixed;bottom:1.75rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem}
 .toast{display:flex;align-items:center;gap:.7rem;padding:.8rem 1.15rem;border-radius:13px;font-size:.83rem;font-weight:700;box-shadow:var(--sh-lg);max-width:340px;animation:tp .35s cubic-bezier(.34,1.56,.64,1)}
 .tok{background:var(--teal-lt);color:var(--teal-dk);border:1.5px solid rgba(32,201,160,.25)}
@@ -337,6 +234,182 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 
 @media(max-width:900px){.vocal-layout{grid-template-columns:1fr;padding:1.25rem}.avatar-panel{flex-direction:row;align-items:flex-start}.avatar-stage{width:120px;height:120px}.avatar-face{width:120px;height:120px}.av-bubble::before,.av-bubble::after{display:none}.av-actions{flex-direction:row;flex-wrap:wrap}}
 @media(max-width:600px){.stats{grid-template-columns:1fr}.stat+.stat{border-left:none;border-top:1px solid var(--border)}.cmp-grid{grid-template-columns:1fr}.gin-row{flex-direction:column}}
+
+/* ══════════════════════════════════════════════
+   🤖 CHATBOT STYLES
+══════════════════════════════════════════════ */
+#chatbot-fab {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 9990;
+  width: 62px; height: 62px; border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED, #EC4899);
+  box-shadow: 0 8px 28px rgba(124,58,237,.45);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.65rem;
+  transition: transform .2s, box-shadow .2s;
+}
+#chatbot-fab:hover { transform: scale(1.1) translateY(-2px); box-shadow: 0 12px 36px rgba(124,58,237,.55); }
+.fab-badge {
+  position: absolute; top: -4px; right: -4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #EF4444; border: 2px solid #fff;
+  font-size: .63rem; font-weight: 800; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0);
+  transition: all .25s cubic-bezier(.34,1.56,.64,1);
+}
+.fab-badge.show { opacity: 1; transform: scale(1); }
+
+#chatbot-window {
+  position: fixed; bottom: 6.5rem; right: 2rem; z-index: 9991;
+  width: min(420px, calc(100vw - 2rem));
+  height: min(580px, calc(100vh - 9rem));
+  background: #fff; border-radius: 24px; overflow: hidden;
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,.18), 0 0 0 1px rgba(124,58,237,.12);
+  transform-origin: bottom right;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+  transform: scale(0); opacity: 0; pointer-events: none;
+}
+#chatbot-window.open { transform: scale(1); opacity: 1; pointer-events: all; }
+
+#cw-header {
+  padding: 1rem 1.25rem .85rem;
+  background: linear-gradient(135deg,#7C3AED 0%,#EC4899 100%);
+  display: flex; align-items: center; gap: .75rem; flex-shrink: 0;
+}
+.cw-av { width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.35);flex-shrink:0;background:rgba(255,255,255,.2) }
+.cw-av img { width:100%;height:100%;object-fit:cover }
+.cw-info { flex: 1 }
+.cw-name { font-weight:800;font-size:.88rem;color:#fff;line-height:1.2 }
+.cw-sub  { font-size:.72rem;color:rgba(255,255,255,.75) }
+.cw-online { width:8px;height:8px;border-radius:50%;background:#4ADE80;border:1.5px solid #fff;margin-right:.35rem;display:inline-block;animation:blink 2s infinite }
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.cw-close { width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:1rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:background .15s }
+.cw-close:hover { background:rgba(255,255,255,.35) }
+
+#cw-context { padding:.5rem 1rem;background:#F5F3FF;border-bottom:1px solid #E9D5FF;font-size:.72rem;font-weight:700;color:#6D28D9;display:flex;align-items:center;gap:.4rem;flex-shrink:0 }
+
+#cw-msgs { flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.75rem;scroll-behavior:smooth }
+#cw-msgs::-webkit-scrollbar { width:4px }
+#cw-msgs::-webkit-scrollbar-thumb { background:#DDD6FE;border-radius:99px }
+
+.msg-row { display:flex;gap:.5rem;align-items:flex-end }
+.msg-row.user { flex-direction:row-reverse }
+.msg-av { width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid #E9D5FF;background:#F5F3FF }
+.msg-av img { width:100%;height:100%;object-fit:cover }
+.msg-av.user-av { background:linear-gradient(135deg,var(--coral),#FF8E53);border-color:transparent;display:flex;align-items:center;justify-content:center;font-size:.85rem }
+.msg-bubble { max-width:80%;padding:.65rem .9rem;border-radius:18px;font-size:.82rem;line-height:1.55;word-break:break-word }
+.msg-bubble.ai { background:#F5F3FF;color:#1F2937;border-bottom-left-radius:4px }
+.msg-bubble.user { background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border-bottom-right-radius:4px }
+.msg-bubble strong { font-weight:700 }
+.msg-bubble em { font-style:italic }
+.msg-bubble ul { padding-left:1.2em;margin:.35em 0 }
+.msg-bubble li { margin:.15em 0 }
+.msg-bubble code { background:rgba(0,0,0,.08);border-radius:4px;padding:.1em .35em;font-size:.85em;font-family:monospace }
+.msg-bubble.user code { background:rgba(255,255,255,.2) }
+.msg-time { font-size:.65rem;color:#9CA3AF;margin-top:.15rem;text-align:right }
+.msg-row.user .msg-time { text-align:left }
+
+.typing-ind { display:flex;align-items:center;gap:.25rem;padding:.55rem .85rem;background:#F5F3FF;border-radius:18px;border-bottom-left-radius:4px;width:fit-content }
+.t-dot { width:6px;height:6px;border-radius:50%;background:#7C3AED;animation:tda .9s ease-in-out infinite }
+.t-dot:nth-child(2){animation-delay:.2s}.t-dot:nth-child(3){animation-delay:.4s}
+@keyframes tda{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-5px);opacity:1}}
+
+#cw-suggestions { padding:.6rem .85rem;display:flex;gap:.4rem;flex-wrap:wrap;border-top:1px solid #F3F4F6;flex-shrink:0 }
+.sug-btn { font-size:.7rem;font-weight:700;padding:.3rem .75rem;border-radius:99px;border:1.5px solid #DDD6FE;background:#F5F3FF;color:#6D28D9;cursor:pointer;transition:all .15s;white-space:nowrap }
+.sug-btn:hover { background:#7C3AED;color:#fff;border-color:transparent }
+
+#cw-footer { padding:.75rem;border-top:1px solid #F3F4F6;display:flex;gap:.5rem;align-items:flex-end;background:#fff;flex-shrink:0 }
+#cw-input { flex:1;resize:none;border:2px solid #E9D5FF;border-radius:14px;padding:.65rem .9rem;font-size:.83rem;line-height:1.45;color:#1F2937;background:#FAFAFA;outline:none;min-height:42px;max-height:120px;font-family:'Nunito',sans-serif;transition:border-color .2s;overflow-y:auto }
+#cw-input:focus { border-color:#7C3AED;background:#fff }
+#cw-input::placeholder { color:#9CA3AF }
+#cw-send { width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7C3AED,#EC4899);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 12px rgba(124,58,237,.3) }
+#cw-send:hover:not(:disabled) { transform:scale(1.08) translateY(-1px);box-shadow:0 6px 18px rgba(124,58,237,.4) }
+#cw-send:disabled { opacity:.5;cursor:default }
+
+@media(max-width:480px){
+  #chatbot-window { width:calc(100vw - 1rem);right:.5rem;bottom:5.5rem }
+  #chatbot-fab { right:1rem;bottom:1.5rem }
+}
+
+/* ══════════════════════════════════════════════
+   🔍 ANALYZE CARDS MODAL STYLES
+══════════════════════════════════════════════ */
+.prob-card{
+    border-radius:14px; padding:1.1rem 1.25rem; margin-bottom:.85rem;
+    border:2px solid transparent; position:relative;
+}
+.prob-grave{ background:#FFF0F0; border-color:#FFCDD2; }
+.prob-moyen{ background:#FFFBE6; border-color:#FFE082; }
+.prob-faible{ background:#E3FAF4; border-color:#B2DFDB; }
+.prob-badge{
+    display:inline-block; padding:.2rem .7rem; border-radius:99px;
+    font-size:.68rem; font-weight:800; text-transform:uppercase;
+    letter-spacing:.08em; margin-bottom:.5rem;
+}
+.badge-grave{ background:#FFCDD2; color:#C62828; }
+.badge-moyen{ background:#FFE082; color:#7a6000; }
+.badge-faible{ background:#B2DFDB; color:#00695C; }
+
+/* ══════════════════════════════════════════════
+   ✨ AI PREMIUM BUTTONS + 3D ROBOT
+══════════════════════════════════════════════ */
+.hero-btns{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center}
+
+/* ROBOT BANNER */
+.robot-hero-wrap{display:flex;align-items:center;gap:1rem;padding:.75rem 1.25rem;background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(236,72,153,.04));border-radius:16px;border:1.5px solid rgba(124,58,237,.12);margin-bottom:.85rem}
+.robot-scene-sm{width:64px;height:64px;perspective:400px;cursor:pointer;flex-shrink:0}
+.robot-3d-sm{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:r-float 3s ease-in-out infinite}
+@keyframes r-float{0%,100%{transform:translateY(0) rotateY(-10deg) rotateX(4deg)}50%{transform:translateY(-6px) rotateY(10deg) rotateX(-2deg)}}
+.robot-scene-sm:hover .robot-3d-sm{animation:r-spin 1s ease-in-out infinite}
+@keyframes r-spin{0%{transform:rotateY(-25deg) translateY(-2px)}50%{transform:rotateY(25deg) translateY(-8px)}100%{transform:rotateY(-25deg) translateY(-2px)}}
+.robot-svg-sm{width:64px;height:64px;filter:drop-shadow(0 0 12px rgba(139,92,246,.65)) drop-shadow(0 0 24px rgba(59,130,246,.25))}
+.robot-ring-sm{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);width:44px;height:8px;background:radial-gradient(ellipse,rgba(139,92,246,.45) 0%,transparent 70%);border-radius:50%;animation:r-ring 3s ease-in-out infinite}
+@keyframes r-ring{0%,100%{opacity:.5;transform:translateX(-50%) scaleX(1)}50%{opacity:1;transform:translateX(-50%) scaleX(1.15)}}
+.robot-hero-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.15rem}
+.robot-hero-sub{font-size:.72rem;color:var(--muted);font-weight:600}
+.robot-status-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:s-blink 2s infinite;display:inline-block;margin-right:.35rem}
+@keyframes s-blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* TRANSLATE AI BUTTON */
+.btn-translate-ai{position:relative;display:inline-flex;align-items:center;gap:.6rem;padding:.6rem 1.3rem .6rem .85rem;border:none;border-radius:100px;cursor:pointer;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.02em;color:#fff;background:transparent;overflow:hidden;transition:transform .2s,box-shadow .2s;outline:none;text-decoration:none}
+.btn-translate-ai::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#0ea5e9 0%,#6366f1 50%,#8b5cf6 100%);border-radius:inherit;z-index:0}
+.btn-translate-ai::after{content:'';position:absolute;inset:1px;background:linear-gradient(135deg,#0c4a6e 0%,#312e81 100%);border-radius:inherit;z-index:0;opacity:.82;transition:opacity .3s}
+.btn-translate-ai:hover::after{opacity:.55}
+.btn-translate-ai:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 28px rgba(99,102,241,.5),0 0 0 1px rgba(99,102,241,.3)}
+.btn-translate-ai:active{transform:scale(.97)}
+.btn-translate-ai .btn-inner{position:relative;z-index:1;display:flex;align-items:center;gap:.55rem}
+.btn-translate-ai .t-icon{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:transform .3s}
+.btn-translate-ai:hover .t-icon{transform:rotate(15deg) scale(1.1)}
+.btn-translate-ai .t-shimmer{position:absolute;top:-50%;left:-60%;width:45%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);z-index:2;transition:left .55s;pointer-events:none}
+.btn-translate-ai:hover .t-shimmer{left:140%}
+
+/* ANALYZE AI BUTTON */
+.btn-analyze-ai{position:relative;display:inline-flex;align-items:center;gap:.6rem;padding:.6rem 1.3rem .6rem .8rem;border:none;border-radius:100px;cursor:pointer;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.02em;color:#fff;overflow:hidden;transition:transform .2s,box-shadow .2s;outline:none;background:transparent}
+.btn-analyze-ai::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#7c3aed 0%,#a855f7 45%,#ec4899 100%);border-radius:inherit;z-index:0}
+.btn-analyze-ai::after{content:'';position:absolute;inset:1px;border-radius:inherit;background:linear-gradient(135deg,#4c1d95 0%,#6d28d9 60%,#9d174d 100%);z-index:0;opacity:.72;transition:opacity .3s}
+.btn-analyze-ai:hover::after{opacity:.42}
+.btn-analyze-ai:hover{transform:translateY(-2px) scale(1.04);box-shadow:0 8px 28px rgba(168,85,247,.55),0 0 0 1px rgba(168,85,247,.35),0 0 50px rgba(168,85,247,.18)}
+.btn-analyze-ai:active{transform:scale(.97)}
+.btn-analyze-ai .btn-inner{position:relative;z-index:1;display:flex;align-items:center;gap:.55rem}
+.btn-analyze-ai .a-icon{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:1rem;position:relative;overflow:hidden;transition:transform .3s}
+.btn-analyze-ai:hover .a-icon{transform:rotate(-12deg) scale(1.15)}
+.btn-analyze-ai .a-icon::after{content:'';position:absolute;top:-100%;left:0;width:100%;height:40%;background:linear-gradient(transparent,rgba(167,139,250,.45),transparent);animation:ai-scan 2s linear infinite}
+@keyframes ai-scan{to{top:200%}}
+.btn-analyze-ai .a-pulse{position:absolute;inset:-2px;border-radius:100px;border:2px solid rgba(168,85,247,.65);animation:a-pulse-ring 2s ease-out infinite;pointer-events:none;z-index:3}
+.btn-analyze-ai .a-pulse:nth-child(2){animation-delay:.75s}
+@keyframes a-pulse-ring{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.18)}}
+.btn-analyze-ai .a-dot{position:absolute;width:3px;height:3px;border-radius:50%;background:#e879f9;z-index:2;pointer-events:none;animation:a-dot-float 3s ease-in-out infinite}
+.btn-analyze-ai .a-dot:nth-child(3){top:25%;right:22%;animation-delay:0s}
+.btn-analyze-ai .a-dot:nth-child(4){top:60%;right:14%;animation-delay:.55s;width:2px;height:2px;background:#a78bfa}
+.btn-analyze-ai .a-dot:nth-child(5){top:38%;right:32%;animation-delay:1.1s;width:2px;height:2px;background:#67e8f9}
+@keyframes a-dot-float{0%,100%{transform:translateY(0) scale(1);opacity:.8}50%{transform:translateY(-4px) scale(1.3);opacity:1}}
+.btn-analyze-ai .a-shimmer{position:absolute;top:-50%;left:-60%;width:45%;height:200%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transform:skewX(-20deg);z-index:2;transition:left .5s;pointer-events:none}
+.btn-analyze-ai:hover .a-shimmer{left:140%}
+.btn-analyze-ai .a-badge{position:absolute;top:-6px;right:-6px;background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:.5rem;font-weight:800;letter-spacing:.06em;padding:.12rem .38rem;border-radius:99px;z-index:10;box-shadow:0 2px 8px rgba(239,68,68,.5);font-family:'Syne',sans-serif;animation:badge-in .5s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes badge-in{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
 </style>
 
 <div class="pg"><div class="pg-in">
@@ -355,10 +428,83 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
     </div>
     <h1 class="hero-title">{{ deck.titre }}</h1>
     {% if deck.description %}<p class="hero-desc">{{ deck.description }}</p>{% endif %}
+    {# ── AI ROBOT BANNER ── #}
+    <div class="robot-hero-wrap">
+      <div class="robot-scene-sm" title="Hover me!">
+        <div class="robot-3d-sm">
+          <svg class="robot-svg-sm" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="hg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#312e81"/></linearGradient>
+              <linearGradient id="hg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#1e1b4b"/></linearGradient>
+              <linearGradient id="hg3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
+              <filter id="hglow"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <filter id="hglow2"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <line x1="60" y1="8" x2="60" y2="20" stroke="#a78bfa" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="60" cy="6" r="4" fill="#a78bfa" filter="url(#hglow)"><animate attributeName="r" values="3.5;5;3.5" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0.6;1" dur="1.5s" repeatCount="indefinite"/></circle>
+            <rect x="30" y="18" width="60" height="48" rx="14" fill="url(#hg1)" stroke="#a78bfa" stroke-width="1.5" stroke-opacity="0.5"/>
+            <rect x="35" y="24" width="50" height="36" rx="10" fill="#0f172a"/>
+            <ellipse cx="47" cy="38" rx="8" ry="8" fill="url(#hg3)" filter="url(#hglow2)"><animate attributeName="ry" values="8;7;8;0.5;8" dur="4s" repeatCount="indefinite"/></ellipse>
+            <ellipse cx="73" cy="38" rx="8" ry="8" fill="url(#hg3)" filter="url(#hglow2)"><animate attributeName="ry" values="8;7;8;0.5;8" dur="4s" repeatCount="indefinite"/></ellipse>
+            <circle cx="47" cy="38" r="4" fill="#fff" opacity="0.9"><animate attributeName="cx" values="47;49;47;45;47" dur="3s" repeatCount="indefinite"/></circle>
+            <circle cx="73" cy="38" r="4" fill="#fff" opacity="0.9"><animate attributeName="cx" values="73;75;73;71;73" dur="3s" repeatCount="indefinite"/></circle>
+            <circle cx="47" cy="38" r="2" fill="#1e1b4b"><animate attributeName="cx" values="47;49;47;45;47" dur="3s" repeatCount="indefinite"/></circle>
+            <circle cx="73" cy="38" r="2" fill="#1e1b4b"><animate attributeName="cx" values="73;75;73;71;73" dur="3s" repeatCount="indefinite"/></circle>
+            <rect x="42" y="50" width="36" height="5" rx="2.5" fill="#0f172a"/>
+            <rect x="44" y="51" width="8" height="3" rx="1.5" fill="#a78bfa" opacity="0.9"><animate attributeName="opacity" values="0.9;0.3;0.9" dur=".6s" repeatCount="indefinite"/></rect>
+            <rect x="54" y="51" width="8" height="3" rx="1.5" fill="#60a5fa" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur=".6s" begin=".2s" repeatCount="indefinite"/></rect>
+            <rect x="64" y="51" width="8" height="3" rx="1.5" fill="#e879f9" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur=".6s" begin=".4s" repeatCount="indefinite"/></rect>
+            <circle cx="29" cy="42" r="5" fill="#4c1d95" stroke="#a78bfa" stroke-width="1.5"/><circle cx="29" cy="42" r="2.5" fill="#7c3aed"><animate attributeName="fill" values="#7c3aed;#a78bfa;#7c3aed" dur="1s" repeatCount="indefinite"/></circle>
+            <circle cx="91" cy="42" r="5" fill="#4c1d95" stroke="#a78bfa" stroke-width="1.5"/><circle cx="91" cy="42" r="2.5" fill="#7c3aed"><animate attributeName="fill" values="#7c3aed;#60a5fa;#7c3aed" dur="1s" begin=".5s" repeatCount="indefinite"/></circle>
+            <rect x="50" y="65" width="20" height="8" rx="4" fill="#4c1d95"/>
+            <rect x="22" y="72" width="76" height="42" rx="14" fill="url(#hg2)" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.4"/>
+            <rect x="30" y="78" width="60" height="30" rx="8" fill="#0f172a" stroke="#6d28d9" stroke-width="1" stroke-opacity="0.6"/>
+            <circle cx="60" cy="88" r="9" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5"/>
+            <circle cx="60" cy="88" r="6" fill="#7c3aed" filter="url(#hglow2)"><animate attributeName="r" values="6;7.5;6" dur="1.5s" repeatCount="indefinite"/><animate attributeName="fill" values="#7c3aed;#a78bfa;#7c3aed" dur="1.5s" repeatCount="indefinite"/></circle>
+            <circle cx="60" cy="88" r="3" fill="#e879f9" filter="url(#hglow)"><animate attributeName="r" values="3;4;3" dur="1s" repeatCount="indefinite"/></circle>
+            <rect x="32" y="96" width="10" height="4" rx="2" fill="#60a5fa" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur=".8s" repeatCount="indefinite"/></rect>
+            <rect x="78" y="96" width="10" height="4" rx="2" fill="#e879f9" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur=".8s" begin=".4s" repeatCount="indefinite"/></rect>
+            <rect x="4" y="74" width="18" height="32" rx="9" fill="#4c1d95" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.5"/>
+            <circle cx="13" cy="108" r="7" fill="#4c1d95" stroke="#a78bfa" stroke-width="1.5"/>
+            <rect x="98" y="74" width="18" height="32" rx="9" fill="#4c1d95" stroke="#7c3aed" stroke-width="1.5" stroke-opacity="0.5"/>
+            <circle cx="107" cy="108" r="7" fill="#4c1d95" stroke="#a78bfa" stroke-width="1.5"/>
+          </svg>
+          <div class="robot-ring-sm"></div>
+        </div>
+      </div>
+      <div>
+        <div class="robot-hero-title">RLIFE AI Assistant</div>
+        <div class="robot-hero-sub"><span class="robot-status-dot"></span>Online — prêt à analyser et traduire vos flashcards</div>
+      </div>
+    </div>
+
     <div class="hero-btns">
       <a href="{{ path('app_revisions') }}" class="btn bo btn-sm">← Back to decks</a>
       {% if deck.pdf %}<a href="{{ asset('uploads/decks/' ~ deck.pdf) }}" target="_blank" class="btn bo btn-sm">📄 PDF</a>{% endif %}
-      <button onclick="openTranslationModal()" class="btn bv btn-sm">🌍 Translate</button>
+
+      {# ── TRANSLATE AI BUTTON ── #}
+      <button onclick="openTranslationModal()" class="btn-translate-ai">
+        <span class="t-shimmer"></span>
+        <span class="btn-inner">
+          <span class="t-icon">🌍</span>
+          Translate
+        </span>
+      </button>
+
+      {# ── ANALYZE AI BUTTON ── #}
+      <button onclick="analyzeCards()" class="btn-analyze-ai">
+        <span class="a-pulse"></span>
+        <span class="a-pulse"></span>
+        <span class="a-shimmer"></span>
+        <span class="a-dot"></span>
+        <span class="a-dot"></span>
+        <span class="a-dot"></span>
+        <span class="btn-inner">
+          <span class="a-icon">🤖</span>
+          Analyser les cartes
+        </span>
+        <span class="a-badge">IA</span>
+      </button>
     </div>
   </div>
   <div class="stats">
@@ -368,7 +514,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
   </div>
 </div>
 
-{# ─── VOCAL MODE + AVATAR ─── #}
+{# ─── VOCAL MODE ─── #}
 <div class="card">
   <div class="ch">
     <div class="chl"><div class="cico" style="background:var(--coral-lt);">🎙️</div><div class="ct">AI Voice Mode with RLIFE Assistant</div></div>
@@ -377,17 +523,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 
   {% if flashcards is not empty %}
   <div class="vocal-layout">
-
-    {# ══ AVATAR PANEL ══ #}
     <div class="avatar-panel">
-
-      {# Stage with rings #}
       <div class="avatar-stage" id="av-stage">
         <div class="avatar-ring"></div>
         <div class="avatar-ring"></div>
         <div class="avatar-ring"></div>
-
-        {# Face — DiceBear auto-generated from user email #}
         <div class="avatar-face">
           <img id="av-img"
                src="https://api.dicebear.com/7.x/adventurer/svg?seed={{ app.user.email|default('rlife-assistant') }}&backgroundColor=ffdfbf,ffd5dc,d1d4f9,c0aede,b6e3f4"
@@ -395,59 +535,40 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <div class="av-bg" style="display:none;">🤖</div>
         </div>
-
-        {# Animated mouth (visible when speaking) #}
         <div class="avatar-mouth-anim">
           <div class="mouth-bar mb1"></div><div class="mouth-bar mb2"></div>
           <div class="mouth-bar mb3"></div><div class="mouth-bar mb4"></div>
           <div class="mouth-bar mb5"></div><div class="mouth-bar mb6"></div>
         </div>
       </div>
-
       <div class="av-name">🤖 RLIFE Assistant</div>
       <div class="av-status" id="av-status">😊 Ready to help</div>
-
-      {# Speech bubble #}
       <div class="av-bubble" id="av-bubble">
         Hello! 👋 I'm your study assistant. Press 🔊 to hear the question, then 🎤 to answer!
       </div>
-
-      {# Quick avatar actions #}
       <div class="av-actions">
-        <button class="btn bc btn-sm" style="justify-content:center;" onclick="avatarReadQuestion()">
-          🔊 Read question
-        </button>
-        <button class="btn bt btn-sm" style="justify-content:center;" onclick="avatarReadAnswer()">
-          📖 Read answer
-        </button>
-        <button class="btn bv btn-sm" style="justify-content:center;" onclick="avatarMotivate()">
-          💪 Motivate me!
-        </button>
+        <button class="btn bc btn-sm" style="justify-content:center;" onclick="avatarReadQuestion()">🔊 Read question</button>
+        <button class="btn bt btn-sm" style="justify-content:center;" onclick="avatarReadAnswer()">📖 Read answer</button>
+        <button class="btn bv btn-sm" style="justify-content:center;" onclick="avatarMotivate()">💪 Motivate me!</button>
       </div>
     </div>
 
-    {# ══ RIGHT PANEL ══ #}
     <div class="vocal-right">
-
       <div class="pb-wrap">
         <div class="pb-track"><div class="pb-fill" id="pb" style="width:0%"></div></div>
         <div class="pb-row"><span id="pb-l">Flashcard 1 / {{ flashcards|length }}</span><span id="pb-p">0%</span></div>
       </div>
-
       <div class="fc-show">
         <span class="fc-badge">❓ Question</span>
         <div class="fc-text" id="fc-q">Loading…</div>
       </div>
-
       <div style="display:flex;justify-content:center;">
         <button class="btn bt btn-sm" onclick="toggleAns()" id="btn-ans">👁️ Show answer</button>
       </div>
-
       <div class="fc-ans" id="fc-a">
         <div class="fca-l">✅ Correct answer</div>
         <div class="fca-t" id="fc-a-t">–</div>
       </div>
-
       <div class="nav-row">
         <button class="btn bg" onclick="nav(-1)">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -459,8 +580,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
-
-      {# Mic zone #}
       <div class="mic-zone" id="mz">
         <div class="mic-row">
           <button class="mic-btn mi" id="mb" onclick="toggleRec()">🎤</button>
@@ -476,8 +595,6 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
           <button class="btn bt btn-sm" id="btn-ai" style="display:none;" onclick="analyseAI()">🤖 Analyze with AI</button>
         </div>
       </div>
-
-      {# AI Result #}
       <div class="ai-res" id="ar">
         <div class="air-h" id="ar-h"><span id="ar-emo" style="font-size:1.3rem;">🤖</span><span>AI Analysis Result</span><button onclick="closeAI()" class="btn bg btn-xs" style="margin-left:auto;">✕</button></div>
         <div class="air-b">
@@ -499,9 +616,8 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
           </div>
         </div>
       </div>
-
-    </div>{# /vocal-right #}
-  </div>{# /vocal-layout #}
+    </div>
+  </div>
   {% else %}
   <div class="empty"><div class="eico">🎴</div><div class="etit">No flashcards yet</div><div class="esub">Generate some with AI below!</div></div>
   {% endif %}
@@ -511,7 +627,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 <div class="card">
   <div class="ch"><div class="chl"><div class="cico" style="background:var(--lemon-lt);">✨</div><div class="ct">Generate Flashcards with AI</div></div></div>
   <div class="gen-body">
-<form method="post" action="{{ path('app_deck_generate_flashcards', {id: deck.idDeck}) }}">
+    <form method="post" action="{{ path('app_deck_generate_flashcards', {id: deck.id}) }}">
       <div class="cnt-row">
         <span class="cnt-l">Count:</span>
         <div class="cnt-btns">
@@ -534,9 +650,10 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 <div class="card">
   <div class="ch">
     <div class="chl"><div class="cico" style="background:var(--teal-lt);">🗂️</div><div class="ct">All Flashcards</div></div>
-<a href="{{ path('app_flashcard_new', {deck_id: deck.idDeck}) }}" class="btn bt btn-sm">+ Add</a>
+    <a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn bt btn-sm">+ Add</a>
   </div>
   {% if flashcards is empty %}
+  <div class="empty"><div class="eico">🃏</div><div class="etit">No flashcards yet</div><div class="esub">Use the AI generator or create manually.</div><a href="{{ path('app_flashcard_new', {deck_id: deck.id}) }}" class="btn bc" style="margin-top:.5rem;">Create my first flashcard</a></div>
   {% else %}
   <div class="fcg">
     {% for flashcard in flashcards %}
@@ -568,609 +685,622 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-h
 </div></div>
 <div class="ta" id="ta"></div>
 
-{# ── DATA ── #}
+{# ══════════════════════════════════════════════
+   🤖 CHATBOT FLOATING BUTTON + WINDOW
+══════════════════════════════════════════════ #}
+<button id="chatbot-fab" onclick="toggleChatbot()" aria-label="Chat with AI about this deck" title="AI Tutor – chat about this deck (Alt+C)">
+  🤖
+  <span id="fab-badge" class="fab-badge">0</span>
+</button>
+
+<div id="chatbot-window" role="dialog" aria-label="Deck AI Chatbot">
+  <div id="cw-header">
+    <div class="cw-av">
+      <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rlife-ai&backgroundColor=7c3aed" alt="AI Bot" onerror="this.style.display='none'">
+    </div>
+    <div class="cw-info">
+      <div class="cw-name"><span class="cw-online"></span>RLIFE AI Tutor</div>
+      <div class="cw-sub">Expert on: <strong>{{ deck.titre }}</strong></div>
+    </div>
+    <button class="cw-close" onclick="toggleChatbot()">✕</button>
+  </div>
+  <div id="cw-context">
+    📚 {{ deck.matiere }} &nbsp;·&nbsp; 🎯 Level {{ deck.niveau }} &nbsp;·&nbsp; 🃏 {{ flashcards|length }} cards loaded
+  </div>
+  <div id="cw-msgs">
+    <div class="msg-row">
+      <div class="msg-av">
+        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=rlife-ai&backgroundColor=7c3aed" alt="AI">
+      </div>
+      <div>
+        <div class="msg-bubble ai">
+          👋 Salut ! Je suis ton tuteur IA pour <strong>{{ deck.titre }}</strong>.<br>
+          J'ai lu les <strong>{{ flashcards|length }} flashcards</strong> du deck et je suis prêt !<br><br>
+          Tu peux me demander de :
+          <ul>
+            <li>Expliquer n'importe quel concept</li>
+            <li>Te faire passer un quiz 🎯</li>
+            <li>Créer des astuces mémo 🧠</li>
+            <li>Résumer les idées clés</li>
+          </ul>
+          Par quoi on commence ?
+        </div>
+        <div class="msg-time">maintenant</div>
+      </div>
+    </div>
+  </div>
+  <div id="cw-suggestions">
+    <button class="sug-btn" onclick="cwSuggest('Quiz-moi sur les cartes les plus difficiles')">🎯 Quiz</button>
+    <button class="sug-btn" onclick="cwSuggest('Résume les concepts clés de ce deck')">📋 Résumé</button>
+    <button class="sug-btn" onclick="cwSuggest('Donne-moi des astuces mnémotechniques')">🧠 Mémo</button>
+    <button class="sug-btn" onclick="cwSuggest('Sur quoi dois-je me concentrer en priorité ?')">🔥 Priorités</button>
+  </div>
+  <div id="cw-footer">
+    <textarea id="cw-input"
+      placeholder="Pose une question sur {{ deck.titre }}…"
+      rows="1"
+      onkeydown="cwKey(event)"
+      oninput="cwGrow(this)"></textarea>
+    <button id="cw-send" onclick="cwSend()" aria-label="Envoyer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════
+   🌍 TRANSLATION MODAL
+══════════════════════════════════════════════ #}
+<div id="translation-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(30,27,58,0.7);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:24px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:2rem;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <button onclick="closeTranslationModal()" style="position:absolute;top:1.5rem;right:1.5rem;background:var(--coral-lt);color:var(--coral);border:none;width:40px;height:40px;border-radius:50%;font-size:1.5rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div style="margin-bottom:2rem;">
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.8rem;font-weight:800;color:var(--ink);margin-bottom:.5rem;">🌍 Translate Flashcard</h2>
+      <p style="color:var(--muted);font-size:.9rem;">Automatically generate translations in multiple languages</p>
+    </div>
+    <div style="background:linear-gradient(135deg,var(--teal-lt),var(--sky-lt));padding:1.2rem;border-radius:12px;margin-bottom:1.5rem;border-left:4px solid var(--teal);">
+      <div style="font-weight:700;color:var(--teal-dk);margin-bottom:.5rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;">Current Flashcard</div>
+      <div id="fc-title-display" style="font-size:1.1rem;font-weight:700;color:var(--ink);"></div>
+      <div id="fc-question-display" style="font-size:.85rem;color:var(--ink-2);margin-top:.3rem;"></div>
+    </div>
+    <div style="margin-bottom:1.5rem;">
+      <label style="display:block;font-weight:700;margin-bottom:1rem;color:var(--ink);font-size:.95rem;">🎯 Select target languages:</label>
+      <div id="lang-select-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;"></div>
+      <div style="margin-top:.75rem;text-align:center;">
+        <button onclick="selectAllLanguages()" style="background:none;border:none;color:var(--teal);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;">Select all</button>
+        <span style="color:var(--muted);margin:0 .5rem;">|</span>
+        <button onclick="deselectAllLanguages()" style="background:none;border:none;color:var(--coral);font-size:.8rem;font-weight:700;cursor:pointer;text-decoration:underline;">Deselect all</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end;">
+      <button onclick="closeTranslationModal()" class="btn bo">Cancel</button>
+      <button onclick="performTranslation()" id="translate-action-btn" class="btn bv">🚀 Translate</button>
+    </div>
+    <div id="translation-result" style="margin-top:1.5rem;display:none;border-top:2px solid var(--bg);padding-top:1.5rem;"></div>
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════
+   🤖 ANALYZE CARDS MODAL
+══════════════════════════════════════════════ #}
+<div id="analyze-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(30,27,58,0.72);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:24px;max-width:720px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(30,27,58,0.35);">
+    <!-- Header -->
+    <div style="padding:1.4rem 1.75rem;border-bottom:2px solid #EBEEf8;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#F0EBFF,#fff);flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div style="width:42px;height:42px;border-radius:12px;background:#A78BFA;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 14px rgba(167,139,250,.4);">🤖</div>
+        <div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1rem;color:#1E1B3A">Analyse IA des cartes</div>
+          <div style="font-size:.75rem;color:#9095B0;font-weight:600">Détection automatique des problèmes de formulation</div>
+        </div>
+      </div>
+      <button onclick="closeAnalyze()" style="background:none;border:none;cursor:pointer;font-size:1.4rem;color:#9095B0;padding:.3rem;border-radius:8px;line-height:1;">✕</button>
+    </div>
+    <!-- Body -->
+    <div id="analyze-body" style="padding:1.5rem 1.75rem;overflow-y:auto;flex:1">
+      <div id="analyze-loading" style="text-align:center;padding:3rem 1rem">
+        <div style="font-size:2.5rem;margin-bottom:1rem;animation:spin 1.2s linear infinite;display:inline-block">⚙️</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;color:#1E1B3A;font-size:1rem">Analyse en cours...</div>
+        <div style="color:#9095B0;font-size:.82rem;margin-top:.4rem">L'IA examine toutes vos flashcards</div>
+      </div>
+      <div id="analyze-results" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+{# ══════════════════════════════════════════════
+   JAVASCRIPT
+══════════════════════════════════════════════ #}
 <script>
-const DECK_ID={{ deck.idDeck }};
+const DECK_ID = {{ deck.id }};
 const FC=[{% for fc in flashcards %}{id:{{ fc.id }},t:{{ fc.titre|default('Untitled')|json_encode|raw }},q:{{ fc.question|json_encode|raw }},a:{{ fc.reponse|json_encode|raw }}}{% if not loop.last %},{% endif %}{% endfor %}];
 const CSRF='{{ csrf_token("analyse_vocal") }}';
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 
 let ci=0,rec=null,isR=false,tr='',scores={},ansOn=false;
-let avSpeaking=false,avTimeout=null;
+let avSpeaking=false;
 
-/* ════════════════════════════════════════
-   AVATAR ENGINE
-════════════════════════════════════════ */
-const AV_PHRASES = {
-  idle:      ["Hello! 👋 I'm ready to help you.", "Pick a flashcard and let's start! 📚", "I'm here to accompany you. 😊"],
-  ready:     ["Great! 🎉 Read the question carefully.", "Take your time. 😌 I'm with you.", "Focus! You'll succeed. 💪"],
-  listening: ["I'm listening carefully… 👂", "Speak clearly, I'm transcribing! 🎤", "Let's go! Give your answer."],
-  thinking:  ["Hmm, analyzing your answer… 🤔", "Let me check that… ⏳", "AI is working for you. 🤖"],
-  excellent: ["PERFECT! 🏆 You master this concept!", "Exceptional! 🌟 Score 10/10!", "Bravo bravo bravo! 🎊 You're at the top!"],
-  good:      ["Very good! ✅ Nice answer!", "Good answer! 👍 Keep it up!", "Well done! 🎯 Some details to refine."],
-  partial:   ["Not bad! ⚠️ You got the main points, but some details are missing.", "Medium… 💭 Try to remember the keywords.", "Courage! 💛 Reread the correct answer."],
-  wrong:     ["Oh! ❌ That's not quite it.", "Don't get discouraged! 💪 The next one will be the right one.", "Start over, you can do it! 📖"],
-  motivate:  [
-    "Each mastered flashcard is one more neuron! 🧠",
-    "Champions review even when it's hard! 🥊",
-    "You're closer to excellence than yesterday! 🚀",
-    "Consistency beats talent. Keep going! ⭐",
-    "Your brain loves spaced repetition! 🔄"
-  ]
+/* ════ AVATAR ════ */
+const AV_PHRASES={
+  idle:["Hello! 👋 I'm ready to help you.","Pick a flashcard and let's start! 📚","I'm here to accompany you. 😊"],
+  ready:["Great! 🎉 Read the question carefully.","Take your time. 😌 I'm with you.","Focus! You'll succeed. 💪"],
+  listening:["I'm listening carefully… 👂","Speak clearly, I'm transcribing! 🎤","Let's go! Give your answer."],
+  thinking:["Hmm, analyzing your answer… 🤔","Let me check that… ⏳","AI is working for you. 🤖"],
+  excellent:["PERFECT! 🏆 You master this concept!","Exceptional! 🌟 Score 10/10!","Bravo bravo bravo! 🎊 You're at the top!"],
+  good:["Very good! ✅ Nice answer!","Good answer! 👍 Keep it up!","Well done! 🎯 Some details to refine."],
+  partial:["Not bad! ⚠️ You got the main points, but some details are missing.","Medium… 💭 Try to remember the keywords.","Courage! 💛 Reread the correct answer."],
+  wrong:["Oh! ❌ That's not quite it.","Don't get discouraged! 💪 The next one will be the right one.","Start over, you can do it! 📖"],
+  motivate:["Each mastered flashcard is one more neuron! 🧠","Champions review even when it's hard! 🥊","You're closer to excellence than yesterday! 🚀","Consistency beats talent. Keep going! ⭐","Your brain loves spaced repetition! 🔄"]
 };
+const rand=arr=>arr[Math.floor(Math.random()*arr.length)];
 
-function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-function setAvatarState(state, customMsg = null) {
-  const stage  = document.getElementById('av-stage');
-  const status = document.getElementById('av-status');
-  const bubble = document.getElementById('av-bubble');
-
-  // Remove all states
+function setAvatarState(state,customMsg=null){
+  const stage=document.getElementById('av-stage'),status=document.getElementById('av-status'),bubble=document.getElementById('av-bubble');
   stage.classList.remove('speaking','listening','thinking');
   status.classList.remove('speaking','listening','thinking','correct','wrong');
   bubble.classList.remove('speaking-bubble','listening-bubble','thinking-bubble','correct-bubble','wrong-bubble');
-
-  const configs = {
-    idle:      { stage:'',         status:'',         bubble:'',                  statusTxt:'😊 Ready to help' },
-    speaking:  { stage:'speaking', status:'speaking', bubble:'speaking-bubble',   statusTxt:'🔊 Speaking…' },
-    listening: { stage:'listening',status:'listening',bubble:'listening-bubble',  statusTxt:'👂 Listening…' },
-    thinking:  { stage:'thinking', status:'thinking', bubble:'thinking-bubble',   statusTxt:'🤔 Analyzing…' },
-    correct:   { stage:'speaking', status:'correct',  bubble:'correct-bubble',    statusTxt:'🏆 Excellent!' },
-    good:      { stage:'speaking', status:'correct',  bubble:'correct-bubble',    statusTxt:'✅ Well done!' },
-    partial:   { stage:'speaking', status:'',         bubble:'thinking-bubble',   statusTxt:'⚠️ Partially correct' },
-    wrong:     { stage:'speaking', status:'wrong',    bubble:'wrong-bubble',      statusTxt:'❌ To review' },
+  const cfg={
+    idle:{stage:'',status:'',bubble:'',statusTxt:'😊 Ready to help'},
+    speaking:{stage:'speaking',status:'speaking',bubble:'speaking-bubble',statusTxt:'🔊 Speaking…'},
+    listening:{stage:'listening',status:'listening',bubble:'listening-bubble',statusTxt:'👂 Listening…'},
+    thinking:{stage:'thinking',status:'thinking',bubble:'thinking-bubble',statusTxt:'🤔 Analyzing…'},
+    correct:{stage:'speaking',status:'correct',bubble:'correct-bubble',statusTxt:'🏆 Excellent!'},
+    good:{stage:'speaking',status:'correct',bubble:'correct-bubble',statusTxt:'✅ Well done!'},
+    partial:{stage:'speaking',status:'',bubble:'thinking-bubble',statusTxt:'⚠️ Partially correct'},
+    wrong:{stage:'speaking',status:'wrong',bubble:'wrong-bubble',statusTxt:'❌ To review'}
   };
-
-  const cfg = configs[state] || configs.idle;
-  if (cfg.stage) stage.classList.add(cfg.stage);
-  if (cfg.status) status.classList.add(cfg.status);
-  if (cfg.bubble) bubble.classList.add(cfg.bubble);
-  status.textContent = cfg.statusTxt;
-
-  // Show message
-  const msg = customMsg || rand(AV_PHRASES[state] || AV_PHRASES.idle);
-  bubble.innerHTML = msg;
-
-  avSpeaking = (state === 'speaking' || state === 'correct' || state === 'good' || state === 'wrong' || state === 'partial');
+  const c=cfg[state]||cfg.idle;
+  if(c.stage)stage.classList.add(c.stage);
+  if(c.status)status.classList.add(c.status);
+  if(c.bubble)bubble.classList.add(c.bubble);
+  status.textContent=c.statusTxt;
+  bubble.innerHTML=customMsg||rand(AV_PHRASES[state]||AV_PHRASES.idle);
+  avSpeaking=(c.stage==='speaking');
 }
 
-/* Avatar speaks via TTS */
-function avatarSpeak(text, state = 'speaking') {
-  if (!window.speechSynthesis) { setAvatarState(state, text); return; }
-
+function avatarSpeak(text,state='speaking'){
+  if(!window.speechSynthesis){setAvatarState(state,text);return;}
   window.speechSynthesis.cancel();
-  setAvatarState(state, text);
-
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang  = 'en-US';
-  u.rate  = 0.92;
-  u.pitch = 1.05;
-
-  u.onstart = () => {
-    avSpeaking = true;
-    document.getElementById('av-stage').classList.add('speaking');
-  };
-
-  u.onend = u.onerror = () => {
-    avSpeaking = false;
-    document.getElementById('av-stage').classList.remove('speaking');
-    setAvatarState('idle');
-  };
-
+  setAvatarState(state,text);
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=0.92;u.pitch=1.05;
+  u.onend=u.onerror=()=>{avSpeaking=false;document.getElementById('av-stage').classList.remove('speaking');setAvatarState('idle');};
   window.speechSynthesis.speak(u);
 }
-
-function avatarReadQuestion() {
-  const f = FC[ci]; if (!f) return;
-  const q = f.q.replace(/<[^>]+>/g,'');
-  avatarSpeak('Here is the question: ' + q, 'speaking');
+function avatarReadQuestion(){const f=FC[ci];if(!f)return;avatarSpeak('Here is the question: '+f.q.replace(/<[^>]+>/g,''));}
+function avatarReadAnswer(){const f=FC[ci];if(!f)return;avatarSpeak('The correct answer is: '+f.a.replace(/<[^>]+>/g,''));if(!ansOn)toggleAns();}
+function avatarMotivate(){avatarSpeak(rand(AV_PHRASES.motivate));}
+function avatarGiveFeedback(score,feedback){
+  const state=score>=9?'correct':score>=7?'good':score>=5?'partial':'wrong';
+  const ph=score>=9?'excellent':state==='good'?'good':state==='partial'?'partial':'wrong';
+  const scoreMsg=rand(AV_PHRASES[ph]);
+  setAvatarState(state,scoreMsg+'<br><span style="font-size:.8rem;font-style:italic;opacity:.8;">'+feedback+'</span>');
+  setTimeout(()=>avatarSpeak(scoreMsg+' '+feedback,state),300);
 }
 
-function avatarReadAnswer() {
-  const f = FC[ci]; if (!f) return;
-  const a = f.a.replace(/<[^>]+>/g,'');
-  avatarSpeak('The correct answer is: ' + a, 'speaking');
-  if (!ansOn) toggleAns();
-}
-
-function avatarMotivate() {
-  const msg = rand(AV_PHRASES.motivate);
-  avatarSpeak(msg, 'speaking');
-}
-
-function avatarGiveFeedback(score, feedback) {
-  let state, prefix;
-  if (score >= 9) { state = 'correct'; prefix = ''; }
-  else if (score >= 7) { state = 'good'; prefix = ''; }
-  else if (score >= 5) { state = 'partial'; prefix = ''; }
-  else { state = 'wrong'; prefix = ''; }
-
-  const scoreMsg = rand(AV_PHRASES[state === 'correct' ? 'excellent' : state === 'good' ? 'good' : state === 'partial' ? 'partial' : 'wrong']);
-  const fullMsg  = scoreMsg + ' ' + feedback;
-
-  setAvatarState(state, scoreMsg + '<br><span style="font-size:.8rem;font-style:italic;opacity:.8;">' + feedback + '</span>');
-  setTimeout(() => avatarSpeak(scoreMsg + ' ' + feedback, state), 300);
-}
-
-/* ════════════════════════════════════════
-   CARD LOGIC
-════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  if (FC.length) load(0);
-  if (!SR) {
-    const mz = document.getElementById('mz');
-    if (mz) mz.innerHTML = '<div style="text-align:center;padding:1.5rem;background:var(--coral-lt);border-radius:14px;color:var(--coral-dk);font-weight:700;">❌ Voice recognition not supported.<br><span style="font-weight:400;font-size:.82rem;">Use Google Chrome or Microsoft Edge.</span></div>';
-  }
-  document.addEventListener('keydown', e => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-    if (e.code === 'ArrowRight') nav(1);
-    if (e.code === 'ArrowLeft')  nav(-1);
-    if (e.code === 'KeyA') toggleAns();
-    if (e.code === 'KeyS') avatarReadQuestion();
+/* ════ CARDS ════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  if(FC.length)load(0);
+  if(!SR){const mz=document.getElementById('mz');if(mz)mz.innerHTML='<div style="text-align:center;padding:1.5rem;background:var(--coral-lt);border-radius:14px;color:var(--coral-dk);font-weight:700;">❌ Voice recognition not supported.<br><span style="font-weight:400;font-size:.82rem;">Use Google Chrome or Microsoft Edge.</span></div>';}
+  document.addEventListener('keydown',e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+    if(e.code==='ArrowRight')nav(1);
+    if(e.code==='ArrowLeft')nav(-1);
+    if(e.code==='KeyA')toggleAns();
+    if(e.code==='KeyS')avatarReadQuestion();
+    if(e.altKey&&e.key==='c'){e.preventDefault();toggleChatbot();}
   });
-  setTimeout(() => setAvatarState('idle', rand(AV_PHRASES.idle)), 500);
+  setTimeout(()=>setAvatarState('idle',rand(AV_PHRASES.idle)),500);
 });
 
-function load(i) {
-  if (!FC.length) return;
-  ci = ((i % FC.length) + FC.length) % FC.length;
-  const f = FC[ci];
-  document.getElementById('fc-q').textContent = f.q;
-  document.getElementById('fc-a-t').textContent = f.a;
-  ansOn = false;
+function load(i){
+  if(!FC.length)return;
+  ci=((i%FC.length)+FC.length)%FC.length;
+  const f=FC[ci];
+  document.getElementById('fc-q').textContent=f.q;
+  document.getElementById('fc-a-t').textContent=f.a;
+  ansOn=false;
   document.getElementById('fc-a').classList.remove('on');
-  document.getElementById('btn-ans').textContent = '👁️ Show answer';
-  const t = FC.length, pct = t > 1 ? Math.round((ci / (t - 1)) * 100) : 100;
-  document.getElementById('pb').style.width = pct + '%';
-  document.getElementById('pb-l').textContent = `Flashcard ${ci+1} / ${t}`;
-  document.getElementById('pb-p').textContent = pct + '%';
-  document.getElementById('ncnt').textContent = `${ci+1} / ${t}`;
-  closeAI(); clearT();
-  setAvatarState('idle', rand(AV_PHRASES.ready));
+  document.getElementById('btn-ans').textContent='👁️ Show answer';
+  const t=FC.length,pct=t>1?Math.round((ci/(t-1))*100):100;
+  document.getElementById('pb').style.width=pct+'%';
+  document.getElementById('pb-l').textContent=`Flashcard ${ci+1} / ${t}`;
+  document.getElementById('pb-p').textContent=pct+'%';
+  document.getElementById('ncnt').textContent=`${ci+1} / ${t}`;
+  closeAI();clearT();
+  setAvatarState('idle',rand(AV_PHRASES.ready));
 }
+function nav(d){load(ci+d);}
+function jumpTo(i){load(i);document.querySelector('.card').scrollIntoView({behavior:'smooth'});}
+function shuffleCards(){for(let i=FC.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[FC[i],FC[j]]=[FC[j],FC[i]];}load(0);toast('🔀 Shuffled!','inf');}
+function toggleAns(){ansOn=!ansOn;document.getElementById('fc-a').classList.toggle('on',ansOn);document.getElementById('btn-ans').textContent=ansOn?'🙈 Hide':'👁️ Show answer';}
 
-function nav(d) { load(ci + d); }
-function jumpTo(i) { load(i); document.querySelector('.card').scrollIntoView({behavior:'smooth'}); }
-function shuffleCards() {
-  for (let i = FC.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [FC[i],FC[j]]=[FC[j],FC[i]]; }
-  load(0); toast('🔀 Shuffled!','inf');
-}
-function toggleAns() {
-  ansOn = !ansOn;
-  document.getElementById('fc-a').classList.toggle('on', ansOn);
-  document.getElementById('btn-ans').textContent = ansOn ? '🙈 Hide' : '👁️ Show answer';
-}
-
-/* ════════════════════════════════════════
-   RECORDING
-════════════════════════════════════════ */
-function toggleRec() {
-  if (!SR) { toast('❌ Use Chrome or Edge', 'err'); return; }
-  if (isR) { try { rec.stop(); } catch(e){} setRUI(false); isR = false; return; }
-
-  rec = new SR(); rec.lang = 'en-US'; rec.continuous = false;
-  rec.interimResults = true; rec.maxAlternatives = 1;
-
-  rec.onresult = e => {
-    let it='',fi='';
-    for (let r of e.results) { if(r.isFinal) fi+=r[0].transcript; else it+=r[0].transcript; }
-    if (fi) tr += fi;
-    const tb = document.getElementById('tb');
-    tb.textContent = (tr+it).trim() || '…'; tb.classList.add('on');
-    if (tr.trim()) document.getElementById('btn-ai').style.display = '';
-  };
-
-  rec.onerror = e => {
-    setRUI(false); isR = false;
-    const msgs = {'not-allowed':'🔒 Microphone permission denied.','no-speech':'🔇 No speech detected.','audio-capture':'❌ Microphone not found.','network':'🌐 Network error.'};
-    toast(msgs[e.error]||'❌ '+e.error,'err');
-    setAvatarState('idle','❌ Microphone problem. Check permissions.');
-  };
-
-  rec.onend = () => {
-    setRUI(false); isR = false;
-    if (tr.trim()) {
-      document.getElementById('btn-ai').style.display = '';
-      document.getElementById('mst').textContent = '✅ Ready to analyze';
-      setAvatarState('thinking', rand(AV_PHRASES.thinking));
-    } else {
-      document.getElementById('mst').textContent = '⚠️ Nothing captured';
-      setAvatarState('idle','🔇 I didn\'t hear anything. Try again speaking louder!');
-    }
-  };
-
-  tr = ''; const tb = document.getElementById('tb'); tb.textContent = '…'; tb.classList.add('on');
-  document.getElementById('btn-ai').style.display = 'none';
+/* ════ RECORDING ════ */
+function toggleRec(){
+  if(!SR){toast('❌ Use Chrome or Edge','err');return;}
+  if(isR){try{rec.stop();}catch(e){}setRUI(false);isR=false;return;}
+  rec=new SR();rec.lang='en-US';rec.continuous=false;rec.interimResults=true;rec.maxAlternatives=1;
+  rec.onresult=e=>{let it='',fi='';for(let r of e.results){if(r.isFinal)fi+=r[0].transcript;else it+=r[0].transcript;}if(fi)tr+=fi;const tb=document.getElementById('tb');tb.textContent=(tr+it).trim()||'…';tb.classList.add('on');if(tr.trim())document.getElementById('btn-ai').style.display='';};
+  rec.onerror=e=>{setRUI(false);isR=false;const msgs={'not-allowed':'🔒 Microphone permission denied.','no-speech':'🔇 No speech detected.','audio-capture':'❌ Microphone not found.'};toast(msgs[e.error]||'❌ '+e.error,'err');setAvatarState('idle','❌ Microphone problem.');};
+  rec.onend=()=>{setRUI(false);isR=false;if(tr.trim()){document.getElementById('btn-ai').style.display='';document.getElementById('mst').textContent='✅ Ready to analyze';setAvatarState('thinking',rand(AV_PHRASES.thinking));}else{document.getElementById('mst').textContent='⚠️ Nothing captured';setAvatarState('idle','🔇 I didn\'t hear anything. Try again!');}};
+  tr='';const tb=document.getElementById('tb');tb.textContent='…';tb.classList.add('on');
+  document.getElementById('btn-ai').style.display='none';
   document.getElementById('mz').classList.add('active');
-  setAvatarState('listening', rand(AV_PHRASES.listening));
-
-  try { rec.start(); setRUI(true); }
-  catch(e) { toast('❌ '+e.message,'err'); setRUI(false); setAvatarState('idle'); }
+  setAvatarState('listening',rand(AV_PHRASES.listening));
+  try{rec.start();setRUI(true);}catch(e){toast('❌ '+e.message,'err');setRUI(false);setAvatarState('idle');}
 }
+function setRUI(on){isR=on;const b=document.getElementById('mb');b.className='mic-btn '+(on?'mr':'mi');b.textContent=on?'⏹':'🎤';document.getElementById('mst').textContent=on?'🔴 Recording… speak!':'Press to answer verbally';document.getElementById('wf').classList.toggle('live',on);if(!on)document.getElementById('mz').classList.remove('active');}
+function clearT(){tr='';const tb=document.getElementById('tb');tb.textContent='';tb.classList.remove('on');document.getElementById('btn-ai').style.display='none';document.getElementById('mst').textContent='Press to answer verbally';document.getElementById('mz').classList.remove('active','analysing');}
 
-function setRUI(on) {
-  isR = on;
-  const b = document.getElementById('mb');
-  b.className = 'mic-btn '+(on?'mr':'mi'); b.textContent = on?'⏹':'🎤';
-  document.getElementById('mst').textContent = on?'🔴 Recording… speak!':'Press to answer verbally';
-  document.getElementById('wf').classList.toggle('live',on);
-  if (!on) document.getElementById('mz').classList.remove('active');
-}
-
-function clearT() {
-  tr = ''; const tb = document.getElementById('tb'); tb.textContent = ''; tb.classList.remove('on');
-  document.getElementById('btn-ai').style.display = 'none';
-  document.getElementById('mst').textContent = 'Press to answer verbally';
-  document.getElementById('mz').classList.remove('active','analysing');
-}
-
-/* ════════════════════════════════════════
-   AI ANALYSIS
-════════════════════════════════════════ */
-async function analyseAI() {
-  const f = FC[ci]; if (!f || !tr.trim()) { toast('❌ No answer','err'); return; }
-
-  const btn = document.getElementById('btn-ai');
-  btn.disabled = true; btn.innerHTML = '<div class="sp"></div> Analyzing…';
+/* ════ AI ANALYSIS (VOCAL) ════ */
+async function analyseAI(){
+  const f=FC[ci];if(!f||!tr.trim()){toast('❌ No answer','err');return;}
+  const btn=document.getElementById('btn-ai');btn.disabled=true;btn.innerHTML='<div class="sp"></div> Analyzing…';
   document.getElementById('mz').classList.add('analysing');
-  setAvatarState('thinking', rand(AV_PHRASES.thinking));
-
-  try {
-    const r = await fetch('/revisions/api/analyse-vocal', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({flashcardId:f.id, reponseEtudiant:tr.trim(), _token:CSRF})
-    });
-    if (!r.ok) throw new Error('HTTP '+r.status);
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-
-    showAI(d,f);
-    updStats(f.id,d.score);
-    setTimeout(() => avatarGiveFeedback(d.score, d.feedback), 400);
-
-  } catch(e) {
-    toast('❌ AI Error: '+e.message,'err');
-    setAvatarState('idle','❌ An error occurred. Check your connection.');
-  } finally {
-    btn.disabled = false; btn.innerHTML = '🤖 Analyze with AI';
-    document.getElementById('mz').classList.remove('analysing');
-  }
+  setAvatarState('thinking',rand(AV_PHRASES.thinking));
+  try{
+    const r=await fetch('/revisions/api/analyse-vocal',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({flashcardId:f.id,reponseEtudiant:tr.trim(),_token:CSRF})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    showAI(d,f);updStats(f.id,d.score);setTimeout(()=>avatarGiveFeedback(d.score,d.feedback),400);
+  }catch(e){toast('❌ AI Error: '+e.message,'err');setAvatarState('idle','❌ An error occurred.');}
+  finally{btn.disabled=false;btn.innerHTML='🤖 Analyze with AI';document.getElementById('mz').classList.remove('analysing');}
 }
 
-function showAI(d,f) {
-  const s = d.score??0, arc = document.getElementById('sc-arc'), circ = 207.3;
-  arc.style.strokeDashoffset = circ - (s/10)*circ;
-  const col = s>=8?'#20C9A0':s>=5?'#FFD93D':'#FF6B6B'; arc.style.stroke = col;
-  document.getElementById('sc-n').textContent = s;
-  const v = s>=9?['🏆','Excellent!','#20C9A0']:s>=7?['✅','Good answer','#38BDF8']:s>=5?['⚠️','Partial','#FFD93D']:['❌','To review','#FF6B6B'];
-  const ve = document.getElementById('sc-v'); ve.textContent=v[0]+' '+v[1]; ve.style.color=v[2];
+function showAI(d,f){
+  const s=d.score??0,arc=document.getElementById('sc-arc'),circ=207.3;
+  arc.style.strokeDashoffset=circ-(s/10)*circ;
+  const col=s>=8?'#20C9A0':s>=5?'#FFD93D':'#FF6B6B';arc.style.stroke=col;
+  document.getElementById('sc-n').textContent=s;
+  const v=s>=9?['🏆','Excellent!','#20C9A0']:s>=7?['✅','Good answer','#38BDF8']:s>=5?['⚠️','Partial','#FFD93D']:['❌','To review','#FF6B6B'];
+  const ve=document.getElementById('sc-v');ve.textContent=v[0]+' '+v[1];ve.style.color=v[2];
   document.getElementById('ar-emo').textContent=v[0];
-  const head=document.getElementById('ar-h'); head.style.background=s>=8?'var(--teal-lt)':s>=5?'var(--lemon-lt)':'var(--coral-lt)'; head.style.color=s>=8?'var(--teal-dk)':s>=5?'#7a6000':'var(--coral-dk)';
+  const head=document.getElementById('ar-h');head.style.background=s>=8?'var(--teal-lt)':s>=5?'var(--lemon-lt)':'var(--coral-lt)';head.style.color=s>=8?'var(--teal-dk)':s>=5?'#7a6000':'var(--coral-dk)';
   document.getElementById('sc-t').textContent=d.feedback||'–';
   document.getElementById('cs').textContent=tr.trim();
   document.getElementById('cc').textContent=f.a;
-  const days=s>=8?5:s>=6?3:s>=4?1:0, nd=new Date(); nd.setDate(nd.getDate()+days);
+  const days=s>=8?5:s>=6?3:s>=4?1:0,nd=new Date();nd.setDate(nd.getDate()+days);
   document.getElementById('nr').textContent=days===0?'Today':nd.toLocaleDateString('en-US',{weekday:'short',day:'numeric',month:'short'});
-  const p=document.getElementById('ar'); p.classList.add('on'); p.style.borderColor=col; p.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const p=document.getElementById('ar');p.classList.add('on');p.style.borderColor=col;p.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
+function closeAI(){document.getElementById('ar').classList.remove('on');}
+function updStats(id,s){scores[id]=s;const v=Object.values(scores),avg=v.reduce((a,b)=>a+b,0)/v.length;document.getElementById('s-avg').textContent=avg.toFixed(1);document.getElementById('s-master').textContent=v.filter(x=>x>=8).length;}
+function selCnt(btn,n){document.querySelectorAll('.cnt-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('cnt-in').value=n;}
 
-function closeAI() { document.getElementById('ar').classList.remove('on'); }
-function updStats(id,s) {
-  scores[id]=s; const v=Object.values(scores), avg=v.reduce((a,b)=>a+b,0)/v.length;
-  document.getElementById('s-avg').textContent=avg.toFixed(1);
-  document.getElementById('s-master').textContent=v.filter(x=>x>=8).length;
-}
-function selCnt(btn,n) { document.querySelectorAll('.cnt-btn').forEach(b=>b.classList.remove('sel')); btn.classList.add('sel'); document.getElementById('cnt-in').value=n; }
-
-function toast(msg,type='inf') {
+function toast(msg,type='inf'){
   const a=document.getElementById('ta'),t=document.createElement('div');
   t.className='toast t'+type;
   t.innerHTML=`<span>${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-size:.9rem;color:inherit;margin-left:auto;">✕</button>`;
-  a.appendChild(t); setTimeout(()=>t.remove(),5000);
+  a.appendChild(t);setTimeout(()=>t.remove(),5000);
 }
-
 {% for msg in app.flashes('success') %}toast({{ msg|json_encode|raw }},'ok');{% endfor %}
 {% for msg in app.flashes('error') %}toast({{ msg|json_encode|raw }},'err');{% endfor %}
 {% for msg in app.flashes('warning') %}toast({{ msg|json_encode|raw }},'inf');{% endfor %}
 
-// ═══════════════════════════════════════════
-//  🌍 TRANSLATION SYSTEM
-// ═══════════════════════════════════════════
+/* ════ TRANSLATION ════ */
+let currentTranslatingFlashcard=null,availableLanguages={};
+function openTranslationModal(){if(!FC||!FC[ci]){toast('❌ No flashcard selected','err');return;}currentTranslatingFlashcard=FC[ci];document.getElementById('fc-title-display').textContent=FC[ci].t||'Untitled';document.getElementById('fc-question-display').textContent=FC[ci].q||'';document.getElementById('translation-modal').style.display='flex';document.getElementById('translation-result').style.display='none';loadLanguagesForModal();}
+function closeTranslationModal(){document.getElementById('translation-modal').style.display='none';currentTranslatingFlashcard=null;}
+async function loadLanguagesForModal(){try{const r=await fetch('/api/translation/languages');if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(!d.success)throw new Error(d.error||'Unknown error');availableLanguages=d.languages;const grid=document.getElementById('lang-select-grid');grid.innerHTML='';for(const[code,info]of Object.entries(d.languages)){if(code==='fr')continue;grid.insertAdjacentHTML('beforeend',`<label style="display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .2s;background:white;"><input type="checkbox" value="${code}" class="translation-lang-checkbox" style="width:18px;height:18px;cursor:pointer;accent-color:var(--lilac);"><span style="font-size:1.4rem;">${info.flag}</span><span style="font-size:.85rem;font-weight:700;color:var(--ink);">${info.name}</span></label>`);}grid.querySelectorAll('label').forEach(label=>{label.addEventListener('mouseenter',function(){this.style.borderColor='var(--lilac)';this.style.background='var(--lilac-lt)';});label.addEventListener('mouseleave',function(){if(!this.querySelector('input').checked){this.style.borderColor='var(--border)';this.style.background='white';}});label.querySelector('input').addEventListener('change',function(){if(this.checked){label.style.borderColor='var(--lilac)';label.style.background='var(--lilac)';label.style.color='white';label.querySelectorAll('span').forEach(s=>s.style.color='white');}else{label.style.borderColor='var(--border)';label.style.background='white';label.style.color='var(--ink)';label.querySelectorAll('span').forEach(s=>s.style.color='var(--ink)');}});});}catch(e){toast('❌ Cannot load languages: '+e.message,'err');}}
+function selectAllLanguages(){document.querySelectorAll('.translation-lang-checkbox').forEach(cb=>{cb.checked=true;cb.dispatchEvent(new Event('change'));});}
+function deselectAllLanguages(){document.querySelectorAll('.translation-lang-checkbox').forEach(cb=>{cb.checked=false;cb.dispatchEvent(new Event('change'));});}
+async function performTranslation(){if(!currentTranslatingFlashcard){toast('❌ No flashcard selected','err');return;}const sel=Array.from(document.querySelectorAll('.translation-lang-checkbox:checked')).map(cb=>cb.value);if(!sel.length){toast('⚠️ Select at least one language','inf');return;}const btn=document.getElementById('translate-action-btn');const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<div class="sp"></div> Translating...';setAvatarState('thinking','I\'m translating your flashcard into '+sel.length+' language(s)...');try{const r=await fetch(`/api/translation/flashcard/${currentTranslatingFlashcard.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({languages:sel,save:true,source_lang:'fr'})});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();if(d.success){toast(`✅ Translation successful for ${sel.length} language(s)!`,'ok');displayTranslationResults(d.translations);setAvatarState('idle','✨ Translations saved!');}else throw new Error(d.error||'Unknown error');}catch(e){toast('❌ Error: '+e.message,'err');setAvatarState('idle','❌ An error occurred.');}finally{btn.disabled=false;btn.innerHTML=orig;}}
+function displayTranslationResults(trans){const c=document.getElementById('translation-result');c.style.display='block';c.innerHTML='<h3 style="font-family:Poppins,sans-serif;font-weight:800;color:var(--ink);margin-bottom:1rem;font-size:1.2rem;">✨ Generated Translations</h3>';for(const[lang,result]of Object.entries(trans)){if(!result.success){c.insertAdjacentHTML('beforeend',`<div style="background:var(--coral-lt);color:var(--coral-dk);padding:1rem;border-radius:8px;margin-bottom:.75rem;border-left:4px solid var(--coral);">❌ Error for ${availableLanguages[lang]?.name||lang}: ${result.error||'Unknown error'}</div>`);continue;}const t=result.translation,info=result.language_info;c.insertAdjacentHTML('beforeend',`<div style="background:var(--teal-lt);padding:1.2rem;border-radius:12px;margin-bottom:.75rem;border-left:4px solid var(--teal);"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;"><div style="font-weight:700;display:flex;align-items:center;gap:.5rem;color:var(--teal-dk);"><span style="font-size:1.5rem;">${info.flag}</span><span>${info.name}</span></div><span style="font-size:.7rem;font-weight:800;background:var(--teal);color:white;padding:.3rem .6rem;border-radius:6px;">Level ${result.difficulty}/5</span></div><div style="font-size:.85rem;color:var(--ink);"><p><strong style="color:var(--teal-dk);">📌</strong> ${escHTr(t.titre)}</p><p style="margin-top:.3rem;"><strong style="color:var(--teal-dk);">❓</strong> ${escHTr(t.question)}</p><p style="margin-top:.3rem;"><strong style="color:var(--teal-dk);">✅</strong> ${escHTr(t.reponse)}</p></div></div>`);}}
+function escHTr(text){if(!text)return'';const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
 
-let currentTranslatingFlashcard = null;
-let availableLanguages = {};
+/* ════════════════════════════════════════════
+   🤖 ANALYZE CARDS — DÉTECTION IA
+════════════════════════════════════════════ */
+const ANALYZE_URL = `/revisions/deck/{{ deck.id }}/analyze`;
 
-function openTranslationModal() {
-  if (!FC || !FC[ci]) {
-    toast('❌ No flashcard selected', 'err');
-    return;
-  }
-  
-  currentTranslatingFlashcard = FC[ci];
-  const title = FC[ci].t || 'Untitled';
-  const question = FC[ci].q || '';
-  document.getElementById('fc-title-display').textContent = title;
-  document.getElementById('fc-question-display').textContent = question;
-  document.getElementById('translation-modal').style.display = 'flex';
-  document.getElementById('translation-result').style.display = 'none';
-  
-  loadLanguagesForModal();
-}
+window.analyzeCards = async function() {
+  const modal = document.getElementById('analyze-modal');
+  const loading = document.getElementById('analyze-loading');
+  const results = document.getElementById('analyze-results');
 
-function closeTranslationModal() {
-  document.getElementById('translation-modal').style.display = 'none';
-  currentTranslatingFlashcard = null;
-}
+  modal.style.display = 'flex';
+  loading.style.display = 'block';
+  results.style.display = 'none';
+  results.innerHTML = '';
 
-async function loadLanguagesForModal() {
   try {
-    const response = await fetch('/api/translation/languages');
-    
-    if (!response.ok) {
-      throw new Error('HTTP ' + response.status);
-    }
-    
-    const data = await response.json();
-    
-    if (!data.success) {
-      throw new Error(data.error || 'Unknown error');
-    }
-    
-    availableLanguages = data.languages;
-    const grid = document.getElementById('lang-select-grid');
-    grid.innerHTML = '';
-    
-    for (const [code, info] of Object.entries(data.languages)) {
-      if (code === 'fr') continue;
-      
-      const html = `
-        <label style="display:flex; align-items:center; gap:0.6rem; padding:0.75rem 1rem; border:2px solid var(--border); border-radius:10px; cursor:pointer; transition:all 0.2s; background:white;">
-          <input type="checkbox" value="${code}" class="translation-lang-checkbox" style="width:18px; height:18px; cursor:pointer; accent-color:var(--lilac);">
-          <span style="font-size:1.4rem;">${info.flag}</span>
-          <span style="font-size:0.85rem; font-weight:700; color:var(--ink);">${info.name}</span>
-        </label>
-      `;
-      grid.insertAdjacentHTML('beforeend', html);
-    }
-    
-    grid.querySelectorAll('label').forEach(label => {
-      label.addEventListener('mouseenter', function() {
-        this.style.borderColor = 'var(--lilac)';
-        this.style.background = 'var(--lilac-lt)';
-      });
-      label.addEventListener('mouseleave', function() {
-        if (!this.querySelector('input').checked) {
-          this.style.borderColor = 'var(--border)';
-          this.style.background = 'white';
-        }
-      });
-      
-      label.querySelector('input').addEventListener('change', function() {
-        if (this.checked) {
-          label.style.borderColor = 'var(--lilac)';
-          label.style.background = 'var(--lilac)';
-          label.style.color = 'white';
-          label.querySelectorAll('span').forEach(s => s.style.color = 'white');
-        } else {
-          label.style.borderColor = 'var(--border)';
-          label.style.background = 'white';
-          label.style.color = 'var(--ink)';
-          label.querySelectorAll('span').forEach(s => s.style.color = 'var(--ink)');
-        }
-      });
-    });
-    
-  } catch (error) {
-    console.error('Error loading languages:', error);
-    toast('❌ Cannot load languages: ' + error.message, 'err');
-  }
-}
+    const res = await fetch(ANALYZE_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
 
-function selectAllLanguages() {
-  document.querySelectorAll('.translation-lang-checkbox').forEach(cb => {
-    cb.checked = true;
-    cb.dispatchEvent(new Event('change'));
-  });
-}
+    loading.style.display = 'none';
+    results.style.display = 'block';
 
-function deselectAllLanguages() {
-  document.querySelectorAll('.translation-lang-checkbox').forEach(cb => {
-    cb.checked = false;
-    cb.dispatchEvent(new Event('change'));
-  });
-}
-
-async function performTranslation() {
-  if (!currentTranslatingFlashcard) {
-    toast('❌ No flashcard selected', 'err');
-    return;
-  }
-  
-  const selectedLangs = Array.from(document.querySelectorAll('.translation-lang-checkbox:checked'))
-    .map(cb => cb.value);
-  
-  if (selectedLangs.length === 0) {
-    toast('⚠️ Select at least one language', 'inf');
-    return;
-  }
-  
-  const btn = document.getElementById('translate-action-btn');
-  const originalHTML = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<div class="sp"></div> Translating...';
-  
-  setAvatarState('thinking', 'I\'m translating your flashcard into ' + selectedLangs.length + ' language(s)...');
-  
-  try {
-    const response = await fetch(`/api/translation/flashcard/${currentTranslatingFlashcard.id}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        languages: selectedLangs,
-        save: true,
-        source_lang: 'fr'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('HTTP ' + response.status);
+    if (data.error) {
+      results.innerHTML = `<div style="text-align:center;padding:2rem;color:#C62828;font-weight:700;">❌ ${data.error}</div>`;
+      return;
     }
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      const langCount = selectedLangs.length;
-      toast(`✅ Translation successful for ${langCount} language${langCount > 1 ? 's' : ''}!`, 'ok');
-      displayTranslationResults(data.translations);
-      setAvatarState('idle', rand([
-        '✨ Translations generated successfully!',
-        '🎉 Your flashcards are now multilingual!',
-        '🌍 Translations saved!'
-      ]));
-    } else {
-      throw new Error(data.error || 'Unknown error');
-    }
-  } catch (error) {
-    console.error('Translation error:', error);
-    toast('❌ Error: ' + error.message, 'err');
-    setAvatarState('idle', '❌ An error occurred during translation.');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-  }
-}
 
-function displayTranslationResults(translations) {
-  const container = document.getElementById('translation-result');
-  container.style.display = 'block';
-  container.innerHTML = `
-    <h3 style="font-family:'Poppins',sans-serif; font-weight:800; color:var(--ink); margin-bottom:1rem; font-size:1.2rem;">
-      ✨ Generated Translations
-    </h3>
-  `;
-  
-  let successCount = 0;
-  
-  for (const [lang, result] of Object.entries(translations)) {
-    if (!result.success) {
-      container.insertAdjacentHTML('beforeend', `
-        <div style="background:var(--coral-lt); color:var(--coral-dk); padding:1rem; border-radius:8px; margin-bottom:0.75rem; border-left:4px solid var(--coral);">
-          ❌ Error for ${availableLanguages[lang]?.name || lang}: ${result.error || 'Unknown error'}
+    const { total, problemes, score_global, cartes } = data;
+    const score = score_global ?? 10;
+
+    // ── Score global ──
+    const scoreColor = score >= 8 ? '#20C9A0' : score >= 5 ? '#FFD93D' : '#FF6B6B';
+    const scoreEmoji = score >= 8 ? '🏆' : score >= 5 ? '⚠️' : '🚨';
+    const scoreLabel = score >= 8 ? 'Excellent !' : score >= 5 ? 'À améliorer' : 'Critique';
+
+    results.innerHTML = `
+      <div style="display:flex;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap;">
+        <!-- Score global -->
+        <div style="flex:1;min-width:180px;text-align:center;padding:1.25rem;border-radius:16px;background:${scoreColor}15;border:2px solid ${scoreColor}44;">
+          <div style="font-size:2.2rem;font-weight:900;color:${scoreColor};font-family:'Poppins',sans-serif;line-height:1">${score}<span style="font-size:1rem;opacity:.6">/10</span></div>
+          <div style="font-size:.78rem;font-weight:800;color:${scoreColor};margin-top:.3rem">${scoreEmoji} Score qualité</div>
+          <div style="font-size:.72rem;color:#9095B0;margin-top:.2rem">${scoreLabel}</div>
         </div>
-      `);
-      continue;
-    }
-    
-    successCount++;
-    const trans = result.translation;
-    const info = result.language_info;
-    
-    const html = `
-      <div style="background:var(--teal-lt); padding:1.2rem; border-radius:12px; margin-bottom:0.75rem; border-left:4px solid var(--teal); transition:all 0.2s;" onmouseenter="this.style.boxShadow='0 4px 12px rgba(32,201,160,0.2)'" onmouseleave="this.style.boxShadow='none'">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
-          <div style="font-weight:700; display:flex; align-items:center; gap:0.5rem; color:var(--teal-dk);">
-            <span style="font-size:1.5rem;">${info.flag}</span>
-            <span style="font-size:1rem;">${info.name}</span>
+        <!-- Résumé -->
+        <div style="flex:2;min-width:200px;text-align:center;padding:1.25rem;border-radius:16px;background:${problemes === 0 ? '#20C9A0' : problemes <= 2 ? '#FFD93D' : '#FF6B6B'}15;border:2px solid ${problemes === 0 ? '#20C9A0' : problemes <= 2 ? '#FFD93D' : '#FF6B6B'}44;display:flex;flex-direction:column;justify-content:center;">
+          <div style="font-size:1.8rem;margin-bottom:.3rem">${problemes === 0 ? '🎉' : problemes <= 2 ? '⚠️' : '🚨'}</div>
+          <div style="font-family:'Poppins',sans-serif;font-weight:800;font-size:1rem;color:#1E1B3A">
+            ${problemes === 0 ? 'Toutes les cartes sont parfaites !' : `${problemes} carte${problemes > 1 ? 's' : ''} à améliorer sur ${total}`}
           </div>
-          <span style="font-size:0.7rem; font-weight:800; background:var(--teal); color:white; padding:0.3rem 0.6rem; border-radius:6px;">
-            Level ${result.difficulty}/5
-          </span>
-        </div>
-        <div style="font-size:0.85rem; color:var(--ink);">
-          <div style="margin-bottom:0.4rem;">
-            <strong style="color:var(--teal-dk);">📌 Title:</strong> 
-            <span>${escapeHtmlTranslation(trans.titre)}</span>
-          </div>
-          <div style="margin-bottom:0.4rem;">
-            <strong style="color:var(--teal-dk);">❓ Question:</strong> 
-            <span>${escapeHtmlTranslation(trans.question)}</span>
-          </div>
-          <div>
-            <strong style="color:var(--teal-dk);">✅ Answer:</strong> 
-            <span>${escapeHtmlTranslation(trans.reponse)}</span>
-          </div>
+          <div style="font-size:.75rem;color:#9095B0;margin-top:.25rem">${total} carte${total > 1 ? 's' : ''} analysée${total > 1 ? 's' : ''}</div>
         </div>
       </div>
     `;
-    container.insertAdjacentHTML('beforeend', html);
+
+    // ── Cartes problématiques ──
+    if (cartes && cartes.length > 0) {
+      cartes.forEach(carte => {
+        const sev = carte.severite || 'faible';
+        const icons = { grave: '🚨', moyen: '⚠️', faible: '💡' };
+        const labels = { grave: 'Grave', moyen: 'Moyen', faible: 'Faible' };
+        const bgColors = { grave: '#FFF0F0', moyen: '#FFFBE6', faible: '#E3FAF4' };
+        const bdColors = { grave: '#FFCDD2', moyen: '#FFE082', faible: '#B2DFDB' };
+        const problemesList = (carte.problemes || []).map(p => `<li style="margin-bottom:.2rem">• ${p}</li>`).join('');
+
+        const cardId = `card-${carte.id}`;
+
+        results.innerHTML += `
+          <div id="${cardId}" style="border-radius:16px;padding:1.1rem 1.25rem;margin-bottom:1rem;border:2px solid ${bdColors[sev]};background:${bgColors[sev]};">
+
+            <!-- Titre + badge -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.75rem">
+              <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:.95rem;color:#1E1B3A">
+                ${icons[sev]} ${carte.titre || 'Carte #' + carte.id}
+              </div>
+              <span class="prob-badge badge-${sev}">${labels[sev]}</span>
+            </div>
+
+            <!-- Problèmes détectés -->
+            <ul style="list-style:none;padding:0;margin:0 0 .85rem 0;font-size:.8rem;color:#4A4768">${problemesList}</ul>
+
+            <!-- Comparaison Avant / Après -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.85rem;">
+              <div style="background:rgba(255,255,255,0.6);border-radius:10px;padding:.75rem;border:1.5px solid rgba(0,0,0,.08);">
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#9095B0;margin-bottom:.4rem">📋 Original</div>
+                <div style="font-size:.75rem;color:#4A4768;line-height:1.5;margin-bottom:.3rem"><strong style="color:#1E1B3A">Q :</strong> ${escA(carte.question_originale || '—')}</div>
+                <div style="font-size:.75rem;color:#4A4768;line-height:1.5"><strong style="color:#1E1B3A">R :</strong> ${escA(carte.reponse_originale || '—')}</div>
+              </div>
+              <div style="background:rgba(167,139,250,0.08);border-radius:10px;padding:.75rem;border:1.5px solid rgba(167,139,250,.3);">
+                <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#A78BFA;margin-bottom:.4rem">✨ Version corrigée</div>
+                <div style="font-size:.75rem;color:#4A4768;line-height:1.5;margin-bottom:.3rem"><strong style="color:#1E1B3A">Q :</strong> ${escA(carte.question_corrigee || '—')}</div>
+                <div style="font-size:.75rem;color:#4A4768;line-height:1.5"><strong style="color:#1E1B3A">R :</strong> ${escA(carte.reponse_corrigee || '—')}</div>
+              </div>
+            </div>
+
+            <!-- Suggestion -->
+            <div style="margin-bottom:.85rem;padding:.65rem .85rem;border-radius:10px;background:rgba(255,255,255,0.7);font-size:.78rem;color:#1E1B3A;border-left:3px solid #A78BFA;">
+              💡 <strong>Suggestion :</strong> ${escA(carte.suggestion || '—')}
+            </div>
+
+            <!-- Bouton corriger -->
+            <button
+              id="btn-correct-${carte.id}"
+              onclick="correctCard(${carte.id}, ${JSON.stringify(carte.question_corrigee).replace(/</g,'\\u003c')}, ${JSON.stringify(carte.reponse_corrigee).replace(/</g,'\\u003c')})"
+              style="width:100%;padding:.7rem;border-radius:10px;border:none;background:linear-gradient(135deg,#A78BFA,#7C3AED);color:#fff;font-weight:800;font-size:.82rem;cursor:pointer;font-family:'Nunito',sans-serif;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .18s;box-shadow:0 4px 14px rgba(167,139,250,.35);">
+              ✨ Corriger automatiquement
+            </button>
+          </div>
+        `;
+      });
+    }
+
+  } catch(e) {
+    loading.style.display = 'none';
+    results.style.display = 'block';
+    results.innerHTML = `<div style="text-align:center;padding:2rem;color:#C62828;font-weight:700;">❌ Erreur de connexion</div>`;
   }
-  
-  if (successCount > 0) {
-    container.insertAdjacentHTML('beforeend', `
-      <div style="text-align:center; margin-top:1.5rem; padding-top:1rem; border-top:2px solid var(--border);">
-        <span style="font-size:0.9rem; color:var(--muted);">✅ ${successCount} translation(s) saved</span>
-      </div>
-    `);
-  }
-  
-  setTimeout(() => {
-    container.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'nearest' 
+};
+
+function escA(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+window.correctCard = async function(id, questionCorrigee, reponseCorrigee) {
+  const btn = document.getElementById(`btn-correct-${id}`);
+  if (!btn) return;
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<div class="sp"></div> Correction en cours…';
+
+  try {
+    const res = await fetch(`/revisions/flashcard/${id}/correct`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_corrigee: questionCorrigee, reponse_corrigee: reponseCorrigee })
     });
-  }, 300);
-}
+    const data = await res.json();
 
-function escapeHtmlTranslation(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+    if (data.success) {
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.style.transition = 'all .4s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-8px)';
+        setTimeout(() => {
+          card.innerHTML = `
+            <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem 0;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#E3FAF4;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">✅</div>
+              <div>
+                <div style="font-weight:800;color:#0EA37E;font-size:.88rem">Carte corrigée avec succès !</div>
+                <div style="font-size:.75rem;color:#9095B0;margin-top:.1rem">La carte a été mise à jour en base de données.</div>
+              </div>
+            </div>
+          `;
+          card.style.background = '#E3FAF4';
+          card.style.borderColor = '#B2DFDB';
+          card.style.opacity = '1';
+          card.style.transform = 'none';
+        }, 350);
+      }
+      toast('✅ Carte corrigée !', 'ok');
+    } else {
+      throw new Error(data.error || 'Erreur inconnue');
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+    toast('❌ Erreur : ' + e.message, 'err');
+  }
+};
 
+window.closeAnalyze = function() {
+  document.getElementById('analyze-modal').style.display = 'none';
+};
+
+document.getElementById('analyze-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAnalyze();
+});
+
+/* ════════════════════════════════════════════
+   🤖 CHATBOT ENGINE — UNIQUE ENGINE
+════════════════════════════════════════════ */
+(function(){
+  const API  = `/revisions/deck/${DECK_ID}/chat`;
+  let open   = false;
+  let busy   = false;
+  let hist   = [];
+  let unread = 0;
+
+  const win   = document.getElementById('chatbot-window');
+  const msgs  = document.getElementById('cw-msgs');
+  const inp   = document.getElementById('cw-input');
+  const send  = document.getElementById('cw-send');
+  const badge = document.getElementById('fab-badge');
+
+  window.toggleChatbot = function(){
+    open = !open;
+    win.classList.toggle('open', open);
+    if(open){
+      unread = 0; badge.classList.remove('show');
+      setTimeout(()=>{ inp.focus(); scrollBot(); }, 350);
+    }
+  };
+
+  window.cwGrow = function(el){
+    el.style.height='auto';
+    el.style.height=Math.min(el.scrollHeight,120)+'px';
+  };
+  window.cwKey = function(e){
+    if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); cwSend(); }
+  };
+  window.cwSuggest = function(text){ inp.value=text; cwGrow(inp); cwSend(); };
+
+  function scrollBot(){
+    msgs.scrollTo({top:msgs.scrollHeight,behavior:'smooth'});
+  }
+
+  function md(text){
+    return text
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`([^`]+)`/g,'<code>$1</code>')
+      .replace(/^[-•] (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>[\s\S]+?<\/li>)/g,'<ul>$1</ul>')
+      .replace(/\n\n/g,'<br><br>')
+      .replace(/\n/g,'<br>');
+  }
+
+  function esc(t){ const d=document.createElement('div');d.textContent=t;return d.innerHTML; }
+
+  function addBubble(role,content){
+    const isAI = role==='assistant';
+    const now  = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const row  = document.createElement('div');
+    row.className = 'msg-row '+(isAI?'':'user');
+    row.style.cssText='opacity:0;transform:translateY(8px)';
+
+    const av = document.createElement('div');
+    av.className = isAI ? 'msg-av' : 'msg-av user-av';
+    av.innerHTML = isAI
+      ? '<img src="https://api.dicebear.com/7.x/bottts/svg?seed=rlife-ai&backgroundColor=7c3aed" alt="AI">'
+      : '👤';
+
+    const wrap = document.createElement('div');
+    const bub  = document.createElement('div');
+    bub.className = 'msg-bubble '+(isAI?'ai':'user');
+    bub.innerHTML = isAI ? md(content) : esc(content).replace(/\n/g,'<br>');
+
+    const time = document.createElement('div');
+    time.className='msg-time'; time.textContent=now;
+
+    wrap.append(bub,time); row.append(av,wrap);
+    msgs.appendChild(row);
+
+    requestAnimationFrame(()=>{
+      row.style.transition='opacity .25s,transform .25s';
+      row.style.opacity='1'; row.style.transform='none';
+    });
+    scrollBot();
+  }
+
+  function showTyping(){
+    const row=document.createElement('div');
+    row.id='cw-typing'; row.className='msg-row';
+    const av=document.createElement('div');av.className='msg-av';
+    av.innerHTML='<img src="https://api.dicebear.com/7.x/bottts/svg?seed=rlife-ai&backgroundColor=7c3aed" alt="AI">';
+    const ind=document.createElement('div');ind.className='typing-ind';
+    ind.innerHTML='<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>';
+    row.append(av,ind); msgs.appendChild(row); scrollBot();
+  }
+  function hideTyping(){ document.getElementById('cw-typing')?.remove(); }
+
+  window.cwSend = async function(){
+    const text = inp.value.trim();
+    if(!text||busy) return;
+    inp.value=''; inp.style.height='auto';
+    busy=true; send.disabled=true;
+
+    addBubble('user',text);
+    hist.push({role:'user',content:text});
+    showTyping();
+
+    try{
+      const res = await fetch(API,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:text, history:hist.slice(0,-1)})
+      });
+      const d = await res.json();
+      hideTyping();
+
+      if(d.error){ addBubble('assistant','❌ '+d.error); return; }
+
+      const reply = d.reply||'…';
+      addBubble('assistant',reply);
+      hist.push({role:'assistant',content:reply});
+
+      if(!open){
+        unread++;
+        badge.textContent = unread>9?'9+':unread;
+        badge.classList.add('show');
+      }
+    }catch(err){
+      hideTyping();
+      addBubble('assistant','❌ Connection error. Please try again.');
+    }finally{
+      busy=false; send.disabled=false; inp.focus();
+    }
+  };
+
+})();
 </script>
-
-{# ═══════════════════════════════════════════
-   🌍 TRANSLATION MODAL
-══════════════════════════════════════════ #}
-<div id="translation-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(30,27,58,0.7); z-index:9999; align-items:center; justify-content:center;">
-  <div style="background:white; border-radius:24px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; padding:2rem; position:relative; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
-    
-    <button onclick="closeTranslationModal()" style="position:absolute; top:1.5rem; right:1.5rem; background:var(--coral-lt); color:var(--coral); border:none; width:40px; height:40px; border-radius:50%; font-size:1.5rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;">
-      ✕
-    </button>
-    
-    <div style="margin-bottom:2rem;">
-      <h2 style="font-family:'Poppins',sans-serif; font-size:1.8rem; font-weight:800; color:var(--ink); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
-        🌍 Translate Flashcard
-      </h2>
-      <p style="color:var(--muted); font-size:0.9rem;">Automatically generate translations in multiple languages</p>
-    </div>
-    
-    <div id="current-flashcard-info" style="background:linear-gradient(135deg, var(--teal-lt) 0%, var(--sky-lt) 100%); padding:1.2rem; border-radius:12px; margin-bottom:1.5rem; border-left:4px solid var(--teal);">
-      <div style="font-weight:700; color:var(--teal-dk); margin-bottom:0.5rem; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em;">Current Flashcard</div>
-      <div id="fc-title-display" style="font-size:1.1rem; font-weight:700; color:var(--ink);"></div>
-      <div id="fc-question-display" style="font-size:0.85rem; color:var(--ink-2); margin-top:0.3rem;"></div>
-    </div>
-    
-    <div style="margin-bottom:1.5rem;">
-      <label style="display:block; font-weight:700; margin-bottom:1rem; color:var(--ink); font-size:0.95rem;">
-        🎯 Select target languages:
-      </label>
-      <div id="lang-select-grid" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.75rem;">
-      </div>
-      <div style="margin-top:0.75rem; text-align:center;">
-        <button onclick="selectAllLanguages()" style="background:none; border:none; color:var(--teal); font-size:0.8rem; font-weight:700; cursor:pointer; text-decoration:underline;">
-          Select all
-        </button>
-        <span style="color:var(--muted); margin:0 0.5rem;">|</span>
-        <button onclick="deselectAllLanguages()" style="background:none; border:none; color:var(--coral); font-size:0.8rem; font-weight:700; cursor:pointer; text-decoration:underline;">
-          Deselect all
-        </button>
-      </div>
-    </div>
-    
-    <div style="display:flex; gap:0.75rem; justify-content:flex-end;">
-      <button onclick="closeTranslationModal()" class="btn bo">Cancel</button>
-      <button onclick="performTranslation()" id="translate-action-btn" class="btn bv">
-        🚀 Translate
-      </button>
-    </div>
-    
-    <div id="translation-result" style="margin-top:1.5rem; display:none; border-top:2px solid var(--bg); padding-top:1.5rem;">
-    </div>
-  </div>
-</div>
-
 {% endblock %}

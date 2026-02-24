@@ -1,0 +1,638 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}🌍 Traduction Multilingue - {{ flashcard.titre }}{% endblock %}
+
+{% block body %}
+<style>
+:root {
+  --primary: #6366f1;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg: #f8fafc;
+  --card: #ffffff;
+}
+
+.translation-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.header-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.header-section h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.original-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.original-card h3 {
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.language-selector {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.lang-checkbox {
+  display: none;
+}
+
+.lang-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: white;
+}
+
+.lang-label:hover {
+  border-color: var(--primary);
+  background: #f0f4ff;
+}
+
+.lang-checkbox:checked + .lang-label {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.lang-flag {
+  font-size: 1.5rem;
+}
+
+.translate-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s;
+  margin-top: 1rem;
+}
+
+.translate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.translate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.translations-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.translation-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.translation-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--primary);
+}
+
+.translation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.translation-lang {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.difficulty-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.diff-0, .diff-1 { background: #dcfce7; color: #166534; }
+.diff-2, .diff-3 { background: #fef3c7; color: #92400e; }
+.diff-4, .diff-5 { background: #fee2e2; color: #991b1b; }
+
+.translation-content {
+  display: grid;
+  gap: 1rem;
+}
+
+.content-block {
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.content-label {
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.content-text {
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.stats-section {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.stat-card {
+  text-align: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #166534;
+  border-left: 4px solid var(--success);
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid var(--danger);
+}
+</style>
+
+<div class="translation-page">
+
+  {# FIX: alert-container manquant dans le HTML original — requis par showAlert() en JS #}
+  <div id="alert-container"></div>
+
+  {# HEADER #}
+  <div class="header-section">
+    <h1>
+      <span>🌍</span>
+      Traduction Multilingue
+    </h1>
+    <p style="opacity: 0.9; font-size: 1.1rem;">
+      {{ flashcard.titre }}
+    </p>
+  </div>
+
+  {# FLASHCARD ORIGINALE #}
+  <div class="original-card">
+    <h3>📄 Flashcard originale (Français)</h3>
+    <div class="translation-content">
+      <div class="content-block">
+        <div class="content-label">Titre</div>
+        <div class="content-text">{{ flashcard.titre }}</div>
+      </div>
+      <div class="content-block">
+        <div class="content-label">Question</div>
+        <div class="content-text">{{ flashcard.question }}</div>
+      </div>
+      <div class="content-block">
+        <div class="content-label">Réponse</div>
+        <div class="content-text">{{ flashcard.reponse }}</div>
+      </div>
+      {% if flashcard.description %}
+      <div class="content-block">
+        <div class="content-label">Description</div>
+        <div class="content-text">{{ flashcard.description }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {# SÉLECTION DES LANGUES #}
+  <div class="language-selector">
+    <h3>🎯 Sélectionnez les langues cibles</h3>
+    <div class="language-grid" id="language-grid">
+      <!-- Rempli dynamiquement par loadSupportedLanguages() -->
+    </div>
+    <button class="translate-btn" id="translate-btn" onclick="translateFlashcard()">
+      <span>🚀</span>
+      <span>Traduire</span>
+    </button>
+  </div>
+
+  {# STATISTIQUES #}
+  <div class="stats-section" id="stats-section" style="display: none;">
+    <h3>📊 Statistiques de Traduction</h3>
+    <div class="stats-grid" id="stats-grid"></div>
+  </div>
+
+  {# TRADUCTIONS #}
+  <div class="translations-grid" id="translations-container">
+    <!-- Rempli dynamiquement -->
+  </div>
+
+</div>
+
+<script>
+{# FIX: utiliser flashcard.idFlashcard (alias getId()) défini dans l'entité corrigée #}
+const FLASHCARD_ID = {{ flashcard.idFlashcard }};
+const API_BASE = '/api/translation';
+
+// Charger les langues supportées
+async function loadSupportedLanguages() {
+  try {
+    const response = await fetch(`${API_BASE}/languages`);
+    const data = await response.json();
+
+    const grid = document.getElementById('language-grid');
+    grid.innerHTML = '';
+
+    for (const [code, info] of Object.entries(data.languages)) {
+      if (code === 'fr') continue; // Skip French (langue source)
+
+      const html = `
+        <div>
+          <input type="checkbox" id="lang-${code}" class="lang-checkbox" value="${code}">
+          <label for="lang-${code}" class="lang-label">
+            <span class="lang-flag">${info.flag}</span>
+            <span>${info.name}</span>
+          </label>
+        </div>
+      `;
+      grid.insertAdjacentHTML('beforeend', html);
+    }
+  } catch (error) {
+    showAlert('Erreur lors du chargement des langues', 'error');
+  }
+}
+
+// Traduire la flashcard
+async function translateFlashcard() {
+  const selectedLangs = Array.from(document.querySelectorAll('.lang-checkbox:checked'))
+    .map(cb => cb.value);
+
+  if (selectedLangs.length === 0) {
+    showAlert('Veuillez sélectionner au moins une langue', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('translate-btn');
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> <span>Traduction en cours...</span>';
+
+  try {
+    const response = await fetch(`${API_BASE}/flashcard/${FLASHCARD_ID}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        languages: selectedLangs,
+        save: true,
+        source_lang: 'fr'
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showAlert(`✅ Traduction réussie pour ${selectedLangs.length} langue(s)`, 'success');
+      loadExistingTranslations(); // Recharger toutes les traductions sauvegardées
+    } else {
+      showAlert('❌ Erreur: ' + (data.error ?? 'Inconnue'), 'error');
+    }
+  } catch (error) {
+    showAlert('❌ Erreur réseau: ' + error.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
+}
+
+// Afficher les résultats de traduction (réponse directe de l'API avant rechargement)
+function displayTranslations(translations) {
+  const container = document.getElementById('translations-container');
+
+  for (const [lang, result] of Object.entries(translations)) {
+    if (!result.success) continue;
+
+    const trans = result.translation;
+    const info  = result.language_info;
+
+    const html = `
+      <div class="translation-card" data-lang="${lang}">
+        <div class="translation-header">
+          <div class="translation-lang">
+            <span>${info.flag}</span>
+            <span>${info.name}</span>
+          </div>
+          <span class="difficulty-badge diff-${result.difficulty}">
+            Niveau ${result.difficulty}/5
+          </span>
+        </div>
+        <div class="translation-content">
+          <div class="content-block">
+            <div class="content-label">Titre</div>
+            <div class="content-text">${escapeHtml(trans.titre)}</div>
+          </div>
+          <div class="content-block">
+            <div class="content-label">Question</div>
+            <div class="content-text">${escapeHtml(trans.question)}</div>
+          </div>
+          <div class="content-block">
+            <div class="content-label">Réponse</div>
+            <div class="content-text">${escapeHtml(trans.reponse)}</div>
+          </div>
+          ${trans.description ? `
+          <div class="content-block">
+            <div class="content-label">Description</div>
+            <div class="content-text">${escapeHtml(trans.description)}</div>
+          </div>` : ''}
+          ${trans.notes ? `
+          <div class="content-block">
+            <div class="content-label">📝 Notes du traducteur</div>
+            <div class="content-text">${escapeHtml(trans.notes)}</div>
+          </div>` : ''}
+        </div>
+        <div class="action-buttons">
+          <button class="btn-secondary" onclick="copyTranslation('${lang}')">
+            📋 Copier
+          </button>
+        </div>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+// Charger et afficher les traductions existantes depuis la BDD
+async function loadExistingTranslations() {
+  try {
+    const response = await fetch(`${API_BASE}/flashcard/${FLASHCARD_ID}/list`);
+    const data = await response.json();
+
+    if (!data.success) return;
+
+    const container = document.getElementById('translations-container');
+    container.innerHTML = '';
+
+    if (data.count === 0) {
+      document.getElementById('stats-section').style.display = 'none';
+      return;
+    }
+
+    data.translations.forEach(trans => {
+      const html = `
+        <div class="translation-card" data-translation-id="${trans.id}" data-lang="${trans.language}">
+          <div class="translation-header">
+            <div class="translation-lang">
+              <span>${trans.language_flag}</span>
+              <span>${trans.language_name}</span>
+              ${trans.is_verified ? '<span style="margin-left:0.5rem;color:#10b981" title="Vérifiée">✓</span>' : ''}
+            </div>
+            <span class="difficulty-badge diff-${trans.difficulty ?? 0}">
+              Niveau ${trans.difficulty ?? '?'}/5
+            </span>
+          </div>
+          <div class="translation-content">
+            <div class="content-block">
+              <div class="content-label">Titre</div>
+              <div class="content-text">${escapeHtml(trans.titre)}</div>
+            </div>
+            <div class="content-block">
+              <div class="content-label">Question</div>
+              <div class="content-text">${escapeHtml(trans.question)}</div>
+            </div>
+            <div class="content-block">
+              <div class="content-label">Réponse</div>
+              <div class="content-text">${escapeHtml(trans.reponse)}</div>
+            </div>
+            ${trans.description ? `
+            <div class="content-block">
+              <div class="content-label">Description</div>
+              <div class="content-text">${escapeHtml(trans.description)}</div>
+            </div>` : ''}
+          </div>
+          <div class="action-buttons">
+            <button class="btn-secondary" onclick="copyTranslation('${trans.language}')">
+              📋 Copier
+            </button>
+            <button class="btn-secondary btn-danger" onclick="deleteTranslationById(${trans.id})">
+              🗑️ Supprimer
+            </button>
+          </div>
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', html);
+    });
+
+    // Afficher les statistiques
+    document.getElementById('stats-section').style.display = 'block';
+    updateStats(data.translations);
+
+  } catch (error) {
+    console.error('Erreur chargement traductions:', error);
+  }
+}
+
+// Mettre à jour les statistiques
+function updateStats(translations) {
+  const statsGrid = document.getElementById('stats-grid');
+  statsGrid.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-value">${translations.length}</div>
+      <div class="stat-label">Traductions totales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${new Set(translations.map(t => t.language)).size}</div>
+      <div class="stat-label">Langues</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">${translations.filter(t => t.is_verified).length}</div>
+      <div class="stat-label">Vérifiées</div>
+    </div>
+  `;
+}
+
+// Copier une traduction dans le presse-papier
+function copyTranslation(lang) {
+  const card = document.querySelector(`[data-lang="${lang}"]`);
+  if (!card) return;
+  const texts = Array.from(card.querySelectorAll('.content-text')).map(el => el.textContent.trim());
+  navigator.clipboard.writeText(texts.join('\n\n'))
+    .then(() => showAlert('✅ Traduction copiée dans le presse-papier', 'success'))
+    .catch(() => showAlert('❌ Impossible de copier', 'error'));
+}
+
+// Supprimer une traduction par son ID BDD
+async function deleteTranslationById(id) {
+  if (!confirm('Supprimer cette traduction ?')) return;
+
+  try {
+    const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+    const data = await response.json();
+
+    if (data.success) {
+      document.querySelector(`[data-translation-id="${id}"]`)?.remove();
+      showAlert('✅ Traduction supprimée', 'success');
+      loadExistingTranslations();
+    } else {
+      showAlert('❌ Erreur: ' + (data.error ?? 'Inconnue'), 'error');
+    }
+  } catch (error) {
+    showAlert('❌ Erreur réseau', 'error');
+  }
+}
+
+// Afficher une alerte temporaire
+function showAlert(message, type) {
+  const container = document.getElementById('alert-container');
+  const alert = document.createElement('div');
+  alert.className = `alert alert-${type}`;
+  alert.textContent = message;
+  container.appendChild(alert);
+  setTimeout(() => alert.remove(), 5000);
+}
+
+// Échapper le HTML pour éviter les XSS
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+  loadSupportedLanguages();
+  loadExistingTranslations();
+});
+</script>
+{% endblock %}

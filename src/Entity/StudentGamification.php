@@ -15,7 +15,7 @@ class StudentGamification
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\OneToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?User $user = null;
 
@@ -32,25 +32,28 @@ class StudentGamification
     #[ORM\Column(type: Types::INTEGER)]
     private int $streak = 0;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'last_activity', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastActivity = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $badges = null;
+    private ?array $badges = [];
 
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(name: 'total_decks_completed', type: Types::INTEGER)]
     private int $totalDecksCompleted = 0;
 
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(name: 'total_correct_answers', type: Types::INTEGER)]
     private int $totalCorrectAnswers = 0;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->badges = [];
     }
+
+    // ===================== GETTERS & SETTERS =====================
 
     public function getId(): ?int
     {
@@ -147,9 +150,9 @@ class StudentGamification
         return $this->badges ?? [];
     }
 
-    public function setBadges(array $badges): static
+    public function setBadges(?array $badges): static
     {
-        $this->badges = $badges;
+        $this->badges = $badges ?? [];
         return $this;
     }
 
@@ -210,6 +213,9 @@ class StudentGamification
         return $this;
     }
 
+    /**
+     * Calcule le pourcentage de progression vers le prochain niveau
+     */
     public function getLevelProgress(): int
     {
         return $this->points % 100;

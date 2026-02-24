@@ -6,7 +6,6 @@ use App\Entity\Assignment;
 use App\Entity\Project;
 use App\Repository\AssignmentRepository;
 use App\Repository\ProjectRepository;
-use App\Service\NotificationManager;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -14,21 +13,18 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 #[AsCommand(
     name: 'app:check-deadlines',
-    description: 'Send in-app and email reminders for assignments/projects due tomorrow',
+    description: 'Vérifie les échéances des projets et tâches et envoie des notifications si nécessaire'
 )]
 class CheckDeadlinesCommand extends Command
 {
     public function __construct(
-        private readonly AssignmentRepository $assignmentRepo,
-        private readonly ProjectRepository $projectRepo,
-        private readonly NotificationManager $notificationManager,
-        private readonly NotificationService $notificationService,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly EntityManagerInterface $em
+        private ProjectRepository $projectRepo,
+        private AssignmentRepository $assignmentRepo,
+        private NotificationService $notificationService,
+        private EntityManagerInterface $em
     ) {
         parent::__construct();
     }
@@ -36,78 +32,50 @@ class CheckDeadlinesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Deadline check for tomorrow reminders');
+        $io->title('Vérification des échéances - ' . date('d/m/Y H:i'));
 
         $today = new \DateTime('today');
         $tomorrow = (clone $today)->modify('+1 day');
-        $dayAfterTomorrow = (clone $today)->modify('+2 days');
 
-        $updatedCount = 0;
-
-        $tasks = $this->assignmentRepo->createQueryBuilder('a')
-            ->where('a.dateFin BETWEEN :tomorrow AND :dayAfterTomorrow')
-            ->andWhere('a.statut != :done')
-            ->setParameter('tomorrow', $tomorrow)
-            ->setParameter('dayAfterTomorrow', $dayAfterTomorrow)
-            ->setParameter('done', 'Termin�')
-            ->getQuery()
-            ->getResult();
-
-        foreach ($tasks as $task) {
-            /** @var Assignment $task */
-            $user = $task->getUser();
-            if (!$user) {
-                continue;
-            }
-
-            $this->notificationManager->createNotification(
-                $user,
-                'Task due tomorrow',
-                sprintf('"%s" is due tomorrow (%s).', $task->getTitre(), $task->getDateFin()?->format('d/m/Y')),
-                'deadline_task',
-                $this->urlGenerator->generate('app_assignments_show', ['id' => $task->getId()])
-            );
-
-            if ($user->getSettings() && $user->getSettings()->isEmailNotifications()) {
-                $this->notificationService->notifyTaskDeadline($task);
-            }
-
-            $updatedCount++;
-        }
-
+        // === Projets proches de l'échéance ===
         $projects = $this->projectRepo->createQueryBuilder('p')
-            ->where('p.dateFin BETWEEN :tomorrow AND :dayAfterTomorrow')
-            ->andWhere('p.statut != :done')
+            ->where('p.dateFin BETWEEN :today AND :tomorrow')
+            ->andWhere('p.statut != :termine')
+            ->setParameter('today', $today)
             ->setParameter('tomorrow', $tomorrow)
-            ->setParameter('dayAfterTomorrow', $dayAfterTomorrow)
-            ->setParameter('done', 'Termin�')
+            ->setParameter('termine', 'Terminé')
             ->getQuery()
             ->getResult();
+
+        $io->section('Projets proches de l\'échéance');
+        $io->writeln(count($projects) . ' projet(s) concerné(s)');
 
         foreach ($projects as $project) {
             /** @var Project $project */
-            $user = $project->getUser();
-            if (!$user) {
-                continue;
-            }
-
-            $this->notificationManager->createNotification(
-                $user,
-                'Project due tomorrow',
-                sprintf('"%s" is due tomorrow (%s).', $project->getTitre(), $project->getDateFin()?->format('d/m/Y')),
-                'deadline_project',
-                $this->urlGenerator->generate('app_project_show', ['id' => $project->getId()])
-            );
-
-            if ($user->getSettings() && $user->getSettings()->isEmailNotifications()) {
-                $this->notificationService->notifyProjectDeadline($project);
-            }
-
-            $updatedCount++;
+            $this->notificationService->notifyProjectDeadline($project);
+            $io->success('Notification envoyée pour projet : ' . $project->getTitre());
         }
 
-        $this->em->flush();
-        $io->success(sprintf('%d reminder notification(s) sent.', $updatedCount));
+        // === Tâches (Assignments) proches de l'échéance ===
+        $tasks = $this->assignmentRepo->createQueryBuilder('a')
+            ->where('a.dateFin BETWEEN :today AND :tomorrow')
+            ->andWhere('a.statut != :termine')
+            ->setParameter('today', $today)
+            ->setParameter('tomorrow', $tomorrow)
+            ->setParameter('termine', 'Terminé')
+            ->getQuery()
+            ->getResult();
+
+        $io->section('Tâches proches de l\'échéance');
+        $io->writeln(count($tasks) . ' tâche(s) concernée(s)');
+
+        foreach ($tasks as $task) {
+            /** @var Assignment $task */
+            $this->notificationService->notifyTaskDeadline($task);
+            $io->success('Notification envoyée pour tâche : ' . $task->getTitre());
+        }
+
+        $io->success('Vérification terminée.');
 
         return Command::SUCCESS;
     }

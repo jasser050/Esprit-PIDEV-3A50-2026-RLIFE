@@ -11,10 +11,10 @@ class EvalMat
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Matiere::class, inversedBy: 'evalMats')]
+    #[ORM\ManyToOne(targetEntity: Matiere::class)]
     #[ORM\JoinColumn(name: 'matiere_id', referencedColumnName: 'id_matiere', nullable: false, onDelete: 'CASCADE')]
     private ?Matiere $matiere = null;
 
@@ -32,7 +32,7 @@ class EvalMat
         return $this->matiere;
     }
 
-    public function setMatiere(?Matiere $matiere): self
+    public function setMatiere(?Matiere $matiere): static
     {
         $this->matiere = $matiere;
         return $this;
@@ -43,7 +43,7 @@ class EvalMat
         return $this->evaluation;
     }
 
-    public function setEvaluation(?EvaluationMatiere $evaluation): self
+    public function setEvaluation(?EvaluationMatiere $evaluation): static
     {
         $this->evaluation = $evaluation;
         return $this;
