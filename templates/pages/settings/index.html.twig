@@ -18,149 +18,212 @@
 </div>
 
 <div class="space-y-10 max-w-7xl mx-auto px-4 py-6">
-    <!-- Modern Profile Card - Stunning Design -->
+    <!-- Ultra Modern Profile Hero Card -->
     <div class="relative">
-        <!-- Main Profile Card -->
-        <div class="relative bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <!-- Gradient Background Decoration -->
-            <div class="absolute top-0 right-0 w-96 h-96 opacity-30 pointer-events-none" style="background: radial-gradient(circle at top right, #06b6d4, transparent 70%);"></div>
-            <div class="absolute bottom-0 left-0 w-96 h-96 opacity-30 pointer-events-none" style="background: radial-gradient(circle at bottom left, #a855f7, transparent 70%);"></div>
+        <!-- Floating Particles Background -->
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 dark:from-indigo-600/20 dark:to-purple-600/20 rounded-full blur-3xl animate-pulse" style="animation-duration: 6s;"></div>
+        <div class="absolute -bottom-24 -right-24 w-[28rem] h-[28rem] bg-gradient-to-br from-pink-500/30 to-rose-500/30 dark:from-pink-600/20 dark:to-rose-600/20 rounded-full blur-3xl animate-pulse" style="animation-duration: 7s; animation-delay: 2s;"></div>
+        
+        <!-- Main Card with Advanced Glassmorphism -->
+        <div class="relative backdrop-blur-2xl bg-white/70 dark:bg-slate-900/70 rounded-[3rem] shadow-2xl overflow-hidden">
+            <!-- Animated Gradient Border -->
+            <div class="absolute inset-0 rounded-[3rem] p-[3px] bg-gradient-to-r from-indigo-500 via-purple-500 via-pink-500 to-rose-500 opacity-90"></div>
             
-            <div class="relative p-8">
-                <!-- Profile Section -->
-                <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8">
-                    <!-- Profile Picture - Perfect Size -->
-                    <div class="relative shrink-0">
-                        <div id="profile-pic-wrapper" class="relative w-24 h-24 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg overflow-hidden ring-4 ring-white dark:ring-slate-900 hover:shadow-xl hover:scale-105 transition-all duration-300" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 50%, #ddd6fe 100%);">
-                            {% if app.user.profilePic %}
-                                <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
-                            {% else %}
-                                <!-- Initials (will be replaced by avatar) -->
-                                <span id="profile-initials" class="text-slate-700">{{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}</span>
-                            {% endif %}
-                            
-                            <!-- 3D Avatar Animation Container (INSIDE profile pic) -->
-                            <div id="avatar-climb-container" 
-                                 data-gender="{{ app.user.gender ?? 'male' }}" 
-                                 class="absolute inset-0 z-10 pointer-events-none">
-                            </div>
-                        </div>
-                        <!-- Online Status Indicator -->
-                        <div class="absolute bottom-1 right-1 w-5 h-5 bg-green-500 rounded-full border-3 border-white dark:border-slate-900 shadow-sm z-30"></div>
+            <!-- Inner Content -->
+            <div class="relative bg-white/95 dark:bg-slate-900/95 rounded-[2.9rem] m-[3px]">
+                <!-- Header Section with Curve Design -->
+                <div class="relative h-56 md:h-64 overflow-hidden">
+                    <!-- Dynamic Gradient Background - More vibrant -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-indigo-900/50 via-transparent to-transparent"></div>
+                    <div class="absolute top-0 right-0 w-2/3 h-full bg-gradient-to-l from-violet-500/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-pink-600/40 to-transparent"></div>
+                    
+                    <!-- Animated Grid Pattern -->
+                    <div class="absolute inset-0 opacity-15" style="background-image: linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size: 40px 40px;"></div>
+                    
+                    <!-- Floating Geometric Shapes - More colorful -->
+                    <div class="absolute top-6 left-8 w-28 h-28 border-2 border-white/30 rounded-2xl rotate-12 animate-pulse" style="animation-duration: 4s;"></div>
+                    <div class="absolute top-14 right-20 w-20 h-20 bg-white/15 rounded-full animate-pulse" style="animation-duration: 5s; animation-delay: 1s;"></div>
+                    <div class="absolute bottom-14 left-1/4 w-14 h-14 border-2 border-white/20 rotate-45 animate-pulse" style="animation-duration: 3.5s; animation-delay: 2s;"></div>
+                    <div class="absolute bottom-6 right-1/3 w-24 h-24 bg-gradient-to-br from-amber-400/40 to-pink-400/40 rounded-full blur-2xl animate-pulse" style="animation-duration: 4.5s;"></div>
+                    <div class="absolute top-1/2 left-6 w-10 h-10 bg-gradient-to-br from-cyan-400/50 to-blue-400/50 rounded-lg rotate-12 animate-pulse" style="animation-duration: 3s; animation-delay: 0.5s;"></div>
+                    <div class="absolute top-8 right-1/3 w-6 h-6 bg-white/40 rounded-full animate-pulse" style="animation-duration: 2.5s;"></div>
+                    <div class="absolute bottom-20 left-12 w-8 h-8 border border-white/25 rotate-45 animate-pulse" style="animation-duration: 3.2s; animation-delay: 1.5s;"></div>
+                    
+                    <!-- Curved Wave Divider -->
+                    <div class="absolute bottom-0 left-0 right-0 h-16">
+                        <svg class="absolute bottom-0 w-full h-24" viewBox="0 0 1440 120" preserveAspectRatio="none">
+                            <path class="fill-white dark:fill-slate-900" d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"></path>
+                        </svg>
                     </div>
                     
-                    <!-- Profile Information -->
-                    <div class="flex-1">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-3">
-                            <div>
-                                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">
-                                    {{ app.user.fullName }}
-                                </h1>
-                                <p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                                    <i data-lucide="at-sign" class="w-4 h-4"></i>
-                                    <span class="font-medium">{{ app.user.username }}</span>
-                                </p>
-                            </div>
-                            
-                            <!-- Member Since Badge -->
-                            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200 dark:border-primary-800">
-                                <i data-lucide="calendar" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
-                                <div class="text-left">
-                                    <p class="text-xs text-primary-600 dark:text-primary-400 font-semibold">Member Since</p>
-                                    <p class="text-xs text-slate-600 dark:text-slate-300 font-bold">{{ app.user.createdAt|date('M Y') }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Badges -->
-                        <div class="flex flex-wrap items-center gap-2 mb-4">
-                            {% if app.user.isAdmin() %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
-                                <i data-lucide="crown" class="w-3.5 h-3.5"></i>
-                                Administrator
+                    <!-- Status Badges -->
+                    <div class="absolute top-6 left-6 flex items-center gap-3">
+                        <div class="flex items-center gap-2 px-4 py-2 bg-black/30 backdrop-blur-md rounded-full border border-white/20">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
                             </span>
-                            {% endif %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md">
-                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
-                                Active Account
-                            </span>
-                            {% if app.user.university %}
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
-                                <i data-lucide="graduation-cap" class="w-3.5 h-3.5"></i>
-                                {{ app.user.university }}
-                            </span>
-                            {% endif %}
+                            <span class="text-white text-xs font-semibold">Online</span>
                         </div>
-                        
-                        <!-- Bio -->
-                        {% if app.user.bio %}
-                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
-                            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                                <i data-lucide="message-square" class="w-4 h-4 inline mr-1.5 text-slate-400"></i>
-                                {{ app.user.bio }}
-                            </p>
+                    </div>
+                    
+                    <div class="absolute top-6 right-6 flex items-center gap-3">
+                        <div class="flex items-center gap-2 px-4 py-2 bg-black/30 backdrop-blur-md rounded-full border border-white/20">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 text-white"></i>
+                            <span class="text-white text-xs font-semibold">{{ app.user.createdAt|date('M Y') }}</span>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
                 
-                <!-- Stats Grid - Beautiful Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <!-- Projects Stat -->
-                    <div class="group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 dark:from-blue-950/30 dark:via-cyan-950/30 dark:to-blue-900/30 border border-blue-200 dark:border-blue-800 hover:shadow-xl hover:scale-105 transition-all duration-300">
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <i data-lucide="folder" class="w-6 h-6 text-white"></i>
+                <!-- Main Content Area -->
+                <div class="relative px-6 md:px-10 pb-8 -mt-20">
+                    <!-- Profile Section - Asymmetric Layout -->
+                    <div class="flex flex-col lg:flex-row items-end gap-8">
+                        <!-- Large Profile Picture with Glowing Ring -->
+                        <div class="relative shrink-0 self-center lg:self-auto">
+                            <!-- Multiple Glowing Rings - Matching header colors -->
+                            <div class="absolute -inset-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-xl opacity-60 animate-pulse" style="animation-duration: 2s;"></div>
+                            <div class="absolute -inset-1.5 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 rounded-full blur-lg opacity-80 animate-pulse" style="animation-duration: 3s; animation-delay: 0.5s;"></div>
+                            
+                            <!-- Profile Picture -->
+                            <div id="profile-pic-wrapper" class="relative w-44 h-44 md:w-52 md:h-52 rounded-full overflow-hidden ring-8 ring-white dark:ring-slate-900 shadow-2xl bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 dark:from-indigo-900 dark:via-purple-900 dark:to-pink-900 hover:scale-105 transition-transform duration-500">
+                                {% if app.user.profilePic %}
+                                    <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
+                                {% else %}
+                                    <span id="profile-initials" class="absolute inset-0 flex items-center justify-center text-5xl md:text-6xl font-black text-slate-600 dark:text-slate-300">{{ app.user.firstName|first|upper ~ app.user.lastName|first|upper }}</span>
+                                {% endif %}
+                                
+                                <!-- 3D Avatar Container -->
+                                <div id="avatar-climb-container" 
+                                     data-avatar-type="{{ app.user.avatarType ?? 'male-avatar.glb' }}" 
+                                     class="absolute inset-0 z-10 pointer-events-none"
+                                     style="width: 100%; height: 100%;">
                                 </div>
-                                <i data-lucide="trending-up" class="w-5 h-5 text-blue-400 dark:text-blue-500"></i>
                             </div>
-                            <p class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 mb-1">
-                                {{ total_projects ?? 0 }}
-                            </p>
-                            <p class="text-sm font-bold text-slate-600 dark:text-slate-300">Total Projects</p>
+                            
+                            <!-- Floating Badge -->
+                            <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-lg ring-4 ring-white dark:ring-slate-900">
+                                <i data-lucide="check" class="w-5 h-5 text-white"></i>
+                            </div>
                         </div>
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full -mr-10 -mt-10"></div>
+                        
+                        <!-- Info Section -->
+                        <div class="flex-1 text-center lg:text-left pt-4">
+                            <div class="flex flex-col lg:flex-row lg:items-center gap-3 mb-3">
+                                <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                                    {{ app.user.fullName }}
+                                </h1>
+                                <!-- Creative Badge Display -->
+                                {% if app.user.isAdmin() %}
+                                <span class="inline-flex items-center gap-1.5 px-5 py-2 rounded-2xl text-sm font-bold bg-gradient-to-r from-violet-500 via-fuchsia-500 to-cyan-500 text-white shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-shadow">
+                                    <i data-lucide="crown" class="w-4 h-4"></i>
+                                    Administrator
+                                </span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-4">
+                                <div class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                    <i data-lucide="at-sign" class="w-4 h-4 text-slate-500"></i>
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ app.user.username }}</span>
+                                </div>
+                                {% if app.user.university %}
+                                <div class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-100 to-cyan-100 dark:from-violet-900/50 dark:to-cyan-900/50 rounded-full">
+                                    <i data-lucide="graduation-cap" class="w-4 h-4 text-violet-500"></i>
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ app.user.university }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Creative Status Indicator -->
+                            <div class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full shadow-md shadow-green-500/25">
+                                <span class="relative flex h-2 w-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                                </span>
+                                <span class="text-white text-sm font-bold">Active Account</span>
+                            </div>
+                        </div>
                     </div>
                     
-                    <!-- Courses Stat -->
-                    <div class="group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-100 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-900/30 border border-purple-200 dark:border-purple-800 hover:shadow-xl hover:scale-105 transition-all duration-300">
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
-                                </div>
-                                <i data-lucide="star" class="w-5 h-5 text-purple-400 dark:text-purple-500"></i>
-                            </div>
-                            <p class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 mb-1">
-                                {{ total_courses ?? 0 }}
-                            </p>
-                            <p class="text-sm font-bold text-slate-600 dark:text-slate-300">Active Courses</p>
-                        </div>
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full -mr-10 -mt-10"></div>
+                    <!-- Bio Section -->
+                    {% if app.user.bio %}
+                    <div class="mt-8 p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 rounded-2xl border border-slate-200/50 dark:border-slate-700/50">
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed text-center">
+                            <i data-lucide="quote" class="w-5 h-5 inline text-violet-400 mr-2"></i>
+                            {{ app.user.bio }}
+                        </p>
                     </div>
+                    {% endif %}
                     
-                    <!-- Decks Stat -->
-                    <div class="group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-950/30 dark:via-emerald-950/30 dark:to-green-900/30 border border-green-200 dark:border-green-800 hover:shadow-xl hover:scale-105 transition-all duration-300">
-                        <div class="relative z-10">
-                            <div class="flex items-center justify-between mb-3">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                    <i data-lucide="layers" class="w-6 h-6 text-white"></i>
+                    <!-- Stats Cards - Creative Compact Design -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <!-- Projects - Compact Creative Card -->
+                        <div class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                            <div class="relative p-5 bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 overflow-hidden">
+                                <!-- Decorative shapes -->
+                                <div class="absolute top-2 right-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+                                <div class="absolute bottom-2 left-2 w-10 h-10 border border-white/20 rotate-45"></div>
+                                <div class="absolute top-4 left-4 w-3 h-3 bg-white/30 rounded-full"></div>
+                                <!-- Content -->
+                                <div class="relative flex items-center justify-between">
+                                    <div>
+                                        <p class="text-3xl font-black text-white">{{ total_projects ?? 0 }}</p>
+                                        <p class="text-sm font-semibold text-white/80">Projects</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                        <i data-lucide="folder-kanban" class="w-6 h-6 text-white"></i>
+                                    </div>
                                 </div>
-                                <i data-lucide="zap" class="w-5 h-5 text-green-400 dark:text-green-500"></i>
                             </div>
-                            <p class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 mb-1">
-                                {{ total_decks ?? 0 }}
-                            </p>
-                            <p class="text-sm font-bold text-slate-600 dark:text-slate-300">Flashcard Decks</p>
                         </div>
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-green-500/10 rounded-full -mr-10 -mt-10"></div>
+                        
+                        <!-- Courses - Compact Creative Card -->
+                        <div class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                            <div class="relative p-5 bg-gradient-to-br from-pink-500 via-rose-500 to-pink-600 overflow-hidden">
+                                <!-- Decorative shapes -->
+                                <div class="absolute top-2 right-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+                                <div class="absolute bottom-2 left-2 w-10 h-10 border border-white/20 rotate-45"></div>
+                                <div class="absolute top-4 left-4 w-3 h-3 bg-white/30 rounded-full"></div>
+                                <!-- Content -->
+                                <div class="relative flex items-center justify-between">
+                                    <div>
+                                        <p class="text-3xl font-black text-white">{{ total_courses ?? 0 }}</p>
+                                        <p class="text-sm font-semibold text-white/80">Courses</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                        <i data-lucide="book-open-check" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Flashcard Decks - Compact Creative Card -->
+                        <div class="group relative rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+                            <div class="relative p-5 bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-600 overflow-hidden">
+                                <!-- Decorative shapes -->
+                                <div class="absolute top-2 right-4 w-16 h-16 bg-white/10 rounded-full blur-xl"></div>
+                                <div class="absolute bottom-2 left-2 w-10 h-10 border border-white/20 rotate-45"></div>
+                                <div class="absolute top-4 left-4 w-3 h-3 bg-white/30 rounded-full"></div>
+                                <!-- Content -->
+                                <div class="relative flex items-center justify-between">
+                                    <div>
+                                        <p class="text-3xl font-black text-white">{{ total_decks ?? 0 }}</p>
+                                        <p class="text-sm font-semibold text-white/80">Flashcard Decks</p>
+                                    </div>
+                                    <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                        <i data-lucide="layers-3" class="w-6 h-6 text-white"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
     <!-- Quick Info Grid - Compact -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Email Card -->
@@ -245,7 +308,7 @@
                         Profile Picture
                     </label>
                     <div class="flex items-center gap-8">
-                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
+                        <div class="w-32 h-32 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-2xl shadow-lg overflow-hidden" id="profile-pic-preview">
                             {% if app.user.profilePic %}
                                 <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
@@ -492,6 +555,263 @@
                 </div>
             </div>
             <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(168, 85, 247, 0.2), transparent); filter: blur(40px);"></div>
+        </div>
+
+        <!-- Accessibility Settings Section -->
+        <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all group shadow-lg"
+             data-controller="accessibility"
+             data-accessibility-font-size-value="{{ app.user.settings.fontSize|default('normal') }}"
+             data-accessibility-font-family-value="{{ app.user.settings.fontFamily|default('system') }}"
+             data-accessibility-accent-color-value="{{ app.user.settings.accentColor|default('#6366f1') }}"
+             data-accessibility-reduce-motion-value="{{ app.user.settings.reduceMotion ? 'true' : 'false' }}"
+             data-accessibility-high-contrast-value="{{ app.user.settings.highContrast ? 'true' : 'false' }}"
+             data-accessibility-line-height-value="{{ app.user.settings.lineHeight|default('normal') }}"
+             data-accessibility-letter-spacing-value="{{ app.user.settings.letterSpacing|default('normal') }}"
+             data-accessibility-zoom-level-value="{{ app.user.settings.zoomLevel|default(100) }}"
+             data-accessibility-language-value="{{ app.user.settings.language|default('en') }}"
+             data-accessibility-theme-value="{{ app.user.settings.themePreference|default('auto') }}"
+             data-accessibility-save-url-value="{{ path('app_settings_accessibility_save') }}">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-xl flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">
+                        <i data-lucide="accessibility" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Accessibility & Personalization</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Customize your experience for better accessibility</p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+            
+            <div class="space-y-8">
+                <!-- Help Box -->
+                <div class="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center shadow-md flex-shrink-0">
+                            <i data-lucide="info" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-blue-700 dark:text-blue-300 mb-2">What do these settings do?</p>
+                            <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1">
+                                <li><strong>Theme:</strong> Changes the entire app to light, dark, or follows your system setting</li>
+                                <li><strong>Font Size:</strong> Makes all text bigger or smaller (great for visual comfort)</li>
+                                <li><strong>Font Family:</strong> Changes the style of text letters</li>
+                                <li><strong>Accent Color:</strong> Changes the primary color of buttons, links, and highlights</li>
+                                <li><strong>Line Height:</strong> Adds more or less space between lines of text</li>
+                                <li><strong>Letter Spacing:</strong> Adds more or less space between letters</li>
+                                <li><strong>Zoom:</strong> Zooms the entire website in or out (100%-200%)</li>
+                                <li><strong>Language:</strong> Changes website language (English, French, Spanish, Arabic)</li>
+                                <li><strong>Reduce Motion:</strong> Disables animations (helpful for motion sensitivity)</li>
+                                <li><strong>High Contrast:</strong> Makes text stand out more against backgrounds</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme Selection -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <i data-lucide="sun-moon" class="w-4 h-4 text-indigo-500"></i>
+                        Theme Mode
+                    </label>
+                    <div class="grid grid-cols-3 gap-3" data-accessibility-target="themeButtons">
+                        <button type="button" data-action="click->accessibility#setTheme" data-theme="light" 
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'light' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md">
+                                <i data-lucide="sun" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Light</span>
+                        </button>
+                        <button type="button" data-action="click->accessibility#setTheme" data-theme="dark"
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'dark' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
+                                <i data-lucide="moon" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Dark</span>
+                        </button>
+                        <button type="button" data-action="click->accessibility#setTheme" data-theme="auto"
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'auto' or not app.user.settings.themePreference ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center shadow-md">
+                                <i data-lucide="monitor" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Auto</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Font Size -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <i data-lucide="type" class="w-4 h-4 text-indigo-500"></i>
+                        Font Size
+                        <span data-accessibility-target="fontSizePreview" class="ml-auto text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-md font-bold">{{ app.user.settings.fontSize|default('normal')|upper }}</span>
+                    </label>
+                    <input type="range" min="1" max="6" value="{% set fs = app.user.settings.fontSize|default('normal') %}{% if fs == 'xs' %}1{% elseif fs == 'sm' %}2{% elseif fs == 'lg' %}4{% elseif fs == 'xl' %}5{% elseif fs == '2xl' %}6{% else %}3{% endif %}"
+                           data-accessibility-target="fontSizeSlider"
+                           data-action="input->accessibility#changeFontSize"
+                           class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                    <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium">
+                        <span>A</span>
+                        <span>A</span>
+                        <span class="text-base font-bold text-indigo-500">A</span>
+                        <span>A</span>
+                        <span>A</span>
+                        <span class="text-lg">A</span>
+                    </div>
+                </div>
+
+                <!-- Font Family -->
+                <div>
+                    <label for="font_family" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                        <i data-lucide="text-cursor-input" class="w-4 h-4 text-indigo-500"></i>
+                        Font Family
+                    </label>
+                    <select id="font_family" 
+                            data-accessibility-target="fontFamilySelect"
+                            data-action="change->accessibility#changeFontFamily"
+                            class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                        <option value="system" {{ app.user.settings.fontFamily == 'system' ? 'selected' : '' }}>System Default</option>
+                        <option value="roboto" {{ app.user.settings.fontFamily == 'roboto' ? 'selected' : '' }}>Roboto</option>
+                        <option value="open-sans" {{ app.user.settings.fontFamily == 'open-sans' ? 'selected' : '' }}>Open Sans</option>
+                        <option value="lato" {{ app.user.settings.fontFamily == 'lato' ? 'selected' : '' }}>Lato</option>
+                        <option value="montserrat" {{ app.user.settings.fontFamily == 'montserrat' ? 'selected' : '' }}>Montserrat</option>
+                        <option value="arial" {{ app.user.settings.fontFamily == 'arial' ? 'selected' : '' }}>Arial</option>
+                        <option value="georgia" {{ app.user.settings.fontFamily == 'georgia' ? 'selected' : '' }}>Georgia (Serif)</option>
+                        <option value="opendyslexic" {{ app.user.settings.fontFamily == 'opendyslexic' ? 'selected' : '' }}>OpenDyslexic</option>
+                    </select>
+                    <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">OpenDyslexic is designed for readers with dyslexia</p>
+                </div>
+
+                <!-- Accent Color -->
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+                        <i data-lucide="palette" class="w-4 h-4 text-indigo-500"></i>
+                        Accent Color
+                    </label>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex flex-wrap gap-3 items-center">
+                            <input type="color" value="{{ app.user.settings.accentColor|default('#6366f1') }}"
+                                   data-accessibility-target="accentColorInput"
+                                   data-action="input->accessibility#changeAccentColor"
+                                   class="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent">
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#6366f1'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));" 
+                                    class="w-9 h-9 rounded-full bg-indigo-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-indigo-300" title="Indigo"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#8b5cf6'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-violet-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-violet-300" title="Violet"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#ec4899'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-pink-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-pink-300" title="Pink"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#ef4444'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-red-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-red-300" title="Red"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#f97316'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-orange-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-orange-300" title="Orange"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#f59e0b'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-amber-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-amber-300" title="Amber"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#10b981'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-emerald-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-emerald-300" title="Emerald"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#06b6d4'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-cyan-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-cyan-300" title="Cyan"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#3b82f6'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-blue-500 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-blue-300" title="Blue"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#1f2937'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-gray-800 hover:scale-110 transition-transform shadow-md ring-2 ring-transparent hover:ring-gray-400" title="Black"></button>
+                            <button type="button" onclick="document.querySelector('[data-accessibility-target=accentColorInput]').value = '#f8fafc'; document.querySelector('[data-accessibility-target=accentColorInput]').dispatchEvent(new Event('input'));"
+                                    class="w-9 h-9 rounded-full bg-slate-50 hover:scale-110 transition-transform shadow-md ring-2 ring-slate-300 hover:ring-slate-400" title="White"></button>
+                        </div>
+                         <div class="flex items-center gap-3">
+                            <button type="button" data-action="click->accessibility#resetAccentColor" 
+                                    class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white text-sm font-medium rounded-xl shadow-md hover:shadow-lg transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                Reset to Template Default
+                            </button>
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Restores the original template colors</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography Settings -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <!-- Line Height -->
+                    <div>
+                        <label for="line_height" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <i data-lucide="align-justify" class="w-4 h-4 text-indigo-500"></i>
+                            Line Height
+                        </label>
+                        <select id="line_height"
+                                data-accessibility-target="lineHeightSelect"
+                                data-action="change->accessibility#changeLineHeight"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                            <option value="compact" {{ app.user.settings.lineHeight == 'compact' ? 'selected' : '' }}>Compact (1.25)</option>
+                            <option value="normal" {{ app.user.settings.lineHeight == 'normal' or not app.user.settings.lineHeight ? 'selected' : '' }}>Normal (1.5)</option>
+                            <option value="relaxed" {{ app.user.settings.lineHeight == 'relaxed' ? 'selected' : '' }}>Relaxed (1.75)</option>
+                            <option value="spacious" {{ app.user.settings.lineHeight == 'spacious' ? 'selected' : '' }}>Spacious (2.0)</option>
+                        </select>
+                    </div>
+
+                    <!-- Letter Spacing -->
+                    <div>
+                        <label for="letter_spacing" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
+                            <i data-lucide="space" class="w-4 h-4 text-indigo-500"></i>
+                            Letter Spacing
+                        </label>
+                        <select id="letter_spacing"
+                                data-accessibility-target="letterSpacingSelect"
+                                data-action="change->accessibility#changeLetterSpacing"
+                                class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
+                            <option value="tight" {{ app.user.settings.letterSpacing == 'tight' ? 'selected' : '' }}>Tight (-0.025em)</option>
+                            <option value="normal" {{ app.user.settings.letterSpacing == 'normal' or not app.user.settings.letterSpacing ? 'selected' : '' }}>Normal (0)</option>
+                            <option value="wide" {{ app.user.settings.letterSpacing == 'wide' ? 'selected' : '' }}>Wide (0.025em)</option>
+                            <option value="wider" {{ app.user.settings.letterSpacing == 'wider' ? 'selected' : '' }}>Wider (0.05em)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Toggle Options -->
+                <div class="space-y-4">
+                    <!-- Reduce Motion -->
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-md">
+                                <i data-lucide="activity" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">Reduce Motion</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Minimize animations and transitions</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   data-accessibility-target="reduceMotionToggle"
+                                   data-action="change->accessibility#toggleReduceMotion"
+                                   {{ app.user.settings.reduceMotion ? 'checked' : '' }}
+                                   class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:ring-2 peer-focus:ring-indigo-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                        </label>
+                    </div>
+
+                    <!-- High Contrast -->
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-md">
+                                <i data-lucide="contrast" class="w-5 h-5 text-white"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">High Contrast</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Increase text and border contrast</p>
+                             </div>
+                         </div>
+                         <label class="relative inline-flex items-center cursor-pointer">
+                             <input type="checkbox"
+                                    data-accessibility-target="highContrastToggle"
+                                    data-action="change->accessibility#toggleHighContrast"
+                                    {{ app.user.settings.highContrast ? 'checked' : '' }}
+                                    class="sr-only peer">
+                             <div class="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:ring-2 peer-focus:ring-indigo-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+                         </label>
+                     </div>
+              </div>
+              </div>
+            <div class="absolute bottom-0 right-0 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle, rgba(99, 102, 241, 0.2), transparent); filter: blur(40px);"></div>
         </div>
 
         <!-- Save Button -->
@@ -743,4 +1063,5 @@ function validateSettingsForm(event) {
     return true;
 }
 </script>
+
 {% endblock %}

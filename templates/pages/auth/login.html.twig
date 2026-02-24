@@ -86,7 +86,7 @@
             </div>
 
             <!-- Login Form -->
-            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
+            {{ form_start(form, {'attr': {'id': 'login-form', 'class': 'space-y-5'}}) }}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 
                 <!-- Email -->

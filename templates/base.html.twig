@@ -1028,6 +1028,15 @@
     }
 </script>
 
+    {% block javascripts %}
+        {{ encore_entry_script_tags('global-accessibility') }}
+        {{ encore_entry_script_tags('app') }}
+        
+        <script>
+            // Initialize Lucide icons
+            lucide.createIcons();
+        </script>
+    {% endblock %}
 </body>
 </html>
 

@@ -39,6 +39,9 @@ services:
     App\:
         resource: '../src/'
 
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
     # TranslationService — bind the API key (string, not auto-injectable)
     App\Service\TranslationService:
         bind:

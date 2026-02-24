@@ -73,6 +73,9 @@ class PublicController extends AbstractController
             $interests = $request->request->all('interests') ?? [];
             $notifications = $request->request->get('notifications') ? true : false;
             
+            // Get form data - Step 3 (Avatar)
+            $avatarType = $request->request->get('avatar_type', 'male-avatar.glb');
+            
             // Validate required fields
             if (!$email || !$password || !$firstName || !$lastName || !$username) {
                 $this->addFlash('error', 'Please fill in all required fields.');
@@ -102,8 +105,7 @@ class PublicController extends AbstractController
                 $user->setUsername($username);
                 $user->setGender($gender);
                 
-                // Assign avatar based on gender
-                $avatarType = $gender === 'female' ? 'female_avatar_1' : 'male_avatar_1';
+                // Assign selected avatar from Step 3
                 $user->setAvatarType($avatarType);
                 
                 // Hash password
@@ -153,7 +155,7 @@ class PublicController extends AbstractController
                     $this->addFlash('warning', 'Account created, but we couldn\'t send the verification email. Please contact support.');
                 }
                 
-                return $this->redirectToRoute('app_login', ['registered' => 'true', 'email' => $email]);
+                return $this->redirectToRoute('app_login');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'An error occurred: ' . $e->getMessage());
                 return $this->redirectToRoute('app_register');
