@@ -8,6 +8,9 @@ parameters:
     # OpenRouter
     openrouter_api_key: '%env(OPENROUTER_API_KEY)%'
     
+    # Gemini AI
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
+    
     # SerpAPI / RapidAPI
     app.serpapi_key: '%env(SERPAPI_KEY)%'
     app.rapidapi_key: '%env(RAPIDAPI_KEY)%'
@@ -42,6 +45,11 @@ services:
             $openrouterApiKey: '%openrouter_api_key%'
         tags:
             - { name: monolog.logger, channel: translation }
+
+    # GeminiService — bind the Gemini API key
+    App\Service\GeminiService:
+        arguments:
+            $geminiApiKey: '%gemini_api_key%'
 
     # PusherService — explicit constructor arguments
     App\Service\PusherService:
