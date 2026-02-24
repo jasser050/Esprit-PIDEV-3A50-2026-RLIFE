@@ -26,10 +26,10 @@ parameters:
     pusher.secret: '%env(PUSHER_SECRET)%'
     pusher.cluster: '%env(PUSHER_CLUSTER)%'
 
-    # Anthropic Claude AI
-    anthropic_api_key: '%env(ANTHROPIC_API_KEY)%'
 
 services:
+
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true
@@ -61,8 +61,3 @@ services:
             $key: '%pusher.key%'
             $secret: '%pusher.secret%'
             $cluster: '%pusher.cluster%'
-
-    # DeckChatbotController — inject OpenRouter API key
-    App\Controller\DeckChatbotController:
-        arguments:
-            $openrouterApiKey: '%openrouter_api_key%'

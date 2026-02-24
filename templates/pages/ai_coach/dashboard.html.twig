@@ -59,8 +59,9 @@
                 </div>
             </div>
             <div class="mt-4 p-4 bg-white/10 rounded-lg backdrop-blur-sm">
-                <p class="text-sm italic">"{{ recommendations.motivational_message.quote }}"</p>
-            </div>
+{% if recommendations.motivational_message.quote is defined %}
+    <p class="text-sm italic">"{{ recommendations.motivational_message.quote }}"</p>
+{% endif %}            </div>
         </div>
     </div>
     
