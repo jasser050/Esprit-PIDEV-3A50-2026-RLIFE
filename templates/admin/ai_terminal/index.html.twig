@@ -1,0 +1,463 @@
+{% extends 'admin/base_admin.html.twig' %}
+
+{% block title %}AI Terminal{% endblock %}
+{% block page_title %}AI Terminal{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .ai-terminal-container {
+        min-height: calc(100vh - 8rem);
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 0;
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+
+    .terminal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .terminal-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        background: #0f172a;
+        min-height: 500px;
+        max-height: 600px;
+    }
+
+    .message {
+        margin-bottom: 1.5rem;
+        animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-user {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .message-assistant {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .message-bubble {
+        max-width: 80%;
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        position: relative;
+    }
+
+    .message-user .message-bubble {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+    }
+
+    .message-assistant .message-bubble {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    .message-bubble.success {
+        border-left: 3px solid #10b981;
+    }
+
+    .message-bubble.error {
+        border-left: 3px solid #ef4444;
+    }
+
+    .user-result {
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .user-card {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .user-avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 0.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .terminal-input-container {
+        padding: 1.5rem;
+        background: #1e293b;
+        border-radius: 0 0 1rem 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .terminal-input {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .terminal-input input {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        padding: 0.875rem 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+
+    .terminal-input input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .terminal-input input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .send-button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.875rem 1.75rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .send-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 0.25rem;
+        padding: 0.5rem;
+    }
+
+    .typing-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typingBounce {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="ai-terminal-container">
+    <!-- Header Section -->
+    <div class="terminal-header">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                    <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">AI Terminal</h1>
+                    <p class="text-sm text-white/80 mt-1">Powered by Gemini 2.0 Flash</p>
+                </div>
+            </div>
+            <button id="clear-history-btn" 
+                    class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                Clear History
+            </button>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-white/70">
+            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            <span>Connected | Manage users with natural language commands</span>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="terminal-messages" class="terminal-messages">
+        <!-- Welcome Message -->
+        <div class="message message-assistant">
+            <div class="message-bubble">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-violet-400"></i>
+                    <span class="font-semibold text-violet-400">AI Assistant</span>
+                </div>
+                <p>Welcome to the AI Terminal! I can help you manage users in your RLIFE platform using natural language commands.</p>
+                <p class="mt-2 text-sm text-white/60">Try commands like:</p>
+                <ul class="mt-2 space-y-1 text-sm text-white/60">
+                    <li>• "Add a student named John with email john@test.com"</li>
+                    <li>• "Show user with ID 5"</li>
+                    <li>• "Update user 3 email to newemail@test.com"</li>
+                    <li>• "Delete user 10"</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Container -->
+    <div class="terminal-input-container">
+        <form id="terminal-form" class="terminal-input">
+            <input type="text" 
+                   id="message-input" 
+                   placeholder="Type your command... (e.g., 'Add a new student with email test@example.com')"
+                   autocomplete="off"
+                   required>
+            <button type="submit" 
+                    id="send-button" 
+                    class="send-button">
+                <span class="flex items-center gap-2">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                    Send
+                </span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    const messagesContainer = document.getElementById('terminal-messages');
+    const terminalForm = document.getElementById('terminal-form');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+    // Load chat history on page load
+    loadHistory();
+
+    // Handle form submission
+    terminalForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        // Add user message to UI
+        addMessage('user', message);
+        messageInput.value = '';
+
+        // Show typing indicator
+        const typingId = showTypingIndicator();
+
+        // Disable input while processing
+        setInputState(false);
+
+        try {
+            const response = await fetch('{{ path('app_admin_ai_terminal_chat') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message })
+            });
+
+            const data = await response.json();
+
+            // Remove typing indicator
+            removeTypingIndicator(typingId);
+
+            // Add AI response
+            addMessage('assistant', data.message, data.success ? 'success' : 'error', data.result);
+
+        } catch (error) {
+            removeTypingIndicator(typingId);
+            addMessage('assistant', 'Error: Unable to connect to AI service. Please try again.', 'error');
+        } finally {
+            setInputState(true);
+            messageInput.focus();
+        }
+    });
+
+    // Clear history
+    clearHistoryBtn.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to clear the chat history?')) return;
+
+        try {
+            await fetch('{{ path('app_admin_ai_terminal_clear') }}', { method: 'POST' });
+            
+            // Clear messages except welcome message
+            const messages = messagesContainer.querySelectorAll('.message');
+            messages.forEach((msg, index) => {
+                if (index > 0) msg.remove();
+            });
+
+        } catch (error) {
+            alert('Error clearing history');
+        }
+    });
+
+    // Load chat history
+    async function loadHistory() {
+        try {
+            const response = await fetch('{{ path('app_admin_ai_terminal_history') }}');
+            const data = await response.json();
+
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(msg => {
+                    if (msg.role !== 'system') {
+                        addMessage(msg.role, msg.content, null, null, false);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error loading history:', error);
+        }
+    }
+
+    // Add message to chat
+    function addMessage(role, content, status = null, result = null, scroll = true) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${role}`;
+
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = `message-bubble ${status || ''}`;
+
+        if (role === 'assistant') {
+            const header = document.createElement('div');
+            header.className = 'flex items-center gap-2 mb-2';
+            header.innerHTML = `
+                <i data-lucide="sparkles" class="w-4 h-4 text-violet-400"></i>
+                <span class="font-semibold text-violet-400">AI Assistant</span>
+            `;
+            bubbleDiv.appendChild(header);
+        }
+
+        const contentP = document.createElement('p');
+        contentP.textContent = content;
+        bubbleDiv.appendChild(contentP);
+
+        // Add result display if present
+        if (result) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'user-result';
+
+            if (Array.isArray(result)) {
+                result.forEach(user => {
+                    const userCard = createUserCard(user);
+                    resultDiv.appendChild(userCard);
+                });
+            } else {
+                const userCard = createUserCard(result);
+                resultDiv.appendChild(userCard);
+            }
+
+            bubbleDiv.appendChild(resultDiv);
+        }
+
+        messageDiv.appendChild(bubbleDiv);
+        messagesContainer.appendChild(messageDiv);
+
+        // Re-initialize Lucide icons
+        lucide.createIcons();
+
+        if (scroll) {
+            scrollToBottom();
+        }
+    }
+
+    // Create user card
+    function createUserCard(user) {
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        
+        const initials = (user.firstName?.[0] || '') + (user.lastName?.[0] || '');
+        
+        card.innerHTML = `
+            <div class="user-avatar">${initials}</div>
+            <div class="flex-1">
+                <div class="font-semibold text-white">${user.fullName || 'N/A'}</div>
+                <div class="text-xs text-slate-400">${user.email || 'No email'}</div>
+                ${user.university ? `<div class="text-xs text-slate-500">${user.university}</div>` : ''}
+            </div>
+            <div class="text-xs text-slate-400">ID: ${user.id}</div>
+        `;
+        
+        return card;
+    }
+
+    // Show typing indicator
+    function showTypingIndicator() {
+        const id = 'typing-' + Date.now();
+        const messageDiv = document.createElement('div');
+        messageDiv.id = id;
+        messageDiv.className = 'message message-assistant';
+        messageDiv.innerHTML = `
+            <div class="message-bubble">
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+        return id;
+    }
+
+    // Remove typing indicator
+    function removeTypingIndicator(id) {
+        const indicator = document.getElementById(id);
+        if (indicator) indicator.remove();
+    }
+
+    // Set input state
+    function setInputState(enabled) {
+        messageInput.disabled = !enabled;
+        sendButton.disabled = !enabled;
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+</script>
+{% endblock %}
