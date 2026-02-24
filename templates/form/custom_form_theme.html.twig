@@ -1,0 +1,12 @@
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <div class="mt-1 space-y-1">
+            {% for error in errors %}
+                <p class="text-sm text-red-600 dark:text-red-400">
+                    <i data-lucide="alert-circle" class="w-4 h-4 inline-block mr-1"></i>
+                    {{ error.message }}
+                </p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

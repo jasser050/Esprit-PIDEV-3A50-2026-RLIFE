@@ -1,0 +1,165 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add session{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
+
+    {% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Schedule', href: path('app_planning') },
+            { label: 'Sessions', href: path('app_seance_index') },
+            { label: 'Add session' }
+        ]
+    } %}
+
+    {% include 'components/page_header.html.twig' with {
+        title: 'Add session',
+        subtitle: 'Create a new session'
+    } %}
+
+    {# Alert global si le formulaire a des erreurs #}
+    {% if form.vars.submitted and not form.vars.valid %}
+        <div class="alert alert-danger animate-fade-in">
+            <i data-lucide="alert-circle" class="w-5 h-5 alert-icon"></i>
+            <div>
+                <p class="font-medium">Please correct the errors below</p>
+                <p class="text-sm mt-0.5">Some fields require your attention</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {{ form_start(form, {'attr': {'class': 'card p-6 space-y-6', 'novalidate': 'novalidate'}}) }}
+
+        {# Titre #}
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                {{ form_label(form.titre, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300'}}) }}
+                <span class="text-xs text-secondary-500 dark:text-secondary-400">Required</span>
+            </div>
+            
+            {{ form_widget(form.titre, {
+                'attr': {
+                    'class': 'w-full rounded-xl border ' ~ (form.titre.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 dark:border-secondary-800 focus:ring-primary-500') ~ ' bg-white dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white focus:outline-none focus:ring-2 transition-all',
+                    'placeholder': 'e.g., Introduction to PHP'
+                }
+            }) }}
+            
+            {# Erreurs avec icône #}
+            {% if form.titre.vars.errors|length > 0 %}
+                <div class="flex items-start gap-2 text-red-600 dark:text-red-400 text-sm mt-1 animate-fade-in">
+                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        {% for error in form.titre.vars.errors %}
+                            <p>{{ error.message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                {# Tips / Aide #}
+                <div class="flex items-start gap-2 text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+                    <i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+                    <p>3-255 characters. Letters, numbers, underscores and spaces only.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Type de séance #}
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                {{ form_label(form.typeSeance, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300'}}) }}
+                <span class="text-xs text-secondary-500 dark:text-secondary-400">Required</span>
+            </div>
+            
+            {{ form_widget(form.typeSeance, {
+                'attr': {
+                    'class': 'w-full rounded-xl border ' ~ (form.typeSeance.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 dark:border-secondary-800 focus:ring-primary-500') ~ ' bg-white dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white focus:outline-none focus:ring-2 transition-all'
+                }
+            }) }}
+            
+            {# Erreurs avec icône #}
+            {% if form.typeSeance.vars.errors|length > 0 %}
+                <div class="flex items-start gap-2 text-red-600 dark:text-red-400 text-sm mt-1 animate-fade-in">
+                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        {% for error in form.typeSeance.vars.errors %}
+                            <p>{{ error.message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                {# Tips / Aide #}
+                <div class="flex items-start gap-2 text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+                    <i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+                    <p>Choose the category that best describes this session.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Description #}
+        <div class="space-y-2">
+            <div class="flex items-center justify-between">
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-sm font-medium text-secondary-700 dark:text-secondary-300'}}) }}
+                <span class="text-xs text-secondary-500 dark:text-secondary-400">Required</span>
+            </div>
+            
+            {{ form_widget(form.description, {
+                'attr': {
+                    'rows': 4,
+                    'class': 'w-full rounded-xl border ' ~ (form.description.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 dark:border-secondary-800 focus:ring-primary-500') ~ ' bg-white dark:bg-secondary-900 px-3 py-2 text-sm text-secondary-900 dark:text-white focus:outline-none focus:ring-2 resize-none transition-all',
+                    'placeholder': 'Describe what this session will cover...'
+                }
+            }) }}
+            
+            {# Erreurs avec icône #}
+            {% if form.description.vars.errors|length > 0 %}
+                <div class="flex items-start gap-2 text-red-600 dark:text-red-400 text-sm mt-1 animate-fade-in">
+                    <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        {% for error in form.description.vars.errors %}
+                            <p>{{ error.message }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                {# Tips / Aide #}
+                <div class="flex items-start gap-2 text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+                    <i data-lucide="info" class="w-3 h-3 mt-0.5 flex-shrink-0"></i>
+                    <p>Provide a detailed description (5-1000 characters). Include objectives, topics, and what participants will learn.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        {{ form_rest(form) }}
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+            <a href="{{ path('app_seance_index') }}" class="btn btn-secondary">
+                <i data-lucide="x" class="w-4 h-4"></i>
+                Cancel
+            </a>
+            <button class="btn btn-primary" type="submit">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Create Session
+            </button>
+        </div>
+
+    {{ form_end(form) }}
+</div>
+
+<style>
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+</style>
+{% endblock %}

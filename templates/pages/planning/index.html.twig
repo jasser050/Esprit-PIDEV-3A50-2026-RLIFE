@@ -1,0 +1,2805 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Planning — Calendar{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   PLANNING — LIGHT MODE DESIGN SYSTEM
+   Clean · Airy · Professional · Maximized
+══════════════════════════════════════════ */
+:root {
+  /* Base */
+  --bg-root:        #f4f6fb;
+  --bg-card:        #ffffff;
+  --bg-subtle:      #f8faff;
+  --bg-muted:       #f0f3fa;
+
+  /* Borders */
+  --border-light:   #e4e9f5;
+  --border-medium:  #d0d8ef;
+
+  /* Brand */
+  --indigo:         #4f46e5;
+  --indigo-light:   #eef0ff;
+  --indigo-mid:     #c7d2fe;
+  --violet:         #7c3aed;
+  --rose:           #f43f5e;
+  --emerald:        #10b981;
+  --amber:          #f59e0b;
+  --sky:            #0ea5e9;
+  --google-green:   #34a853;
+
+  /* Gradients */
+  --grad-brand:     linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  --grad-rose:      linear-gradient(135deg, #f43f5e 0%, #f97316 100%);
+  --grad-emerald:   linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --grad-amber:     linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+
+  /* Text */
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  --text-brand:     #4f46e5;
+
+  /* Fonts */
+  --font-display:   'Fraunces', Georgia, serif;
+  --font-body:      'Sora', system-ui, sans-serif;
+
+  /* Radius */
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  18px;
+  --r-xl:  24px;
+
+  /* Shadows */
+  --shadow-xs:  0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-sm:  0 2px 8px rgba(15,23,42,0.08), 0 1px 3px rgba(15,23,42,0.05);
+  --shadow-md:  0 4px 16px rgba(15,23,42,0.1), 0 2px 6px rgba(15,23,42,0.06);
+  --shadow-lg:  0 8px 32px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.07);
+  --shadow-brand: 0 4px 16px rgba(79,70,229,0.25);
+}
+
+/* ══ RESET ══ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body.planning-body {
+  background: var(--bg-root);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Subtle grid texture */
+body.planning-body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(79,70,229,0.035) 1px, transparent 0);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+/* ══ LAYOUT ══ */
+.planner-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1.75rem 4rem;
+}
+
+/* ══════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════ */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-light);
+  position: relative;
+  animation: fadeUp 0.5s ease both;
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 80px;
+  height: 2px;
+  background: var(--grad-brand);
+  border-radius: 2px;
+}
+.header-left {}
+.header-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-brand);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.header-eyebrow::before {
+  content: '';
+  width: 18px;
+  height: 2px;
+  background: var(--grad-brand);
+  border-radius: 2px;
+}
+.header-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.header-title span {
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header-sub {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+}
+.header-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ══ BUTTONS ══ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--r-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+.btn-primary {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.38); }
+.btn-outline {
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-light);
+  box-shadow: var(--shadow-xs);
+}
+.btn-outline:hover {
+  border-color: var(--indigo-mid);
+  color: var(--indigo);
+  background: var(--indigo-light);
+  transform: translateY(-1px);
+}
+.btn-sm { padding: 0.45rem 0.9rem; font-size: 0.75rem; }
+
+/* ══════════════════════════════════════════
+   QUOTE STRIP
+══════════════════════════════════════════ */
+.quote-strip {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-left: 4px solid var(--indigo);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: var(--shadow-xs);
+  animation: fadeUp 0.5s 0.1s ease both;
+}
+.quote-icon {
+  font-size: 1.8rem;
+  color: var(--indigo-mid);
+  flex-shrink: 0;
+  line-height: 1;
+}
+.quote-text {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.quote-author {
+  color: var(--indigo);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 0.2rem;
+}
+
+/* ══════════════════════════════════════════
+   ALERTS
+══════════════════════════════════════════ */
+.alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--r-lg);
+  margin-bottom: 1.25rem;
+  animation: fadeUp 0.5s 0.15s ease both;
+  box-shadow: var(--shadow-xs);
+}
+.alert-feedback {
+  background: var(--indigo-light);
+  border: 1.5px solid var(--indigo-mid);
+}
+.alert-conflict {
+  background: #fff5f7;
+  border: 1.5px solid #fecdd3;
+}
+.alert-icon-wrap {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 0.1rem;
+}
+.alert-feedback .alert-icon-wrap { background: var(--indigo-mid); }
+.alert-conflict .alert-icon-wrap { background: #fecdd3; }
+.alert-title {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  margin-bottom: 0.2rem;
+}
+.alert-sub { color: var(--text-secondary); font-size: 0.8rem; }
+.alert-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.alert-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: #fff;
+  border: 1.5px solid var(--indigo-mid);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-size: 0.75rem; font-weight: 600;
+  color: var(--indigo);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.alert-chip:hover {
+  background: var(--grad-brand);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-1px);
+}
+
+/* ══════════════════════════════════════════
+   MAIN LAYOUT — MAXIMIZED CALENDAR
+══════════════════════════════════════════ */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+@media (max-width: 1100px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
+
+/* ══════════════════════════════════════════
+   CALENDAR CARD
+══════════════════════════════════════════ */
+.calendar-wrap {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Calendar Header ── */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1.5px solid var(--border-light);
+  background: var(--bg-subtle);
+}
+.cal-month-block {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.cal-month-icon {
+  width: 48px; height: 48px;
+  border-radius: var(--r-md);
+  background: var(--grad-brand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: var(--shadow-brand);
+  flex-shrink: 0;
+}
+.cal-month-name {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.cal-event-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+.cal-event-count strong { color: var(--indigo); font-weight: 700; }
+.cal-nav { display: flex; align-items: center; gap: 0.5rem; }
+.cal-nav-btn {
+  width: 36px; height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: var(--shadow-xs);
+}
+.cal-nav-btn:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-light);
+  transform: scale(1.05);
+}
+.cal-nav-today {
+  padding: 0 1rem;
+  width: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--grad-brand);
+  color: #fff;
+  border: none;
+  box-shadow: var(--shadow-brand);
+}
+.cal-nav-today:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+}
+
+/* ── Calendar Grid ── */
+.cal-grid-wrap { padding: 1.25rem 1.5rem 1.5rem; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.6rem;
+}
+.weekday-label {
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0.4rem 0 0.75rem;
+}
+
+/* ══ DAY CELL — KEY PIECE, MAXIMIZED ══ */
+.day-cell {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-md);
+  padding: 0.75rem 0.7rem;
+  min-height: 155px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all 0.22s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  cursor: pointer;
+}
+.day-cell.empty-cell {
+  background: transparent;
+  border-color: transparent;
+  pointer-events: none;
+}
+.day-cell:not(.empty-cell):hover {
+  border-color: var(--indigo-mid);
+  background: #fafbff;
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  overflow-y: auto;
+  z-index: 2;
+}
+.day-cell.is-today {
+  background: var(--indigo-light);
+  border: 2px solid var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.day-cell.is-weekend { background: var(--bg-subtle); }
+
+/* Custom scrollbar for hovered cell */
+.day-cell::-webkit-scrollbar { width: 3px; }
+.day-cell::-webkit-scrollbar-track { background: transparent; }
+.day-cell::-webkit-scrollbar-thumb { background: var(--indigo-mid); border-radius: 999px; }
+
+.cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  flex-shrink: 0;
+}
+.day-num {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.day-num.today-num {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.evt-pill {
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: var(--indigo-light);
+  color: var(--indigo);
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--indigo-mid);
+}
+
+/* ══ DAY OFF ══ */
+.day-off-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(16,185,129,0.3);
+  border-radius: var(--r-sm);
+  background: rgba(16,185,129,0.04);
+  padding: 0.75rem;
+}
+.day-off-emoji { font-size: 1.5rem; }
+.day-off-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--emerald);
+  margin-top: 0.35rem;
+  text-transform: uppercase;
+}
+
+/* ══ EVENT ITEMS — MAXIMIZED & CLEAR ══ */
+.evt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+/* Main event item — full width, clearly readable */
+.evt-item {
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+  transition: all 0.18s;
+  position: relative;
+  min-height: 38px;
+}
+.evt-item:hover {
+  border-color: currentColor;
+  background: #fff;
+  box-shadow: var(--shadow-xs);
+  transform: translateX(2px);
+}
+.evt-item.google-evt {
+  background: rgba(52,168,83,0.05);
+  border-color: rgba(52,168,83,0.25);
+}
+
+/* Color accent bar on left */
+.evt-color-bar {
+  width: 4px;
+  flex-shrink: 0;
+  background: var(--evt-color, var(--indigo));
+  border-radius: 0;
+}
+
+/* Event content */
+.evt-content {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.evt-time {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  margin-bottom: 0.15rem;
+}
+.evt-time.google-time { color: var(--google-green); }
+.evt-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+.evt-feedback-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+}
+.cell-empty-hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell-empty-hint span {
+  font-size: 1.2rem;
+  color: var(--border-medium);
+}
+
+/* ══ MORE EVENTS INDICATOR ══ */
+.evt-more {
+  font-size: 0.65rem;
+  color: var(--indigo);
+  font-weight: 600;
+  padding: 0.2rem 0.4rem;
+  background: var(--indigo-light);
+  border-radius: var(--r-sm);
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid var(--indigo-mid);
+  transition: all 0.2s;
+}
+.evt-more:hover { background: var(--grad-brand); color: #fff; border-color: transparent; }
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+.sidebar-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: sticky;
+  top: 1.5rem;
+}
+.side-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s;
+}
+.side-card-head {
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1.5px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-subtle);
+}
+.side-card-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.side-card-title .icon-wrap {
+  width: 28px; height: 28px;
+  border-radius: var(--r-sm);
+  background: var(--grad-brand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem;
+}
+.side-count {
+  background: var(--grad-brand);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  box-shadow: var(--shadow-brand);
+}
+
+/* ══ SEARCH ══ */
+.search-section {
+  padding: 1rem 1.25rem;
+  border-bottom: 1.5px solid var(--border-light);
+}
+.search-row { display: flex; gap: 0.45rem; margin-bottom: 0.6rem; }
+.s-input {
+  flex: 1;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  padding: 0.55rem 0.85rem;
+  outline: none;
+  transition: all 0.2s;
+}
+.s-input:focus {
+  border-color: var(--indigo);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+.s-input::placeholder { color: var(--text-muted); }
+.s-select {
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  padding: 0.55rem 0.6rem;
+  outline: none;
+  width: 80px;
+  cursor: pointer;
+}
+.date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; margin-bottom: 0.6rem; }
+.action-row { display: flex; gap: 0.45rem; }
+.s-btn {
+  flex: 1;
+  padding: 0.55rem;
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.s-btn-apply {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.s-btn-apply:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(79,70,229,0.4); }
+.s-btn-reset {
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-light);
+}
+.s-btn-reset:hover { border-color: var(--border-medium); color: var(--text-primary); }
+
+/* ══ UPCOMING LIST ══ */
+.upcoming-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0.85rem;
+}
+.upcoming-scroll::-webkit-scrollbar { width: 3px; }
+.upcoming-scroll::-webkit-scrollbar-track { background: transparent; }
+.upcoming-scroll::-webkit-scrollbar-thumb { background: var(--indigo-mid); border-radius: 999px; }
+
+.upcoming-card {
+  display: block;
+  padding: 0.85rem 1rem;
+  background: var(--bg-subtle);
+  border: 1.5px solid var(--border-light);
+  border-left: 4px solid var(--indigo);
+  border-radius: var(--r-md);
+  margin-bottom: 0.6rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.upcoming-card:hover {
+  border-left-color: var(--violet);
+  background: var(--indigo-light);
+  transform: translateX(3px);
+  box-shadow: var(--shadow-sm);
+}
+.upcoming-card.google-up { border-left-color: var(--google-green); }
+.upcoming-card.google-up:hover { background: rgba(52,168,83,0.06); }
+.upcoming-card.conflict-up { border-left-color: var(--rose); }
+
+.up-name {
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.google-tag {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  background: rgba(52,168,83,0.15);
+  color: var(--google-green);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+  text-transform: uppercase;
+}
+.up-meta { display: flex; flex-direction: column; gap: 0.25rem; }
+.up-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+.up-fb { margin-top: 0.4rem; }
+.up-fb-link {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.up-fb-link:hover { color: var(--indigo); }
+.empty-upcoming {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  gap: 0.6rem;
+  color: var(--text-muted);
+}
+.empty-upcoming p { font-size: 0.8rem; }
+
+/* ══ STATS CARD ══ */
+.stats-body { padding: 1rem 1.25rem; }
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0;
+  border-bottom: 1.5px solid var(--border-light);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.stat-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+}
+.tag-gold   { background: var(--indigo-light); color: var(--indigo); border: 1px solid var(--indigo-mid); }
+.tag-rose   { background: #fff5f7; color: var(--rose); border: 1px solid #fecdd3; }
+.tag-sage   { background: rgba(16,185,129,0.1); color: var(--emerald); border: 1px solid rgba(16,185,129,0.25); }
+.tag-teal   { background: rgba(14,165,233,0.1); color: var(--sky); border: 1px solid rgba(14,165,233,0.25); }
+
+/* ══ GOOGLE TOAST ══ */
+.google-toast {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-left: 4px solid var(--google-green);
+  border-radius: var(--r-md);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: var(--shadow-lg);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  animation: slideToast 0.4s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes slideToast {
+  from { transform: translateY(24px) scale(0.96); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══ MASCOTTE STYLES ══ */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.mascot-container {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    animation: float 3s ease-in-out infinite;
+}
+
+.mascot-card {
+    background: white;
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 40px rgba(79, 70, 229, 0.2);
+    text-align: center;
+    min-width: 220px;
+    position: relative;
+    border: 3px solid #4f46e5;
+    transition: all 0.3s ease;
+}
+
+.dark .mascot-card {
+    background: #1f2937;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.mascot-toggle-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #e5e7eb;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.mascot-toggle-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.mascot-avatar {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1rem;
+    position: relative;
+    cursor: pointer;
+}
+
+.mascot-emoji {
+    font-size: 5rem;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.mascot-level-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    border: 3px solid white;
+}
+
+.dark .mascot-level-badge {
+    border-color: #1f2937;
+}
+
+.mascot-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #4f46e5;
+    margin-bottom: 0.25rem;
+}
+
+.mascot-mood {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.mascot-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.mascot-stat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 0.75rem;
+}
+
+.dark .mascot-stat {
+    background: #111827;
+}
+
+.mascot-stat-label {
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.mascot-stat-value {
+    font-weight: 800;
+    color: #4f46e5;
+    font-size: 1.1rem;
+}
+
+.mascot-progress-bar {
+    width: 100%;
+    height: 10px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.75rem;
+}
+
+.mascot-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    border-radius: 999px;
+    transition: width 0.8s ease;
+}
+
+.mascot-message {
+    background: rgba(79, 70, 229, 0.1);
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    font-size: 0.85rem;
+    color: #374151;
+    font-style: italic;
+    margin-top: 1rem;
+    border: 2px solid #818cf8;
+    font-weight: 500;
+}
+
+.dark .mascot-message {
+    background: rgba(79, 70, 229, 0.2);
+    color: #d1d5db;
+}
+
+.mascot-minimized {
+    min-width: unset;
+    width: 85px;
+    height: 85px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.mascot-minimized .mascot-avatar {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mascot-minimized .mascot-emoji {
+    font-size: 3.5rem;
+}
+
+@media (max-width: 768px) {
+    .mascot-container {
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .mascot-card {
+        min-width: 180px;
+        padding: 1.25rem;
+    }
+}
+
+/* ══ TETRIS MODAL STYLES ══ */
+.tetris-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(10, 12, 30, 0.82);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 2rem;
+  animation: tOverlayIn 0.3s ease;
+}
+@keyframes tOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tetris-modal {
+  background: #0f1128;
+  border: 1.5px solid rgba(79,70,229,0.4);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 1050px;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 80px rgba(79,70,229,0.3), 0 0 160px rgba(79,70,229,0.1);
+  animation: tModalIn 0.4s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  transform: translate(-60px, 30px);
+}
+@keyframes tModalIn {
+  from { transform: scale(0.88) translateY(24px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.tetris-modal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.015) 2px,
+    rgba(255,255,255,0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 24px;
+}
+
+.tetris-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(79,70,229,0.25);
+  background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(124,58,237,0.1));
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.tetris-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.tetris-logo {
+  font-size: 2rem;
+  animation: tLogoPulse 2s ease-in-out infinite;
+}
+@keyframes tLogoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12) rotate(-5deg); }
+}
+.tetris-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #a5b4fc, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.tetris-sub {
+  font-size: 0.72rem;
+  color: rgba(165,180,252,0.7);
+  margin-top: 0.1rem;
+}
+.tetris-close {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.tetris-close:hover {
+  background: rgba(244,63,94,0.2);
+  border-color: rgba(244,63,94,0.5);
+  color: #f43f5e;
+  transform: rotate(90deg);
+}
+
+.tetris-hud {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(79,70,229,0.2);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.hud-block {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  border-right: 1px solid rgba(79,70,229,0.15);
+}
+.hud-block:last-child { border-right: none; }
+.hud-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(165,180,252,0.6);
+  margin-bottom: 0.2rem;
+}
+.hud-value {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #a5b4fc;
+  line-height: 1;
+  transition: all 0.3s;
+}
+.hud-value.pop {
+  animation: tPop 0.3s ease;
+}
+@keyframes tPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); color: #fbbf24; }
+  100% { transform: scale(1); }
+}
+.hud-timer.danger .hud-value {
+  color: #f43f5e;
+  animation: tBlink 0.5s ease infinite;
+}
+@keyframes tBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.tetris-game-area {
+  display: grid;
+  grid-template-columns: 200px 1fr 180px;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+.tetris-queue-panel {
+  border-right: 1px solid rgba(79,70,229,0.2);
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  background: rgba(79,70,229,0.04);
+  overflow: hidden;
+}
+.queue-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(165,180,252,0.7);
+  margin-bottom: 0.6rem;
+}
+.queue-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.queue-list::-webkit-scrollbar { width: 3px; }
+.queue-list::-webkit-scrollbar-thumb { background: rgba(79,70,229,0.4); border-radius: 99px; }
+
+.q-event {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.q-event::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--evt-q-color, #a5b4fc);
+  border-radius: 0 0 0 8px;
+}
+.q-event:hover {
+  border-color: rgba(165,180,252,0.4);
+  background: rgba(79,70,229,0.12);
+  transform: translateX(3px);
+}
+.q-event.selected {
+  border-color: #fbbf24;
+  background: rgba(251,191,36,0.1);
+  box-shadow: 0 0 12px rgba(251,191,36,0.25);
+}
+.q-event.placed {
+  opacity: 0.3;
+  pointer-events: none;
+  text-decoration: line-through;
+}
+.q-evt-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.2rem;
+}
+.q-evt-time {
+  font-size: 0.6rem;
+  color: rgba(165,180,252,0.6);
+}
+.q-evt-dur {
+  display: inline-block;
+  font-size: 0.55rem;
+  font-weight: 700;
+  background: rgba(165,180,252,0.15);
+  color: #a5b4fc;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  margin-top: 0.2rem;
+}
+.queue-hint {
+  font-size: 0.62rem;
+  color: rgba(165,180,252,0.4);
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(79,70,229,0.15);
+}
+
+.tetris-board-wrap {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.board-label-row {
+  display: grid;
+  grid-template-columns: 52px repeat(7, 1fr);
+  gap: 2px;
+  padding: 0.5rem 0.5rem 0;
+  flex-shrink: 0;
+}
+.board-corner { }
+.day-col-label {
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(165,180,252,0.6);
+  padding: 0.2rem;
+  background: rgba(79,70,229,0.1);
+  border-radius: 4px;
+}
+.board-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+.board-scroll::-webkit-scrollbar { width: 4px; }
+.board-scroll::-webkit-scrollbar-thumb { background: rgba(79,70,229,0.4); border-radius: 99px; }
+
+.tetris-board {
+  display: grid;
+  grid-template-columns: 52px repeat(7, 1fr);
+  gap: 2px;
+}
+
+.time-label {
+  font-size: 0.55rem;
+  color: rgba(165,180,252,0.45);
+  text-align: right;
+  padding-right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 36px;
+}
+
+.t-cell {
+  height: 36px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(79,70,229,0.12);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.t-cell:hover {
+  background: rgba(165,180,252,0.1);
+  border-color: rgba(165,180,252,0.35);
+}
+.t-cell.t-cell-highlight {
+  background: rgba(251,191,36,0.12) !important;
+  border-color: rgba(251,191,36,0.5) !important;
+}
+.t-cell.occupied {
+  cursor: default;
+}
+.t-cell.occupied:hover {
+  border-color: rgba(244,63,94,0.5);
+  background: rgba(244,63,94,0.1);
+}
+
+.t-block {
+  position: absolute;
+  inset: 1px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: tBlockDrop 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes tBlockDrop {
+  from { transform: scaleY(0); opacity: 0; transform-origin: top; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+.t-cell.row-complete {
+  animation: tRowFlash 0.5s ease forwards;
+}
+@keyframes tRowFlash {
+  0%   { background: rgba(251,191,36,0.6); border-color: #fbbf24; }
+  50%  { background: rgba(251,191,36,0.2); }
+  100% { background: rgba(255,255,255,0.025); }
+}
+
+.tetris-info-panel {
+  border-left: 1px solid rgba(79,70,229,0.2);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: rgba(79,70,229,0.04);
+  overflow-y: auto;
+}
+.tetris-info-panel::-webkit-scrollbar { width: 3px; }
+.tetris-info-panel::-webkit-scrollbar-thumb { background: rgba(79,70,229,0.4); border-radius: 99px; }
+
+.info-section {}
+.info-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(165,180,252,0.6);
+  margin-bottom: 0.4rem;
+}
+
+.next-card {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(79,70,229,0.3);
+  border-radius: 8px;
+  padding: 0.65rem;
+  min-height: 60px;
+}
+.next-card-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c4b5fd;
+  margin-bottom: 0.25rem;
+}
+.next-card-time {
+  font-size: 0.62rem;
+  color: rgba(165,180,252,0.5);
+}
+.next-card-dur {
+  font-size: 0.6rem;
+  background: rgba(165,180,252,0.1);
+  color: #a5b4fc;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  display: inline-block;
+  margin-top: 0.25rem;
+}
+
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.rule-item {
+  font-size: 0.65rem;
+  color: rgba(226,232,240,0.6);
+  line-height: 1.4;
+}
+.rule-item strong {
+  color: #fbbf24;
+}
+
+.best-score {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-shadow: 0 0 20px rgba(251,191,36,0.4);
+}
+
+.btn-restart {
+  margin-top: auto;
+  background: rgba(79,70,229,0.2);
+  border: 1.5px solid rgba(79,70,229,0.4);
+  color: #a5b4fc;
+  border-radius: 8px;
+  padding: 0.6rem;
+  font-family: 'Sora', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-restart:hover {
+  background: rgba(79,70,229,0.4);
+  border-color: #a5b4fc;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.tetris-message {
+  position: absolute;
+  inset: 0;
+  background: rgba(10,12,30,0.9);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 24px;
+  animation: tOverlayIn 0.3s ease;
+}
+.t-msg-box {
+  text-align: center;
+  padding: 2rem;
+  max-width: 360px;
+}
+.t-msg-icon {
+  font-size: 4rem;
+  margin-bottom: 0.75rem;
+  animation: tMsgBounce 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes tMsgBounce {
+  from { transform: scale(0) rotate(-20deg); }
+  to   { transform: scale(1) rotate(0deg); }
+}
+.t-msg-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #a5b4fc, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.t-msg-body {
+  color: rgba(165,180,252,0.8);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.t-msg-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.btn-msg-play {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1.4rem;
+  font-family: 'Sora', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(79,70,229,0.4);
+}
+.btn-msg-play:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79,70,229,0.5); }
+.btn-msg-close {
+  background: rgba(255,255,255,0.06);
+  color: rgba(165,180,252,0.8);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 0.65rem 1.4rem;
+  font-family: 'Sora', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-msg-close:hover { background: rgba(244,63,94,0.15); border-color: rgba(244,63,94,0.4); color: #f43f5e; }
+
+.t-toast {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(10,12,30,0.92);
+  border: 1.5px solid rgba(165,180,252,0.3);
+  border-radius: 12px;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  z-index: 5;
+  pointer-events: none;
+  animation: tToastAnim 1.2s ease forwards;
+  white-space: nowrap;
+}
+@keyframes tToastAnim {
+  0%   { opacity: 0; transform: translate(-50%, -40%) scale(0.85); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+  70%  { opacity: 1; transform: translate(-50%, -55%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -70%) scale(0.9); }
+}
+
+.kb-hint {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.58rem;
+  color: rgba(165,180,252,0.3);
+  z-index: 1;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 768px) {
+  .tetris-game-area { grid-template-columns: 1fr; }
+  .tetris-queue-panel, .tetris-info-panel { display: none; }
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 768px) {
+  .planner-wrap { padding: 1.25rem 0.9rem 3rem; }
+  .cal-grid { gap: 0.4rem; }
+  .day-cell { min-height: 110px; padding: 0.6rem 0.5rem; }
+  .cal-header, .cal-grid-wrap { padding: 1rem 1.1rem; }
+  .sidebar-col { position: static; }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<body class="planning-body">
+<div class="planner-wrap">
+
+  <!-- ══ HEADER ══ -->
+  <header class="page-header">
+    <div class="header-left">
+      <div class="header-eyebrow">Planning System</div>
+      <h1 class="header-title">Your <span>Schedule</span></h1>
+      <p class="header-sub">Manage your time, track your sessions, stay ahead.</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ path('app_planning_new') }}" class="btn btn-primary">
+        <i data-lucide="plus" style="width:15px;height:15px;"></i>
+        Add Event
+      </a>
+      <a href="{{ path('app_seance_index') }}" class="btn btn-outline">
+        <i data-lucide="file-plus" style="width:15px;height:15px;"></i>
+        Sessions
+      </a>
+      <a href="{{ path('app_type_seance_index') }}" class="btn btn-outline">
+        <i data-lucide="tags" style="width:15px;height:15px;"></i>
+        Types
+      </a>
+      <a href="{{ path('app_planning_week', { date: today }) }}" class="btn btn-outline btn-sm">
+        <i data-lucide="calendar-days" style="width:13px;height:13px;"></i>
+        Week View
+      </a>
+      <!-- Fun Mode Button -->
+      <button class="btn btn-outline btn-sm" onclick="openTetris()">
+        <i data-lucide="gamepad-2" style="width:13px;height:13px;"></i>
+        Fun Mode 🎮
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ QUOTE ══ -->
+  <div class="quote-strip">
+    <div class="quote-icon">❝</div>
+    <div>
+      <div class="quote-text" id="quoteText">The best way to predict the future is to create it.</div>
+      <div class="quote-author" id="quoteAuthor">— Peter Drucker</div>
+    </div>
+  </div>
+
+  <!-- ══ ALERTS ══ -->
+  {% set pending_feedback = [] %}
+  {% for date, day_events in events_by_date %}
+    {% if date < today %}
+      {% for event in day_events %}
+        {% if not event.is_google and event.feedback is null and event.title|lower != 'day off' %}
+          {% set pending_feedback = pending_feedback|merge([event]) %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+  {% if pending_feedback|length > 0 %}
+  <div class="alert-banner alert-feedback">
+    <div class="alert-icon-wrap">
+      <i data-lucide="message-circle" style="width:17px;height:17px;color:#4f46e5;"></i>
+    </div>
+    <div style="flex:1;">
+      <div class="alert-title">{{ pending_feedback|length }} session{{ pending_feedback|length > 1 ? 's' : '' }} awaiting feedback</div>
+      <div class="alert-sub">Share your experience to improve your planning</div>
+      <div class="alert-chips">
+        {% for fb in pending_feedback %}
+          <a href="{{ path('app_planning_feedback_form', { id: fb.id }) }}" class="alert-chip">
+            💭 {{ fb.title|default('Session')|slice(0, 18) }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if conflicts is defined and conflicts|length > 0 %}
+  <div class="alert-banner alert-conflict">
+    <div class="alert-icon-wrap">
+      <i data-lucide="alert-triangle" style="width:17px;height:17px;color:#f43f5e;"></i>
+    </div>
+    <div>
+      <div class="alert-title">{{ conflicts|length }} scheduling conflict{{ conflicts|length > 1 ? 's' : '' }} detected</div>
+      <div class="alert-sub">Review your schedule to resolve overlapping events</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ══ MAIN LAYOUT ══ -->
+  <div class="main-layout">
+
+    <!-- ████ CALENDAR ████ -->
+    <div class="calendar-wrap">
+
+      <!-- Calendar Header -->
+      <div class="cal-header">
+        <div class="cal-month-block">
+          <div class="cal-month-icon">📅</div>
+          <div>
+            <div class="cal-month-name">{{ (current_year ~ '-' ~ current_month ~ '-01')|date('F Y') }}</div>
+            <div class="cal-event-count">
+              <strong>{{ events_by_date|reduce((carry, v) => carry + v|length, 0) }}</strong> events this month
+            </div>
+          </div>
+        </div>
+        <div class="cal-nav">
+          {% set prev_month = current_month == 1 ? 12 : current_month - 1 %}
+          {% set prev_year  = current_month == 1 ? current_year - 1 : current_year %}
+          {% set next_month = current_month == 12 ? 1 : current_month + 1 %}
+          {% set next_year  = current_month == 12 ? current_year + 1 : current_year %}
+          <a href="{{ path('app_planning', {month: prev_month, year: prev_year}) }}" class="cal-nav-btn" title="Previous month">
+            <i data-lucide="chevron-left" style="width:17px;height:17px;"></i>
+          </a>
+          <a href="{{ path('app_planning') }}" class="cal-nav-btn cal-nav-today">Today</a>
+          <a href="{{ path('app_planning', {month: next_month, year: next_year}) }}" class="cal-nav-btn" title="Next month">
+            <i data-lucide="chevron-right" style="width:17px;height:17px;"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="cal-grid-wrap">
+        <div class="cal-grid">
+
+          <!-- Weekday headers -->
+          {% for day in ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] %}
+            <div class="weekday-label">{{ day }}</div>
+          {% endfor %}
+
+          <!-- Empty cells before month start -->
+          {% for i in 1..(first_day_of_week - 1) %}
+            <div class="day-cell empty-cell"></div>
+          {% endfor %}
+
+          <!-- Day cells -->
+          {% for day in 1..days_in_month %}
+            {% set date_key  = current_year ~ '-' ~ (current_month < 10 ? '0' ~ current_month : current_month) ~ '-' ~ (day < 10 ? '0' ~ day : day) %}
+            {% set day_events = events_by_date[date_key] ?? [] %}
+            {% set is_today   = date_key == today %}
+            {% set day_off    = day_events|filter(e => e.title|lower == 'day off')|first %}
+            {# Determine if weekend (SAT=6, SUN=0) #}
+            {% set dow = (date_key)|date('N') %}
+            {% set is_weekend = (dow == 6 or dow == 7) %}
+
+            <div class="day-cell {{ is_today ? 'is-today' : '' }} {{ is_weekend and not is_today ? 'is-weekend' : '' }}" data-date="{{ date_key }}">
+              <div class="cell-top">
+                <span class="day-num {{ is_today ? 'today-num' : '' }}">{{ day }}</span>
+                {% if day_events|length > 0 %}
+                  <span class="evt-pill">{{ day_events|length }}</span>
+                {% endif %}
+              </div>
+
+              {% if day_off %}
+                <div class="day-off-block">
+                  <span class="day-off-emoji">🌟</span>
+                  <span class="day-off-label">Day Off</span>
+                </div>
+
+              {% else %}
+                <div class="evt-list">
+                  {% for event in day_events %}
+                    {% set is_google = event.is_google|default(false) %}
+                    {% set evt_color = is_google ? '#34a853' : event.ui.color|default('#4f46e5') %}
+
+                    {% if is_google %}
+                      <div class="evt-item google-evt" style="--evt-color: {{ evt_color }};" title="{{ event.title }} (Google Calendar — read only)">
+                    {% else %}
+                      <a href="{{ path('app_planning_edit', {id: event.id}) }}" class="evt-item" style="--evt-color: {{ evt_color }};" title="{{ event.title }}">
+                    {% endif %}
+
+                      <div class="evt-color-bar" style="background: {{ evt_color }};"></div>
+
+                      <div class="evt-content">
+                        <div class="evt-time {{ is_google ? 'google-time' : '' }}">
+                          {% if is_google %}
+                            <i data-lucide="chrome" style="width:8px;height:8px;"></i>
+                          {% else %}
+                            <i data-lucide="clock" style="width:8px;height:8px;"></i>
+                          {% endif %}
+                          {{ event.start_time }}{% if event.end_time %}–{{ event.end_time }}{% endif %}
+                        </div>
+                        <span class="evt-name">{{ event.title }}</span>
+                      </div>
+
+                      {% if not is_google and event.feedback is not null %}
+                        <div class="evt-feedback-icon">
+                          {% if event.feedback == 1 %}😡
+                          {% elseif event.feedback == 2 %}😕
+                          {% elseif event.feedback == 3 %}😐
+                          {% elseif event.feedback == 4 %}🙂
+                          {% else %}🤩{% endif %}
+                        </div>
+                      {% endif %}
+
+                    {% if is_google %}</div>{% else %}</a>{% endif %}
+                  {% endfor %}
+
+                  {% if day_events|length == 0 %}
+                    <div class="cell-empty-hint"><span>·</span></div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+        </div>
+      </div>
+    </div>
+    <!-- end calendar-wrap -->
+
+    <!-- ████ SIDEBAR ████ -->
+    <div class="sidebar-col">
+
+      <!-- Upcoming Events -->
+      <div class="side-card">
+        <div class="side-card-head">
+          <div class="side-card-title">
+            <div class="icon-wrap">📌</div>
+            Upcoming
+          </div>
+          <span class="side-count">{{ upcoming_total|default(0) }}</span>
+        </div>
+
+        <div class="search-section">
+          <form method="get" action="{{ path('app_planning') }}">
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <input type="hidden" name="year"  value="{{ current_year }}">
+            <div class="search-row">
+              <input type="text" name="up_q" value="{{ upcoming_q|default('') }}" placeholder="Search events…" class="s-input">
+              <select name="up_sort" class="s-select" onchange="this.form.submit()">
+                <option value="date_asc"  {% if up_sort|default('date_asc')=='date_asc' %}selected{% endif %}>Date</option>
+                <option value="title_asc" {% if up_sort|default('date_asc')=='title_asc' %}selected{% endif %}>Title</option>
+              </select>
+            </div>
+            <div class="date-row">
+              <input type="date" name="up_start" value="{{ up_start|default('') }}" class="s-input">
+              <input type="date" name="up_end"   value="{{ up_end|default('') }}"   class="s-input">
+            </div>
+            <div class="action-row">
+              <button type="submit" class="s-btn s-btn-apply">Apply</button>
+              <a href="{{ path('app_planning', {month: current_month, year: current_year}) }}" class="s-btn s-btn-reset">Reset</a>
+            </div>
+          </form>
+        </div>
+
+        <div class="upcoming-scroll">
+          {% for event in upcoming|default([]) %}
+            {% set is_google = event.is_google|default(false) %}
+            <div class="upcoming-card {{ is_google ? 'google-up' : '' }} {{ event.conflict ?? false ? 'conflict-up' : '' }}"
+                 style="border-left-color: {{ is_google ? '#34a853' : event.ui.bar|default('#4f46e5') }};">
+              <div class="up-name">
+                {{ event.title }}
+                {% if is_google %}<span class="google-tag">Google</span>{% endif %}
+              </div>
+              <div class="up-meta">
+                <div class="up-meta-row">
+                  <i data-lucide="calendar" style="width:11px;height:11px;color:#4f46e5;"></i>
+                  {{ event.date|date('M j, Y') }}
+                </div>
+                <div class="up-meta-row">
+                  <i data-lucide="clock" style="width:11px;height:11px;color:#94a3b8;"></i>
+                  {{ event.start_time }}{% if event.end_time %} – {{ event.end_time }}{% endif %}
+                </div>
+              </div>
+              {% if not is_google %}
+                <div class="up-fb">
+                  {% if event.feedback is not null %}
+                    <span style="font-size:.82rem;">
+                      {% if event.feedback==1 %}😡{% elseif event.feedback==2 %}😕{% elseif event.feedback==3 %}😐{% elseif event.feedback==4 %}🙂{% else %}🤩{% endif %}
+                    </span>
+                  {% else %}
+                    <a href="{{ path('app_planning_feedback_form', {id: event.id}) }}" class="up-fb-link">💭 Add feedback</a>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="empty-upcoming">
+              <i data-lucide="calendar-off" style="width:32px;height:32px;"></i>
+              <p>No upcoming events</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Stats Card -->
+      <div class="side-card">
+        <div class="side-card-head">
+          <div class="side-card-title">
+            <div class="icon-wrap">📊</div>
+            This Month
+          </div>
+        </div>
+        <div class="stats-body">
+          <div class="stat-row">
+            <span class="stat-label">
+              <i data-lucide="calendar" style="width:13px;height:13px;color:#4f46e5;"></i>
+              Total events
+            </span>
+            <span class="stat-tag tag-gold">{{ events_by_date|reduce((carry, v) => carry + v|length, 0) }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">
+              <i data-lucide="message-circle" style="width:13px;height:13px;color:#0ea5e9;"></i>
+              With feedback
+            </span>
+            <span class="stat-tag tag-teal">{{ events_by_date|reduce((carry, v) => carry + v|filter(e => e.feedback is not null)|length, 0) }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">
+              <i data-lucide="alert-circle" style="width:13px;height:13px;color:#f43f5e;"></i>
+              Pending feedback
+            </span>
+            <span class="stat-tag tag-rose">{{ pending_feedback|length }}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">
+              <i data-lucide="chrome" style="width:13px;height:13px;color:#34a853;"></i>
+              Google events
+            </span>
+            <span class="stat-tag tag-sage">{{ events_by_date|reduce((carry, v) => carry + v|filter(e => e.is_google|default(false))|length, 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- end sidebar -->
+  </div>
+  <!-- end main-layout -->
+
+  {% if google_events_count is defined and google_events_count > 0 %}
+  <div class="google-toast">
+    <i data-lucide="chrome" style="width:15px;height:15px;color:#34a853;"></i>
+    <span>{{ google_events_count }} Google events synced</span>
+  </div>
+  {% endif %}
+
+  <!-- ══ MASCOTTE COMPAGNON ══ -->
+  <div class="mascot-container" id="mascotContainer">
+    <div class="mascot-card" id="mascotCard">
+      <button class="mascot-toggle-btn" onclick="toggleMascot()" title="Minimize">×</button>
+
+      <div class="mascot-avatar" onclick="pulseMascot()">
+        <div class="mascot-emoji" id="mascotEmoji">🐣</div>
+        <div class="mascot-level-badge" id="mascotLevel">1</div>
+      </div>
+
+      <div id="mascotDetails">
+        <div class="mascot-name" id="mascotName">Baby Planner</div>
+        <div class="mascot-mood" id="mascotMood">Just starting!</div>
+
+        <div class="mascot-stats">
+          <div class="mascot-stat">
+            <span class="mascot-stat-label">🔥 Streak</span>
+            <span class="mascot-stat-value" id="streakValue">0 days</span>
+          </div>
+
+          <div class="mascot-stat">
+            <span class="mascot-stat-label">😊 Mood</span>
+            <span class="mascot-stat-value" id="avgMoodValue">-</span>
+          </div>
+        </div>
+
+        <div class="mascot-progress-bar">
+          <div class="mascot-progress-fill" id="mascotProgress" style="width: 0%"></div>
+        </div>
+
+        <div class="mascot-message" id="mascotMessage">
+          Let's start planning! 🎯
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TETRIS MODAL ══ -->
+  <div id="tetrisModal" class="tetris-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Tetris des Tâches">
+    <div class="tetris-modal">
+
+      <div class="tetris-header">
+        <div class="tetris-header-left">
+          <div class="tetris-logo">🎮</div>
+          <div>
+            <div class="tetris-title">Tetris des Tâches</div>
+            <div class="tetris-sub">Place tes événements sans chevauchement !</div>
+          </div>
+        </div>
+        <button class="tetris-close" onclick="closeTetris()" title="Fermer">&times;</button>
+      </div>
+
+      <div class="tetris-hud">
+        <div class="hud-block">
+          <div class="hud-label">⭐ Score</div>
+          <div class="hud-value" id="t-score">0</div>
+        </div>
+        <div class="hud-block">
+          <div class="hud-label">🔥 Combo</div>
+          <div class="hud-value" id="t-combo">x1</div>
+        </div>
+        <div class="hud-block">
+          <div class="hud-label">📅 Placés</div>
+          <div class="hud-value" id="t-placed">0</div>
+        </div>
+        <div class="hud-block hud-timer">
+          <div class="hud-label">⏱ Temps</div>
+          <div class="hud-value" id="t-timer">02:00</div>
+        </div>
+        <div class="hud-block">
+          <div class="hud-label">❤️ Vies</div>
+          <div class="hud-value" id="t-lives">3</div>
+        </div>
+      </div>
+
+      <div class="tetris-game-area">
+
+        <div class="tetris-queue-panel">
+          <div class="queue-title">📋 File d'attente</div>
+          <div id="t-queue" class="queue-list"></div>
+          <div class="queue-hint">
+            <div>Clique sur un événement</div>
+            <div>puis sur un créneau libre</div>
+          </div>
+        </div>
+
+        <div class="tetris-board-wrap">
+          <div class="board-label-row">
+            <div class="board-corner"></div>
+            <div class="day-col-label">LUN</div>
+            <div class="day-col-label">MAR</div>
+            <div class="day-col-label">MER</div>
+            <div class="day-col-label">JEU</div>
+            <div class="day-col-label">VEN</div>
+            <div class="day-col-label">SAM</div>
+            <div class="day-col-label">DIM</div>
+          </div>
+          <div class="board-scroll">
+            <div id="t-board" class="tetris-board"></div>
+          </div>
+        </div>
+
+        <div class="tetris-info-panel">
+          <div class="info-section">
+            <div class="info-title">🎯 Prochain</div>
+            <div id="t-next-card" class="next-card"></div>
+          </div>
+          <div class="info-section">
+            <div class="info-title">📖 Règles</div>
+            <div class="rules-list">
+              <div class="rule-item">✅ Place sans chevauchement <strong>+100pts</strong></div>
+              <div class="rule-item">💥 Combo > 3 <strong>×2 pts</strong></div>
+              <div class="rule-item">🌟 Ligne complète <strong>+500pts</strong></div>
+              <div class="rule-item">❌ Mauvais placement <strong>-1 vie</strong></div>
+              <div class="rule-item">⚡ Rapidité <strong>bonus pts</strong></div>
+            </div>
+          </div>
+          <div class="info-section">
+            <div class="info-title">🏆 Best</div>
+            <div id="t-best" class="best-score">0</div>
+          </div>
+          <button class="btn-restart" onclick="restartTetris()">🔄 Rejouer</button>
+        </div>
+
+      </div>
+
+      <div id="t-message" class="tetris-message" style="display:none;">
+        <div class="t-msg-box">
+          <div id="t-msg-icon" class="t-msg-icon">🏆</div>
+          <div id="t-msg-title" class="t-msg-title">Partie terminée !</div>
+          <div id="t-msg-body" class="t-msg-body"></div>
+          <div class="t-msg-actions">
+            <button class="btn-msg-play" onclick="restartTetris()">🎮 Rejouer</button>
+            <button class="btn-msg-close" onclick="closeTetris()">✖ Fermer</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- end planner-wrap -->
+
+<script>
+/* ══════════════════════════════════════════
+   PLANNING — JAVASCRIPT
+══════════════════════════════════════════ */
+
+// ── QUOTES ──
+const quotes = [
+  { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
+  { text: "Success is not final, failure is not fatal: courage to continue is what counts.", author: "Winston Churchill" },
+  { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { text: "Quality is not an act, it is a habit.", author: "Aristotle" },
+  { text: "Time is the scarcest resource; unless it is managed, nothing else can be managed.", author: "Peter Drucker" },
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "Your time is limited — don't waste it living someone else's life.", author: "Steve Jobs" },
+  { text: "The future depends on what you do today.", author: "Mahatma Gandhi" },
+];
+const q = quotes[Math.floor(Math.random() * quotes.length)];
+document.getElementById('quoteText').textContent  = q.text;
+document.getElementById('quoteAuthor').textContent = '— ' + q.author;
+
+// ── MASCOTTE CONFIGURATION ──
+const mascotLevels = [
+  { emoji: '🐣', name: 'Baby Planner', minStreak: 0, msg: "Let's start planning! 🎯" },
+  { emoji: '🐥', name: 'Growing Planner', minStreak: 4, msg: "You're getting the hang of it! 🌱" },
+  { emoji: '🐤', name: 'Confident Planner', minStreak: 8, msg: "Wow! You're on fire! 🚀" },
+  { emoji: '🦜', name: 'Expert Planner', minStreak: 15, msg: "You're a planning master! 🏆" },
+  { emoji: '🦅', name: 'Master Planner', minStreak: 30, msg: "Legendary status! 🌟" }
+];
+
+function calculateStreakSimple() {
+  try {
+    const eventsData = {{ events_by_date|json_encode|raw }};
+    const today = "{{ today }}";
+
+    let streak = 0;
+    let currentDate = new Date(today);
+
+    while (true) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      
+      // Vérifier si c'est un jour de repos (Day Off)
+      if (eventsData[dateStr]) {
+        const dayOff = eventsData[dateStr].filter(e => e.title && e.title.toLowerCase() === 'day off');
+        if (dayOff.length > 0) {
+          // C'est un jour de repos, on arrête le streak
+          break;
+        }
+        
+        if (eventsData[dateStr].length > 0) {
+          streak++;
+          currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+          break;
+        }
+      } else {
+        break;
+      }
+    }
+
+    return streak;
+  } catch (error) {
+    console.error('Erreur streak:', error);
+    return 0;
+  }
+}
+
+function calculateAvgFeedback() {
+  try {
+    const eventsData = {{ events_by_date|json_encode|raw }};
+    let sum = 0;
+    let count = 0;
+
+    for (const date in eventsData) {
+      const events = eventsData[date];
+      for (const event of events) {
+        if (event.feedback && event.feedback > 0) {
+          sum += event.feedback;
+          count++;
+        }
+      }
+    }
+
+    return count > 0 ? (sum / count).toFixed(1) : null;
+  } catch (error) {
+    console.error('Erreur feedback:', error);
+    return null;
+  }
+}
+
+function updateMascotDisplay() {
+  try {
+    const streak = calculateStreakSimple();
+    const avgFeedback = calculateAvgFeedback();
+
+    let level = mascotLevels[0];
+    for (let i = mascotLevels.length - 1; i >= 0; i--) {
+      if (streak >= mascotLevels[i].minStreak) {
+        level = mascotLevels[i];
+        break;
+      }
+    }
+
+    document.getElementById('mascotEmoji').textContent = level.emoji;
+    document.getElementById('mascotLevel').textContent = mascotLevels.indexOf(level) + 1;
+    document.getElementById('mascotName').textContent = level.name;
+    document.getElementById('streakValue').textContent = streak + ' day' + (streak !== 1 ? 's' : '');
+
+    if (avgFeedback !== null) {
+      const moodEmoji = avgFeedback >= 4.5 ? '🤩' : avgFeedback >= 3.5 ? '🙂' : avgFeedback >= 2.5 ? '😐' : avgFeedback >= 1.5 ? '😕' : '😡';
+      document.getElementById('avgMoodValue').textContent = avgFeedback + ' ' + moodEmoji;
+
+      if (avgFeedback >= 4) {
+        document.getElementById('mascotMood').textContent = "Crushing it! ✨";
+      } else if (avgFeedback >= 3) {
+        document.getElementById('mascotMood').textContent = "Good vibes! 😊";
+      } else {
+        document.getElementById('mascotMood').textContent = "Keep going! 💪";
+      }
+    } else {
+      document.getElementById('avgMoodValue').textContent = '- 😊';
+      document.getElementById('mascotMood').textContent = level.msg.split('!')[0] + '!';
+    }
+
+    document.getElementById('mascotMessage').textContent = level.msg;
+
+    const currentIndex = mascotLevels.indexOf(level);
+    if (currentIndex < mascotLevels.length - 1) {
+      const nextLevel = mascotLevels[currentIndex + 1];
+      const progress = Math.min(100, ((streak - level.minStreak) / (nextLevel.minStreak - level.minStreak)) * 100);
+      document.getElementById('mascotProgress').style.width = progress + '%';
+    } else {
+      document.getElementById('mascotProgress').style.width = '100%';
+    }
+
+    console.log('Mascotte OK:', { streak, avgFeedback, level: level.name });
+  } catch (error) {
+    console.error('Erreur mascotte:', error);
+  }
+}
+
+function pulseMascot() {
+  const emoji = document.getElementById('mascotEmoji');
+  emoji.style.transform = 'scale(1.2) rotate(10deg)';
+  setTimeout(() => {
+    emoji.style.transform = 'scale(1) rotate(0deg)';
+  }, 200);
+}
+
+let mascotMinimized = false;
+function toggleMascot() {
+  const card = document.getElementById('mascotCard');
+  const details = document.getElementById('mascotDetails');
+  const btn = document.querySelector('.mascot-toggle-btn');
+
+  mascotMinimized = !mascotMinimized;
+
+  if (mascotMinimized) {
+    card.classList.add('mascot-minimized');
+    details.style.display = 'none';
+    btn.textContent = '+';
+  } else {
+    card.classList.remove('mascot-minimized');
+    details.style.display = 'block';
+    btn.textContent = '×';
+  }
+}
+
+// ── TETRIS GAME FUNCTIONS ──
+function openTetris() {
+  document.getElementById('tetrisModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  initTetris();
+}
+
+function closeTetris() {
+  document.getElementById('tetrisModal').style.display = 'none';
+  document.body.style.overflow = '';
+  stopTimer();
+}
+
+function restartTetris() {
+  document.getElementById('t-message').style.display = 'none';
+  stopTimer();
+  initTetris();
+}
+
+// Tetris game state
+const HOURS_START  = 7;
+const HOURS_END    = 21;
+const SLOT_MINS    = 30;
+const TOTAL_ROWS   = ((HOURS_END - HOURS_START) * 60) / SLOT_MINS;
+const DAYS         = 7;
+const GAME_DURATION = 120;
+const BASE_PTS     = 100;
+
+const PALETTE = [
+  '#6366f1','#8b5cf6','#ec4899','#f59e0b',
+  '#10b981','#0ea5e9','#f43f5e','#a3e635'
+];
+
+let gameState = {
+  score: 0, combo: 0, lives: 3, placed: 0,
+  timeLeft: GAME_DURATION, timer: null,
+  selectedEvent: null,
+  events: [],
+  grid: [],
+  running: false
+};
+
+function scrapeEventsFromDOM() {
+  const evts = [];
+  const seen = new Set();
+  
+  document.querySelectorAll('.evt-item, .upcoming-card').forEach(el => {
+    const nameEl = el.querySelector('.evt-name, .up-name');
+    const timeEl = el.querySelector('.evt-time, .up-meta-row');
+    if (!nameEl) return;
+    const name = nameEl.textContent.trim().replace(/\s+/g,' ').substring(0, 30);
+    if (seen.has(name) || name.length < 2) return;
+    seen.add(name);
+
+    let startH = HOURS_START + Math.floor(Math.random() * 8);
+    let startM = Math.random() > 0.5 ? 30 : 0;
+    let dur = [1, 2, 3, 4][Math.floor(Math.random() * 4)];
+
+    if (timeEl) {
+      const t = timeEl.textContent.match(/(\d{1,2})[h:](\d{2})?/);
+      if (t) { startH = parseInt(t[1]); startM = t[2] ? parseInt(t[2]) : 0; }
+    }
+
+    startH = Math.max(HOURS_START, Math.min(startH, HOURS_END - 2));
+
+    evts.push({
+      id: 'evt_' + evts.length,
+      name: name,
+      startH, startM,
+      duration: dur,
+      color: PALETTE[evts.length % PALETTE.length],
+      placed: false,
+      conflict: false
+    });
+  });
+
+  if (evts.length === 0) {
+    const demos = [
+      { name: 'Réunion équipe', dur: 2 },
+      { name: 'Code review', dur: 2 },
+      { name: 'Déjeuner', dur: 2 },
+      { name: 'Workshop design', dur: 4 },
+      { name: 'One-on-one', dur: 2 },
+      { name: 'Sprint planning', dur: 6 },
+      { name: 'Standup', dur: 1 },
+      { name: 'Formation UX', dur: 4 },
+      { name: 'Call client', dur: 2 },
+      { name: 'Rétro sprint', dur: 3 },
+      { name: 'Deep work', dur: 4 },
+      { name: 'Café équipe', dur: 1 },
+    ];
+    demos.forEach((d, i) => {
+      evts.push({
+        id: 'evt_' + i,
+        name: d.name,
+        startH: HOURS_START + 2 + (i % 6),
+        startM: i % 2 === 0 ? 0 : 30,
+        duration: d.dur,
+        color: PALETTE[i % PALETTE.length],
+        placed: false,
+        conflict: false
+      });
+    });
+  }
+
+  return evts.slice(0, 15);
+}
+
+function initTetris() {
+  gameState = {
+    score: 0, combo: 0, lives: 3, placed: 0,
+    timeLeft: GAME_DURATION, timer: null,
+    selectedEvent: null,
+    events: scrapeEventsFromDOM(),
+    grid: Array.from({ length: TOTAL_ROWS }, () => new Array(DAYS).fill(null)),
+    running: true
+  };
+
+  try {
+    const best = localStorage.getItem('tetris_best') || '0';
+    document.getElementById('t-best').textContent = best;
+  } catch(e) {}
+
+  renderHUD();
+  buildBoard();
+  renderQueue();
+  renderNextCard();
+  startTimer();
+}
+
+function startTimer() {
+  stopTimer();
+  gameState.timer = setInterval(() => {
+    gameState.timeLeft--;
+    updateTimerDisplay();
+    if (gameState.timeLeft <= 0) endGame('time');
+    if (gameState.timeLeft <= 20) {
+      document.querySelector('.hud-block.hud-timer')?.classList.add('danger');
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  if (gameState.timer) { clearInterval(gameState.timer); gameState.timer = null; }
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(gameState.timeLeft / 60);
+  const s = gameState.timeLeft % 60;
+  document.getElementById('t-timer').textContent =
+    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function renderHUD() {
+  updateTimerDisplay();
+  animateHudValue('t-score', gameState.score);
+  animateHudValue('t-combo', 'x' + Math.max(1, gameState.combo));
+  animateHudValue('t-placed', gameState.placed);
+  animateHudValue('t-lives', gameState.lives);
+}
+
+function animateHudValue(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = val;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+}
+
+function buildBoard() {
+  const board = document.getElementById('t-board');
+  board.innerHTML = '';
+
+  for (let row = 0; row < TOTAL_ROWS; row++) {
+    const totalMin = HOURS_START * 60 + row * SLOT_MINS;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    const label = document.createElement('div');
+    label.className = 'time-label';
+    label.textContent = m === 0 ? `${h}h` : `${h}h${String(m).padStart(2,'0')}`;
+    board.appendChild(label);
+
+    for (let col = 0; col < DAYS; col++) {
+      const cell = document.createElement('div');
+      cell.className = 't-cell';
+      cell.dataset.row = row;
+      cell.dataset.col = col;
+      cell.addEventListener('mouseenter', () => onCellHover(cell, row, col));
+      cell.addEventListener('mouseleave', () => clearHighlight());
+      cell.addEventListener('click', () => onCellClick(row, col));
+      board.appendChild(cell);
+    }
+  }
+}
+
+function getCell(row, col) {
+  return document.querySelector(`.t-cell[data-row="${row}"][data-col="${col}"]`);
+}
+
+function onCellHover(cell, row, col) {
+  clearHighlight();
+  if (!gameState.selectedEvent || !gameState.running) return;
+  const dur = gameState.selectedEvent.duration;
+  for (let r = row; r < row + dur && r < TOTAL_ROWS; r++) {
+    const c = getCell(r, col);
+    if (c) c.classList.add('t-cell-highlight');
+  }
+}
+
+function clearHighlight() {
+  document.querySelectorAll('.t-cell-highlight').forEach(c => c.classList.remove('t-cell-highlight'));
+}
+
+function onCellClick(row, col) {
+  if (!gameState.selectedEvent || !gameState.running) return;
+  placeEvent(gameState.selectedEvent, row, col);
+}
+
+function placeEvent(evt, row, col) {
+  const dur = evt.duration;
+
+  if (row + dur > TOTAL_ROWS) {
+    showConflict('⛔ Hors des limites !');
+    loseLife();
+    return;
+  }
+
+  for (let r = row; r < row + dur; r++) {
+    if (gameState.grid[r][col] !== null) {
+      showConflict('💥 Chevauchement ! -1 vie');
+      loseLife();
+      return;
+    }
+  }
+
+  for (let r = row; r < row + dur; r++) {
+    gameState.grid[r][col] = evt.id;
+    const cell = getCell(r, col);
+    if (cell) {
+      cell.classList.add('occupied');
+      if (r === row) {
+        const block = document.createElement('div');
+        block.className = 't-block';
+        block.style.background = evt.color;
+        block.style.boxShadow = `0 0 8px ${evt.color}66`;
+        block.textContent = evt.name;
+        cell.appendChild(block);
+      } else {
+        const block = document.createElement('div');
+        block.className = 't-block';
+        block.style.background = evt.color;
+        block.style.opacity = '0.75';
+        cell.appendChild(block);
+      }
+    }
+  }
+
+  gameState.combo++;
+  const speedBonus = Math.max(0, Math.floor(gameState.timeLeft / GAME_DURATION * 50));
+  const comboMult  = gameState.combo >= 3 ? 2 : 1;
+  const pts = (BASE_PTS + speedBonus) * comboMult * dur;
+  gameState.score  += pts;
+  gameState.placed++;
+
+  evt.placed = true;
+  gameState.selectedEvent = null;
+
+  const msg = gameState.combo >= 3
+    ? `🔥 COMBO x${gameState.combo}! +${pts}pts`
+    : `✅ Placé ! +${pts}pts`;
+  showToast(msg);
+
+  checkFullRows(row, dur);
+
+  renderHUD();
+  renderQueue();
+  renderNextCard();
+  clearHighlight();
+
+  const remaining = gameState.events.filter(e => !e.placed);
+  if (remaining.length === 0) endGame('win');
+}
+
+function checkFullRows(startRow, dur) {
+  let bonusRows = 0;
+  for (let r = startRow; r < startRow + dur && r < TOTAL_ROWS; r++) {
+    const rowData = gameState.grid[r];
+    if (rowData.every(cell => cell !== null)) {
+      bonusRows++;
+      for (let c = 0; c < DAYS; c++) {
+        const cell = getCell(r, c);
+        if (cell) cell.classList.add('row-complete');
+      }
+    }
+  }
+  if (bonusRows > 0) {
+    gameState.score += bonusRows * 500;
+    showToast(`🌟 ${bonusRows} ligne${bonusRows > 1 ? 's' : ''} complète${bonusRows > 1 ? 's' : ''} ! +${bonusRows*500}pts`);
+    renderHUD();
+  }
+}
+
+function loseLife() {
+  gameState.combo = 0;
+  gameState.lives--;
+  renderHUD();
+  if (gameState.lives <= 0) endGame('dead');
+}
+
+function showConflict(msg) {
+  const board = document.getElementById('t-board');
+  board.style.animation = 'none';
+  void board.offsetWidth;
+  board.style.animation = 'tShake 0.4s ease';
+  if (!document.querySelector('#shakeStyle')) {
+    const st = document.createElement('style');
+    st.id = 'shakeStyle';
+    st.textContent = '@keyframes tShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}';
+    document.head.appendChild(st);
+  }
+  showToast(msg, '#f43f5e');
+}
+
+function renderQueue() {
+  const container = document.getElementById('t-queue');
+  container.innerHTML = '';
+  gameState.events.forEach(evt => {
+    const el = document.createElement('div');
+    el.className = 'q-event' +
+      (evt.placed ? ' placed' : '') +
+      (gameState.selectedEvent?.id === evt.id ? ' selected' : '');
+    el.style.setProperty('--evt-q-color', evt.color);
+
+    const durMin = evt.duration * SLOT_MINS;
+    const h = Math.floor(durMin / 60);
+    const m = durMin % 60;
+    const durLabel = h > 0 ? `${h}h${m > 0 ? m + 'min' : ''}` : `${m}min`;
+
+    el.innerHTML = `
+      <div class="q-evt-name">${evt.name}</div>
+      <div class="q-evt-time">${String(evt.startH).padStart(2,'0')}h${String(evt.startM).padStart(2,'0')}</div>
+      <span class="q-evt-dur">${durLabel}</span>
+    `;
+    if (!evt.placed) {
+      el.addEventListener('click', () => selectEvent(evt));
+    }
+    container.appendChild(el);
+  });
+}
+
+function selectEvent(evt) {
+  if (!gameState.running) return;
+  gameState.selectedEvent = gameState.selectedEvent?.id === evt.id ? null : evt;
+  renderQueue();
+  renderNextCard();
+  clearHighlight();
+}
+
+function renderNextCard() {
+  const container = document.getElementById('t-next-card');
+  const evt = gameState.selectedEvent || gameState.events.find(e => !e.placed);
+  if (!evt) {
+    container.innerHTML = '<div style="color:rgba(165,180,252,0.4);font-size:.75rem;text-align:center;padding:.5rem;">Tous placés!</div>';
+    return;
+  }
+  const durMin = evt.duration * SLOT_MINS;
+  const durH = Math.floor(durMin / 60);
+  const durM = durMin % 60;
+  const durLabel = durH > 0 ? `${durH}h${durM > 0 ? durM + 'min' : ''}` : `${durM}min`;
+
+  container.innerHTML = `
+    <div class="next-card-name" style="color:${evt.color}">${evt.name}</div>
+    <div class="next-card-time">${String(evt.startH).padStart(2,'0')}h${String(evt.startM).padStart(2,'0')}</div>
+    <span class="next-card-dur">${durLabel} · ${evt.duration} créneau${evt.duration > 1 ? 'x' : ''}</span>
+  `;
+}
+
+function showToast(msg, color) {
+  const wrap = document.getElementById('t-board')?.closest('.tetris-board-wrap') || document.getElementById('tetrisModal');
+  const toast = document.createElement('div');
+  toast.className = 't-toast';
+  toast.textContent = msg;
+  if (color) toast.style.borderColor = color + '55';
+  wrap.style.position = 'relative';
+  wrap.appendChild(toast);
+  setTimeout(() => toast.remove(), 1300);
+}
+
+function endGame(reason) {
+  stopTimer();
+  gameState.running = false;
+
+  try {
+    const prev = parseInt(localStorage.getItem('tetris_best') || '0');
+    if (gameState.score > prev) {
+      localStorage.setItem('tetris_best', gameState.score);
+      document.getElementById('t-best').textContent = gameState.score;
+    }
+  } catch(e) {}
+
+  const msgEl   = document.getElementById('t-message');
+  const iconEl  = document.getElementById('t-msg-icon');
+  const titleEl = document.getElementById('t-msg-title');
+  const bodyEl  = document.getElementById('t-msg-body');
+
+  const placed  = gameState.placed;
+  const total   = gameState.events.length;
+
+  if (reason === 'win') {
+    iconEl.textContent  = '🏆';
+    titleEl.textContent = 'Parfait !';
+    bodyEl.innerHTML    = `Tu as placé <strong style="color:#fbbf24">${placed}</strong> événements !<br>Score final : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+  } else if (reason === 'time') {
+    iconEl.textContent  = '⏱';
+    titleEl.textContent = 'Temps écoulé !';
+    bodyEl.innerHTML    = `${placed} / ${total} placés<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+  } else {
+    iconEl.textContent  = '💀';
+    titleEl.textContent = 'Game Over !';
+    bodyEl.innerHTML    = `Plus de vies...<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+  }
+
+  msgEl.style.display = 'flex';
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded', function () {
+
+  // Lucide icons
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Staggered day-cell entrance
+  const dayCells = document.querySelectorAll('.day-cell:not(.empty-cell)');
+  dayCells.forEach((cell, i) => {
+    cell.style.opacity = '0';
+    cell.style.transform = 'translateY(14px)';
+    cell.style.transition = 'opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)';
+    setTimeout(() => {
+      cell.style.opacity = '1';
+      cell.style.transform = 'translateY(0)';
+    }, 40 + i * 12);
+  });
+
+  // Animate stat numbers
+  document.querySelectorAll('.stat-tag').forEach(tag => {
+    const n = parseInt(tag.textContent);
+    if (!isNaN(n) && n > 0) {
+      let cur = 0;
+      const step = Math.ceil(n / 20);
+      const timer = setInterval(() => {
+        cur = Math.min(cur + step, n);
+        tag.textContent = cur;
+        if (cur >= n) clearInterval(timer);
+      }, 40);
+    }
+  });
+
+  // Click ripple effect on day cells
+  dayCells.forEach(cell => {
+    cell.addEventListener('click', function (e) {
+      const ripple = document.createElement('span');
+      const rect = cell.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      ripple.style.cssText = `
+        position:absolute; border-radius:50%;
+        width:${size}px; height:${size}px;
+        left:${e.clientX - rect.left - size/2}px;
+        top:${e.clientY - rect.top - size/2}px;
+        background:rgba(79,70,229,0.12);
+        transform:scale(0); pointer-events:none;
+        animation:ripple 0.5s ease-out forwards;
+      `;
+      if (!document.querySelector('#rippleStyle')) {
+        const style = document.createElement('style');
+        style.id = 'rippleStyle';
+        style.textContent = '@keyframes ripple{to{transform:scale(2.5);opacity:0}}';
+        document.head.appendChild(style);
+      }
+      cell.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 500);
+    });
+  });
+
+  // Initialize mascot
+  console.log('Init mascotte...');
+  updateMascotDisplay();
+
+  // Close modal on overlay click
+  document.getElementById('tetrisModal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeTetris();
+  });
+
+  // ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.getElementById('tetrisModal')?.style.display !== 'none') {
+      closeTetris();
+    }
+  });
+
+});
+</script>
+</body>
+{% endblock %}

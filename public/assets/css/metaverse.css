@@ -1,0 +1,497 @@
+/* assets/css/metaverse.css - Thème Metaverse pour le calendrier */
+
+:root {
+    --neon-blue: #00f3ff;
+    --neon-pink: #ff00e5;
+    --neon-purple: #b300ff;
+    --neon-yellow: #ffff00;
+    --dark-bg: #0a0a0f;
+    --cyber-grid: #1a1a2e;
+}
+
+/* Fond Metaverse avec grille cyberpunk */
+body {
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Grille cyberpunk animée */
+.cyber-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 243, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 229, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    transform: perspective(500px) rotateX(60deg);
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes gridMove {
+    0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+    100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
+}
+
+/* Particules flottantes */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--neon-blue);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-blue);
+    animation: floatParticle 15s linear infinite;
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* Effet de scanline */
+.scanline {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0, 243, 255, 0.03) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scanline 8s linear infinite;
+    z-index: 2;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(200%); }
+}
+
+/* Cartes avec effet holographique */
+.holo-card {
+    background: rgba(10, 10, 20, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+    border-radius: 1.5rem;
+    box-shadow: 
+        0 0 20px rgba(0, 243, 255, 0.2),
+        inset 0 0 20px rgba(255, 0, 229, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.holo-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        var(--neon-blue), 
+        var(--neon-pink), 
+        var(--neon-purple),
+        var(--neon-blue));
+    border-radius: 1.6rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: -1;
+}
+
+.holo-card:hover::before {
+    opacity: 1;
+    animation: borderRotate 3s linear infinite;
+}
+
+.holo-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.4);
+}
+
+@keyframes borderRotate {
+    0% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}
+
+/* Cellules du calendrier en style Metaverse */
+.calendar-cell-metaverse {
+    background: rgba(20, 20, 40, 0.6);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 1rem;
+    padding: 0.75rem;
+    min-height: 130px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    animation: cellGlow 4s ease-in-out infinite;
+}
+
+.calendar-cell-metaverse::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    animation: scanCell 3s linear infinite;
+}
+
+@keyframes scanCell {
+    0% { left: -100%; }
+    100% { left: 200%; }
+}
+
+.calendar-cell-metaverse:hover {
+    border-color: var(--neon-pink);
+    box-shadow: 
+        0 0 20px rgba(255, 0, 229, 0.3),
+        inset 0 0 20px rgba(0, 243, 255, 0.2);
+    transform: translateY(-3px) scale(1.02);
+}
+
+.calendar-cell-metaverse.today {
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+    animation: pulseNeon 2s ease-in-out infinite;
+}
+
+@keyframes pulseNeon {
+    0%, 100% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(255, 0, 229, 0.5); }
+}
+
+/* Numéro du jour style cyber */
+.day-number-metaverse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background: rgba(0, 243, 255, 0.1);
+    color: var(--neon-blue);
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--neon-blue);
+    border: 1px solid rgba(0, 243, 255, 0.3);
+}
+
+.day-number-metaverse.today {
+    background: var(--neon-blue);
+    color: black;
+    box-shadow: 0 0 20px var(--neon-blue);
+}
+
+/* Événements style Metaverse */
+.event-metaverse {
+    background: rgba(0, 243, 255, 0.1);
+    border-left: 3px solid var(--neon-blue);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    margin-bottom: 0.4rem;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.event-metaverse::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.1), 
+        transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+}
+
+.event-metaverse:hover::after {
+    transform: translateX(100%);
+}
+
+.event-metaverse:hover {
+    border-left-color: var(--neon-pink);
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(255, 0, 229, 0.3);
+}
+
+.event-time-metaverse {
+    color: var(--neon-blue);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-shadow: 0 0 5px var(--neon-blue);
+}
+
+.event-title-metaverse {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badges cyber */
+.badge-cyber {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid;
+}
+
+.badge-cyber-primary {
+    background: rgba(0, 243, 255, 0.15);
+    color: var(--neon-blue);
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.badge-cyber-secondary {
+    background: rgba(255, 0, 229, 0.15);
+    color: var(--neon-pink);
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 10px rgba(255, 0, 229, 0.3);
+}
+
+.badge-cyber-success {
+    background: rgba(0, 255, 0, 0.15);
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+/* Boutons cyber */
+.btn-cyber {
+    position: relative;
+    padding: 0.6rem 1.2rem;
+    background: transparent;
+    color: var(--neon-blue);
+    border: 2px solid var(--neon-blue);
+    border-radius: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    overflow: hidden;
+    transition: all 0.3s;
+    z-index: 1;
+}
+
+.btn-cyber::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: var(--neon-blue);
+    transition: width 0.3s;
+    z-index: -1;
+}
+
+.btn-cyber:hover {
+    color: black;
+}
+
+.btn-cyber:hover::before {
+    width: 100%;
+}
+
+.btn-cyber-primary {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    border: none;
+    color: black;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+}
+
+.btn-cyber-primary:hover {
+    box-shadow: 0 0 30px rgba(255, 0, 229, 0.6);
+    transform: translateY(-2px);
+}
+
+/* AI Assistant Metaverse */
+.ai-card-metaverse {
+    background: linear-gradient(135deg, #0a0a1f, #1a1a2f);
+    border: 1px solid var(--neon-blue);
+    border-radius: 1.5rem;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: 
+        0 0 30px rgba(0, 243, 255, 0.3),
+        inset 0 0 30px rgba(179, 0, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-card-metaverse::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, 
+        rgba(0, 243, 255, 0.2) 0%, 
+        transparent 70%);
+    animation: rotateGradient 10s linear infinite;
+}
+
+@keyframes rotateGradient {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.ai-message-metaverse {
+    background: rgba(0, 243, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 0, 229, 0.3);
+    border-radius: 1rem;
+    padding: 1rem;
+    color: white;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+}
+
+/* Day Off Metaverse */
+.day-off-metaverse {
+    background: linear-gradient(145deg, #00ffff, #ff00ff);
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+    animation: glitch 3s infinite;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+}
+
+@keyframes glitch {
+    0%, 100% { transform: skew(0deg); }
+    5% { transform: skew(2deg); }
+    10% { transform: skew(-2deg); }
+    15% { transform: skew(0deg); }
+}
+
+.day-off-xx-metaverse {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 
+        2px 2px 0 var(--neon-blue),
+        -2px -2px 0 var(--neon-pink);
+}
+
+/* Portail Metaverse */
+.metaverse-portal {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, 
+        rgba(0, 243, 255, 0.8), 
+        rgba(255, 0, 229, 0.8));
+    animation: portalPulse 2s ease-in-out infinite;
+    cursor: pointer;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.8);
+}
+
+@keyframes portalPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Loading screen Metaverse */
+.metaverse-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+.metaverse-loading.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.loading-text {
+    color: var(--neon-blue);
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: loadingPulse 1s infinite;
+}
+
+@keyframes loadingPulse {
+    0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--neon-blue); }
+    50% { opacity: 0.5; text-shadow: 0 0 40px var(--neon-pink); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-cell-metaverse {
+        min-height: 100px;
+        padding: 0.5rem;
+    }
+    
+    .day-number-metaverse {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.875rem;
+    }
+}

@@ -1,0 +1,70 @@
+{#
+    Tabs Component
+
+    Usage:
+    {% include 'components/tabs.html.twig' with {
+        id: 'my-tabs',
+        tabs: [
+            { id: 'tab1', label: 'Overview', icon: 'layout-dashboard', active: true },
+            { id: 'tab2', label: 'Details' },
+            { id: 'tab3', label: 'Settings', badge: '3' }
+        ],
+        variant: 'underline',  // underline, pills, boxed
+        fullWidth: false
+    } %}
+
+    Content panels should have matching IDs:
+    <div id="tab1-panel">Content 1</div>
+    <div id="tab2-panel" class="hidden">Content 2</div>
+#}
+
+{% set variant = variant|default('underline') %}
+{% set fullWidth = fullWidth|default(false) %}
+
+{% set variantClasses = {
+    'underline': 'border-b border-slate-200 dark:border-slate-700',
+    'pills': 'bg-slate-100 dark:bg-slate-800 rounded-xl p-1',
+    'boxed': 'bg-white dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700'
+} %}
+
+{% set tabClasses = {
+    'underline': 'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+    'pills': 'px-4 py-2 text-sm font-medium rounded-lg transition-colors',
+    'boxed': 'px-4 py-2 text-sm font-medium rounded-lg transition-colors'
+} %}
+
+{% set activeClasses = {
+    'underline': 'border-primary-500 text-primary-600 dark:text-primary-400',
+    'pills': 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm',
+    'boxed': 'bg-primary-600 text-white'
+} %}
+
+{% set inactiveClasses = {
+    'underline': 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600',
+    'pills': 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300',
+    'boxed': 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+} %}
+
+<div id="{{ id }}" class="{{ variantClasses[variant] }} {{ fullWidth ? 'flex' : 'inline-flex' }}" role="tablist" data-controller="tabs">
+    {% for tab in tabs|default([]) %}
+        <button
+            type="button"
+            role="tab"
+            id="{{ tab.id }}-tab"
+            aria-controls="{{ tab.id }}-panel"
+            aria-selected="{{ tab.active|default(false) ? 'true' : 'false' }}"
+            data-tabs-target="tab"
+            data-action="click->tabs#switch"
+            data-tab-id="{{ tab.id }}"
+            class="{{ tabClasses[variant] }} {{ tab.active|default(false) ? activeClasses[variant] : inactiveClasses[variant] }} {{ fullWidth ? 'flex-1 text-center' : '' }} inline-flex items-center justify-center gap-2"
+        >
+            {% if tab.icon is defined and tab.icon %}
+                <i data-lucide="{{ tab.icon }}" class="w-4 h-4"></i>
+            {% endif %}
+            {{ tab.label }}
+            {% if tab.badge is defined and tab.badge %}
+                <span class="px-1.5 py-0.5 text-xs bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 rounded-full">{{ tab.badge }}</span>
+            {% endif %}
+        </button>
+    {% endfor %}
+</div>

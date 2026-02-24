@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RLIFE{% endblock %} | RLIFE</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+
+    <!-- Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    <script>
+        // Theme initialization and toggle function
+        (function() {
+            var theme = localStorage.getItem('theme');
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            // Set initial theme
+            if (theme === 'dark' || (!theme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Global toggle function
+            window.toggleTheme = function() {
+                var html = document.documentElement;
+                if (html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    html.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+            };
+        })();
+    </script>
+</head>
+<body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div class="min-h-screen" data-controller="sidebar">
+        <!-- Sidebar -->
+        <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"
+               data-sidebar-target="sidebar"
+               id="sidebar">
+            <!-- Logo Section -->
+            <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
+                <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
+                        <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                    </div>
+                    <div data-sidebar-target="brandText">
+                        <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
+                    </div>
+                </a>
+                <button type="button"
+                        class="lg:hidden p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        data-action="click->sidebar#toggle"
+                        aria-label="Close sidebar">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                <!-- Main Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Main</p>
+
+                    <a href="{{ path('app_dashboard') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') == 'app_dashboard' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Dashboard</span>
+                    </a>
+
+                    <a href="{{ path('app_courses') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_courses' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Courses</span>
+                    </a>
+
+                    <a href="{{ path('app_assignments') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_assignments' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Assignments</span>
+                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
+                    </a>
+
+                    <a href="{{ path('app_planning') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_planning' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="calendar-days" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Schedule</span>
+                    </a>
+                </div>
+
+                <!-- Study Section -->
+                <div class="mb-6">
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Study</p>
+
+                    <a href="{{ path('app_revisions') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_revisions' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="brain" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Revisions</span>
+                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full" data-sidebar-target="badge">24</span>
+                    </a>
+
+                    <a href="{{ path('app_projects') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_projects' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Projects</span>
+                    </a>
+                </div>
+
+                <!-- Wellness Section -->
+                <div>
+                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Wellness</p>
+
+                    <a href="{{ path('app_wellbeing') }}"
+                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                              {{ app.request.attributes.get('_route') starts with 'app_wellbeing' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                        <i data-lucide="heart-pulse" class="w-5 h-5 flex-shrink-0"></i>
+                        <span data-sidebar-target="navText">Wellbeing</span>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+                <a href="{{ path('app_settings') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_settings' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Settings</span>
+                </a>
+
+                <!-- User Card -->
+                <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl" data-sidebar-target="userCard">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
+                            {% if app.user and app.user.profilePic %}
+                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                            {% else %}
+                                {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ app.user ? app.user.fullName : 'User' }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ app.user and app.user.isAdmin ? 'Administrator' : 'Student' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Sidebar backdrop for mobile -->
+        <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden hidden"
+             data-sidebar-target="backdrop"
+             data-action="click->sidebar#close"></div>
+
+        <!-- Main Content Area -->
+        <div class="lg:ml-64 min-h-screen flex flex-col">
+            <!-- Top Bar -->
+            <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
+                <div class="flex items-center justify-between gap-4 h-full">
+                <!-- Left side -->
+                <div class="flex items-center gap-4">
+                    <!-- Mobile menu button -->
+                    <button type="button"
+                            class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            data-action="click->sidebar#toggle"
+                            aria-label="Open menu">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Search -->
+                    <div class="relative hidden sm:block">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                        <input type="search"
+                               placeholder="Search..."
+                               class="w-64 lg:w-80 pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all">
+                    </div>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center gap-2">
+                    <!-- Quick Add -->
+                    <div class="relative" data-controller="dropdown">
+                        <button type="button"
+                                class="inline-flex items-center gap-2 px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-sm shadow-primary-500/25 transition-all"
+                                data-action="click->dropdown#toggle">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">New</span>
+                        </button>
+                        <div class="absolute right-0 top-full mt-2 w-56 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+                             data-dropdown-target="menu">
+                            <a href="{{ path('app_assignments') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                <i data-lucide="clipboard-plus" class="w-4 h-4 text-primary-500"></i>
+                                New Assignment
+                            </a>
+                            <a href="{{ path('app_planning') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                <i data-lucide="calendar-plus" class="w-4 h-4 text-accent-500"></i>
+                                New Event
+                            </a>
+                            <a href="{{ path('app_revisions') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                <i data-lucide="layers-2" class="w-4 h-4 text-success-500"></i>
+                                New Flashcard Deck
+                            </a>
+                            <a href="{{ path('app_courses') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                <i data-lucide="book-plus" class="w-4 h-4 text-secondary-500"></i>
+                                New Course
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Notifications -->
+                   {% set notifications = current_notifications() %}
+
+<div class="relative" data-controller="dropdown">
+    <button type="button"
+            class="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            data-action="click->dropdown#toggle"
+            aria-label="Notifications">
+        <i data-lucide="bell" class="w-5 h-5"></i>
+        {% if notifications|length > 0 %}
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+        {% endif %}
+    </button>
+
+    <div class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+         data-dropdown-target="menu">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-700">
+            <h3 class="font-semibold text-slate-900 dark:text-white">Notifications</h3>
+        </div>
+
+        <div class="max-h-80 overflow-y-auto">
+            {% if notifications|length > 0 %}
+                {% for notification in notifications %}
+                    <a href="#"
+                       class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="bell" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">
+                                {{ notification.title ?: 'Notification' }}
+                            </p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {{ notification.message ?: '' }}
+                            </p>
+                            {% if notification.createdAt is defined %}
+                                <p class="text-xs text-slate-400 mt-1 italic">
+                                    {{ notification.createdAt|date('d/m/Y H:i') }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p class="p-4 text-sm text-slate-500">No notifications</p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+
+                    <!-- Theme Toggle -->
+                    <button type="button"
+                            class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            onclick="toggleTheme()"
+                            aria-label="Toggle theme">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+
+                    <!-- Profile -->
+                    <div class="relative" data-controller="dropdown">
+                        <button type="button"
+                                class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                data-action="click->dropdown#toggle">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
+                                {% if app.user and app.user.profilePic %}
+                                    <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                {% else %}
+                                    {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
+                                {% endif %}
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 hidden sm:block"></i>
+                        </button>
+                        <div class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+                             data-dropdown-target="menu">
+                            <div class="p-4 border-b border-slate-100 dark:border-slate-700">
+                                <p class="font-semibold text-slate-900 dark:text-white">{{ app.user ? app.user.fullName : 'User' }}</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">{{ app.user ? app.user.email : '' }}</p>
+                            </div>
+                            <div class="p-2">
+                                <a href="{{ path('app_settings') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="user" class="w-4 h-4"></i>
+                                    Profile Settings
+                                </a>
+                                <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
+                                    Help & Support
+                                </a>
+                                <div class="h-px bg-slate-100 dark:bg-slate-700 my-2"></div>
+                                <a href="{{ path('app_logout') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-lg transition-colors">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                    Sign Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 lg:p-6">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2" data-controller="toast">
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer
+                    {% if label == 'success' %}bg-success-500 text-white{% endif %}
+                    {% if label == 'error' or label == 'danger' %}bg-danger-500 text-white{% endif %}
+                    {% if label == 'warning' %}bg-warning-500 text-white{% endif %}
+                    {% if label == 'info' %}bg-primary-500 text-white{% endif %}"
+                    data-toast-target="toast"
+                    data-action="click->toast#dismiss">
+                    {% if label == 'success' %}
+                        <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    {% elseif label == 'error' or label == 'danger' %}
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    {% elseif label == 'warning' %}
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    {% else %}
+                        <i data-lucide="info" class="w-5 h-5"></i>
+                    {% endif %}
+                    <span class="font-medium">{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</body>
+</html>

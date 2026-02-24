@@ -1,0 +1,852 @@
+{% extends 'base.html.twig' %}
+{% block title %}AI Smart Planning{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/*
+ * ⚠️ TOUT le CSS est scoped sous .ai-wrap ou #ai-engine-overlay
+ * → aucun impact sur body, nav, sidebar, ou le reste du template
+ */
+
+/* ---- Variables locales ---- */
+.ai-wrap {
+  --ai-bg:          #f1f3fb;
+  --ai-surface:     rgba(255,255,255,0.78);
+  --ai-surface-s:   rgba(255,255,255,0.95);
+  --ai-border:      rgba(99,102,241,0.13);
+  --ai-border-s:    rgba(99,102,241,0.24);
+  --ai-ink:         #1a1f36;
+  --ai-dim:         #6b7694;
+  --ai-faint:       #a8b0cc;
+  --ai-violet:      #6366f1;
+  --ai-violet-d:    #4f46e5;
+  --ai-cyan:        #06b6d4;
+  --ai-emerald:     #10b981;
+  --ai-amber:       #f59e0b;
+  --ai-rose:        #f43f5e;
+  --ai-purple:      #a855f7;
+  --ai-r:           16px;
+  --ai-rs:          10px;
+  --ai-sh:          0 4px 24px rgba(99,102,241,0.08), 0 1px 3px rgba(0,0,0,0.04);
+  --ai-sh-f:        0 12px 40px rgba(99,102,241,0.15), 0 4px 12px rgba(0,0,0,0.06);
+  --ai-glow:        0 0 0 3px rgba(99,102,241,0.15);
+  --ai-font:        'Syne', sans-serif;
+  --ai-mono:        'JetBrains Mono', monospace;
+
+  /* layout */
+  position: relative;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+
+  /* police locale — n'affecte pas le reste */
+  font-family: var(--ai-font);
+  color: var(--ai-ink);
+}
+
+/* Mesh background uniquement dans .ai-wrap */
+.ai-wrap::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%,  rgba(168,180,255,0.3)  0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(192,220,255,0.25) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 100%,rgba(200,168,255,0.18) 0%, transparent 60%),
+    rgba(241,243,251,0.97);
+}
+.ai-wrap::after {
+  content: '';
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ---- HEADER ---- */
+.ai-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+}
+.ai-header-left { display: flex; align-items: center; gap: 1rem; }
+.ai-logo {
+  width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--ai-violet), var(--ai-purple));
+  display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.3);
+  animation: aiLogoPulse 4s ease-in-out infinite;
+}
+@keyframes aiLogoPulse {
+  0%,100% { box-shadow: 0 8px 24px rgba(99,102,241,0.3); }
+  50%      { box-shadow: 0 8px 40px rgba(99,102,241,0.55), 0 0 0 6px rgba(99,102,241,0.07); }
+}
+.ai-title {
+  font-size: 1.65rem; font-weight: 800; letter-spacing: -0.03em;
+  color: var(--ai-ink); line-height: 1;
+}
+.ai-title em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--ai-violet), var(--ai-cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.ai-sub {
+  font-family: var(--ai-mono); font-size: 0.7rem;
+  color: var(--ai-faint); margin-top: 3px; letter-spacing: 0.04em;
+}
+.ai-status {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(16,185,129,0.09); border: 1px solid rgba(16,185,129,0.18);
+  border-radius: 20px; padding: 5px 12px;
+  font-family: var(--ai-mono); font-size: 0.72rem; color: #059669;
+}
+.ai-sdot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ai-emerald);
+  animation: aiPulse 2s ease-in-out infinite;
+}
+@keyframes aiPulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+/* ---- PERIOD CARD ---- */
+.ai-period {
+  background: var(--ai-surface-s); border: 1px solid var(--ai-border);
+  border-radius: var(--ai-r); padding: 1.2rem 1.5rem;
+  display: flex; align-items: flex-end; gap: 1.25rem; flex-wrap: wrap;
+  margin-bottom: 1.5rem; box-shadow: var(--ai-sh);
+  backdrop-filter: blur(20px); position: relative; overflow: hidden;
+}
+.ai-period::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--ai-violet), var(--ai-cyan), var(--ai-purple));
+}
+.ai-field { display: flex; flex-direction: column; gap: 4px; }
+.ai-field-label {
+  font-family: var(--ai-mono); font-size: 0.62rem; color: var(--ai-faint);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;
+}
+.ai-date-input {
+  background: rgba(99,102,241,0.05); border: 1.5px solid var(--ai-border);
+  color: var(--ai-ink); padding: 0.48rem 0.85rem;
+  border-radius: var(--ai-rs); font-family: var(--ai-mono);
+  font-size: 0.87rem; font-weight: 500; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.ai-date-input:focus { border-color: var(--ai-violet); box-shadow: var(--ai-glow); }
+.ai-btn-gen {
+  background: linear-gradient(135deg, var(--ai-violet-d), var(--ai-purple));
+  color: #fff; border: none; border-radius: var(--ai-rs);
+  padding: 0.6rem 1.55rem; font-family: var(--ai-font); font-weight: 700;
+  font-size: 0.88rem; cursor: pointer; letter-spacing: 0.02em;
+  transition: all .2s; box-shadow: 0 4px 16px rgba(79,70,229,0.32);
+  white-space: nowrap; margin-left: auto; position: relative; overflow: hidden;
+}
+.ai-btn-gen::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14), transparent);
+  opacity: 0; transition: opacity .2s;
+}
+.ai-btn-gen:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(79,70,229,0.42); }
+.ai-btn-gen:not(:disabled):hover::after { opacity: 1; }
+.ai-btn-gen:disabled { opacity: 0.32; cursor: not-allowed; box-shadow: none; }
+
+/* ---- LAYOUT ---- */
+.ai-layout {
+  display: grid; grid-template-columns: 288px 1fr;
+  gap: 1.25rem; align-items: start;
+}
+@media(max-width:860px){ .ai-layout { grid-template-columns: 1fr; } }
+
+/* ---- GLASS CARD ---- */
+.ai-card {
+  background: var(--ai-surface); border: 1px solid var(--ai-border);
+  border-radius: var(--ai-r); box-shadow: var(--ai-sh);
+  backdrop-filter: blur(20px); overflow: hidden;
+  transition: border-color .25s, box-shadow .25s;
+}
+.ai-card:hover { border-color: var(--ai-border-s); box-shadow: var(--ai-sh-f); }
+.ai-card-head {
+  padding: .9rem 1.2rem; border-bottom: 1px solid var(--ai-border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.45);
+}
+.ai-card-title {
+  font-family: var(--ai-mono); font-size: 0.68rem; color: var(--ai-dim);
+  text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.ai-ldot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--ai-violet);
+  animation: aiPulse 2s ease-in-out infinite;
+}
+.ai-card-body { padding: 1rem 1.2rem; }
+.ai-badge {
+  font-family: var(--ai-mono); font-size: 0.68rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  background: rgba(99,102,241,0.1); color: var(--ai-violet);
+  border: 1px solid rgba(99,102,241,0.18);
+}
+
+/* ---- BID ACTION BUTTONS ---- */
+.ai-bid-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-top: 1rem; }
+.ai-bid-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: .6rem .3rem; border-radius: var(--ai-rs);
+  border: 1.5px solid var(--ai-border); background: rgba(255,255,255,0.6);
+  cursor: pointer; font-family: var(--ai-font); font-size: 0.7rem; font-weight: 600;
+  color: var(--ai-dim); transition: all .2s;
+}
+.ai-bid-btn .ai-bem { font-size: 1.1rem; line-height: 1; }
+.ai-bid-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
+.ai-bid-btn.s:hover { border-color: var(--ai-violet); color: var(--ai-violet); background: rgba(99,102,241,0.06); }
+.ai-bid-btn.d:hover { border-color: var(--ai-emerald); color: var(--ai-emerald); background: rgba(16,185,129,0.06); }
+.ai-bid-btn.e:hover { border-color: var(--ai-rose);    color: var(--ai-rose);    background: rgba(244,63,94,0.06); }
+
+/* ---- BID ITEMS sidebar ---- */
+.ai-bid-item {
+  padding: .58rem .82rem; border-radius: var(--ai-rs);
+  background: rgba(255,255,255,0.72); border: 1px solid var(--ai-border);
+  margin-bottom: .42rem; position: relative; overflow: hidden; transition: border-color .2s;
+}
+.ai-bid-item::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2.5px; border-radius:3px 0 0 3px; }
+.ai-bid-item.exam::before    { background: var(--ai-rose); }
+.ai-bid-item.dayoff::before  { background: var(--ai-emerald); }
+.ai-bid-item.session::before { background: var(--ai-violet); }
+.ai-bid-item:hover { border-color: var(--ai-border-s); }
+.ai-bid-head { display:flex; justify-content:space-between; align-items:center; }
+.ai-bid-name { font-size:.82rem; font-weight:600; color:var(--ai-ink); }
+.ai-pill {
+  font-size:.6rem; font-family:var(--ai-mono); padding:1px 7px; border-radius:10px;
+  text-transform:uppercase; letter-spacing:.05em; font-weight:500;
+}
+.ai-pill.exam    { background:rgba(244,63,94,0.1);  color:var(--ai-rose); }
+.ai-pill.dayoff  { background:rgba(16,185,129,0.1); color:var(--ai-emerald); }
+.ai-pill.session { background:rgba(99,102,241,0.1); color:var(--ai-violet); }
+.ai-bid-date { font-size:.7rem; font-family:var(--ai-mono); color:var(--ai-faint); margin-top:3px; }
+
+/* ---- EMPTY STATE ---- */
+.ai-empty { text-align:center; padding:2.2rem 1rem; color:var(--ai-faint); }
+.ai-empty .aie { font-size:2rem; margin-bottom:.5rem; opacity:.45; }
+.ai-empty p { font-size:.78rem; font-family:var(--ai-mono); }
+
+/* ---- SECTION SEP ---- */
+.ai-sep {
+  display:flex; align-items:center; gap:.7rem;
+  font-family:var(--ai-mono); font-size:.62rem; color:var(--ai-faint);
+  text-transform:uppercase; letter-spacing:.1em; margin-bottom:.7rem;
+}
+.ai-sep::before, .ai-sep::after { content:''; flex:1; height:1px; background:var(--ai-border); }
+
+/* ---- APPLY BAR ---- */
+.ai-apply-bar { display:flex; justify-content:flex-end; margin-bottom:.9rem; }
+.ai-btn-apply {
+  background: linear-gradient(135deg, #059669, var(--ai-emerald));
+  color:#fff; border:none; padding:.56rem 1.45rem; border-radius:var(--ai-rs);
+  font-family:var(--ai-font); font-weight:700; font-size:.87rem;
+  cursor:pointer; transition:all .2s; box-shadow:0 4px 16px rgba(16,185,129,0.28);
+}
+.ai-btn-apply:disabled { opacity:.28; cursor:not-allowed; box-shadow:none; }
+.ai-btn-apply:not(:disabled):hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(16,185,129,0.42); }
+
+/* ---- CONFIRMED CARD ---- */
+.ai-confirmed {
+  background:rgba(255,255,255,0.78); border:1.5px solid var(--ai-border);
+  border-radius:var(--ai-rs); padding:.72rem 1rem; margin-bottom:.45rem;
+  position:relative; overflow:hidden; transition:border-color .2s;
+}
+.ai-confirmed::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
+.ai-confirmed.exam::before    { background:var(--ai-rose); }
+.ai-confirmed.dayoff::before  { background:var(--ai-emerald); }
+.ai-confirmed.session::before { background:var(--ai-violet); }
+.ai-confirmed:hover { border-color:var(--ai-border-s); }
+.ai-conf-head { display:flex; justify-content:space-between; align-items:flex-start; }
+.ai-conf-title { font-size:.87rem; font-weight:700; color:var(--ai-ink); }
+.ai-conf-badge {
+  font-size:.6rem; font-family:var(--ai-mono); color:var(--ai-emerald);
+  background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.2);
+  padding:1px 7px; border-radius:10px; white-space:nowrap;
+}
+.ai-conf-meta { font-size:.7rem; font-family:var(--ai-mono); color:var(--ai-faint); margin-top:4px; }
+
+/* ---- SUGGESTION CARD ---- */
+.ai-sug {
+  background:rgba(255,255,255,0.82); border:1.5px solid var(--ai-border);
+  border-radius:var(--ai-rs); padding:.82rem 1rem; margin-bottom:.45rem;
+  position:relative; overflow:hidden; transition:all .2s;
+}
+.ai-sug::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
+.ai-sug:hover { border-color:var(--ai-border-s); box-shadow:0 4px 16px rgba(99,102,241,0.08); transform:translateX(2px); }
+.ai-sug.accepted { background:rgba(16,185,129,0.06); border-color:rgba(16,185,129,0.28); }
+.ai-sug.accepted::before { background:var(--ai-emerald) !important; }
+.ai-sug.declined { opacity:.3; }
+.ai-sug-head { display:flex; justify-content:space-between; gap:.5rem; align-items:flex-start; }
+.ai-sug-title { font-size:.87rem; font-weight:700; color:var(--ai-ink); line-height:1.3; }
+.ai-lvl {
+  font-size:.58rem; font-family:var(--ai-mono); padding:2px 7px; border-radius:10px;
+  text-transform:uppercase; letter-spacing:.05em; white-space:nowrap; flex-shrink:0; font-weight:500;
+}
+.ai-lvl.urgent   { background:rgba(244,63,94,0.1);  color:var(--ai-rose); }
+.ai-lvl.high     { background:rgba(245,158,11,0.1); color:var(--ai-amber); }
+.ai-lvl.medium   { background:rgba(99,102,241,0.1); color:var(--ai-violet); }
+.ai-lvl.low      { background:rgba(107,114,148,0.1);color:var(--ai-dim); }
+.ai-lvl.recovery { background:rgba(16,185,129,0.1); color:var(--ai-emerald); }
+.ai-sug-meta { font-size:.7rem; font-family:var(--ai-mono); color:var(--ai-faint); margin-top:4px; }
+.ai-sug-desc { font-size:.77rem; color:var(--ai-dim); margin-top:5px; line-height:1.5; }
+.ai-sug-foot { display:flex; gap:.45rem; margin-top:.75rem; }
+.ai-btn-acc {
+  flex:1; padding:.36rem 0; border:1.5px solid rgba(16,185,129,0.3);
+  background:rgba(16,185,129,0.08); color:var(--ai-emerald); border-radius:8px;
+  cursor:pointer; font-family:var(--ai-font); font-size:.75rem; font-weight:700;
+  transition:all .15s; text-align:center;
+}
+.ai-btn-acc:hover { background:rgba(16,185,129,0.15); border-color:var(--ai-emerald); }
+.ai-sug.accepted .ai-btn-acc { background:var(--ai-emerald); color:#fff; border-color:var(--ai-emerald); }
+.ai-btn-dec {
+  padding:.36rem .7rem; border:1.5px solid var(--ai-border); background:transparent;
+  color:var(--ai-dim); border-radius:8px; cursor:pointer;
+  font-family:var(--ai-font); font-size:.75rem; transition:all .15s;
+}
+.ai-btn-dec:hover { border-color:rgba(244,63,94,0.3); color:var(--ai-rose); }
+
+/* ---- TOAST (scoped) ---- */
+#ai-toast {
+  position:fixed; right:1.5rem; bottom:1.5rem; z-index:9999;
+  padding:.78rem 1.25rem; border-radius:12px; color:#fff;
+  font-family:'Syne', sans-serif; font-size:.83rem; font-weight:600;
+  display:none; box-shadow:0 8px 28px rgba(0,0,0,0.14);
+  animation:aiToastIn .3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes aiToastIn { from{transform:translateY(18px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+#ai-toast.success { background:linear-gradient(135deg,#059669,#10b981); }
+#ai-toast.error   { background:linear-gradient(135deg,#e11d48,#f43f5e); }
+#ai-toast.info    { background:linear-gradient(135deg,#4f46e5,#a855f7); }
+</style>
+
+{# ENGINE OVERLAY — styles inline uniquement pour ne pas polluer le scope global #}
+<style>
+#ai-engine-overlay {
+  display:none; position:fixed; inset:0; z-index:9998;
+  background:rgba(241,243,251,0.9); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  flex-direction:column; align-items:center; justify-content:center; gap:1.5rem;
+  font-family:'Syne',sans-serif;
+}
+#ai-engine-overlay.running { display:flex; animation:aiFadeIn .2s ease; }
+@keyframes aiFadeIn { from{opacity:0;} to{opacity:1;} }
+#ai-engine-overlay .er-wrap { position:relative; width:190px; height:190px; display:flex; align-items:center; justify-content:center; }
+#ai-engine-overlay .er {
+  position:absolute; border-radius:50%; border:2px solid transparent;
+}
+#ai-engine-overlay .er1 { width:88px;  height:88px;  border-top-color:#6366f1; border-right-color:rgba(99,102,241,0.2); animation:erSpin 1.7s linear infinite; }
+#ai-engine-overlay .er2 { width:126px; height:126px; border-bottom-color:#06b6d4; border-left-color:rgba(6,182,212,0.18); animation:erSpin 2.5s linear infinite reverse; }
+#ai-engine-overlay .er3 { width:164px; height:164px; border-top-color:#a855f7; border-right-color:rgba(168,85,247,0.14); animation:erSpin 3.7s linear infinite; }
+@keyframes erSpin { from{transform:rotate(0);} to{transform:rotate(360deg);} }
+#ai-engine-overlay .er-core {
+  position:relative; z-index:2; width:66px; height:66px; border-radius:50%;
+  background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(240,242,255,.92));
+  border:2px solid rgba(99,102,241,0.18); display:flex; align-items:center; justify-content:center;
+  font-size:1.75rem; animation:erCore 2s ease-in-out infinite;
+  box-shadow:0 8px 32px rgba(99,102,241,0.18);
+}
+@keyframes erCore { 0%,100%{box-shadow:0 8px 32px rgba(99,102,241,0.18);} 50%{box-shadow:0 8px 48px rgba(99,102,241,0.38),0 0 0 8px rgba(99,102,241,0.05);} }
+#ai-engine-overlay .er-label {
+  font-family:'JetBrains Mono',monospace; font-size:.73rem; color:#6366f1;
+  letter-spacing:.12em; text-transform:uppercase; text-align:center;
+}
+#ai-engine-overlay .er-log {
+  font-family:'JetBrains Mono',monospace; font-size:.75rem; color:#6b7694;
+  text-align:center; max-width:270px;
+}
+#ai-engine-overlay .er-bar { width:210px; height:2px; background:rgba(99,102,241,0.1); border-radius:2px; overflow:hidden; }
+#ai-engine-overlay .er-bar-fill { height:100%; width:0; background:linear-gradient(90deg,#6366f1,#06b6d4); animation:erBar 4s ease-in-out infinite; border-radius:2px; }
+@keyframes erBar { 0%{width:0;} 40%{width:68%;} 80%{width:90%;} 100%{width:100%;} }
+</style>
+
+{# MODAL styles — scoped #}
+<style>
+.ai-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:5000;
+  background:rgba(230,232,245,0.72); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  align-items:center; justify-content:center;
+}
+.ai-modal-overlay.open { display:flex; animation:aiFadeIn .15s ease; }
+.ai-modal-box {
+  background:rgba(255,255,255,0.97); border:1.5px solid rgba(99,102,241,0.2);
+  border-radius:20px; padding:1.85rem; width:100%; max-width:460px;
+  box-shadow:0 24px 60px rgba(99,102,241,0.16),0 8px 20px rgba(0,0,0,0.07);
+  animation:aiModalUp .22s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative; overflow:hidden; font-family:'Syne',sans-serif; color:#1a1f36;
+}
+@keyframes aiModalUp { from{transform:translateY(18px) scale(.97);opacity:0;} to{transform:translateY(0) scale(1);opacity:1;} }
+.ai-modal-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.ai-modal-box.violet::before { background:linear-gradient(90deg,#6366f1,#06b6d4); }
+.ai-modal-box.green::before  { background:linear-gradient(90deg,#10b981,#06b6d4); }
+.ai-modal-box.rose::before   { background:linear-gradient(90deg,#f43f5e,#f59e0b); }
+.ai-modal-title { font-size:1.1rem; font-weight:800; color:#1a1f36; margin-bottom:1.4rem; display:flex; align-items:center; gap:.55rem; letter-spacing:-.02em; }
+.ai-form-row { display:grid; grid-template-columns:1fr 1fr; gap:.72rem; }
+.ai-form-group { margin-bottom:.8rem; }
+.ai-form-label { display:block; font-family:'JetBrains Mono',monospace; font-size:.62rem; color:#a8b0cc; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; font-weight:500; }
+.ai-form-ctrl {
+  width:100%; background:rgba(99,102,241,0.04); border:1.5px solid rgba(99,102,241,0.13);
+  color:#1a1f36; padding:.52rem .88rem; border-radius:10px;
+  font-family:'Syne',sans-serif; font-size:.87rem; outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.ai-form-ctrl:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.14); }
+textarea.ai-form-ctrl { resize:vertical; min-height:72px; }
+select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
+.ai-modal-foot { display:flex; gap:.7rem; justify-content:flex-end; margin-top:1.4rem; }
+.ai-btn-cancel {
+  background:transparent; border:1.5px solid rgba(99,102,241,0.15); color:#6b7694;
+  padding:.5rem 1.1rem; border-radius:10px; cursor:pointer;
+  font-family:'Syne',sans-serif; font-size:.83rem; font-weight:600; transition:all .2s;
+}
+.ai-btn-cancel:hover { border-color:rgba(99,102,241,0.28); color:#1a1f36; }
+.ai-btn-sub {
+  border:none; padding:.52rem 1.3rem; border-radius:10px; cursor:pointer;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:.83rem; color:#fff; transition:all .2s;
+}
+.ai-btn-sub:hover { transform:translateY(-1px); filter:brightness(1.06); }
+.ai-btn-sub.violet { background:linear-gradient(135deg,#4f46e5,#a855f7); box-shadow:0 4px 14px rgba(79,70,229,0.3); }
+.ai-btn-sub.green  { background:linear-gradient(135deg,#059669,#10b981); box-shadow:0 4px 14px rgba(16,185,129,0.3); }
+.ai-btn-sub.rose   { background:linear-gradient(135deg,#e11d48,#f43f5e); box-shadow:0 4px 14px rgba(244,63,94,0.3); }
+</style>
+{% endblock %}
+
+{% block body %}
+
+<!-- AI ENGINE OVERLAY -->
+<div id="ai-engine-overlay">
+  <div class="er-wrap">
+    <div class="er er3"></div><div class="er er2"></div><div class="er er1"></div>
+    <div class="er-core">🤖</div>
+  </div>
+  <div class="er-label">Generating Schedule<span id="ai-engine-dots"></span></div>
+  <div class="er-log" id="ai-engine-log">Analyzing subject priorities…</div>
+  <div class="er-bar"><div class="er-bar-fill"></div></div>
+</div>
+
+<!-- MAIN WRAP — tout le design IA est isolé ici -->
+<div class="ai-wrap">
+
+  <!-- HEADER -->
+  <div class="ai-header">
+    <div class="ai-header-left">
+      <div class="ai-logo">🧠</div>
+      <div>
+        <div class="ai-title">AI <em>Smart Planning</em></div>
+        <div class="ai-sub">// intelligent schedule generator</div>
+      </div>
+    </div>
+    <div class="ai-status"><span class="ai-sdot"></span>AI Engine Ready</div>
+  </div>
+
+  <!-- PERIOD -->
+  <div class="ai-period">
+    <div class="ai-field">
+      <div class="ai-field-label">From</div>
+      <input id="start_date_input" type="date" class="ai-date-input" value="{{ startDate }}">
+    </div>
+    <div class="ai-field">
+      <div class="ai-field-label">To</div>
+      <input id="end_date_input" type="date" class="ai-date-input" value="{{ endDate }}">
+    </div>
+    <button id="ai-gen-btn" class="ai-btn-gen" disabled>⚡ Generate Planning</button>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="ai-layout">
+
+    <!-- BIDS PANEL -->
+    <div class="ai-card">
+      <div class="ai-card-head">
+        <div class="ai-card-title"><span class="ai-ldot"></span>My Bids</div>
+        <span class="ai-badge" id="ai-bids-count">0</span>
+      </div>
+      <div class="ai-card-body">
+        <div id="ai-period-display" style="font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#a8b0cc;margin-bottom:.7rem;"></div>
+        <div id="ai-bids-container"><div class="ai-empty"><div class="aie">📋</div><p>No bids yet</p></div></div>
+        <div class="ai-bid-grid">
+          <button class="ai-bid-btn s" onclick="aiOpenModal('aiModalSession')"><span class="ai-bem">📚</span>Session</button>
+          <button class="ai-bid-btn d" onclick="aiOpenModal('aiModalDayOff')"><span class="ai-bem">🌴</span>Day Off</button>
+          <button class="ai-bid-btn e" onclick="aiOpenModal('aiModalExam')"><span class="ai-bem">📝</span>Exam</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUGGESTIONS PANEL -->
+    <div class="ai-card">
+      <div class="ai-card-head">
+        <div class="ai-card-title"><span class="ai-ldot"></span>AI Suggestions</div>
+        <div id="ai-slots-label" style="font-size:.66rem;font-family:'JetBrains Mono',monospace;color:#a8b0cc;"></div>
+      </div>
+      <div class="ai-card-body">
+        <div id="ai-suggestions">
+          <div class="ai-empty"><div class="aie">🤖</div><p>Select a period and click Generate</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL SESSION -->
+<div id="aiModalSession" class="ai-modal-overlay">
+  <div class="ai-modal-box violet">
+    <div class="ai-modal-title">📚 New Session Bid</div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Title</label>
+      <input id="bs_titre" class="ai-form-ctrl" placeholder="e.g. Mathematics study block">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Session Type</label>
+      <select id="bs_type_id" class="ai-form-ctrl">
+        {% for type in sessionTypes %}<option value="{{ type.id }}">{{ type.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="ai-form-row">
+      <div class="ai-form-group">
+        <label class="ai-form-label">Start</label>
+        <input id="bs_debut" type="datetime-local" class="ai-form-ctrl">
+      </div>
+      <div class="ai-form-group">
+        <label class="ai-form-label">End</label>
+        <input id="bs_fin" type="datetime-local" class="ai-form-ctrl">
+      </div>
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Notes (optional)</label>
+      <textarea id="bs_desc" class="ai-form-ctrl" placeholder="Goals or context…"></textarea>
+    </div>
+    <div class="ai-modal-foot">
+      <button class="ai-btn-cancel" onclick="aiCloseModal('aiModalSession')">Cancel</button>
+      <button class="ai-btn-sub violet" onclick="aiSubmitSession(event)">Submit Bid</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DAY OFF -->
+<div id="aiModalDayOff" class="ai-modal-overlay">
+  <div class="ai-modal-box green">
+    <div class="ai-modal-title">🌴 Request Day Off</div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Label (optional)</label>
+      <input id="bd_titre" class="ai-form-ctrl" placeholder="Rest day, trip, appointment…">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Date</label>
+      <input id="bd_date" type="date" class="ai-form-ctrl">
+    </div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Reason (optional)</label>
+      <textarea id="bd_desc" class="ai-form-ctrl" placeholder="Why do you need this day off?"></textarea>
+    </div>
+    <div class="ai-modal-foot">
+      <button class="ai-btn-cancel" onclick="aiCloseModal('aiModalDayOff')">Cancel</button>
+      <button class="ai-btn-sub green" onclick="aiSubmitDayOff(event)">Request Day Off</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXAM -->
+<div id="aiModalExam" class="ai-modal-overlay">
+  <div class="ai-modal-box rose">
+    <div class="ai-modal-title">📝 Add Exam</div>
+    <div class="ai-form-group">
+      <label class="ai-form-label">Subject</label>
+      {# ✅ Select rempli dynamiquement via JS — plus de dépendance à planningData.priorities #}
+      <select id="be_matiere_id" class="ai-form-ctrl">
+        <option value="">Loading subjects…</option>
+      </select>
+    </div>
+    <div class="ai-form-row">
+      <div class="ai-form-group">
+        <label class="ai-form-label">Date & Time</label>
+        <input id="be_date" type="datetime-local" class="ai-form-ctrl">
+      </div>
+      <div class="ai-form-group">
+        <label class="ai-form-label">Duration (min)</label>
+        <input id="be_duration" type="number" class="ai-form-ctrl" value="120" min="30">
+      </div>
+    </div>
+    <div class="ai-modal-foot">
+      <button class="ai-btn-cancel" onclick="aiCloseModal('aiModalExam')">Cancel</button>
+      <button class="ai-btn-sub rose" onclick="aiSubmitExam(event)">Add Exam</button>
+    </div>
+  </div>
+</div>
+
+<div id="ai-toast"></div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+(function(){
+  const EP = {
+    bids:    '/ai/planning/get-bids-for-period',
+    sugs:    '/ai/planning/suggestions',
+    accept:  '/ai/planning/accept-suggestion',
+    submit:  '/ai/planning/submit-bid',
+    subjects:'/ai/planning/subjects'   {# ← endpoint à créer dans le controller #}
+  };
+
+  const $  = id => document.getElementById(id);
+  const esc = s => s==null?'':String(s).replace(/[&<>"'`=\/]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','/':'&#x2F;','`':'&#x60;','=':'&#x3D;'}[c]));
+
+  /* ---- TOAST ---- */
+  function toast(msg, type='success'){
+    const t=$('ai-toast'); if(!t) return;
+    t.textContent=msg; t.className=type; t.style.display='block';
+    setTimeout(()=>{ t.style.display='none'; },3200);
+  }
+
+  /* ---- FETCH ---- */
+  async function api(url, opts={}){
+    try{
+      const r=await fetch(url,opts); const txt=await r.text();
+      try{ return {ok:r.ok,json:JSON.parse(txt),txt}; }
+      catch{ return {ok:r.ok,json:null,txt}; }
+    }catch(e){ return {ok:false,json:null,txt:e.message}; }
+  }
+
+  /* ---- MODAL ---- */
+  window.aiOpenModal  = id=>{ const el=$(id); if(el) el.classList.add('open'); };
+  window.aiCloseModal = id=>{
+    const el=$(id); if(!el) return;
+    el.classList.remove('open');
+    el.querySelectorAll('input,textarea').forEach(f=>{ if(f.type!=='number') f.value=''; });
+  };
+  document.addEventListener('click', e=>{
+    if(e.target.classList.contains('ai-modal-overlay')) e.target.classList.remove('open');
+  });
+
+  /* ---- SUBJECTS — chargement dynamique pour le select Exam ---- */
+  async function loadSubjects(){
+    const sel=$('be_matiere_id'); if(!sel) return;
+    const res=await api(EP.subjects,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    if(!res.ok||!res.json?.success||!res.json.subjects?.length){
+      sel.innerHTML='<option value="">No subjects found</option>'; return;
+    }
+    sel.innerHTML=res.json.subjects.map(s=>`<option value="${esc(String(s.id))}">${esc(s.nom)}</option>`).join('');
+  }
+
+  /* ---- ENGINE ---- */
+  const logs=['Analyzing subject priorities…','Scanning exam schedule…','Calculating free slots…',
+               'Applying day-off logic…','Scheduling revision blocks…','Distributing sessions…','Finalizing…'];
+  let eTimer=null, dTimer=null;
+  function engineOn(){
+    const ov=$('ai-engine-overlay'); if(!ov) return;
+    ov.classList.add('running');
+    let i=0,d=0;
+    eTimer=setInterval(()=>{ const el=$('ai-engine-log'); if(el) el.textContent=logs[i++%logs.length]; },950);
+    dTimer=setInterval(()=>{ const el=$('ai-engine-dots'); if(el) el.textContent=['.','..','...',''][d++%4]; },400);
+  }
+  function engineOff(){
+    clearInterval(eTimer); clearInterval(dTimer);
+    const ov=$('ai-engine-overlay'); if(ov) ov.classList.remove('running');
+  }
+
+  /* ---- BIDS sidebar ---- */
+  async function loadBids(start,end){
+    const c=$('ai-bids-container'); if(!c) return [];
+    c.innerHTML='<div class="ai-empty"><p>Loading…</p></div>';
+    const url=`${EP.bids}?start_date=${encodeURIComponent(start)}&end_date=${encodeURIComponent(end)}&_t=${Date.now()}`;
+    const res=await api(url,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+    if(!res.ok||!res.json?.success){ c.innerHTML='<div class="ai-empty"><p>Error loading bids</p></div>'; return []; }
+    const bids=res.json.bids||[];
+    const ce=$('ai-bids-count'); if(ce) ce.textContent=String(bids.length);
+    const pd=$('ai-period-display'); if(pd) pd.textContent=`${start}  →  ${end}`;
+    if(!bids.length){ c.innerHTML='<div class="ai-empty"><div class="aie">📋</div><p>No bids for this period</p></div>'; return bids; }
+    c.innerHTML=bids.map(b=>{
+      const date=b.type==='exam'?b.date_evaluation:b.date_debut;
+      const d=date?new Date(date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}):'';
+      const cls=b.type==='exam'?'exam':b.type==='dayoff'?'dayoff':'session';
+      const pc=b.type==='exam'?'exam':b.type==='dayoff'?'dayoff':'session';
+      return `<div class="ai-bid-item ${cls}">
+        <div class="ai-bid-head">
+          <div class="ai-bid-name">${esc(b.titre||b.type||'')}</div>
+          <span class="ai-pill ${pc}">${esc(b.type||'')}</span>
+        </div>
+        <div class="ai-bid-date">${esc(d)}${b.matiere_nom?' · '+esc(b.matiere_nom):''}</div>
+      </div>`;
+    }).join('');
+    return bids;
+  }
+
+  /* ---- SUGGESTIONS ---- */
+  window.aiSugsState=[];
+  const lvl=l=>({'Urgent':'urgent','High':'high','Medium':'medium','Low':'low','Recovery':'recovery'}[l]||'medium');
+
+  function htmlConfirmed(s){
+    const tc=s.type==='Exam'?'exam':s.type==='DAY OFF'?'dayoff':'session';
+    const sd=s.slot?.start?new Date(s.slot.start):null;
+    const ed=s.slot?.end  ?new Date(s.slot.end)  :null;
+    const fmt=d=>d?d.toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    return `<div class="ai-confirmed ${tc}">
+      <div class="ai-conf-head">
+        <div class="ai-conf-title">${esc(s.suggestedTitle||'')}</div>
+        <span class="ai-conf-badge">✓ Saved</span>
+      </div>
+      <div class="ai-conf-meta">${esc(fmt(sd))}${ed?' – '+esc(ed.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})):''}</div>
+    </div>`;
+  }
+
+  function htmlSug(s,idx){
+    const subj=s.subject?(s.subject.nom||s.subject.nomMatiere||''):'';
+    const st=s.sessionType?s.sessionType.name:s.type||'';
+    const sd=s.slot?.start?new Date(s.slot.start):null;
+    const ed=s.slot?.end  ?new Date(s.slot.end)  :null;
+    const ds=sd?sd.toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short'}):'';
+    const ts=sd?sd.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const te=ed?ed.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const color=s.color||'#6366f1';
+    return `<div class="ai-sug" data-idx="${idx}">
+      <style>.ai-sug[data-idx="${idx}"]::before{background:${esc(color)};}</style>
+      <div class="ai-sug-head">
+        <div class="ai-sug-title">${esc(s.suggestedTitle||(subj?subj+' · '+st:st))}</div>
+        <span class="ai-lvl ${lvl(s.priorityLevel)}">${esc(s.priorityLevel||'')}</span>
+      </div>
+      <div class="ai-sug-meta">${subj?esc(subj)+' · ':''}${esc(st)}</div>
+      <div class="ai-sug-meta">${esc(ds)}  ·  ${esc(ts)}${te?' – '+esc(te):''}</div>
+      ${s.suggestedDescription?`<div class="ai-sug-desc">${esc(s.suggestedDescription)}</div>`:''}
+      <div class="ai-sug-foot">
+        <button class="ai-btn-acc ai-accept-btn" data-idx="${idx}">✓ Accept</button>
+        <button class="ai-btn-dec ai-decline-btn" data-idx="${idx}">✕</button>
+      </div>
+    </div>`;
+  }
+
+  async function loadSuggestions(start,end){
+    const c=$('ai-suggestions'); if(!c) return;
+    engineOn();
+    const url=`${EP.sugs}?start_date=${encodeURIComponent(start)}&end_date=${encodeURIComponent(end)}&_t=${Date.now()}`;
+    const res=await api(url,{headers:{'X-Requested-With':'XMLHttpRequest','Cache-Control':'no-cache'}});
+    engineOff();
+    if(!res.ok||!res.json?.success){
+      c.innerHTML=`<div class="ai-empty"><div class="aie">⚠️</div><p>${esc(res.json?.error||'Error')}</p></div>`; return;
+    }
+    const all=res.json.suggestions||[];
+    const srt=a=>a.sort((x,y)=>new Date(x.slot?.start||0)-new Date(y.slot?.start||0));
+    const confirmed=srt(all.filter(s=>s.isBid));
+    const aiSugs   =srt(all.filter(s=>!s.isBid));
+    window.aiSugsState=aiSugs.map((s,i)=>({i,state:'pending',s}));
+    const fsl=$('ai-slots-label'); if(fsl&&res.json.freeSlotsCount!=null) fsl.textContent=`${res.json.freeSlotsCount} slots`;
+    let h='';
+    if(confirmed.length){ h+=`<div class="ai-sep">📌 Confirmed Events</div>`; h+=confirmed.map(htmlConfirmed).join(''); if(aiSugs.length) h+=`<div style="height:1px;background:rgba(99,102,241,.1);margin:1rem 0;"></div>`; }
+    if(!aiSugs.length){ h+=`<div class="ai-empty"><div class="aie">🤖</div><p>No AI suggestions for this period</p></div>`; c.innerHTML=h; return; }
+    h+=`<div class="ai-apply-bar"><button id="ai-apply-btn" class="ai-btn-apply" disabled>Apply Schedule (0)</button></div>`;
+    h+=`<div class="ai-sep">🤖 AI Suggestions</div>`;
+    h+=aiSugs.map((s,i)=>htmlSug(s,i)).join('');
+    c.innerHTML=h;
+
+    c.querySelectorAll('.ai-accept-btn').forEach(b=>b.addEventListener('click',()=>{
+      const idx=parseInt(b.dataset.idx,10); const e=window.aiSugsState[idx]; if(!e) return;
+      e.state=e.state==='accepted'?'pending':'accepted'; refreshCard(idx); refreshApplyBtn();
+    }));
+    c.querySelectorAll('.ai-decline-btn').forEach(b=>b.addEventListener('click',()=>{
+      const idx=parseInt(b.dataset.idx,10); const e=window.aiSugsState[idx]; if(!e) return;
+      e.state='declined'; refreshCard(idx); refreshApplyBtn();
+    }));
+
+    const applyBtn=$('ai-apply-btn');
+    if(applyBtn) applyBtn.addEventListener('click',async()=>{
+      const acc=window.aiSugsState.filter(e=>e.state==='accepted').map(e=>e.s);
+      if(!acc.length){ toast('No suggestions selected','error'); return; }
+      engineOn(); applyBtn.disabled=true;
+      let ok=0,errs=[];
+      for(const s of acc){
+        const r=await api(EP.accept,{method:'POST',headers:{'Content-Type':'application/json','X-Requested-With':'XMLHttpRequest'},
+          body:JSON.stringify({titre:s.suggestedTitle||'',description:s.suggestedDescription||'',
+            type_seance_id:s.sessionType?.id||null,date_debut:s.slot?.start||null,date_fin:s.slot?.end||null,
+            type:s.type||'session',is_exam:s.type==='Exam',matiere_id:s.subject?.id||null,
+            priorityLevel:s.priorityLevel||null,priority:s.priority??null})});
+        if(r.ok&&r.json?.success) ok++; else errs.push(r.json?.error||'Unknown');
+      }
+      engineOff();
+      if(ok>0&&!errs.length) toast(`✓ ${ok} session(s) added`,'success');
+      else if(ok>0){ toast(`${ok} applied, ${errs.length} failed`,'error'); console.error(errs); }
+      else{ toast('Failed to apply','error'); console.error(errs); }
+      if(ok>0) await Promise.all([loadBids(start,end),loadSuggestions(start,end)]);
+      else{ applyBtn.disabled=false; refreshApplyBtn(); }
+    });
+  }
+
+  function refreshCard(idx){
+    const card=document.querySelector(`.ai-sug[data-idx="${idx}"]`);
+    const e=window.aiSugsState[idx]; if(!card||!e) return;
+    card.classList.remove('accepted','declined');
+    if(e.state==='accepted') card.classList.add('accepted');
+    if(e.state==='declined') card.classList.add('declined');
+    const b=card.querySelector('.ai-btn-acc'); if(b) b.textContent=e.state==='accepted'?'✓ Accepted':'✓ Accept';
+  }
+  function refreshApplyBtn(){
+    const b=$('ai-apply-btn'); if(!b) return;
+    const n=window.aiSugsState.filter(e=>e.state==='accepted').length;
+    b.textContent=`Apply Schedule (${n})`; b.disabled=n===0;
+  }
+
+  /* ---- GENERATE ---- */
+  async function generate(){
+    const start=$('start_date_input')?.value, end=$('end_date_input')?.value;
+    if(!start||!end){ toast('Please set start and end dates','error'); return; }
+    await Promise.all([loadSuggestions(start,end), loadBids(start,end)]);
+  }
+
+  /* ---- SUBMIT BIDS ---- */
+  window.aiSubmitSession=async function(e){
+    e.preventDefault();
+    const start=$('start_date_input')?.value, end=$('end_date_input')?.value;
+    if(!start||!end){ toast('Set period first','error'); return; }
+    const r=await api(EP.submit,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'session',titre:$('bs_titre').value,description:$('bs_desc').value,
+        type_seance_id:parseInt($('bs_type_id').value||0),
+        date_debut:$('bs_debut').value?$('bs_debut').value+':00':null,
+        date_fin:$('bs_fin').value?$('bs_fin').value+':00':null,
+        priorite:'Medium',period_start:start,period_end:end})});
+    if(r.ok&&r.json?.success){ toast('Session bid submitted ✓'); aiCloseModal('aiModalSession'); await loadBids(start,end); }
+    else toast('Error: '+(r.json?.error||'Unknown'),'error');
+  };
+
+  window.aiSubmitDayOff=async function(e){
+    e.preventDefault();
+    const start=$('start_date_input')?.value, end=$('end_date_input')?.value;
+    if(!start||!end){ toast('Set period first','error'); return; }
+    const r=await api(EP.submit,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'dayoff',titre:$('bd_titre').value||'Day Off',
+        description:$('bd_desc').value||'',
+        date_debut:$('bd_date').value?$('bd_date').value+' 00:00:00':null,
+        date_fin:$('bd_date').value?$('bd_date').value+' 23:59:59':null,
+        priorite:'Medium',period_start:start,period_end:end})});
+    if(r.ok&&r.json?.success){ toast('Day off requested ✓'); aiCloseModal('aiModalDayOff'); await loadBids(start,end); }
+    else toast('Error: '+(r.json?.error||'Unknown'),'error');
+  };
+
+  window.aiSubmitExam=async function(e){
+    e.preventDefault();
+    const start=$('start_date_input')?.value, end=$('end_date_input')?.value;
+    if(!start||!end){ toast('Set period first','error'); return; }
+    const matiereId=parseInt($('be_matiere_id').value||0);
+    if(!matiereId){ toast('Please select a subject','error'); return; }
+    const r=await api(EP.submit,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'exam',matiere_id:matiereId,
+        date_evaluation:$('be_date').value?$('be_date').value+':00':null,
+        duree_evaluation:parseInt($('be_duration').value||120),
+        description:'',priorite:'High',period_start:start,period_end:end})});
+    if(r.ok&&r.json?.success){ toast('Exam added ✓'); aiCloseModal('aiModalExam'); await loadBids(start,end); }
+    else toast('Error: '+(r.json?.error||'Unknown'),'error');
+  };
+
+  /* ---- INIT ---- */
+  document.addEventListener('DOMContentLoaded',()=>{
+    const g=$('ai-gen-btn'), si=$('start_date_input'), ei=$('end_date_input');
+    const upd=()=>{ if(g) g.disabled=!(si?.value&&ei?.value); };
+    si?.addEventListener('change',upd); ei?.addEventListener('change',upd);
+    g?.addEventListener('click', generate);
+    upd();
+
+    // ✅ Charger les matières dès le chargement de la page
+    loadSubjects();
+
+    const is='{{ startDate|e('js') }}', ie='{{ endDate|e('js') }}';
+    if(is&&ie) setTimeout(async()=>{ await Promise.all([loadBids(is,ie), loadSuggestions(is,ie)]); }, 200);
+  });
+})();
+</script>
+{% endblock %}

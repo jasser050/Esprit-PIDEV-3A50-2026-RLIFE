@@ -1,0 +1,11 @@
+framework:
+    secret: '%env(APP_SECRET)%'
+
+    csrf_protection:
+        enabled: true
+
+    session:
+        enabled: true
+
+    property_info:
+        enabled: true

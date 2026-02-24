@@ -1,0 +1,6 @@
+.confetti{
+    width:8px;height:8px;position:fixed;top:10vh;border-radius:99px;
+    opacity:0.98;animation:confetti 1.2s cubic-bezier(.38,.15,.53,1.01) forwards;}
+@keyframes confetti{
+    to{transform:translateY(68vh) rotate(960deg);opacity:0.1;}
+}
