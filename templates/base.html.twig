@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Prevent caching during development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <title>{% block title %}RLIFE{% endblock %} | RLIFE</title>
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%234338CA'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h8' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 
-    <!-- Fonts - Inter -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,24 +22,24 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
+    <!-- Three.js pour le rendu 3D du pet -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js"></script>
+
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
+    {{ encore_entry_script_tags('app') }}
 
+    <!-- Theme + Icons init -->
     <script>
-        // Theme initialization and toggle function
         (function() {
             var theme = localStorage.getItem('theme');
             var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-            // Set initial theme
             if (theme === 'dark' || (!theme && prefersDark)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');
             }
-
-            // Global toggle function
             window.toggleTheme = function() {
                 var html = document.documentElement;
                 if (html.classList.contains('dark')) {
@@ -44,161 +50,511 @@
                     localStorage.setItem('theme', 'dark');
                 }
             };
+            window.initIcons = function() {
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            };
         })();
     </script>
+        <!-- Pet Management Scripts -->
+    <script>
+        window.RLife3D = window.RLife3D || {};
+
+        window.RLife3D.ensureThree = function(callback) {
+            if (typeof THREE !== 'undefined') {
+                callback();
+                return;
+            }
+
+            const existing = document.getElementById('rlife-three-loader');
+            if (existing) {
+                existing.addEventListener('load', callback, { once: true });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.id = 'rlife-three-loader';
+            script.src = 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js';
+            script.onload = callback;
+            script.onerror = function() {
+                const fallback = document.createElement('script');
+                fallback.src = 'https://unpkg.com/three@0.168.0/build/three.min.js';
+                fallback.onload = callback;
+                fallback.onerror = callback;
+                document.head.appendChild(fallback);
+            };
+            document.head.appendChild(script);
+        };
+
+        window.RLife3D.dispose = function(container) {
+            const state = container?._rlife3d;
+            if (!state) return;
+
+            state.isAlive = false;
+            if (state.resizeObserver) state.resizeObserver.disconnect();
+
+            if (state.renderer) {
+                state.renderer.dispose();
+                if (state.renderer.domElement && state.renderer.domElement.parentNode === container) {
+                    container.removeChild(state.renderer.domElement);
+                }
+            }
+
+            delete container._rlife3d;
+        };
+
+        window.RLife3D.inferType = function(container, options) {
+            const opts = options || {};
+            if (opts.type) return String(opts.type).toLowerCase();
+            if (container?.dataset?.petType) return String(container.dataset.petType).toLowerCase();
+            const id = container?.id || '';
+            if (id.startsWith('pet3d-')) return id.replace('pet3d-', '').toLowerCase();
+            return 'cat';
+        };
+
+        window.RLife3D.renderFallback = function(container, options) {
+            window.RLife3D.dispose(container);
+            const type = window.RLife3D.inferType(container, options || {});
+            const labelByType = {
+                cat: 'CAT', dog: 'DOG', dragon: 'DRAGON', fox: 'FOX', bird: 'BIRD', hamster: 'HAMSTER'
+            };
+            const label = labelByType[type] || 'PET';
+
+            if (!document.getElementById('rlife-pet-fallback-style')) {
+                const st = document.createElement('style');
+                st.id = 'rlife-pet-fallback-style';
+                st.textContent = '@keyframes rlifePetFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}';
+                document.head.appendChild(st);
+            }
+
+            container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div style="font-size:20px; font-weight:700; letter-spacing:0.08em; animation: rlifePetFloat 1.7s ease-in-out infinite;">' + label + '</div></div>';
+            container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+        };
+
+        window.RLife3D.createPetModel = function(type, color) {
+            const group = new THREE.Group();
+            const baseMat = new THREE.MeshStandardMaterial({ color: color, metalness: 0.18, roughness: 0.42 });
+            const accentMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.05, roughness: 0.6 });
+            const parts = {};
+
+            if (type === 'cat') {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.75, 28, 28), baseMat);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.52, 24, 24), baseMat);
+                head.position.set(0, 0.9, 0.15);
+                const earL = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.28, 16), baseMat);
+                const earR = earL.clone();
+                earL.position.set(-0.25, 1.35, 0.1); earR.position.set(0.25, 1.35, 0.1);
+                const tail = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.07, 10, 24, Math.PI), baseMat);
+                tail.position.set(-0.78, 0.08, 0); tail.rotation.z = 1.2;
+                group.add(body, head, earL, earR, tail);
+                parts.tail = tail; parts.head = head;
+            } else if (type === 'dog') {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 28, 28), baseMat); body.scale.set(1.1, 0.9, 1.0);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 24), baseMat); head.position.set(0.1, 0.82, 0.35);
+                const earL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.34, 0.08), baseMat); const earR = earL.clone();
+                earL.position.set(-0.22, 1.12, 0.2); earR.position.set(0.33, 1.12, 0.2);
+                const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), accentMat); muzzle.position.set(0.2, 0.72, 0.72);
+                const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.6, 12), baseMat); tail.position.set(-0.9, 0.2, 0); tail.rotation.z = 1.0;
+                group.add(body, head, earL, earR, muzzle, tail); parts.tail = tail;
+            } else if (type === 'dragon') {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.72, 28, 28), baseMat);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 22, 22), baseMat); head.position.set(0.12, 0.78, 0.35);
+                const wingL = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.8, 3), baseMat);
+                const wingR = wingL.clone(); wingL.position.set(-0.58, 0.55, 0.0); wingR.position.set(0.58, 0.55, 0.0);
+                wingL.rotation.z = -1.3; wingR.rotation.z = 1.3;
+                const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 10), accentMat); spike.position.set(0, 1.28, 0.15);
+                group.add(body, head, wingL, wingR, spike); parts.wingL = wingL; parts.wingR = wingR;
+            } else if (type === 'fox') {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.74, 28, 28), baseMat); body.scale.set(1.12, 0.9, 0.95);
+                const head = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.85, 20), baseMat); head.position.set(0.28, 0.78, 0.4); head.rotation.z = -1.45;
+                const tail = new THREE.Mesh(new THREE.ConeGeometry(0.24, 1.1, 16), baseMat); tail.position.set(-0.88, 0.15, 0); tail.rotation.z = 1.35;
+                group.add(body, head, tail); parts.tail = tail;
+            } else if (type === 'bird') {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.68, 28, 28), baseMat);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), baseMat); head.position.set(0, 0.85, 0.28);
+                const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.24, 12), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+                beak.position.set(0, 0.8, 0.7); beak.rotation.x = Math.PI / 2;
+                const wingL = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), baseMat); const wingR = wingL.clone();
+                wingL.position.set(-0.7, 0.2, 0); wingR.position.set(0.7, 0.2, 0);
+                group.add(body, head, beak, wingL, wingR); parts.wingL = wingL; parts.wingR = wingR;
+            } else {
+                const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 28, 28), baseMat);
+                const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 24), baseMat); head.position.set(0, 0.8, 0.25);
+                const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), accentMat); const cheekR = cheekL.clone();
+                cheekL.position.set(-0.24, 0.63, 0.62); cheekR.position.set(0.24, 0.63, 0.62);
+                group.add(body, head, cheekL, cheekR); parts.cheekL = cheekL; parts.cheekR = cheekR;
+            }
+
+            return {
+                group,
+                animate: function(t) {
+                    group.position.y = Math.sin(t * 1.8) * 0.05;
+                    if (parts.tail) parts.tail.rotation.y = Math.sin(t * 4.5) * 0.35;
+                    if (parts.head) parts.head.rotation.y = Math.sin(t * 2.1) * 0.12;
+                    if (parts.wingL && parts.wingR) {
+                        const flap = Math.sin(t * 7.0) * 0.45;
+                        parts.wingL.rotation.y = flap; parts.wingR.rotation.y = -flap;
+                    }
+                    if (parts.cheekL && parts.cheekR) {
+                        const puff = 1 + Math.sin(t * 5.5) * 0.05;
+                        parts.cheekL.scale.setScalar(puff); parts.cheekR.scale.setScalar(puff);
+                    }
+                }
+            };
+        };
+
+        window.RLife3D.renderPet = function(container, options) {
+            if (!container) return;
+            const opts = options || {};
+            const rect = container.getBoundingClientRect();
+            if (rect.width < 8 || rect.height < 8) {
+                const retry = Number(opts.__retry || 0);
+                if (retry < 20) {
+                    window.setTimeout(function() {
+                        window.RLife3D.renderPet(container, { ...opts, __retry: retry + 1 });
+                    }, 120);
+                }
+                return;
+            }
+
+            if (typeof THREE === 'undefined') {
+                window.RLife3D.renderFallback(container, opts);
+                return;
+            }
+
+            window.RLife3D.dispose(container);
+            const hunger = Math.max(0, Math.min(100, Number(opts.hunger ?? container.dataset.hunger ?? 50)));
+            const spin = opts.spin || (0.004 + ((hunger / 100) * 0.012));
+            const type = window.RLife3D.inferType(container, opts);
+            const color = opts.color || (hunger > 70 ? 0xfb7185 : (hunger > 35 ? 0x60a5fa : 0x34d399));
+            const w = container.clientWidth > 0 ? container.clientWidth : 220;
+            const h = container.clientHeight > 0 ? container.clientHeight : 220;
+
+            try {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(58, w / h, 0.1, 1000);
+                camera.position.z = 4.2;
+
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                renderer.setSize(w, h);
+                renderer.setClearColor(0x000000, 0);
+                if (renderer.outputColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
+                if (renderer.toneMapping !== undefined) {
+                    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                    renderer.toneMappingExposure = 1.25;
+                }
+                container.innerHTML = '';
+                container.appendChild(renderer.domElement);
+
+                const model = window.RLife3D.createPetModel(type, color);
+                scene.add(model.group);
+
+                const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.95);
+                const key = new THREE.DirectionalLight(0xffffff, 1.25);
+                key.position.set(5, 8, 6);
+                const rim = new THREE.PointLight(0xa78bfa, 0.9, 20);
+                rim.position.set(-4, -2, 4);
+                scene.add(hemi, key, rim);
+
+                const state = { isAlive: true, renderer, resizeObserver: null };
+
+                const animate = function() {
+                    if (!state.isAlive) return;
+                    requestAnimationFrame(animate);
+                    const t = performance.now() / 1000;
+                    model.group.rotation.y += spin;
+                    model.group.rotation.x = Math.sin(t * 1.7) * 0.05;
+                    if (typeof model.animate === 'function') model.animate(t);
+                    renderer.render(scene, camera);
+                };
+                animate();
+
+                const resizeObserver = new ResizeObserver(function() {
+                    if (!state.isAlive) return;
+                    const rw = container.clientWidth > 0 ? container.clientWidth : 220;
+                    const rh = container.clientHeight > 0 ? container.clientHeight : 220;
+                    camera.aspect = rw / rh;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(rw, rh);
+                });
+                resizeObserver.observe(container);
+                state.resizeObserver = resizeObserver;
+                container._rlife3d = state;
+            } catch (e) {
+                window.RLife3D.renderFallback(container, opts);
+            }
+        };
+
+        function openPetManagementModal() {
+            const modal = document.getElementById('petManagementModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                initPet3D();
+            }
+        }
+        function closePetManagementModal() {
+            const container = document.getElementById('pet3DModal');
+            if (container) window.RLife3D.dispose(container);
+            document.getElementById('petManagementModal')?.classList.add('hidden');
+        }
+        function openFeedModal() {
+            document.getElementById('feedModal')?.classList.remove('hidden');
+        }
+        function closeFeedModal() {
+            document.getElementById('feedModal')?.classList.add('hidden');
+        }
+        function toggleRenameSection() {
+            document.getElementById('renameSection')?.classList.toggle('hidden');
+        }
+        function goToChangePetType() {
+            window.location.href = "{{ path('app_pet_change_type') }}";
+        }
+        function goToPetPage() {
+            window.location.href = "{{ path('app_pet_manage') }}";
+        }
+
+        function initPet3D() {
+            const container = document.getElementById('pet3DModal');
+            if (!container) return;
+
+            window.RLife3D.ensureThree(function() {
+                window.RLife3D.renderPet(container, {
+                    type: container.dataset.petType || 'cat',
+                    hunger: parseInt(container.dataset.hunger || '50', 10)
+                });
+            });
+        }
+
+        window.RLife3D.autoInitPetScenes = function() {
+            const colorByType = {
+                cat: 0xf472b6,
+                dog: 0x60a5fa,
+                dragon: 0xa855f7,
+                fox: 0xfb923c,
+                bird: 0x4ade80,
+                hamster: 0xfbbf24
+            };
+
+            const dashboard = document.getElementById('pet-3d-container');
+            if (dashboard && !dashboard._rlife3d) {
+                window.RLife3D.renderPet(dashboard, {
+                    spin: 0.012,
+                    hunger: parseInt(dashboard.dataset.hunger || '50', 10),
+                    type: dashboard.dataset.petType || 'cat'
+                });
+            }
+
+            const manage = document.getElementById('petScene');
+            if (manage && !manage._rlife3d) {
+                window.RLife3D.renderPet(manage, {
+                    spin: 0.01,
+                    hunger: parseInt(manage.dataset.petHunger || '50', 10),
+                    type: manage.dataset.petType || 'cat'
+                });
+            }
+
+            const previews = document.querySelectorAll('[id^="pet3d-"]');
+            previews.forEach(function(container) {
+                if (container._rlife3d) return;
+                const type = container.id.replace('pet3d-', '');
+                window.RLife3D.renderPet(container, {
+                    spin: 0.01,
+                    type: type,
+                    color: colorByType[type] || 0x8b5cf6
+                });
+            });
+        };
+    </script>
 </head>
+
 <body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-    <div class="min-h-screen" data-controller="sidebar">
-        <!-- Sidebar -->
-        <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"
-               data-sidebar-target="sidebar"
-               id="sidebar">
-            <!-- Logo Section -->
-            <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
-                <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
-                        <img src="{{ asset('image/logo.jpg') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
-                    </div>
-                    <div data-sidebar-target="brandText">
-                        <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
-                    </div>
-                </a>
-                <button type="button"
-                        class="lg:hidden p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-                        data-action="click->sidebar#toggle"
-                        aria-label="Close sidebar">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+{% set currentUser = app.user ?? null %}
+{% set hasMainPet = currentUser ? attribute(currentUser, 'mainPet', [], 'any', true) : false %}
+{% set hasCoins = currentUser ? attribute(currentUser, 'coins', [], 'any', true) : false %}
+{% set mainPet = hasMainPet ? attribute(currentUser, 'mainPet') : null %}
+{% set userCoins = hasCoins ? (attribute(currentUser, 'coins')|default(0)) : 0 %}
+<div class="min-h-screen" data-controller="sidebar">
 
-            <!-- Navigation -->
-            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-                <!-- Main Section -->
-                <div class="mb-6">
-                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Main</p>
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"
+           data-sidebar-target="sidebar"
+           id="sidebar">
 
-                    <a href="{{ path('app_dashboard') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') == 'app_dashboard' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Dashboard</span>
-                    </a>
-
-                    <a href="{{ path('app_courses') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_courses' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Courses</span>
-                    </a>
-
-                    <a href="{{ path('app_assignments') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_assignments' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Assignments</span>
-                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
-                    </a>
-
-                    <a href="{{ path('app_planning') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_planning' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="calendar-days" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Planning</span>
-                    </a>
+        <!-- Logo -->
+        <div class="flex items-center justify-between h-16 px-5 border-b border-slate-100 dark:border-slate-800">
+            <a href="{{ path('app_dashboard') }}" class="flex items-center gap-2.5">
+                <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-14 h-14 object-cover">
+                <div data-sidebar-target="brandText">
+                    <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
                 </div>
+            </a>
+            <button type="button"
+                    class="lg:hidden p-2 -mr-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    data-action="click->sidebar#toggle"
+                    aria-label="Close sidebar">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
 
-                <!-- Study Section -->
-                <div class="mb-6">
-                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Study</p>
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
 
-                    <a href="{{ path('app_revisions') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_revisions' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="brain" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Revisions</span>
-                        <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full" data-sidebar-target="badge">24</span>
-                    </a>
-
-                    <a href="{{ path('app_projects') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_projects' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Projects</span>
-                    </a>
-                </div>
-
-                <!-- Wellness Section -->
-                <div>
-                    <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Wellness</p>
-
-                    <a href="{{ path('app_wellbeing') }}"
-                       class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                              {{ app.request.attributes.get('_route') starts with 'app_wellbeing' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                        <i data-lucide="heart-pulse" class="w-5 h-5 flex-shrink-0"></i>
-                        <span data-sidebar-target="navText">Wellbeing</span>
-                    </a>
-                </div>
-            </nav>
-
-            <!-- Sidebar Footer -->
-            <div class="p-3 border-t border-slate-100 dark:border-slate-800">
-                <a href="{{ path('app_settings') }}"
+            <!-- Main -->
+            <div class="mb-6">
+                <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Main</p>
+                <a href="{{ path('app_dashboard') }}"
                    class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
-                          {{ app.request.attributes.get('_route') starts with 'app_settings' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
-                    <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
-                    <span data-sidebar-target="navText">Settings</span>
+                          {{ app.request.attributes.get('_route') == 'app_dashboard' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Dashboard</span>
                 </a>
+                <a href="{{ path('app_courses') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_courses' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="book-open" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Courses</span>
+                </a>
+                <a href="{{ path('app_assignments') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_assignments' and app.request.attributes.get('_route') != 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Assignments</span>
+                    <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
+                </a>
+                <a href="{{ path('app_collaboration_assigned_tasks') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') == 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="user-check" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Assigned to Me</span>
+                </a>
+                <a href="{{ path('app_planning') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_planning' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="calendar-days" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Planning</span>
+                </a>
+            </div>
 
-                <!-- User Card -->
-                <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl" data-sidebar-target="userCard">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
-                            {% if app.user and app.user.profilePic %}
-                                <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+            <!-- Study -->
+            <div class="mb-6">
+                <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Study</p>
+                <a href="{{ path('app_revisions') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_revisions' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="brain" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Revisions</span>
+                    {% if is_granted('ROLE_USER') %}
+                    <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full" data-sidebar-target="badge">{{ deck_count() }}</span>
+                    {% endif %}
+                </a>
+                <a href="{{ path('app_project_index') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_project' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Projects</span>
+                </a>
+            </div>
+
+            <!-- Wellness -->
+            <div class="mb-6">
+                <p class="px-3 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider" data-sidebar-target="sectionLabel">Wellness</p>
+                <a href="{{ path('app_wellbeing') }}"
+                   class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                          {{ app.request.attributes.get('_route') starts with 'app_wellbeing' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                    <i data-lucide="heart-pulse" class="w-5 h-5 flex-shrink-0"></i>
+                    <span data-sidebar-target="navText">Wellbeing</span>
+                </a>
+            </div>
+
+            <!-- Pet Card -->
+            {% if app.user %}
+            <div class="mx-0 mt-2 mb-4">
+                <div onclick="openPetManagementModal()"
+                     class="flex items-center gap-3 px-4 py-3.5 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-rose-50 dark:from-violet-900/25 dark:via-fuchsia-900/20 dark:to-rose-900/20 rounded-2xl border border-violet-200/80 dark:border-violet-700/60 cursor-pointer hover:shadow-lg hover:shadow-violet-500/15 dark:hover:shadow-violet-900/30 transition-all group">
+                    <div class="w-11 h-11 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-white dark:border-slate-700 shadow-inner flex items-center justify-center text-purple-600 dark:text-purple-300 flex-shrink-0">
+                        <i data-lucide="paw-print" class="w-6 h-6"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-purple-700 dark:text-purple-300 text-sm group-hover:text-purple-600 transition-colors truncate">
+                            {% if mainPet %}{{ mainPet.name }}{% else %}Choose My Pet{% endif %}
+                        </p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+                            {% if mainPet %}
+                                Lv. {{ mainPet.level }} - {{ mainPet.getMood() }}
                             {% else %}
-                                {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
+                                No companion yet
                             {% endif %}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ app.user ? app.user.fullName : 'User' }}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ app.user and app.user.isAdmin ? 'Administrator' : 'Student' }}</p>
-                        </div>
+                        </p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                        <p class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ userCoins }} coins</p>
                     </div>
                 </div>
             </div>
-        </aside>
+            {% endif %}
 
-        <!-- Sidebar backdrop for mobile -->
-        <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden hidden"
-             data-sidebar-target="backdrop"
-             data-action="click->sidebar#close"></div>
+        </nav>
 
-        <!-- Main Content Area -->
-        <div class="lg:ml-64 min-h-screen flex flex-col">
-            <!-- Top Bar -->
-            <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
-                <div class="flex items-center justify-between gap-4 h-full">
-                <!-- Left side -->
+        <!-- Sidebar Footer -->
+        <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+            <a href="{{ path('app_settings') }}"
+               class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
+                      {{ app.request.attributes.get('_route') starts with 'app_settings' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
+                <i data-lucide="settings" class="w-5 h-5 flex-shrink-0"></i>
+                <span data-sidebar-target="navText">Settings</span>
+            </a>
+            <div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl" data-sidebar-target="userCard">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm overflow-hidden">
+                        {% if app.user and app.user.profilePic %}
+                            <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
+                        {% else %}
+                            {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
+                        {% endif %}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">{{ app.user ? app.user.fullName : 'User' }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ app.user and app.user.isAdmin ? 'Administrator' : 'Student' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar backdrop (mobile) -->
+    <div class="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-sm lg:hidden hidden"
+         data-sidebar-target="backdrop"
+         data-action="click->sidebar#close"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="lg:ml-64 min-h-screen flex flex-col">
+
+        <!-- Top Bar -->
+        <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
+            <div class="flex items-center justify-between gap-4 h-full">
+
+                <!-- Left: mobile menu + search -->
                 <div class="flex items-center gap-4">
-                    <!-- Mobile menu button -->
                     <button type="button"
                             class="lg:hidden p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             data-action="click->sidebar#toggle"
                             aria-label="Open menu">
                         <i data-lucide="menu" class="w-5 h-5"></i>
                     </button>
-
-                    <!-- Search -->
-                    <div class="relative hidden sm:block">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                    <div class="relative hidden sm:block" id="globalSearch">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10"></i>
                         <input type="search"
-                               placeholder="Search..."
+                               id="searchInput"
+                               placeholder="Search courses, projects, assignments..."
+                               autocomplete="off"
                                class="w-64 lg:w-80 pl-10 pr-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 transition-all">
+                        <div id="searchResults" class="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl max-h-96 overflow-y-auto hidden z-50"></div>
                     </div>
                 </div>
 
-                <!-- Right side -->
+                <!-- Right: actions -->
                 <div class="flex items-center gap-2">
+
                     <!-- Quick Add -->
                     <div class="relative" data-controller="dropdown">
                         <button type="button"
@@ -210,65 +566,115 @@
                         <div class="absolute right-0 top-full mt-2 w-56 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
                              data-dropdown-target="menu">
                             <a href="{{ path('app_assignments') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="clipboard-plus" class="w-4 h-4 text-primary-500"></i>
-                                New Assignment
+                                <i data-lucide="clipboard-plus" class="w-4 h-4 text-primary-500"></i> New Assignment
                             </a>
                             <a href="{{ path('app_planning') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="calendar-plus" class="w-4 h-4 text-accent-500"></i>
-                                New Event
+                                <i data-lucide="calendar-plus" class="w-4 h-4 text-accent-500"></i> New Event
                             </a>
                             <a href="{{ path('app_revisions') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="layers-2" class="w-4 h-4 text-success-500"></i>
-                                New Flashcard Deck
+                                <i data-lucide="layers-2" class="w-4 h-4 text-success-500"></i> New Flashcard Deck
                             </a>
                             <a href="{{ path('app_courses') }}?action=new" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                <i data-lucide="book-plus" class="w-4 h-4 text-secondary-500"></i>
-                                New Course
+                                <i data-lucide="book-plus" class="w-4 h-4 text-secondary-500"></i> New Course
                             </a>
                         </div>
                     </div>
 
-                    <!-- Notifications -->
+                    <!-- ==================== NOTIFICATIONS ==================== -->
                     <div class="relative" data-controller="dropdown">
+
+                        {% set notifications = app.user ? app.user.notifications|default([]) : [] %}
+                        {% set unreadCount = notifications|filter(n => not n.isRead)|length %}
+
                         <button type="button"
                                 class="relative p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                                 data-action="click->dropdown#toggle"
                                 aria-label="Notifications">
                             <i data-lucide="bell" class="w-5 h-5"></i>
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-danger-500 rounded-full ring-2 ring-white dark:ring-slate-900"></span>
+                            {# Badge: visible only when unread > 0 #}
+                            <span id="notification-badge"
+                                  class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none transition-all
+                                         {{ unreadCount == 0 ? 'hidden' : '' }}">
+                                {{ unreadCount > 0 ? unreadCount : '' }}
+                            </span>
                         </button>
-                        <div class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden"
+
+                        <!-- Notifications Dropdown -->
+                        <div class="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-lg hidden overflow-hidden"
                              data-dropdown-target="menu">
-                            <div class="p-4 border-b border-slate-100 dark:border-slate-700">
+
+                            <!-- Header -->
+                            <div class="px-4 py-3.5 border-b dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-900 z-10 flex items-center justify-between">
                                 <h3 class="font-semibold text-slate-900 dark:text-white">Notifications</h3>
+                                {% if unreadCount > 0 %}
+                                <span class="text-xs font-semibold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full">
+                                    {{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}
+                                </span>
+                                {% endif %}
                             </div>
-                            <div class="max-h-80 overflow-y-auto">
-                                <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <div class="w-9 h-9 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="alert-circle" class="w-4 h-4 text-warning-600 dark:text-warning-400"></i>
+
+                            <!-- List -->
+                            <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50">
+                                {% if app.user %}
+                                    {% set notifications = notifications|slice(0, 10) %}
+                                    {% if notifications|length > 0 %}
+                                        {% for notif in notifications %}
+                                        <a href="{{ notif.link ?: '#' }}"
+                                           class="block p-4 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors {{ not notif.isRead ? 'bg-indigo-50/50 dark:bg-indigo-950/30' : '' }}"
+                                           data-notification-id="{{ notif.id }}"
+                                           onclick="markAsRead({{ notif.id }}); return false;">
+                                            <div class="flex items-start gap-3">
+                                                <!-- Icon -->
+                                                <div class="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0
+                                                    {{ notif.type == 'coins' ? 'bg-amber-100 dark:bg-amber-900/40' :
+                                                       notif.type starts with 'deadline' ? 'bg-red-100 dark:bg-red-900/40' :
+                                                       notif.type == 'project_shared' or notif.type == 'task_assigned' ? 'bg-blue-100 dark:bg-blue-900/40' :
+                                                       notif.type == 'new_comment' ? 'bg-green-100 dark:bg-green-900/40' :
+                                                       'bg-slate-100 dark:bg-slate-800' }}">
+                                                    {% if notif.type == 'coins' %}coins
+                                                    {% elseif notif.type starts with 'deadline' %}â°
+                                                    {% elseif notif.type == 'project_shared' %}ðŸ”—
+                                                    {% elseif notif.type == 'task_assigned' %}ðŸ“‹
+                                                    {% elseif notif.type == 'new_comment' %}ðŸ’¬
+                                                    {% else %}ðŸ””{% endif %}
+                                                </div>
+                                                <!-- Text -->
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-semibold text-slate-900 dark:text-white line-clamp-1">{{ notif.title }}</p>
+                                                    <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">{{ notif.message }}</p>
+                                                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ notif.createdAt|date('d/m/Y H:i') }}</p>
+                                                </div>
+                                                <!-- Unread dot -->
+                                                {% if not notif.isRead %}
+                                                <div class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 mt-1.5"></div>
+                                                {% endif %}
+                                            </div>
+                                        </a>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="py-10 text-center text-slate-400 dark:text-slate-500">
+                                            <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                            <p class="text-sm">Aucune nouvelle notification</p>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="py-10 text-center text-slate-400 dark:text-slate-500">
+                                        <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
+                                        <p class="text-sm">Aucune nouvelle notification</p>
                                     </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">Assignment due tomorrow</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Data Structures - Lab 5</p>
-                                    </div>
-                                </a>
-                                <a href="#" class="flex items-start gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                                    <div class="w-9 h-9 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="check-circle" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-slate-900 dark:text-white">Cards reviewed today!</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Great job! You reviewed 24 cards</p>
-                                    </div>
-                                </a>
+                                {% endif %}
                             </div>
-                            <div class="p-3 border-t border-slate-100 dark:border-slate-700">
-                                <a href="#" class="block text-center text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
-                                    View all notifications
+
+                            <!-- Footer -->
+                            <div class="px-4 py-3 border-t dark:border-slate-700 text-center sticky bottom-0 bg-white dark:bg-slate-900 z-10">
+                                <a href="{{ path('app_notifications_list') }}"
+                                   class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                                    Voir toutes les notifications â†’
                                 </a>
                             </div>
                         </div>
                     </div>
+                    <!-- ==================== END NOTIFICATIONS ==================== -->
 
                     <!-- Theme Toggle -->
                     <button type="button"
@@ -286,7 +692,7 @@
                                 data-action="click->dropdown#toggle">
                             <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm overflow-hidden">
                                 {% if app.user and app.user.profilePic %}
-                                    <img src="{{ asset('uploads/profiles/' ~ app.user.profilePic) }}" alt="Profile" class="w-full h-full object-cover">
+                                    <img src="{% if app.user.profilePic starts with 'http' %}{{ app.user.profilePic }}{% else %}{{ asset('uploads/profiles/' ~ app.user.profilePic) }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                                 {% else %}
                                     {{ app.user ? app.user.firstName|first|upper ~ app.user.lastName|first|upper : 'U' }}
                                 {% endif %}
@@ -301,60 +707,2219 @@
                             </div>
                             <div class="p-2">
                                 <a href="{{ path('app_settings') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                    <i data-lucide="user" class="w-4 h-4"></i>
-                                    Profile Settings
+                                    <i data-lucide="user" class="w-4 h-4"></i> Profile Settings
                                 </a>
                                 <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
-                                    <i data-lucide="help-circle" class="w-4 h-4"></i>
-                                    Help & Support
+                                    <i data-lucide="help-circle" class="w-4 h-4"></i> Help & Support
                                 </a>
                                 <div class="h-px bg-slate-100 dark:bg-slate-700 my-2"></div>
                                 <a href="{{ path('app_logout') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-900/20 rounded-lg transition-colors">
-                                    <i data-lucide="log-out" class="w-4 h-4"></i>
-                                    Sign Out
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                                 </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                </div>
-            </header>
 
-            <!-- Main Content -->
-            <main class="flex-1 p-4 lg:p-6">
-                {% block body %}{% endblock %}
-            </main>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-4 lg:p-6">
+            {% block body %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<!-- ==================== TOAST CONTAINER ==================== -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2" data-controller="toast">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer
+                {{ label == 'success' ? 'bg-success-500 text-white' :
+                   (label == 'error' or label == 'danger') ? 'bg-danger-500 text-white' :
+                   label == 'warning' ? 'bg-warning-500 text-white' :
+                   'bg-primary-500 text-white' }}"
+                data-toast-target="toast"
+                data-action="click->toast#dismiss">
+                {% if label == 'success' %}<i data-lucide="check-circle" class="w-5 h-5"></i>
+                {% elseif label == 'error' or label == 'danger' %}<i data-lucide="x-circle" class="w-5 h-5"></i>
+                {% elseif label == 'warning' %}<i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                {% else %}<i data-lucide="info" class="w-5 h-5"></i>{% endif %}
+                <span class="font-medium">{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+<div id="global-motivation-quote"
+     class="rlife-quote-card hidden select-none"
+     style="touch-action:none;">
+    <div class="rlife-quote-corner rlife-quote-corner-tl"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-tr"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-bl"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-br"></div>
+
+    <div class="rlife-quote-topbar">
+        <div class="rlife-quote-topbar-left">
+            <span class="rlife-quote-blinker"></span>
+            <span class="rlife-quote-sys">SYS · QUOTE</span>
+        </div>
+        <button class="rlife-quote-close" id="global-quote-close" aria-label="Close">✕</button>
+    </div>
+
+    <div class="rlife-quote-body">
+        <div class="rlife-quote-mark">"</div>
+        <p id="global-quote-text" class="rlife-quote-text">Stay steady. Your effort matters.</p>
+    </div>
+
+    <div class="rlife-quote-footer">
+        <span id="global-quote-author" class="rlife-quote-author">— Daily Wisdom</span>
+        <div class="rlife-quote-drag">
+            <span></span><span></span><span></span>
         </div>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2" data-controller="toast">
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="toast flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg animate-fade-in-up cursor-pointer
-                    {% if label == 'success' %}bg-success-500 text-white{% endif %}
-                    {% if label == 'error' or label == 'danger' %}bg-danger-500 text-white{% endif %}
-                    {% if label == 'warning' %}bg-warning-500 text-white{% endif %}
-                    {% if label == 'info' %}bg-primary-500 text-white{% endif %}"
-                    data-toast-target="toast"
-                    data-action="click->toast#dismiss">
-                    {% if label == 'success' %}
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    {% elseif label == 'error' or label == 'danger' %}
-                        <i data-lucide="x-circle" class="w-5 h-5"></i>
-                    {% elseif label == 'warning' %}
-                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-                    {% else %}
-                        <i data-lucide="info" class="w-5 h-5"></i>
-                    {% endif %}
-                    <span class="font-medium">{{ message }}</span>
-                </div>
-            {% endfor %}
-        {% endfor %}
+    <div class="rlife-quote-scan"></div>
+</div>
+<div id="global-quote-dropzone"
+     class="fixed left-1/2 -translate-x-1/2 bottom-4 z-[9999] w-14 h-14 rounded-full border-2 border-red-200/70 bg-red-500/55 text-white hidden items-center justify-center shadow-[0_12px_30px_rgba(220,38,38,0.32)] pointer-events-none transition-all duration-200">
+    <div class="flex flex-col items-center leading-none">
+        <i data-lucide="trash-2" class="w-5 h-5"></i>
     </div>
+</div>
+<div id="global-spotify-widget" class="sp-widget sp-md hidden" data-turbo-permanent>
+    <div id="global-spotify-panel" class="sp-shell hidden">
+        <div id="global-spotify-fab" class="sp-topbar">
+            <div class="sp-drag-dots">
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+            </div>
+            <span id="spotify-current-title" class="sp-topbar-label">Nature Sounds</span>
+        <div class="sp-topbar-actions">
+                <button class="sp-size-btn" data-size="sm">S</button>
+                <button class="sp-size-btn active" data-size="md">M</button>
+                <button class="sp-size-btn" data-size="lg">L</button>
+                <button class="sp-size-btn" data-size="xl">XL</button>
+                <button id="spotify-delete" class="sp-close-btn" title="Hide">✕</button>
+            </div>
+        </div>
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-    {% endblock %}
+        <div class="sp-playlist-row">
+            <button class="spotify-preset sp-pl-btn active" data-preset="nature">🌿 Nature</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="quran">🕌 Quran</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="relax">🧘 Relax</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="motivation">⚡ Motivation</button>
+        </div>
+        <input id="spotify-size" type="hidden" value="360">
+
+        <div id="global-spotify-embed-wrap" class="sp-embed-wrap">
+            <div id="spotify-loading" class="sp-loading sp-hidden">
+                <svg class="sp-loading-icon" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r="20"/>
+                </svg>
+                <p>Loading…</p>
+            </div>
+            <div id="spotify-soundcloud-fallback" class="sp-sc-fallback sp-hidden">
+                <div>
+                    <p class="sp-sc-title">SoundCloud preview blocked</p>
+                    <p class="sp-sc-sub">Open the playlist to listen.</p>
+                    <button id="spotify-soundcloud-open" class="sp-sc-btn">Open SoundCloud</button>
+                </div>
+            </div>
+            <iframe id="global-spotify-iframe"
+                    src=""
+                    width="100%" height="152" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe id="global-soundcloud-iframe"
+                    src=""
+                    width="100%" height="152" frameBorder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    allowfullscreen=""
+                    loading="eager"
+                    class="hidden"></iframe>
+        </div>
+
+        <div id="spotify-quran-list" class="hidden sp-quran-list">
+            <div class="sp-quran-header">
+                <p class="sp-quran-title">Quran Recitation</p>
+                <div class="sp-quran-reciter">
+                    <button id="quran-reciter-luhaidan" class="sp-quran-btn active">Al‑Luhaidan</button>
+                    <button id="quran-reciter-dossari" class="sp-quran-btn">Y. Al‑Dossari</button>
+                </div>
+            </div>
+            <div id="spotify-quran-items" class="sp-quran-items"></div>
+            <button id="spotify-quran-playlist" class="sp-quran-link">Open Full Playlist</button>
+        </div>
+
+        <div class="sp-footer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#1DB954" style="flex-shrink:0">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+            <p class="sp-footer-text">Listening via <strong>Spotify</strong> • Drag to move</p>
+        </div>
+    </div>
+</div>
+<div id="sp-bubble" class="sp-bubble hidden" aria-label="Music bubble">
+    <div class="sp-ring" id="sp-ring">
+        <div class="sp-inner">
+            <div class="sp-eq sp-eq-paused" id="sp-eq">
+                <span class="sp-bar" style="--d:0s"></span>
+                <span class="sp-bar" style="--d:.15s"></span>
+                <span class="sp-bar" style="--d:.3s"></span>
+                <span class="sp-bar" style="--d:.45s"></span>
+                <span class="sp-bar" style="--d:.6s"></span>
+            </div>
+            <svg id="sp-logo" width="22" height="22" viewBox="0 0 24 24" fill="#1DB954">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+        </div>
+    </div>
+    <div class="sp-tip" id="sp-tip">Click to open</div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+        --sp-green: #1DB954;
+        --sp-green2: #1ed760;
+        --sp-black: #121212;
+        --sp-dark: #181818;
+        --sp-surface: #282828;
+        --sp-text: #FFFFFF;
+        --sp-muted: #B3B3B3;
+        --sp-radius: 16px;
+    }
+
+    .sp-widget {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        z-index: 9999;
+        user-select: none;
+        font-family: 'DM Sans', sans-serif;
+        display: none;
+        animation: spSlideIn .45s cubic-bezier(.34,1.4,.64,1) both;
+    }
+    .sp-widget.sp-visible { display: block; }
+    .sp-widget.sp-sm { width: 280px; }
+    .sp-widget.sp-md { width: 360px; }
+    .sp-widget.sp-lg { width: 460px; }
+    .sp-widget.sp-xl { width: 580px; }
+
+    .sp-shell {
+        background: var(--sp-dark);
+        border-radius: var(--sp-radius);
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    @keyframes spSlideIn {
+        from { opacity:0; transform:translateY(40px) scale(.92); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .sp-topbar {
+        background: var(--sp-black);
+        padding: 10px 14px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: grab;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        gap: 8px;
+    }
+    .sp-topbar:active { cursor: grabbing; }
+    .sp-drag-dots { display: flex; gap: 4px; align-items: center; flex: 0 0 auto; }
+    .sp-drag-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.2); }
+    .sp-topbar-label {
+        font-size: .7rem;
+        font-weight: 600;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--sp-muted);
+        flex: 1;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .sp-topbar-actions { display: flex; gap: 4px; align-items: center; }
+    .sp-size-btn {
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        color: var(--sp-muted);
+        padding: 3px 7px;
+        border-radius: 6px;
+        font-size: .62rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .15s;
+        line-height: 1;
+    }
+    .sp-size-btn:hover { background: rgba(255,255,255,.12); color: white; }
+    .sp-size-btn.active { background: var(--sp-green); border-color: var(--sp-green); color: #000; }
+    .sp-close-btn {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(255,255,255,.08);
+        border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--sp-muted); font-size: .7rem; transition: all .15s; margin-left: 2px;
+    }
+    .sp-close-btn:hover { background: #e22134; color: white; }
+    .sp-close-btn.sp-pin-active { background: var(--sp-green); color: #000; }
+
+    .sp-playlist-row {
+        background: var(--sp-black);
+        padding: 8px 12px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .sp-playlist-row.sp-list-hidden { display: none; }
+    .sp-pl-btn {
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.1);
+        color: var(--sp-muted);
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: .72rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+    .sp-pl-btn:hover { background: rgba(255,255,255,.14); color: white; }
+    .sp-pl-btn.active {
+        background: var(--sp-green);
+        border-color: var(--sp-green);
+        color: #000;
+        font-weight: 700;
+        box-shadow: 0 0 12px rgba(29,185,84,.35);
+    }
+
+    .sp-embed-wrap { position: relative; overflow: hidden; background: var(--sp-black); }
+    #global-spotify-iframe, #global-soundcloud-iframe { width: 100%; border: none; display: block; transition: height .35s cubic-bezier(.4,0,.2,1); }
+    .sp-loading { position: absolute; inset: 0; background: var(--sp-black); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 2; transition: opacity .4s; }
+    .sp-loading.sp-hidden { opacity: 0; pointer-events: none; }
+    .sp-loading-icon { width: 48px; height: 48px; }
+    .sp-loading-icon circle { stroke: var(--sp-green); stroke-width: 3; fill: none; stroke-dasharray: 100; stroke-dashoffset: 100; animation: spLoadDash 1.5s ease-in-out infinite; transform-origin: center; transform: rotate(-90deg); }
+    @keyframes spLoadDash { 0%{stroke-dashoffset:100} 50%{stroke-dashoffset:20} 100%{stroke-dashoffset:100} }
+    .sp-loading p { font-size: .8rem; color: var(--sp-muted); }
+
+    .sp-sc-fallback { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(13,16,24,.96), rgba(18,24,38,.96)); display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 12px; }
+    .sp-sc-fallback.sp-hidden { opacity: 0; pointer-events: none; }
+    .sp-sc-title { font-size: .85rem; color: var(--sp-text); font-weight: 600; }
+    .sp-sc-sub { font-size: .72rem; color: var(--sp-muted); margin-top: 4px; }
+    .sp-sc-btn { margin-top: 10px; font-size: .72rem; padding: 6px 12px; border-radius: 999px; background: var(--sp-green); color: #0b0f14; font-weight: 600; }
+
+    .sp-quran-list {
+        margin: 10px 10px 6px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(255,255,255,.04);
+        padding: 8px;
+    }
+    .sp-quran-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .sp-quran-title { font-size: .7rem; color: var(--sp-muted); }
+    .sp-quran-reciter { display: flex; gap: 6px; }
+    .sp-quran-btn {
+        font-size: .68rem; padding: 3px 8px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.12);
+        color: var(--sp-muted); background: rgba(255,255,255,.06);
+    }
+    .sp-quran-btn.active { background: var(--sp-green); border-color: var(--sp-green); color: #000; font-weight: 600; }
+    .sp-quran-items { max-height: 64px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px; }
+    .sp-quran-items button { font-size: .68rem; padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.05); color: var(--sp-text); text-align: left; }
+    .sp-quran-link { margin-top: 6px; width: 100%; font-size: .68rem; padding: 5px 8px; border-radius: 8px; background: rgba(255,255,255,.08); color: var(--sp-text); }
+
+    .sp-footer {
+        background: var(--sp-surface);
+        padding: 7px 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .sp-footer-text { font-size: .65rem; color: rgba(255,255,255,.35); }
+    .sp-footer-text strong { color: var(--sp-green); }
+
+    .sp-bubble {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 99999;
+        cursor: pointer;
+        animation: spBubIn .4s cubic-bezier(.34,1.56,.64,1) both;
+        pointer-events: auto;
+        touch-action: manipulation;
+    }
+    .sp-bubble.sp-bubble-active .sp-inner {
+        border-color: #1DB954;
+        box-shadow: 0 6px 24px rgba(29,185,84,.35);
+    }
+    @keyframes spBubIn { from{opacity:0;transform:scale(.3)} to{opacity:1;transform:scale(1)} }
+    .sp-ring { position: relative; width: 56px; height: 56px; border-radius: 50%; }
+    .sp-ring::before {
+        content: '';
+        position: absolute; inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #1DB954, #69ff9c, #1DB954);
+        animation: ringSpin 3s linear infinite;
+        opacity: 0;
+        transition: opacity .35s;
+    }
+    .sp-ring.playing::before { opacity: 1; }
+    @keyframes ringSpin { to { transform: rotate(360deg); } }
+    .sp-inner {
+        position: relative; z-index: 1;
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: #121212;
+        border: 2px solid rgba(255,255,255,.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,.6);
+        display: flex; align-items: center; justify-content: center;
+        transition: border-color .25s, box-shadow .25s;
+    }
+    .sp-bubble:hover .sp-inner {
+        border-color: #1DB954;
+        box-shadow: 0 6px 24px rgba(29,185,84,.4);
+    }
+    .sp-eq { display: flex; gap: 2.5px; align-items: flex-end; height: 18px; }
+    .sp-bar {
+        display: block;
+        width: 3px;
+        height: 14px;
+        border-radius: 3px;
+        background: #1DB954;
+        transform-origin: bottom;
+        animation: eqBounce 1s ease-in-out infinite;
+        animation-delay: var(--d);
+    }
+    @keyframes eqBounce {
+        0%,100% { transform: scaleY(.25); }
+        50%      { transform: scaleY(1); }
+    }
+    .sp-eq-paused .sp-bar { animation: none; transform: scaleY(.25); }
+    .sp-tip {
+        position: absolute;
+        right: 66px;
+        bottom: 50%;
+        transform: translateY(50%);
+        background: #282828;
+        color: white;
+        font-size: .7rem;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .2s;
+        box-shadow: 0 4px 12px rgba(0,0,0,.5);
+        border: 1px solid rgba(255,255,255,.08);
+    }
+    .sp-tip::after {
+        content: '';
+        position: absolute;
+        left: 100%; top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-left-color: #282828;
+    }
+    .sp-bubble:hover .sp-tip { opacity: 1; }
+
+    /* Quote visibility in light mode */
+    html:not(.dark) #global-motivation-quote {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%) !important;
+        border-color: rgba(2, 132, 199, .25) !important;
+        box-shadow: 0 18px 50px rgba(2, 132, 199, .25) !important;
+    }
+    html:not(.dark) #global-quote-text {
+        color: #0f172a !important;
+    }
+
+    /* Quote redesign */
+    .rlife-quote-card {
+        --q-bg: #060d1f;
+        --q-neon: #7dd3fc;
+        --q-dim: rgba(125, 211, 252, 0.45);
+        --q-faint: rgba(125, 211, 252, 0.07);
+        --q-text: #e7f1ff;
+        --q-muted: rgba(125, 211, 252, 0.6);
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 9999;
+        width: min(320px, 88vw);
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        will-change: transform;
+        background: var(--q-bg);
+        border: 1px solid var(--q-dim);
+        overflow: hidden;
+        clip-path: polygon(
+            12px 0%, calc(100% - 12px) 0%,
+            100% 12px, 100% calc(100% - 12px),
+            calc(100% - 12px) 100%, 12px 100%,
+            0% calc(100% - 12px), 0% 12px
+        );
+        box-shadow:
+            0 0 0 1px rgba(125,211,252,0.1),
+            0 0 40px rgba(125,211,252,0.12),
+            0 24px 60px rgba(0,0,0,0.75);
+        animation: quoteRise .5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes quoteRise {
+        from { opacity:0; transform:translateY(20px) scale(0.97); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .rlife-quote-card.rlife-quote-dragging { cursor: grabbing; }
+    .rlife-quote-corner {
+        position: absolute;
+        width: 14px; height: 14px;
+        z-index: 10; pointer-events: none;
+    }
+    .rlife-quote-corner-tl { top:0; left:0;  border-top:2px solid var(--q-neon); border-left:2px solid var(--q-neon); }
+    .rlife-quote-corner-tr { top:0; right:0; border-top:2px solid var(--q-neon); border-right:2px solid var(--q-neon); }
+    .rlife-quote-corner-bl { bottom:0; left:0;  border-bottom:2px solid var(--q-neon); border-left:2px solid var(--q-neon); }
+    .rlife-quote-corner-br { bottom:0; right:0; border-bottom:2px solid var(--q-neon); border-right:2px solid var(--q-neon); }
+    .rlife-quote-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-bottom: 1px solid rgba(125,211,252,0.12);
+        background: rgba(125,211,252,0.05);
+        cursor: grab;
+    }
+    .rlife-quote-topbar-left { display:flex; align-items:center; gap:8px; }
+    .rlife-quote-blinker {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--q-neon);
+        box-shadow: 0 0 8px var(--q-neon), 0 0 16px rgba(125,211,252,0.4);
+        animation: quoteBlink 1.6s step-end infinite;
+    }
+    @keyframes quoteBlink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    .rlife-quote-sys {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.54rem;
+        letter-spacing: 0.2em;
+        color: var(--q-muted);
+        text-transform: uppercase;
+    }
+    .rlife-quote-close {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.65rem;
+        color: var(--q-muted);
+        background: none;
+        border: 1px solid rgba(125,211,252,0.15);
+        width: 20px; height: 20px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+        transition: all 0.2s;
+    }
+    .rlife-quote-close:hover {
+        color: var(--q-neon);
+        background: rgba(125,211,252,0.12);
+        border-color: var(--q-neon);
+        box-shadow: 0 0 12px rgba(125,211,252,0.3);
+    }
+    .rlife-quote-body { padding: 20px 18px 14px; position: relative; }
+    .rlife-quote-mark {
+        font-family: 'Inter', sans-serif;
+        font-size: 5rem;
+        line-height: 1;
+        color: var(--q-faint);
+        position: absolute;
+        top: 6px; left: 10px;
+        pointer-events: none;
+        filter: drop-shadow(0 0 10px rgba(125,211,252,0.1));
+    }
+    .rlife-quote-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.02rem;
+        color: var(--q-text);
+        line-height: 1.42;
+        letter-spacing: 0.01em;
+        position: relative;
+        z-index: 1;
+        padding-left: 4px;
+        text-shadow: 0 0 24px rgba(125,211,252,0.15);
+        transition: opacity 0.35s ease;
+    }
+    .rlife-quote-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px 13px;
+        border-top: 1px solid rgba(125,211,252,0.08);
+        cursor: grab;
+    }
+    .rlife-quote-author {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 500;
+        color: var(--q-muted);
+        letter-spacing: 0.07em;
+    }
+    .rlife-quote-drag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+        cursor: grab;
+        padding: 6px 10px;
+        opacity: 0.55;
+        border-radius: 10px;
+        border: 1px solid rgba(125,211,252,0.16);
+        background: rgba(125,211,252,0.06);
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .rlife-quote-drag:hover {
+        opacity: 0.85;
+        background: rgba(125,211,252,0.12);
+        border-color: rgba(125,211,252,0.35);
+    }
+    .rlife-quote-drag:active { cursor: grabbing; }
+    .rlife-quote-drag span { display:block; width:14px; height:1px; background:var(--q-neon); }
+    .rlife-quote-scan {
+        position: absolute; inset: 0;
+        background: repeating-linear-gradient(
+            180deg,
+            transparent 0px, transparent 3px,
+            rgba(125,211,252,0.015) 3px, rgba(125,211,252,0.015) 4px
+        );
+        pointer-events: none; z-index: 20;
+    }
+    html:not(.dark) .rlife-quote-card {
+        --q-bg: #e0f2fe;
+        --q-neon: #38bdf8;
+        --q-dim: rgba(56, 189, 248, 0.45);
+        --q-faint: rgba(56, 189, 248, 0.16);
+        --q-text: #0f172a;
+        --q-muted: rgba(15, 23, 42, 0.6);
+        box-shadow: 0 18px 50px rgba(2, 132, 199, .18);
+    }
+</style>
+
+<!-- ==================== PET MANAGEMENT MODAL ==================== -->
+{% if app.user %}
+<div id="petManagementModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-200/30 dark:border-purple-800/30">
+
+        <!-- Header -->
+        <div class="px-6 py-5 border-b dark:border-slate-700 bg-gradient-to-r from-purple-50/80 to-pink-50/80 dark:from-purple-950/40 dark:to-pink-950/40 flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold text-purple-700 dark:text-purple-300">
+                    {{ mainPet ? mainPet.name : 'My Companion' }}
+                </h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {% if mainPet %}Lv. {{ mainPet.level }} - {{ mainPet.getMood() }}
+                    {% else %}No companion adopted{% endif %}
+                </p>
+            </div>
+            <button onclick="closePetManagementModal()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                <i data-lucide="x" class="w-6 h-6 text-slate-500 dark:text-slate-400"></i>
+            </button>
+        </div>
+
+        <div class="p-6 max-h-[80vh] overflow-y-auto">
+            {% if mainPet %}
+
+                <!-- 3D Viewer -->
+                <div id="pet3DModal"
+                     data-pet-type="{{ mainPet.type }}"
+                     data-hunger="{{ mainPet.hunger }}"
+                     class="w-full aspect-square bg-gradient-to-br from-purple-100/40 to-pink-100/40 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl mb-6 shadow-inner overflow-hidden">
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Hunger</p>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-2">
+                            <div class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 h-2.5 rounded-full transition-all duration-700"
+                                 style="width: {{ 100 - mainPet.hunger }}%"></div>
+                        </div>
+                        <p class="text-lg font-bold text-slate-800 dark:text-white">{{ mainPet.hunger }}/100</p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Coins</p>
+                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ userCoins }} coins</p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <button onclick="openFeedModal()"
+                            class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2.5">
+                        <i data-lucide="apple" class="w-5 h-5"></i><span>Feed</span>
+                    </button>
+                    <button onclick="toggleRenameSection()"
+                            class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
+                        <i data-lucide="pencil" class="w-5 h-5"></i><span>Rename</span>
+                    </button>
+                    <button onclick="goToChangePetType()"
+                            class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i><span>Change Companion Type</span>
+                    </button>
+                    <button onclick="goToPetPage()"
+                            class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
+                        <i data-lucide="external-link" class="w-5 h-5"></i><span>Open Pet Page</span>
+                    </button>
+                </div>
+
+                <!-- Rename section (hidden by default) -->
+                <div id="renameSection" class="hidden mt-5 pt-5 border-t dark:border-slate-700">
+                    <form method="post" action="{{ path('app_pet_rename') }}" class="flex gap-3">
+                        <input type="text" name="name" value="{{ mainPet.name }}" required minlength="2" maxlength="25"
+                               class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-900 dark:text-white">
+                        <button type="submit"
+                                class="px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition">
+                            OK
+                        </button>
+                    </form>
+                </div>
+
+            {% else %}
+                <div class="text-center py-12">
+                    <div class="text-purple-500 dark:text-purple-300 mb-5 flex justify-center">
+                        <i data-lucide="paw-print" class="w-14 h-14"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-slate-800 dark:text-white">No companion for now</h3>
+                    <p class="text-slate-500 dark:text-slate-400 mb-6">Adopt your first pet and start the adventure!</p>
+                    <a href="{{ path('app_pet_choose') }}"
+                       class="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-2xl hover:brightness-110 transition shadow-lg">
+                        Choose My Companion
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FEED MODAL ==================== -->
+{% if mainPet %}
+<div id="feedModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xl z-[110] flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
+        <div class="px-6 py-5 border-b dark:border-slate-700 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Feed {{ mainPet.name }}</h3>
+            <button onclick="closeFeedModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-5">
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 text-center">
+                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ userCoins }} coins</span>
+            </p>
+            <div class="space-y-3">
+                {% set foods = [
+                    {type: 'basic', name: 'Kibble', cost: 50, reduce: 35, emoji: 'B'},
+                    {type: 'premium', name: 'Premium Meal', cost: 120, reduce: 70, emoji: 'P'},
+                    {type: 'deluxe', name: 'Magic Feast', cost: 200, reduce: 100, emoji: 'D'}
+                ] %}
+                {% for food in foods %}
+                <form method="post" action="{{ path('app_pet_feed') }}">
+                    <input type="hidden" name="food_type" value="{{ food.type }}">
+                    <button type="submit"
+                            class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 dark:bg-slate-800 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-200 dark:border-slate-700 hover:border-green-300 dark:hover:border-green-700 rounded-2xl transition-all group">
+                        <span class="text-3xl">{{ food.emoji }}</span>
+                        <div class="flex-1 text-left">
+                            <p class="font-semibold text-slate-800 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">{{ food.name }}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">-{{ food.reduce }} hunger</p>
+                        </div>
+                        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ food.cost }} coins</span>
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endif %}
+
+{% block javascripts %}{% endblock %}
+
+<!-- Global init -->
+<script>
+    let globalQuoteTimer = null;
+    let globalQuoteDragBound = false;
+    let globalQuoteCloseBound = false;
+    let globalQuotePointerId = null;
+    let globalQuoteStartX = 0;
+    let globalQuoteStartY = 0;
+    let globalQuoteDx = 0;
+    let globalQuoteDy = 0;
+    let globalQuoteDragging = false;
+    let globalQuoteStartW = 0;
+    let globalQuoteStartH = 0;
+    let nextQuoteTimeout = null;
+    const spotifyStateVersion = 3;
+    let spotifyState = { enabled: false, open: false, url: '', size: 360, x: null, y: null, preset: 'nature', v: spotifyStateVersion };
+    let spotifyFabDragging = false;
+    let spotifyFabPointerId = null;
+    let spotifyFabStartX = 0;
+    let spotifyFabStartY = 0;
+    let spotifyFabOriginX = 0;
+    let spotifyFabOriginY = 0;
+    let spotifyIframeSrc = '';
+    let soundcloudIframeSrc = '';
+    let forceSoundcloudOpen = false;
+    let scFallbackTimer = null;
+    let spotifyLastTrackClick = 0;
+    let spotifyCurrentTrackId = '';
+    let spotifyRenderQueued = false;
+    let spotifyLastPreset = '';
+    let spotifyLastUrl = '';
+    let spotifyLastReciter = '';
+    let spotifyLastOpen = false;
+    const spotifyPinnedKey = 'rlife_spotify_pinned';
+    const spotifyStartedKey = 'rlife_spotify_started';
+    const spotifyListHiddenKey = 'rlife_spotify_list_hidden';
+    let spotifyLastPresetClick = 0;
+
+    const spotifyPresets = {
+        nature: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8?utm_source=generator',
+        quran: 'https://open.spotify.com/embed/playlist/6DucBXrk2M11buAXRbVzRx?utm_source=generator',
+        relax: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator',
+        motivation: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX3rxVfibe1L0?utm_source=generator'
+    };
+    const spotifyPresetLabels = {
+        nature: 'Nature Sounds',
+        quran: 'Quran (Islamic Recitation)',
+        relax: 'Relax Sounds',
+        motivation: 'Motivation Music'
+    };
+    const quranPlaylistUrl = 'https://open.spotify.com/playlist/6DucBXrk2M11buAXRbVzRx';
+    const quranDossariSoundcloud = 'https://soundcloud.com/quranwave/sets/yasser-al-dosari';
+    const quranReciters = {
+        luhaidan: {
+            label: 'Muhammad Al-Luhaidan',
+            tracks: [
+                { title: 'Surah At-Tawbah', url: 'https://open.spotify.com/track/4KSk2uAFzNa90Uvnj3sweo' },
+                { title: 'Surah Al-Baqarah', url: 'https://open.spotify.com/track/65fc0t2ut7Sju9Ef3E8Khf' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/0EGs2U8bVryjjktDXJG2SH' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/6DyzeneZfza2ckznN8bJD4' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/4WlmtBnVE2EE0mTwnRvAik' }
+            ]
+        },
+        dossari: {
+            label: 'Yasser Al-Dossari',
+            tracks: [
+                { title: 'Episode 1', url: 'https://open.spotify.com/episode/5EYgakgHOig1MQDfZN4Z59' },
+                { title: 'Episode 2', url: 'https://open.spotify.com/episode/0FBYljzeo7fFpHRsoUi1RP' },
+                { title: 'Episode 3', url: 'https://open.spotify.com/episode/7hlUDp80nw89MUQiXto2m9' },
+                { title: 'Episode 4', url: 'https://open.spotify.com/episode/3o5Qaw3TmROgNWBb92htED' },
+                { title: 'Track 1', url: 'https://open.spotify.com/track/1V8vesJJ2fVieSz9SnMgK4' }
+            ]
+        }
+    };
+    const quranReciterStorageKey = 'rlife_quran_reciter';
+
+    function normalizeSpotifyUrl(url) {
+        if (!url) return '';
+        let clean = String(url).trim();
+        clean = clean.replace('https://open.spotify.com/intl-fr/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl-en/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/', 'https://open.spotify.com/');
+        clean = clean.split('?')[0];
+        if (clean.includes('/embed/')) return clean + '?utm_source=generator';
+        if (clean.includes('open.spotify.com/')) {
+            clean = clean.replace('open.spotify.com/', 'open.spotify.com/embed/');
+            return clean + '?utm_source=generator';
+        }
+        return url;
+    }
+
+    function normalizeSpotifyListUrl(url) {
+        const clean = normalizeSpotifyUrl(url);
+        if (clean.includes('/embed/playlist/')) {
+            return clean + '&view=list&theme=0';
+        }
+        return clean;
+    }
+
+    function isSpotifyPinned() {
+        try {
+            return String(localStorage.getItem(spotifyPinnedKey) || '0') === '1';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function setSpotifyPinned(value) {
+        try {
+            localStorage.setItem(spotifyPinnedKey, value ? '1' : '0');
+        } catch (e) {}
+    }
+
+    function getSpotifyTrackId(url) {
+        if (!url) return '';
+        const clean = String(url).split('?')[0];
+        const match = clean.match(/(?:track|episode)\/([A-Za-z0-9]+)/);
+        return match ? match[1] : '';
+    }
+
+    function toTrackEmbed(url) {
+        if (!url) return '';
+        let clean = String(url).trim();
+        clean = clean.replace('https://open.spotify.com/intl-fr/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl-en/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl/', 'https://open.spotify.com/');
+        clean = clean.split('?')[0];
+        if (clean.includes('/embed/')) return clean + '?utm_source=generator';
+        if (clean.includes('open.spotify.com/track/')) {
+            clean = clean.replace('open.spotify.com/track/', 'open.spotify.com/embed/track/');
+            return clean + '?utm_source=generator';
+        }
+        if (clean.includes('open.spotify.com/episode/')) {
+            clean = clean.replace('open.spotify.com/episode/', 'open.spotify.com/embed/episode/');
+            return clean + '?utm_source=generator';
+        }
+        return normalizeSpotifyUrl(url);
+    }
+
+    function getSelectedReciter() {
+        try {
+            const saved = String(localStorage.getItem(quranReciterStorageKey) || 'luhaidan').trim();
+            return quranReciters[saved] ? saved : 'luhaidan';
+        } catch (e) {
+            return 'luhaidan';
+        }
+    }
+
+    function setSelectedReciter(key) {
+        try {
+            localStorage.setItem(quranReciterStorageKey, key);
+        } catch (e) {}
+    }
+
+
+    if (!window.RLifeAudio) {
+        (function() {
+            const stateKey = 'rlife_global_audio_state';
+            let audio = null;
+            let state = { playing: false, src: '', volume: 0.6, loop: true };
+
+            function readState() {
+                try {
+                    const raw = localStorage.getItem(stateKey);
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    state = {
+                        playing: !!parsed.playing,
+                        src: String(parsed.src || ''),
+                        volume: Number(parsed.volume || 0.6),
+                        loop: parsed.loop !== false
+                    };
+                } catch (e) {}
+            }
+
+            function writeState() {
+                try {
+                    localStorage.setItem(stateKey, JSON.stringify(state));
+                } catch (e) {}
+            }
+
+            function ensureAudio() {
+                if (audio) return;
+                audio = new Audio();
+                audio.loop = true;
+                audio.volume = state.volume || 0.6;
+            }
+
+            function play(src, opts) {
+                ensureAudio();
+                const options = opts || {};
+                if (src) {
+                    audio.src = src;
+                    state.src = src;
+                }
+                if (typeof options.volume === 'number') {
+                    audio.volume = Math.min(1, Math.max(0, options.volume));
+                    state.volume = audio.volume;
+                }
+                audio.loop = options.loop !== false;
+                state.loop = audio.loop;
+                state.playing = true;
+                writeState();
+                audio.play().catch(() => {});
+            }
+
+            function stop() {
+                if (!audio) {
+                    state.playing = false;
+                    writeState();
+                    return;
+                }
+                try {
+                    audio.pause();
+                    audio.currentTime = 0;
+                } catch (e) {}
+                state.playing = false;
+                writeState();
+            }
+
+            let needsUnlock = false;
+
+            function tryPlay() {
+                if (!audio) return;
+                const p = audio.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {
+                        needsUnlock = true;
+                    });
+                }
+            }
+
+            function resume() {
+                readState();
+                if (!state.playing || !state.src) return;
+                ensureAudio();
+                if (audio.src !== state.src) {
+                    audio.src = state.src;
+                }
+                audio.loop = state.loop !== false;
+                audio.volume = typeof state.volume === 'number' ? state.volume : 0.6;
+                if (audio.paused) {
+                    tryPlay();
+                }
+            }
+
+            readState();
+
+            function unlockIfNeeded() {
+                if (!needsUnlock) return;
+                needsUnlock = false;
+                resume();
+            }
+
+            function bindUnlock() {
+                const opts = { once: true, passive: true };
+                window.addEventListener('pointerdown', unlockIfNeeded, opts);
+                window.addEventListener('keydown', unlockIfNeeded, opts);
+                window.addEventListener('touchstart', unlockIfNeeded, opts);
+            }
+
+            bindUnlock();
+
+            window.RLifeAudio = { play, stop, resume, getState: () => ({ ...state }) };
+
+            window.addEventListener('rlife-audio-play', function(event) {
+                const detail = event.detail || {};
+                play(String(detail.src || ''), detail);
+            });
+
+            window.addEventListener('rlife-audio-stop', function() {
+                stop();
+            });
+        })();
+    }
+
+    function readSpotifyState() {
+        try {
+            const raw = localStorage.getItem('rlife_spotify_state');
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            const parsedVersion = Number(parsed.v || 0);
+            spotifyState = {
+                enabled: !!parsed.enabled,
+                open: !!parsed.open,
+                url: normalizeSpotifyUrl(String(parsed.url || '')),
+                size: Number(parsed.size || 360),
+                x: Number.isFinite(Number(parsed.x)) ? Number(parsed.x) : null,
+                y: Number.isFinite(Number(parsed.y)) ? Number(parsed.y) : null,
+                preset: String(parsed.preset || 'nature'),
+                v: spotifyStateVersion,
+            };
+            if (spotifyState.preset === 'quran' && !spotifyState.url) {
+                spotifyState.url = spotifyPresets.quran;
+            }
+            // Reset old saved positions from previous UI versions
+            if (parsedVersion < spotifyStateVersion) {
+                spotifyState.x = null;
+                spotifyState.y = null;
+                if (!Number.isFinite(spotifyState.size) || spotifyState.size < 200) {
+                    spotifyState.size = 360;
+                }
+            }
+        } catch (e) {}
+    }
+
+    function writeSpotifyState() {
+        try {
+            spotifyState.v = spotifyStateVersion;
+            localStorage.setItem('rlife_spotify_state', JSON.stringify(spotifyState));
+        } catch (e) {}
+    }
+
+    function getSpotifyDefaultPosition() {
+        const margin = 16;
+        const size = Number(spotifyState.size || 360);
+        const x = Math.max(8, window.innerWidth - size - margin);
+        const y = Math.max(8, window.innerHeight - 240 - margin);
+        return { x, y };
+    }
+
+    function applySpotifySize(sizeValue, isQuran = false) {
+        const iframe = document.getElementById('global-spotify-iframe');
+        const scIframe = document.getElementById('global-soundcloud-iframe');
+        const wrap = document.getElementById('global-spotify-embed-wrap');
+        const quranList = document.getElementById('spotify-quran-list');
+        const quranItems = document.getElementById('spotify-quran-items');
+        if (!iframe || !scIframe) return;
+
+        const sizeKey = sizeValue >= 540 ? 'xl' : sizeValue >= 440 ? 'lg' : sizeValue >= 340 ? 'md' : 'sm';
+        const heightMap = { sm: 152, md: 200, lg: 240, xl: 280 };
+        const listMap = { sm: 0, md: 56, lg: 80, xl: 110 };
+        const h = heightMap[sizeKey] || 200;
+        iframe.style.height = h + 'px';
+        iframe.setAttribute('height', String(h));
+        scIframe.style.height = h + 'px';
+        scIframe.setAttribute('height', String(h));
+        scIframe.style.minHeight = h + 'px';
+        if (wrap) {
+            wrap.style.height = h + 'px';
+        }
+
+        if (quranList && quranItems) {
+            const listHeight = listMap[sizeKey] || 0;
+            if (!isQuran || listHeight === 0) {
+                quranList.classList.add('hidden');
+            } else {
+                quranList.classList.remove('hidden');
+                quranItems.style.maxHeight = listHeight + 'px';
+            }
+        }
+    }
+
+    function updateSpotifyLayout() {
+        const root = document.getElementById('global-spotify-widget');
+        const sizeInput = document.getElementById('spotify-size');
+        const listRow = document.querySelector('.sp-playlist-row');
+        if (!root || !sizeInput) return;
+        if (!spotifyState.enabled) {
+            root.classList.add('hidden');
+            return;
+        }
+        root.classList.remove('hidden');
+        root.classList.add('sp-visible');
+        const sizeValue = Number(spotifyState.size || 360);
+        sizeInput.value = String(sizeValue);
+        root.classList.remove('sp-sm', 'sp-md', 'sp-lg', 'sp-xl');
+        if (sizeValue >= 540) root.classList.add('sp-xl');
+        else if (sizeValue >= 440) root.classList.add('sp-lg');
+        else if (sizeValue >= 340) root.classList.add('sp-md');
+        else root.classList.add('sp-sm');
+        applySpotifySize(sizeValue, spotifyState.preset === 'quran');
+        const pinBtn = document.getElementById('spotify-pin');
+        if (pinBtn) {
+            pinBtn.classList.toggle('sp-pin-active', isSpotifyPinned());
+        }
+        document.querySelectorAll('.sp-size-btn').forEach((btn) => {
+            const key = String(btn.getAttribute('data-size') || 'sm');
+            const active = (key === 'xl' && sizeValue >= 540)
+                || (key === 'lg' && sizeValue >= 440 && sizeValue < 540)
+                || (key === 'md' && sizeValue >= 340 && sizeValue < 440)
+                || (key === 'sm' && sizeValue < 340);
+            btn.classList.toggle('active', active);
+        });
+        if (listRow) {
+            const hideList = String(localStorage.getItem(spotifyListHiddenKey) || '0') === '1';
+            listRow.classList.toggle('sp-list-hidden', hideList);
+        }
+        const maxX = Math.max(8, window.innerWidth - root.offsetWidth - 8);
+        const maxY = Math.max(8, window.innerHeight - root.offsetHeight - 8);
+        if (spotifyState.x !== null && spotifyState.y !== null) {
+            let safeX = Math.max(8, Math.min(maxX, Number(spotifyState.x)));
+            let safeY = Math.max(8, Math.min(maxY, Number(spotifyState.y)));
+            if (safeY < 70) {
+                const def = getSpotifyDefaultPosition();
+                safeX = def.x;
+                safeY = def.y;
+                spotifyState.x = safeX;
+                spotifyState.y = safeY;
+                writeSpotifyState();
+            }
+            root.style.left = safeX + 'px';
+            root.style.top = safeY + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        } else {
+            const def = getSpotifyDefaultPosition();
+            root.style.left = def.x + 'px';
+            root.style.top = def.y + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        }
+    }
+
+    function renderSpotifyWidget() {
+        const root = document.getElementById('global-spotify-widget');
+        const fab = document.getElementById('global-spotify-fab');
+        const panel = document.getElementById('global-spotify-panel');
+        const iframe = document.getElementById('global-spotify-iframe');
+        const scIframe = document.getElementById('global-soundcloud-iframe');
+        const bubble = document.getElementById('sp-bubble');
+        const ring = document.getElementById('sp-ring');
+        const eq = document.getElementById('sp-eq');
+        const logo = document.getElementById('sp-logo');
+        const size = document.getElementById('spotify-size');
+        const sizeButtons = document.querySelectorAll('.sp-size-btn');
+        const title = document.getElementById('spotify-current-title');
+        const loading = document.getElementById('spotify-loading');
+        const quranList = document.getElementById('spotify-quran-list');
+        const quranItems = document.getElementById('spotify-quran-items');
+        const quranPlaylistBtn = document.getElementById('spotify-quran-playlist');
+        const reciterLuhaidanBtn = document.getElementById('quran-reciter-luhaidan');
+        const reciterDossariBtn = document.getElementById('quran-reciter-dossari');
+        const scFallback = document.getElementById('spotify-soundcloud-fallback');
+        const scFallbackOpen = document.getElementById('spotify-soundcloud-open');
+        if (!root || !fab || !panel || !iframe || !scIframe || !size) return;
+
+        if (!spotifyState.enabled) {
+            root.classList.add('hidden');
+            if (bubble) bubble.classList.add('hidden');
+            return;
+        }
+        const started = String(localStorage.getItem(spotifyStartedKey) || '0') === '1';
+
+        updateSpotifyLayout();
+        const rawUrl = spotifyState.url || spotifyPresets[spotifyState.preset] || spotifyPresets.nature;
+        const normalizedUrl = (spotifyState.preset === 'nature' || spotifyState.preset === 'relax' || spotifyState.preset === 'motivation')
+            ? normalizeSpotifyListUrl(rawUrl)
+            : normalizeSpotifyUrl(rawUrl);
+        if (title) {
+            title.textContent = spotifyPresetLabels[spotifyState.preset] || 'Nature Sounds';
+        }
+        document.querySelectorAll('.spotify-preset').forEach((btn) => {
+            const isActive = String(btn.getAttribute('data-preset') || '') === spotifyState.preset;
+            btn.classList.toggle('active', isActive);
+        });
+        let activeReciterKey = spotifyState.preset === 'quran' ? getSelectedReciter() : '';
+        const presetChanged = spotifyLastPreset !== spotifyState.preset;
+        const urlChanged = spotifyLastUrl !== normalizedUrl;
+        const reciterChanged = spotifyLastReciter !== activeReciterKey;
+        const openChanged = spotifyLastOpen !== spotifyState.open;
+        if (!presetChanged && !urlChanged && !reciterChanged && !openChanged) {
+            if (spotifyState.open) panel.classList.remove('hidden');
+            else panel.classList.add('hidden');
+            return;
+        }
+        spotifyLastPreset = spotifyState.preset;
+        spotifyLastUrl = normalizedUrl;
+        spotifyLastReciter = activeReciterKey;
+        spotifyLastOpen = spotifyState.open;
+        if (spotifyState.preset === 'quran') {
+            if (!activeReciterKey) {
+                activeReciterKey = 'luhaidan';
+                setSelectedReciter('luhaidan');
+            }
+            const activeReciter = quranReciters[activeReciterKey] || quranReciters.luhaidan;
+            const tracks = Array.isArray(activeReciter?.tracks) ? activeReciter.tracks : [];
+            const useSoundCloud = activeReciterKey === 'dossari' && tracks.length === 0;
+            const defaultTrack = tracks[0] ? toTrackEmbed(tracks[0].url) : normalizedUrl;
+            applySpotifySize(Number(spotifyState.size || 360), true);
+            if (useSoundCloud) {
+                if (spotifyIframeSrc !== '') {
+                    iframe.src = '';
+                    spotifyIframeSrc = '';
+                    spotifyCurrentTrackId = '';
+                }
+                iframe.classList.add('hidden');
+                scIframe.classList.remove('hidden');
+                scIframe.style.display = 'block';
+                scIframe.style.background = '#111';
+                scIframe.style.visibility = 'visible';
+                scIframe.style.opacity = '1';
+                if (scFallback) scFallback.classList.add('sp-hidden');
+                const desiredSc = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(quranDossariSoundcloud) +
+                    '&color=%230a4b6b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false';
+                if (loading) loading.classList.remove('sp-hidden');
+                if (forceSoundcloudOpen || soundcloudIframeSrc !== desiredSc) {
+                    scIframe.src = desiredSc;
+                    soundcloudIframeSrc = desiredSc;
+                    forceSoundcloudOpen = false;
+                }
+                if (scFallbackTimer) {
+                    window.clearTimeout(scFallbackTimer);
+                    scFallbackTimer = null;
+                }
+                scIframe.onload = () => {
+                    if (loading) loading.classList.add('sp-hidden');
+                    if (scFallback) scFallback.classList.add('sp-hidden');
+                };
+                scFallbackTimer = window.setTimeout(() => {
+                    if (loading) loading.classList.add('sp-hidden');
+                    if (scFallback) scFallback.classList.remove('sp-hidden');
+                }, 1800);
+            } else {
+                scIframe.classList.add('hidden');
+                if (soundcloudIframeSrc !== '') {
+                    scIframe.src = '';
+                    soundcloudIframeSrc = '';
+                }
+                if (scFallback) scFallback.classList.add('sp-hidden');
+                if (scFallbackTimer) {
+                    window.clearTimeout(scFallbackTimer);
+                    scFallbackTimer = null;
+                }
+                iframe.classList.remove('hidden');
+            const desiredSpotify = (normalizedUrl.includes('/track/') || normalizedUrl.includes('/embed/track/')
+                || normalizedUrl.includes('/episode/') || normalizedUrl.includes('/embed/episode/')
+                    ? normalizedUrl
+                    : defaultTrack);
+                const desiredTrackId = getSpotifyTrackId(desiredSpotify);
+                if (spotifyIframeSrc !== desiredSpotify && desiredTrackId !== spotifyCurrentTrackId) {
+                    if (loading) loading.classList.remove('sp-hidden');
+                    iframe.src = desiredSpotify;
+                    spotifyIframeSrc = desiredSpotify;
+                    spotifyCurrentTrackId = desiredTrackId;
+                    iframe.onload = () => { if (loading) loading.classList.add('sp-hidden'); };
+                }
+            }
+            if (quranList && quranItems) {
+                if (tracks.length) {
+                    quranItems.innerHTML = tracks.map((track, idx) => `
+                        <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                data-quran-track="${idx}">
+                            ${activeReciter.label} — ${track.title}
+                        </button>
+                    `).join('');
+                } else {
+                    quranItems.innerHTML = useSoundCloud
+                        ? `
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Playlist</button>
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Recitation</button>
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Quran</button>
+                          `
+                        : '<p class="text-[11px] text-slate-300/80">Add Spotify links for this reciter.</p>';
+                }
+                applySpotifySize(Number(spotifyState.size || 360), true);
+            }
+            if (quranPlaylistBtn) {
+                quranPlaylistBtn.onclick = function() {
+                    if (activeReciterKey === 'dossari') {
+                        spotifyState.open = true;
+                        renderSpotifyWidget();
+                        return;
+                    }
+                    window.open(quranPlaylistUrl, '_blank');
+                };
+            }
+            if (scFallbackOpen) {
+                scFallbackOpen.onclick = function() {
+                    spotifyState.open = true;
+                    renderSpotifyWidget();
+                };
+            }
+            if (reciterLuhaidanBtn && reciterDossariBtn) {
+                const setActive = (key) => {
+                    setSelectedReciter(key);
+                    reciterLuhaidanBtn.className = key === 'luhaidan'
+                        ? 'text-[11px] px-2 py-1 rounded-md bg-slate-700/80 hover:bg-slate-600 transition'
+                        : 'text-[11px] px-2 py-1 rounded-md bg-slate-700/50 hover:bg-slate-600 transition';
+                    reciterDossariBtn.className = key === 'dossari'
+                        ? 'text-[11px] px-2 py-1 rounded-md bg-slate-700/80 hover:bg-slate-600 transition'
+                        : 'text-[11px] px-2 py-1 rounded-md bg-slate-700/50 hover:bg-slate-600 transition';
+                };
+                setActive(activeReciterKey);
+                reciterLuhaidanBtn.onclick = () => {
+                    if (getSelectedReciter() === 'luhaidan') return;
+                    setActive('luhaidan');
+                    spotifyState.open = true;
+                    spotifyState.preset = 'quran';
+                    spotifyState.url = '';
+                    spotifyLastPreset = '';
+                    spotifyLastUrl = '';
+                    spotifyLastReciter = '';
+                    renderSpotifyWidget();
+                };
+                reciterDossariBtn.onclick = () => {
+                    if (getSelectedReciter() === 'dossari') return;
+                    setActive('dossari');
+                    spotifyState.open = true;
+                    spotifyState.preset = 'quran';
+                    spotifyState.url = '';
+                    spotifyLastPreset = '';
+                    spotifyLastUrl = '';
+                    spotifyLastReciter = '';
+                    renderSpotifyWidget();
+                };
+            }
+        } else {
+            applySpotifySize(Number(spotifyState.size || 360), false);
+            const desiredTrackId = getSpotifyTrackId(normalizedUrl);
+            if (spotifyIframeSrc !== normalizedUrl && (desiredTrackId === '' || desiredTrackId !== spotifyCurrentTrackId)) {
+                if (loading) loading.classList.remove('sp-hidden');
+                iframe.src = normalizedUrl;
+                spotifyIframeSrc = normalizedUrl;
+                spotifyCurrentTrackId = desiredTrackId;
+                iframe.onload = () => { if (loading) loading.classList.add('sp-hidden'); };
+            }
+            scIframe.classList.add('hidden');
+            if (soundcloudIframeSrc !== '') {
+                scIframe.src = '';
+                soundcloudIframeSrc = '';
+            }
+            if (scFallback) scFallback.classList.add('sp-hidden');
+            if (scFallbackTimer) {
+                window.clearTimeout(scFallbackTimer);
+                scFallbackTimer = null;
+            }
+            if (quranList) quranList.classList.add('hidden');
+        }
+        const maxX = Math.max(8, window.innerWidth - spotifyState.size - 8);
+        const maxY = Math.max(8, window.innerHeight - spotifyState.size - 8);
+        if (spotifyState.x !== null && spotifyState.y !== null) {
+            let safeX = Math.max(8, Math.min(maxX, Number(spotifyState.x)));
+            let safeY = Math.max(8, Math.min(maxY, Number(spotifyState.y)));
+            // Avoid top bar overlap on old saves
+            if (safeY < 70) {
+                const def = getSpotifyDefaultPosition();
+                safeX = def.x;
+                safeY = def.y;
+                spotifyState.x = safeX;
+                spotifyState.y = safeY;
+                writeSpotifyState();
+            }
+            root.style.left = safeX + 'px';
+            root.style.top = safeY + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        } else {
+            const def = getSpotifyDefaultPosition();
+            root.style.left = def.x + 'px';
+            root.style.top = def.y + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        }
+
+        if (!spotifyState.open) {
+            panel.classList.add('hidden');
+            if (bubble) {
+                bubble.classList.toggle('hidden', !started);
+                bubble.classList.remove('sp-bubble-active');
+                if (ring) ring.classList.add('playing');
+                if (eq) eq.classList.remove('sp-eq-paused');
+                if (logo) logo.style.display = 'none';
+                if (eq) eq.style.display = 'flex';
+            }
+            return;
+        }
+        if (bubble) {
+            bubble.classList.toggle('hidden', !started);
+            bubble.classList.add('sp-bubble-active');
+            if (ring) ring.classList.add('playing');
+            if (eq) eq.classList.remove('sp-eq-paused');
+            if (logo) logo.style.display = 'none';
+            if (eq) eq.style.display = 'flex';
+        }
+        panel.classList.remove('hidden');
+        bindSpotifyBubble();
+    }
+
+    function scheduleRenderSpotifyWidget() {
+        if (spotifyRenderQueued) return;
+        spotifyRenderQueued = true;
+        window.setTimeout(() => {
+            spotifyRenderQueued = false;
+            renderSpotifyWidget();
+        }, 150);
+    }
+
+    function toggleSpotifyPanelDirect() {
+        const panel = document.getElementById('global-spotify-panel');
+        const root = document.getElementById('global-spotify-widget');
+        if (!panel || !root) return;
+        const isHidden = panel.classList.contains('hidden') || panel.style.display === 'none';
+        panel.classList.toggle('hidden', !isHidden);
+        panel.style.display = isHidden ? 'block' : 'none';
+        root.classList.remove('hidden');
+        root.classList.add('sp-visible');
+        spotifyState.open = isHidden;
+        spotifyState.enabled = true;
+        localStorage.setItem(spotifyStartedKey, '1');
+        writeSpotifyState();
+    }
+
+    function bindSpotifyBubble() {
+        const bubble = document.getElementById('sp-bubble');
+        if (!bubble || bubble.dataset.bound === '1') return;
+        bubble.dataset.bound = '1';
+        bubble.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleSpotifyPanelDirect();
+        });
+        bubble.addEventListener('pointerdown', (event) => {
+            event.stopPropagation();
+        });
+    }
+
+    function initSpotifyWidget() {
+        readSpotifyState();
+        if (isSpotifyPinned()) {
+            spotifyState.enabled = true;
+            spotifyState.open = true;
+        }
+        renderSpotifyWidget();
+        bindSpotifyBubble();
+
+        const root = document.getElementById('global-spotify-widget');
+        const fab = document.getElementById('global-spotify-fab');
+        const panel = document.getElementById('global-spotify-panel');
+        const iframe = document.getElementById('global-spotify-iframe');
+        const deleteBtn = document.getElementById('spotify-delete');
+        const toggleListBtn = document.getElementById('spotify-toggle-list');
+        const minimizeBtn = document.getElementById('spotify-minimize');
+        const bubble = document.getElementById('sp-bubble');
+        const size = document.getElementById('spotify-size');
+        const pinBtn = document.getElementById('spotify-pin');
+        const sizeButtons = document.querySelectorAll('.sp-size-btn');
+        const presetButtons = document.querySelectorAll('.spotify-preset');
+        if (!root || !fab || !panel || !iframe || !deleteBtn || !size) return;
+
+        fab.addEventListener('pointerdown', function(event) {
+            const target = event.target;
+            if (target instanceof HTMLElement) {
+                if (target.closest('.sp-topbar-actions')) return;
+            }
+            spotifyFabDragging = false;
+            spotifyFabPointerId = event.pointerId;
+            spotifyFabStartX = event.clientX;
+            spotifyFabStartY = event.clientY;
+            const rect = root.getBoundingClientRect();
+            spotifyFabOriginX = rect.left;
+            spotifyFabOriginY = rect.top;
+            fab.setPointerCapture(event.pointerId);
+            event.preventDefault();
+        });
+
+        fab.addEventListener('pointermove', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            const dx = event.clientX - spotifyFabStartX;
+            const dy = event.clientY - spotifyFabStartY;
+            if (!spotifyFabDragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                spotifyFabDragging = true;
+            }
+            if (!spotifyFabDragging) return;
+            let nextX = spotifyFabOriginX + dx;
+            let nextY = spotifyFabOriginY + dy;
+            const maxX = Math.max(8, window.innerWidth - 80);
+            const maxY = Math.max(8, window.innerHeight - 90);
+            nextX = Math.max(8, Math.min(maxX, nextX));
+            nextY = Math.max(8, Math.min(maxY, nextY));
+            spotifyState.x = Math.round(nextX);
+            spotifyState.y = Math.round(nextY);
+            writeSpotifyState();
+            updateSpotifyLayout();
+        });
+
+        fab.addEventListener('pointerup', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            fab.releasePointerCapture(event.pointerId);
+            if (!spotifyFabDragging) {
+                spotifyState.open = !spotifyState.open;
+                writeSpotifyState();
+                renderSpotifyWidget();
+            }
+            spotifyFabPointerId = null;
+            spotifyFabDragging = false;
+        });
+
+        fab.addEventListener('pointercancel', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            spotifyFabPointerId = null;
+            spotifyFabDragging = false;
+        });
+
+        pinBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const next = !isSpotifyPinned();
+            setSpotifyPinned(next);
+            if (next) {
+                spotifyState.enabled = true;
+                spotifyState.open = true;
+                writeSpotifyState();
+            }
+            updateSpotifyLayout();
+        });
+
+        toggleListBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const current = String(localStorage.getItem(spotifyListHiddenKey) || '0') === '1';
+            localStorage.setItem(spotifyListHiddenKey, current ? '0' : '1');
+            updateSpotifyLayout();
+        });
+
+        minimizeBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (window.RLifeToggleSpotifyPanel) window.RLifeToggleSpotifyPanel();
+        });
+
+        window.RLifeToggleSpotifyPanel = () => {
+            toggleSpotifyPanelDirect();
+            renderSpotifyWidget();
+        };
+        let bubbleDragging = false;
+        let bubblePointerId = null;
+        let bubbleStartX = 0;
+        let bubbleStartY = 0;
+        let bubbleOriginX = 0;
+        let bubbleOriginY = 0;
+        let bubbleIgnoreClickUntil = 0;
+
+        bubble?.addEventListener('pointerdown', (event) => {
+            bubbleDragging = false;
+            bubblePointerId = event.pointerId;
+            bubbleStartX = event.clientX;
+            bubbleStartY = event.clientY;
+            const rect = bubble.getBoundingClientRect();
+            bubbleOriginX = rect.left;
+            bubbleOriginY = rect.top;
+            bubble.dataset.dragging = '0';
+            bubble.setPointerCapture(event.pointerId);
+        });
+
+        bubble?.addEventListener('pointermove', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            const dx = event.clientX - bubbleStartX;
+            const dy = event.clientY - bubbleStartY;
+            if (!bubbleDragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                bubbleDragging = true;
+                bubble.dataset.dragging = '1';
+            }
+            if (!bubbleDragging) return;
+            let nextX = bubbleOriginX + dx;
+            let nextY = bubbleOriginY + dy;
+            const maxX = Math.max(8, window.innerWidth - bubble.offsetWidth - 8);
+            const maxY = Math.max(8, window.innerHeight - bubble.offsetHeight - 8);
+            nextX = Math.max(8, Math.min(maxX, nextX));
+            nextY = Math.max(8, Math.min(maxY, nextY));
+            bubble.style.left = nextX + 'px';
+            bubble.style.top = nextY + 'px';
+            bubble.style.right = 'auto';
+            bubble.style.bottom = 'auto';
+        });
+
+        bubble?.addEventListener('pointerup', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            bubble.releasePointerCapture(event.pointerId);
+            if (bubbleDragging) {
+                bubbleIgnoreClickUntil = Date.now() + 300;
+            }
+            bubblePointerId = null;
+            bubbleDragging = false;
+            bubble.dataset.dragging = '0';
+        });
+
+        bubble?.addEventListener('pointercancel', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            bubblePointerId = null;
+            bubbleDragging = false;
+            bubble.dataset.dragging = '0';
+        });
+
+        // click handler handled in bindSpotifyBubble()
+
+        if (!window.RLifeBubbleGlobalBound) {
+            window.RLifeBubbleGlobalBound = true;
+            document.addEventListener('click', (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLElement)) return;
+                const bubbleTarget = target.closest('#sp-bubble');
+                if (!bubbleTarget) return;
+                if (bubbleTarget.dataset.dragging === '1') return;
+                if (Date.now() < bubbleIgnoreClickUntil) return;
+                event.preventDefault();
+                toggleSpotifyPanelDirect();
+            }, true);
+        }
+
+        deleteBtn.onclick = function() {
+            spotifyState.enabled = false;
+            spotifyState.open = false;
+            spotifyState.url = '';
+            spotifyState.preset = 'nature';
+            localStorage.setItem(spotifyStartedKey, '0');
+            writeSpotifyState();
+            if (window.RLifeAudio && typeof window.RLifeAudio.stop === 'function') {
+                window.RLifeAudio.stop();
+            }
+            const iframe = document.getElementById('global-spotify-iframe');
+            const scIframe = document.getElementById('global-soundcloud-iframe');
+            if (iframe) {
+                iframe.src = '';
+                spotifyIframeSrc = '';
+                spotifyCurrentTrackId = '';
+            }
+            if (scIframe) {
+                scIframe.src = '';
+                soundcloudIframeSrc = '';
+            }
+            const scFallback = document.getElementById('spotify-soundcloud-fallback');
+            if (scFallback) scFallback.classList.add('sp-hidden');
+            if (scFallbackTimer) {
+                window.clearTimeout(scFallbackTimer);
+                scFallbackTimer = null;
+            }
+            const root = document.getElementById('global-spotify-widget');
+            const panel = document.getElementById('global-spotify-panel');
+            if (panel) {
+                panel.classList.add('hidden');
+                panel.style.display = 'none';
+            }
+            if (root) {
+                root.classList.add('hidden');
+                root.classList.remove('sp-visible');
+                root.style.display = 'none';
+            }
+            if (bubble) bubble.classList.add('hidden');
+        };
+
+        size.oninput = function() {
+            spotifyState.size = Number(size.value || 360);
+            writeSpotifyState();
+            updateSpotifyLayout();
+        };
+
+        sizeButtons.forEach((btn) => {
+            btn.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+            btn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const key = String(btn.getAttribute('data-size') || 'sm');
+                const nextSize = key === 'xl' ? 580 : key === 'lg' ? 460 : key === 'md' ? 360 : 280;
+                if (spotifyState.size === nextSize) return;
+                spotifyState.size = nextSize;
+                writeSpotifyState();
+                updateSpotifyLayout();
+            });
+        });
+
+        document.querySelectorAll('.sp-topbar-actions button').forEach((btn) => {
+            btn.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+        });
+
+        presetButtons.forEach((btn) => {
+            btn.addEventListener('click', function() {
+                const preset = String(btn.getAttribute('data-preset') || 'nature');
+                if (spotifyState.preset === preset) return;
+                const url = spotifyPresets[preset] || spotifyPresets.nature;
+                spotifyState.enabled = true;
+                spotifyState.open = true;
+                spotifyState.preset = preset;
+                spotifyState.url = url;
+                writeSpotifyState();
+                renderSpotifyWidget();
+            });
+        });
+
+        panel.addEventListener('click', function(event) {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (target.getAttribute('data-soundcloud') === '1') {
+                const scIframe = document.getElementById('global-soundcloud-iframe');
+                if (scIframe) {
+                    const desiredSc = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(quranDossariSoundcloud) +
+                        '&color=%230a4b6b&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false';
+                    scIframe.src = desiredSc;
+                    soundcloudIframeSrc = desiredSc;
+                }
+                forceSoundcloudOpen = true;
+                spotifyState.preset = 'quran';
+                setSelectedReciter('dossari');
+                spotifyLastPreset = '';
+                spotifyLastReciter = '';
+                spotifyState.url = '';
+                spotifyState.open = true;
+                renderSpotifyWidget();
+                return;
+            }
+            const idx = target.getAttribute('data-quran-track');
+            if (idx === null) return;
+            const activeReciterKey = getSelectedReciter();
+            const activeReciter = quranReciters[activeReciterKey] || quranReciters.luhaidan;
+            const tracks = Array.isArray(activeReciter?.tracks) ? activeReciter.tracks : [];
+            const track = tracks[Number(idx)];
+            if (!track) return;
+            const nextEmbed = toTrackEmbed(track.url);
+            const nextTrackId = getSpotifyTrackId(nextEmbed);
+            if (nextTrackId && nextTrackId === spotifyCurrentTrackId) return;
+            spotifyState.enabled = true;
+            spotifyState.open = true;
+            spotifyState.preset = 'quran';
+            spotifyState.url = nextEmbed;
+            writeSpotifyState();
+            scheduleRenderSpotifyWidget();
+        });
+
+
+        window.addEventListener('rlife-spotify-start', function(event) {
+            const detail = event.detail || {};
+            spotifyState.enabled = true;
+            spotifyState.open = true;
+            const preset = String(detail.preset || 'nature');
+            spotifyState.preset = preset;
+            spotifyState.url = String(detail.url || spotifyPresets[preset] || spotifyPresets.nature);
+            localStorage.setItem(spotifyStartedKey, '1');
+            spotifyState.x = null;
+            spotifyState.y = null;
+            spotifyLastPreset = '';
+            spotifyLastUrl = '';
+            spotifyLastReciter = '';
+            spotifyLastOpen = false;
+            writeSpotifyState();
+            const root = document.getElementById('global-spotify-widget');
+            const panel = document.getElementById('global-spotify-panel');
+            if (root) {
+                root.classList.remove('hidden');
+                root.classList.add('sp-visible');
+                root.style.display = 'block';
+            }
+            if (panel) {
+                panel.classList.remove('hidden');
+                panel.style.display = 'block';
+            }
+            const bubble = document.getElementById('sp-bubble');
+            if (bubble) bubble.classList.add('hidden');
+            updateSpotifyLayout();
+            renderSpotifyWidget();
+        });
+    }
+
+    function isQuoteEnabled() {
+        try {
+            return String(localStorage.getItem('rlife_quote_enabled') || '1') !== '0';
+        } catch (e) {
+            return true;
+        }
+    }
+
+    function getStoredQuotePosition() {
+        try {
+            const raw = localStorage.getItem('rlife_quote_position');
+            if (!raw) return null;
+            const pos = JSON.parse(raw);
+            if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return null;
+            return { x: Number(pos.x), y: Number(pos.y) };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getDismissedUntil() {
+        try {
+            const raw = localStorage.getItem('rlife_quote_dismissed_until');
+            const value = Number(raw || 0);
+            return Number.isFinite(value) ? value : 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    function applyQuotePosition() {
+        const box = document.getElementById('global-motivation-quote');
+        if (!box) return;
+        const pos = getStoredQuotePosition();
+        if (!pos) {
+            box.style.left = '1rem';
+            box.style.bottom = '1rem';
+            box.style.right = 'auto';
+            box.style.top = 'auto';
+            return;
+        }
+        box.style.left = pos.x + 'px';
+        box.style.top = pos.y + 'px';
+        box.style.right = 'auto';
+        box.style.bottom = 'auto';
+    }
+
+    function resetQuoteDragVisuals() {
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (box) {
+            box.style.transform = '';
+            box.style.opacity = '';
+        }
+        if (zone) {
+            zone.classList.remove('scale-110');
+            zone.classList.remove('flex');
+            zone.classList.add('hidden');
+        }
+    }
+
+    function quoteIsOverDropzone() {
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (!box || !zone) return false;
+        const a = box.getBoundingClientRect();
+        const b = zone.getBoundingClientRect();
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    }
+
+    function bindQuoteDrag() {
+        if (globalQuoteDragBound) return;
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (!box || !zone) return;
+        globalQuoteDragBound = true;
+
+        box.addEventListener('pointerdown', function(event) {
+            if (box.classList.contains('hidden')) return;
+            if (event.button !== undefined && event.button !== 0) return;
+            if (event.target && event.target.closest && event.target.closest('#global-quote-close')) return;
+            globalQuoteDragging = true;
+            globalQuotePointerId = event.pointerId;
+            globalQuoteStartX = event.clientX;
+            globalQuoteStartY = event.clientY;
+            globalQuoteDx = 0;
+            globalQuoteDy = 0;
+            const rect = box.getBoundingClientRect();
+            box.style.left = rect.left + 'px';
+            box.style.top = rect.top + 'px';
+            box.style.right = 'auto';
+            box.style.bottom = 'auto';
+            box._rlifeStartLeft = rect.left;
+            box._rlifeStartTop = rect.top;
+            globalQuoteStartW = rect.width;
+            globalQuoteStartH = rect.height;
+            box.style.width = globalQuoteStartW + 'px';
+            box.style.height = globalQuoteStartH + 'px';
+            box.style.transition = 'none';
+            box.classList.add('rlife-quote-dragging');
+            box.setPointerCapture(globalQuotePointerId);
+            zone.classList.remove('hidden');
+            zone.classList.add('flex');
+            event.preventDefault();
+        });
+
+        box.addEventListener('pointermove', function(event) {
+            if (!globalQuoteDragging || event.pointerId !== globalQuotePointerId) return;
+            globalQuoteDx = event.clientX - globalQuoteStartX;
+            globalQuoteDy = event.clientY - globalQuoteStartY;
+            if (box._rlifeRaf) return;
+            box._rlifeRaf = window.requestAnimationFrame(() => {
+                box._rlifeRaf = null;
+                box.style.transform = `translate3d(${globalQuoteDx}px, ${globalQuoteDy}px, 0)`;
+                if (quoteIsOverDropzone()) {
+                    zone.classList.add('scale-110');
+                } else {
+                    zone.classList.remove('scale-110');
+                }
+            });
+        });
+
+        function onDragEnd(event) {
+            if (!globalQuoteDragging || event.pointerId !== globalQuotePointerId) return;
+            const boxEl = document.getElementById('global-motivation-quote');
+            const shouldDismiss = quoteIsOverDropzone() || (globalQuoteDy > 140 && globalQuoteDx > 50);
+            if (shouldDismiss && boxEl) {
+                boxEl.classList.add('hidden');
+                if (nextQuoteTimeout) {
+                    clearTimeout(nextQuoteTimeout);
+                    nextQuoteTimeout = null;
+                }
+                try {
+                    localStorage.setItem('rlife_quote_dismissed_until', String(Date.now() + 120000));
+                } catch (e) {}
+            } else if (boxEl) {
+                const startLeft = Number(boxEl._rlifeStartLeft || 0);
+                const startTop = Number(boxEl._rlifeStartTop || 0);
+                const nextLeft = startLeft + globalQuoteDx;
+                const nextTop = startTop + globalQuoteDy;
+                const maxLeft = Math.max(8, window.innerWidth - boxEl.offsetWidth - 8);
+                const maxTop = Math.max(8, window.innerHeight - boxEl.offsetHeight - 8);
+                const clampedLeft = Math.min(Math.max(8, nextLeft), maxLeft);
+                const clampedTop = Math.min(Math.max(8, nextTop), maxTop);
+                boxEl.style.left = clampedLeft + 'px';
+                boxEl.style.top = clampedTop + 'px';
+                boxEl.style.right = 'auto';
+                boxEl.style.bottom = 'auto';
+                try {
+                    localStorage.setItem('rlife_quote_position', JSON.stringify({ x: clampedLeft, y: clampedTop }));
+                } catch (e) {}
+            }
+            if (boxEl) {
+                boxEl.style.width = '';
+                boxEl.style.height = '';
+                boxEl.style.transition = '';
+                boxEl.classList.remove('rlife-quote-dragging');
+            }
+            globalQuoteDragging = false;
+            globalQuotePointerId = null;
+            resetQuoteDragVisuals();
+        }
+
+        box.addEventListener('pointerup', onDragEnd);
+        box.addEventListener('pointercancel', onDragEnd);
+    }
+
+    function bindQuoteClose() {
+        if (globalQuoteCloseBound) return;
+        const closeBtn = document.getElementById('global-quote-close');
+        const box = document.getElementById('global-motivation-quote');
+        if (!closeBtn || !box) return;
+        globalQuoteCloseBound = true;
+        closeBtn.addEventListener('click', () => {
+            box.classList.add('hidden');
+            if (nextQuoteTimeout) {
+                clearTimeout(nextQuoteTimeout);
+                nextQuoteTimeout = null;
+            }
+            try {
+                localStorage.setItem('rlife_quote_dismissed_until', String(Date.now() + 120000));
+            } catch (e) {}
+        });
+    }
+
+    async function loadGlobalQuote() {
+        const box = document.getElementById('global-motivation-quote');
+        const text = document.getElementById('global-quote-text');
+        const author = document.getElementById('global-quote-author');
+        if (!box || !text) return;
+        applyQuotePosition();
+        if (!isQuoteEnabled()) {
+            box.classList.add('hidden');
+            return;
+        }
+        const dismissedUntil = getDismissedUntil();
+        if (dismissedUntil && Date.now() < dismissedUntil) {
+            box.classList.add('hidden');
+            return;
+        }
+
+        try {
+            let quoteType = 'motivation';
+            try {
+                quoteType = String(localStorage.getItem('rlife_quote_type') || 'motivation').trim() || 'motivation';
+            } catch (e) {}
+
+            const response = await fetch('{{ path('app_wellbeing_motivation_quote') }}' + '?type=' + encodeURIComponent(quoteType), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
+            });
+            const data = await response.json();
+            text.textContent = data.quote || 'One focused step now beats overthinking.';
+            if (author) {
+                const typeLabel = (quoteType || 'motivation').toUpperCase();
+                author.textContent = '— ' + typeLabel;
+            }
+            box.classList.remove('hidden');
+            bindQuoteDrag();
+            bindQuoteClose();
+        } catch (e) {
+            box.classList.add('hidden');
+        }
+    }
+
+    function initGlobalQuoteTicker() {
+        if (globalQuoteTimer) {
+            clearInterval(globalQuoteTimer);
+            globalQuoteTimer = null;
+        }
+        if (nextQuoteTimeout) {
+            clearTimeout(nextQuoteTimeout);
+            nextQuoteTimeout = null;
+        }
+        resetQuoteDragVisuals();
+        applyQuotePosition();
+        if (!isQuoteEnabled()) {
+            const box = document.getElementById('global-motivation-quote');
+            if (box) box.classList.add('hidden');
+            return;
+        }
+        loadGlobalQuote();
+        globalQuoteTimer = setInterval(loadGlobalQuote, 120000);
+    }
+
+    window.applyQuotePosition = applyQuotePosition;
+    window.initGlobalQuoteTicker = initGlobalQuoteTicker;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        window.initIcons();
+        if (window.RLife3D) {
+            window.RLife3D.autoInitPetScenes();
+            setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
+        }
+        if (window.RLifeAudio && typeof window.RLifeAudio.resume === 'function') {
+            window.RLifeAudio.resume();
+        }
+        initGlobalQuoteTicker();
+        initSpotifyWidget();
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (!target.closest('#sp-bubble')) return;
+            if (typeof window.RLifeToggleSpotifyPanel === 'function') {
+                window.RLifeToggleSpotifyPanel();
+                return;
+            }
+            const panel = document.getElementById('global-spotify-panel');
+            const root = document.getElementById('global-spotify-widget');
+            if (!panel || !root) return;
+            const hidden = panel.classList.contains('hidden') || panel.style.display === 'none';
+            panel.classList.toggle('hidden', !hidden);
+            panel.style.display = hidden ? 'block' : 'none';
+            root.classList.remove('hidden');
+            root.classList.add('sp-visible');
+        }, true);
+        console.log('âœ… Page initialized: Icons loaded');
+    });
+    document.addEventListener('turbo:load', function() {
+        window.initIcons();
+        if (window.RLife3D) {
+            window.RLife3D.autoInitPetScenes();
+            setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
+        }
+        if (window.RLifeAudio && typeof window.RLifeAudio.resume === 'function') {
+            window.RLifeAudio.resume();
+        }
+        initGlobalQuoteTicker();
+        initSpotifyWidget();
+    });
+    document.addEventListener('turbo:frame-load', function() { window.initIcons(); });
+</script>
+
+<!-- Global Search -->
+<script>
+    (function() {
+        'use strict';
+        const searchInput   = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const globalSearch  = document.getElementById('globalSearch');
+        if (!searchInput || !searchResults) return;
+
+        let searchTimeout, isSearching = false, lastQuery = '', cachedResults = null;
+
+        const typeLabels = { course:'ðŸ“š Courses', project:'ðŸ“ Projects', assignment:'ðŸ“ Assignments', deck:'ðŸ—‚ï¸ Flashcards', page:'ðŸ“„ Pages', user:'ðŸ‘¤ Users' };
+        const typeIcons  = { course:'ðŸ“š', project:'ðŸ“', assignment:'ðŸ“', deck:'ðŸ—‚ï¸', page:'ðŸ“„', user:'ðŸ‘¤' };
+
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            if (query.length < 2) { searchResults.classList.add('hidden'); cachedResults = null; return; }
+            if (query === lastQuery && cachedResults) { displayResults(cachedResults); return; }
+            showLoading();
+            searchTimeout = setTimeout(() => performSearch(query), 300);
+        });
+
+        function showLoading() {
+            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500"><div class="inline-block animate-spin text-2xl">â³</div><p class="text-xs mt-2">Searching...</p></div>`;
+            searchResults.classList.remove('hidden');
+        }
+
+        function performSearch(query) {
+            if (isSearching) return;
+            isSearching = true;
+            fetch('/api/search?q=' + encodeURIComponent(query))
+                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                .then(data => { lastQuery = query; cachedResults = data.results; displayResults(data.results); })
+                .catch(err => {
+                    searchResults.innerHTML = `<div class="p-4 text-center text-red-500"><p class="text-sm">Search failed</p><p class="text-xs">${err.message}</p></div>`;
+                    searchResults.classList.remove('hidden');
+                })
+                .finally(() => { isSearching = false; });
+        }
+
+        function displayResults(results) {
+            if (!results || results.length === 0) {
+                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500"><div class="text-4xl mb-2">ðŸ”</div><p class="text-sm font-medium">No results found</p></div>`;
+                searchResults.classList.remove('hidden');
+                return;
+            }
+            const grouped = {};
+            results.forEach(r => { if (!grouped[r.type]) grouped[r.type] = []; grouped[r.type].push(r); });
+            let html = '<div class="p-2">';
+            Object.keys(grouped).forEach((type, i) => {
+                if (i > 0) html += '<div class="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>';
+                html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 uppercase">${typeLabels[type]}</p>`;
+                grouped[type].forEach(result => {
+                    html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-lg">${typeIcons[result.type] || '-'}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-slate-800 truncate">${result.title}</p>
+                            <p class="text-xs text-slate-500">${result.subtitle}</p>
+                        </div></a>`;
+                });
+                html += '</div>';
+            });
+            html += '</div>';
+            searchResults.innerHTML = html;
+            searchResults.classList.remove('hidden');
+        }
+
+        document.addEventListener('click', e => { if (globalSearch && !globalSearch.contains(e.target)) searchResults.classList.add('hidden'); });
+        searchInput.addEventListener('focus', function() {
+            const query = searchInput.value.trim();
+            if (query.length >= 2) {
+                cachedResults && query === lastQuery ? displayResults(cachedResults) : (showLoading(), performSearch(query));
+            }
+        });
+        searchInput.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { searchResults.classList.add('hidden'); searchInput.blur(); }
+        });
+    })();
+</script>
+
+<!-- Mark notification as read (AJAX) -->
+<script>
+    async function markAsRead(notificationId) {
+        try {
+            const response = await fetch(`/notifications/${notificationId}/read`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (!response.ok) throw new Error('Erreur lors du marquage');
+            const data = await response.json();
+            if (data.success) {
+                // Remove unread highlight
+                const el = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (el) el.classList.remove('bg-indigo-50/50', 'dark:bg-indigo-950/30');
+                // Update badge count
+                const badge = document.getElementById('notification-badge');
+                if (badge) {
+                    let count = parseInt(badge.textContent || '0') - 1;
+                    if (count > 0) {
+                        badge.textContent = count;
+                    } else {
+                        badge.textContent = '';
+                        badge.classList.add('hidden');
+                    }
+                }
+                // Follow the link after marking as read
+                const link = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (link && link.getAttribute('href') && link.getAttribute('href') !== '#') {
+                    window.location.href = link.getAttribute('href');
+                }
+            }
+        } catch (error) {
+            console.error('Erreur marquage notification:', error);
+        }
+    }
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+

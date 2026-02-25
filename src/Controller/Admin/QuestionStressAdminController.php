@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\QuestionStress;
 use App\Form\QuestionStressType;
 use App\Repository\QuestionStressRepository;
+use App\Repository\QuizStressRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +18,17 @@ class QuestionStressAdminController extends AbstractController
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(QuestionStressRepository $repo): Response
     {
-        $questions = $repo->findBy([], ['orderIndex' => 'ASC']);
+        $questions = $repo->findBy([], ['position' => 'ASC']);
         return $this->render('admin/question_stress/index.html.twig', [
-            'question_stresses' => $questions,
+            'questionStresses' => $questions,
+            'stats' => [
+                'total' => count($questions),
+                'active' => count(array_filter($questions, fn (QuestionStress $q) => (bool) $q->isIsActive())),
+                'inactive' => count(array_filter($questions, fn (QuestionStress $q) => !(bool) $q->isIsActive())),
+            ],
+            'search' => '',
+            'sort' => 'position',
+            'order' => 'ASC',
         ]);
     }
 

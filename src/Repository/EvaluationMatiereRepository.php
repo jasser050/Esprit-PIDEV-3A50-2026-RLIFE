@@ -102,7 +102,7 @@ class EvaluationMatiereRepository extends ServiceEntityRepository
     public function findByPriority(string $priority, User $user): array
     {
         return $this->createQueryBuilder('e')
-            ->andWhere('e.prioriteE = :priority')
+            ->andWhere('e.priorite = :priority')
             ->andWhere('e.user = :user')
             ->setParameter('priority', $priority)
             ->setParameter('user', $user)

@@ -1,14 +1,62 @@
-services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
+# yaml-language-server: $schema=../vendor/symfony/dependency-injection/Loader/schema/services.schema.json
 
-  App\:
-    resource: '../src/'
-    exclude:
-      - '../src/DependencyInjection/'
-      - '../src/Entity/'
-      - '../src/Kernel.php'
-  App\Security\LoginSuccessHandler:
-    arguments:
-      $router: '@router'
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+# https://symfony.com/doc/current/service_container/import.html
+
+parameters:
+    # OpenRouter
+    openrouter_api_key: '%env(OPENROUTER_API_KEY)%'
+    
+    # SerpAPI / RapidAPI
+    app.serpapi_key: '%env(SERPAPI_KEY)%'
+    app.rapidapi_key: '%env(RAPIDAPI_KEY)%'
+    app.rapidapi_host: '%env(RAPIDAPI_HOST)%'
+    
+    # Mailer Configuration
+    mailer_from_email: '%env(MAILER_FROM_EMAIL)%'
+    mailer_from_name: '%env(MAILER_FROM_NAME)%'
+    
+    # Pusher Configuration
+    pusher.app_id: '%env(PUSHER_APP_ID)%'
+    pusher.key: '%env(PUSHER_KEY)%'
+    pusher.secret: '%env(PUSHER_SECRET)%'
+    pusher.cluster: '%env(PUSHER_CLUSTER)%'
+
+    # Anthropic Claude AI
+    anthropic_api_key: '%env(ANTHROPIC_API_KEY)%'
+    gemini_api_key: '%env(GEMINI_API_KEY)%'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # makes classes in src/ available to be used as services
+    App\:
+        resource: '../src/'
+
+    # TranslationService — bind the API key (string, not auto-injectable)
+    App\Service\TranslationService:
+        bind:
+            $openrouterApiKey: '%openrouter_api_key%'
+        tags:
+            - { name: monolog.logger, channel: translation }
+
+    App\Service\OpenRouterService:
+        bind:
+            $openRouterApiKey: '%openrouter_api_key%'
+
+    # PusherService — explicit constructor arguments
+    App\Service\PusherService:
+        arguments:
+            $appId: '%pusher.app_id%'
+            $key: '%pusher.key%'
+            $secret: '%pusher.secret%'
+            $cluster: '%pusher.cluster%'
+
+    # DeckChatbotController — inject OpenRouter API key
+    App\Controller\DeckChatbotController:
+        arguments:
+            $openrouterApiKey: '%openrouter_api_key%'

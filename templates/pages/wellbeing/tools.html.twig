@@ -1,10 +1,9 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Coping Tools{% endblock %}
+{% block title %}Coping Tools - Wellbeing{% endblock %}
 
 {% block body %}
-<div class="space-y-6 animate-fade-in">
-    {# Breadcrumb + Header (si tu utilises ces components, sinon tu peux enlever) #}
+<div class="space-y-6">
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Wellbeing', url: path('app_wellbeing') },
@@ -17,222 +16,2119 @@
         subtitle: 'Techniques and exercises to help you manage stress and improve wellbeing'
     } %}
 
-    {# Banner #}
-    <div class="rounded-2xl p-6 bg-gradient-to-r from-primary-600 to-accent-500 text-white flex items-center justify-between gap-4">
-        <div>
-            <h3 class="text-xl font-semibold">Feeling overwhelmed?</h3>
-            <p class="text-white/90 mt-1">Try a quick breathing exercise to help you relax and refocus.</p>
+    <div class="card p-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <label for="quote-type-select" class="text-sm font-medium text-slate-700 dark:text-slate-200">Quote Type</label>
+            <select id="quote-type-select" class="px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                <option value="motivation">Motivation</option>
+                <option value="funny">Funny</option>
+                <option value="calm">Calm</option>
+                <option value="focus">Focus</option>
+            </select>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
+                <input id="quote-enabled-toggle" type="checkbox" class="rounded border-slate-300 dark:border-slate-700">
+                <span>Enable quotes</span>
+            </label>
+            <button id="quote-position-reset" class="btn btn-sm btn-secondary">Reset position</button>
+            <p class="text-xs text-light-muted dark:text-dark-muted">Drag the quote card to any position on screen.</p>
         </div>
-        <button
-            class="btn btn-white inline-flex items-center gap-2"
-            data-open-tool="breathing"
-            type="button"
-        >
-            <i data-lucide="play" class="w-4 h-4"></i>
-            Start Now
-        </button>
     </div>
 
-    {# Tools cards #}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {% for tool in tools %}
-            <div class="card p-5 flex items-center justify-between gap-4">
-                <div class="flex items-center gap-4 min-w-0">
-                    <div class="w-12 h-12 rounded-2xl bg-{{ tool.color }}-900/30 flex items-center justify-center flex-shrink-0">
-                        {% if tool.icon == 'wind' %}
-                            <i data-lucide="wind" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'sparkles' %}
-                            <i data-lucide="sparkles" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'heart' %}
-                            <i data-lucide="heart" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'clock' %}
-                            <i data-lucide="timer" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% elseif tool.icon == 'book' %}
-                            <i data-lucide="book-open" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% else %}
-                            <i data-lucide="music" class="w-6 h-6 text-{{ tool.color }}-400"></i>
-                        {% endif %}
-                    </div>
+    <!-- Quick Actions -->
+    <div class="card p-6 bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-bold mb-2">Feeling overwhelmed?</h2>
+                <p class="text-primary-100">Try a quick breathing exercise to help you relax and refocus.</p>
+            </div>
+            <button id="breathing-quick-cta" class="btn bg-white text-primary-600 hover:bg-primary-50">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Go to Breathing Tool
+            </button>
+        </div>
+    </div>
 
-                    <div class="min-w-0">
-                        <h3 class="font-semibold text-white truncate">{{ tool.name }}</h3>
-                        <p class="text-sm text-dark-muted mt-0.5 truncate">{{ tool.description }}</p>
-                        <div class="mt-2 text-xs text-{{ tool.color }}-400 inline-flex items-center gap-1">
-                            <i data-lucide="clock" class="w-3 h-3"></i>
-                            {{ tool.duration }}
-                        </div>
+    <!-- Tools Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for tool in tools %}
+        <div class="card p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 bg-{{ tool.color }}-100 dark:bg-{{ tool.color }}-900/30 rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-7 h-7 text-{{ tool.color }}-600 dark:text-{{ tool.color }}-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {% if tool.icon == 'wind' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        {% elseif tool.icon == 'sparkles' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        {% elseif tool.icon == 'heart' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        {% elseif tool.icon == 'clock' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        {% elseif tool.icon == 'book' %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        {% else %}
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+                        {% endif %}
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold mb-1">{{ tool.name }}</h3>
+                    <p class="text-sm text-light-muted dark:text-dark-muted mb-3">{{ tool.description }}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="badge badge-{{ tool.color }}">{{ tool.duration }}</span>
+                        <button
+                            class="btn btn-sm btn-{{ tool.color }} tool-start-btn"
+                            data-tool-key="{{ tool.key|default('') }}"
+                            data-tool-name="{{ tool.name|e('html_attr') }}"
+                            data-tool-duration="{{ tool.duration|e('html_attr') }}"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Start
+                        </button>
                     </div>
                 </div>
-
-                <button
-                    class="btn btn-secondary inline-flex items-center gap-2"
-                    type="button"
-                    data-open-tool="{{ tool.key }}"
-                    data-duration-seconds="{{ tool.durationSeconds }}"
-                >
-                    <i data-lucide="play" class="w-4 h-4"></i>
-                    Start
-                </button>
             </div>
+        </div>
         {% endfor %}
     </div>
 
-    {# Tips #}
+    <!-- Tips Section -->
     <div class="card p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">Quick Wellbeing Tips</h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">💧</div>
-                <div class="font-semibold mt-2 text-white">Stay Hydrated</div>
-                <div class="text-sm text-dark-muted mt-1">Drink at least 8 glasses of water daily</div>
+        <h2 class="text-lg font-semibold mb-4">Quick Wellbeing Tips</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <div class="text-2xl mb-2">💧</div>
+                <h3 class="font-medium mb-1">Stay Hydrated</h3>
+                <p class="text-sm text-light-muted dark:text-dark-muted">Drink at least 8 glasses of water daily</p>
             </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">🚶</div>
-                <div class="font-semibold mt-2 text-white">Take Breaks</div>
-                <div class="text-sm text-dark-muted mt-1">Walk for 5 mins every hour of studying</div>
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <div class="text-2xl mb-2">🚶</div>
+                <h3 class="font-medium mb-1">Take Breaks</h3>
+                <p class="text-sm text-light-muted dark:text-dark-muted">Walk for 5 mins every hour of studying</p>
             </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">😴</div>
-                <div class="font-semibold mt-2 text-white">Sleep Well</div>
-                <div class="text-sm text-dark-muted mt-1">Aim for 7-8 hours of quality sleep</div>
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <div class="text-2xl mb-2">😴</div>
+                <h3 class="font-medium mb-1">Sleep Well</h3>
+                <p class="text-sm text-light-muted dark:text-dark-muted">Aim for 7-8 hours of quality sleep</p>
             </div>
-            <div class="p-4 rounded-2xl bg-dark-surface/60">
-                <div class="text-2xl">🎯</div>
-                <div class="font-semibold mt-2 text-white">Set Boundaries</div>
-                <div class="text-sm text-dark-muted mt-1">It’s okay to say no sometimes</div>
+            <div class="p-4 rounded-xl bg-light-bg dark:bg-dark-bg">
+                <div class="text-2xl mb-2">🎯</div>
+                <h3 class="font-medium mb-1">Set Boundaries</h3>
+                <p class="text-sm text-light-muted dark:text-dark-muted">It's okay to say no sometimes</p>
             </div>
         </div>
     </div>
 
-    {# Modal simple (un seul modal, contenu change selon tool) #}
-    <div id="tool-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 p-4">
-        <div class="w-full max-w-md rounded-3xl bg-dark-card shadow-soft-xl p-6 relative">
-            <button id="tool-modal-close" class="absolute top-4 right-4 btn btn-ghost" type="button">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+    <!-- Resources -->
+    <div class="card p-6">
+        <h2 class="text-lg font-semibold mb-4">Additional Resources</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl bg-light-bg dark:bg-dark-bg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium">Crisis Helpline</h3>
+                    <p class="text-sm text-light-muted dark:text-dark-muted">24/7 support available</p>
+                </div>
+            </a>
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl bg-light-bg dark:bg-dark-bg hover:bg-secondary-50 dark:hover:bg-secondary-900/20 transition-colors">
+                <div class="w-10 h-10 bg-secondary-100 dark:bg-secondary-900/30 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-secondary-600 dark:text-secondary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium">Counseling Services</h3>
+                    <p class="text-sm text-light-muted dark:text-dark-muted">Campus mental health</p>
+                </div>
+            </a>
+            <a href="#" class="flex items-center gap-4 p-4 rounded-xl bg-light-bg dark:bg-dark-bg hover:bg-accent-50 dark:hover:bg-accent-900/20 transition-colors">
+                <div class="w-10 h-10 bg-accent-100 dark:bg-accent-900/30 rounded-xl flex items-center justify-center">
+                    <svg class="w-5 h-5 text-accent-600 dark:text-accent-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-medium">Self-Help Guides</h3>
+                    <p class="text-sm text-light-muted dark:text-dark-muted">Articles & resources</p>
+                </div>
+            </a>
+        </div>
+    </div>
 
-            <div class="flex flex-col items-center text-center gap-3">
-                <div id="tool-modal-icon" class="w-20 h-20 rounded-full bg-primary-900/30 flex items-center justify-center">
-                    <i data-lucide="wind" class="w-10 h-10 text-primary-400"></i>
+    <section id="journal-focus" class="hidden space-y-6 journal-theme">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap');
+            .journal-theme {
+                --bg: #060d1f;
+                --bg2: #0a1428;
+                --card: #0d1b35;
+                --card2: #0f2040;
+                --border: rgba(99,155,255,.12);
+                --border2: rgba(99,155,255,.22);
+                --blue: #3b82f6;
+                --blue-light: #60a5fa;
+                --blue-glow: #1d4ed8;
+                --cyan: #06b6d4;
+                --cyan-soft: #67e8f9;
+                --indigo: #6366f1;
+                --text: #e2eaf8;
+                --text-soft: #8ba3cc;
+                --text-muted: #4a6490;
+                --danger: #ef4444;
+                --success: #10b981;
+                font-family: 'Sora', sans-serif;
+            }
+            .journal-theme .journal-wrap { display: flex; flex-direction: column; gap: 18px; }
+            .journal-theme .session-card {
+                background: linear-gradient(135deg, #0d1e3f 0%, #0a1728 50%, #0d2040 100%);
+                border: 1px solid var(--border2);
+                border-radius: 22px;
+                padding: 24px 28px;
+                display: flex; align-items: center; justify-content: space-between; gap: 16px;
+                position: relative; overflow: hidden;
+            }
+            .journal-theme .session-card::before {
+                content: '';
+                position: absolute;
+                top: 0; left: 40px; right: 40px; height: 1px;
+                background: linear-gradient(90deg, transparent, rgba(96,165,250,.5), var(--cyan-soft), rgba(96,165,250,.5), transparent);
+            }
+            .journal-theme .session-card::after {
+                content: '✦';
+                position: absolute; right: 28px; bottom: 16px;
+                font-size: 5rem; line-height: 1;
+                background: linear-gradient(135deg, rgba(59,130,246,.08), rgba(6,182,212,.04));
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            }
+            .journal-theme .session-label {
+                font-size: .65rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--cyan);
+                margin-bottom: 7px; display: flex; align-items: center; gap: 7px;
+            }
+            .journal-theme .session-label::before { content: ''; width: 20px; height: 1px; background: var(--cyan); opacity: .6; }
+            .journal-theme .session-title {
+                font-family: 'Merriweather', serif; font-size: 1.75rem; font-weight: 700; color: var(--text); line-height: 1.12;
+            }
+            .journal-theme .session-sub {
+                font-size: .82rem; color: var(--text-muted); font-family: 'Merriweather', serif; font-style: italic;
+            }
+            .journal-theme .badge-blue {
+                padding: 6px 15px; border-radius: 100px; font-size: .7rem; font-weight: 600;
+                background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3); color: var(--blue-light);
+            }
+            .journal-theme .badge-cyan {
+                padding: 6px 15px; border-radius: 100px; font-size: .7rem; font-weight: 600;
+                background: rgba(6,182,212,.1); border: 1px solid rgba(6,182,212,.28); color: var(--cyan-soft);
+            }
+            .journal-theme .journal-card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 22px;
+                overflow: hidden;
+                box-shadow: 0 32px 80px rgba(0,0,0,.4), 0 0 0 1px rgba(99,155,255,.04);
+                position: relative;
+            }
+            .journal-theme .card-head { padding: 22px 26px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; }
+            .journal-theme .head-icon {
+                width: 44px; height: 44px; border-radius: 14px;
+                background: linear-gradient(135deg, rgba(59,130,246,.25), rgba(6,182,212,.15));
+                border: 1px solid rgba(59,130,246,.25);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 0 20px rgba(59,130,246,.15);
+            }
+            .journal-theme .head-title { font-family: 'Merriweather', serif; font-size: 1.14rem; font-weight: 700; color: var(--text); }
+            .journal-theme .head-desc { font-size: .78rem; color: var(--text-muted); font-style: italic; font-family: 'Merriweather', serif; }
+            .journal-theme .textarea-section { padding: 20px 26px 0; }
+            .journal-theme #journal-input {
+                width: 100%; min-height: 170px; padding: 16px 18px;
+                font-size: .92rem; font-weight: 300; color: var(--text); line-height: 1.7;
+                background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 14px;
+                outline: none; resize: vertical;
+            }
+            .journal-theme #journal-input:focus {
+                border-color: rgba(59,130,246,.45);
+                background: rgba(59,130,246,.03);
+                box-shadow: 0 0 0 3px rgba(59,130,246,.08), 0 0 30px rgba(59,130,246,.06);
+            }
+            .journal-theme .textarea-meta { display: flex; justify-content: flex-end; padding: 6px 4px 0; }
+            .journal-theme .char-count { font-size: .67rem; color: var(--text-muted); opacity: .6; }
+            .journal-theme .voice-row { padding: 14px 26px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--border); }
+            .journal-theme .vbtn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: 10px; font-size: .78rem; font-weight: 500; cursor: pointer; border: none; }
+            .journal-theme .vbtn-start { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25); color: var(--blue-light); }
+            .journal-theme .vbtn-stop { background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: #fca5a5; }
+            .journal-theme .lang-sep { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
+            .journal-theme .lang-label { font-size: .74rem; color: var(--text-muted); font-weight: 500; }
+            .journal-theme #journal-lang { padding: 7px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,.04); color: var(--text-soft); font-size: .76rem; }
+            .journal-theme .voice-status { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: .72rem; color: var(--text-muted); }
+            .journal-theme .status-indicator { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); }
+            .journal-theme .status-indicator.active { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+            .journal-theme .actions-row { padding: 16px 26px 22px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+            .journal-theme .abtn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 12px; font-size: .84rem; font-weight: 600; cursor: pointer; border: none; }
+            .journal-theme .abtn-save { background: linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%); color: white; }
+            .journal-theme .abtn-new { background: rgba(255,255,255,.05); color: var(--text-soft); border: 1px solid var(--border); }
+            .journal-theme .abtn-back { background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,.06); }
+            .journal-theme .entries-card { background: var(--card); border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,.3); }
+            .journal-theme .entries-head { padding: 18px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+            .journal-theme .entries-title { font-family: 'Merriweather', serif; font-size: 1.02rem; font-weight: 700; color: var(--text); }
+            .journal-theme .entries-pill { margin-left: auto; font-size: .68rem; font-weight: 600; color: var(--cyan-soft); background: rgba(6,182,212,.1); border: 1px solid rgba(6,182,212,.2); padding: 3px 12px; border-radius: 100px; }
+            .journal-theme .entries-list { padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px; }
+            .journal-theme .entry-item { background: rgba(255,255,255,.025); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+            .journal-theme .entry-date { font-size: .68rem; color: var(--text-muted); letter-spacing: .06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+            .journal-theme .entry-date-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); opacity: .6; }
+            .journal-theme .entry-text { font-family: 'Merriweather', serif; font-size: .95rem; font-weight: 300; font-style: italic; color: var(--text-soft); line-height: 1.6; white-space: pre-wrap; }
+            .journal-theme .entry-actions { margin-top: 12px; display: flex; gap: 7px; }
+            .journal-theme .ebtn { padding: 5px 14px; border-radius: 8px; font-size: .7rem; font-weight: 600; cursor: pointer; border: none; }
+            .journal-theme .ebtn-edit { background: rgba(99,102,241,.1); color: #a5b4fc; border: 1px solid rgba(99,102,241,.2); }
+            .journal-theme .ebtn-delete { background: rgba(239,68,68,.08); color: #fca5a5; border: 1px solid rgba(239,68,68,.15); }
+            .journal-theme .entries-empty { padding: 40px 26px; text-align: center; color: var(--text-muted); }
+        </style>
+
+        <div class="journal-wrap">
+            <div class="session-card">
+                <div>
+                    <p class="session-label">Focus Session</p>
+                    <h2 class="session-title">Gratitude Journal</h2>
+                    <p class="session-sub">Write three things you're grateful for</p>
+                </div>
+                <div class="badges">
+                    <span class="badge-blue">2 min</span>
+                    <span class="badge-cyan">Ready</span>
+                </div>
+            </div>
+
+            <div class="journal-card">
+                <div class="card-head">
+                    <div class="head-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="head-title">Gratitude Journal</h3>
+                        <p class="head-desc">Write what you are grateful for. You can also dictate by voice.</p>
+                    </div>
                 </div>
 
-                <h3 id="tool-modal-title" class="text-xl font-semibold text-white">Tool</h3>
-                <p id="tool-modal-desc" class="text-sm text-dark-muted">Description</p>
-
-                <div id="tool-modal-timer" class="mt-2 text-sm text-dark-muted hidden">
-                    Time left: <span id="tool-modal-time">00:00</span>
+                <div class="textarea-section">
+                    <textarea id="journal-input" placeholder="Example: 1) I am grateful for...&#10;2) Today I appreciate...&#10;3) Something beautiful I noticed..."></textarea>
+                    <div class="textarea-meta">
+                        <span class="char-count" id="char-count">0 characters</span>
+                    </div>
                 </div>
 
-                <button id="tool-modal-start" class="btn btn-primary w-full mt-4" type="button">
-                    Start Exercise
-                </button>
-                <button id="tool-modal-later" class="btn btn-secondary w-full" type="button">
-                    Maybe Later
-                </button>
+                <div class="voice-row">
+                    <button class="vbtn vbtn-start" id="start-voice-journal">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 1v11m0 0a3 3 0 003-3V6a3 3 0 10-6 0v3a3 3 0 003 3zm-7 0a7 7 0 0014 0m-7 7v4m-4 0h8"/>
+                        </svg>
+                        Start Voice Input
+                    </button>
+                    <button class="vbtn vbtn-stop" id="stop-voice-journal">Stop</button>
+                    <div class="lang-sep"></div>
+                    <span class="lang-label">Language</span>
+                    <select id="journal-lang">
+                        <option value="">Auto (AI detect)</option>
+                        <option value="en-US">English</option>
+                        <option value="fr-FR">Francais</option>
+                        <option value="ar-SA">Arabic</option>
+                        <option value="ar-TN">Tunisian Arabic</option>
+                    </select>
+                    <div class="voice-status">
+                        <span class="status-indicator" id="status-dot"></span>
+                        <span id="journal-status">Voice: idle</span>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="abtn abtn-save" id="save-journal-entry">Save</button>
+                    <button class="abtn abtn-new" id="new-journal-entry">New Journal</button>
+                    <button class="abtn abtn-back" id="back-to-tools">Back to Coping Tools</button>
+                </div>
+            </div>
+
+            <div class="entries-card">
+                <div class="entries-head">
+                    <h3 class="entries-title">Recent Journal Entries</h3>
+                    <span class="entries-pill" id="entries-count">0 entry</span>
+                </div>
+                <div id="journal-list" class="entries-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="yoga-focus" class="hidden space-y-6 yoga-theme">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap');
+            .yoga-theme {
+                --bg: #060d1f;
+                --card: #0d1b35;
+                --card2: #0f2040;
+                --border: rgba(99,155,255,.13);
+                --border2: rgba(99,155,255,.24);
+                --blue: #3b82f6;
+                --blue-l: #60a5fa;
+                --cyan: #06b6d4;
+                --cyan-s: #67e8f9;
+                --violet: #8b5cf6;
+                --violet-l: #a78bfa;
+                --text: #e2eaf8;
+                --text-s: #8ba3cc;
+                --text-m: #4a6490;
+                font-family: 'Sora', sans-serif;
+            }
+            .yoga-theme .wrap {
+                display: flex; flex-direction: column; gap: 18px;
+            }
+            .yoga-theme .session-card {
+                background: linear-gradient(135deg,#0d1e3f,#0a1728 60%,#0d2040);
+                border: 1px solid var(--border2);
+                border-radius: 22px;
+                padding: 22px 28px;
+                display: flex; align-items: center; justify-content: space-between; gap: 16px;
+                position: relative; overflow: hidden;
+            }
+            .yoga-theme .session-card::before {
+                content:'';position:absolute;top:0;left:40px;right:40px;height:1px;
+                background:linear-gradient(90deg,transparent,rgba(96,165,250,.5),var(--cyan-s),rgba(96,165,250,.5),transparent);
+            }
+            .yoga-theme .session-label {
+                font-size:.65rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+                color:var(--cyan);margin-bottom:7px;display:flex;align-items:center;gap:7px;
+            }
+            .yoga-theme .session-title {
+                font-family:'Merriweather',serif;font-size:1.8rem;font-weight:700;color:var(--text);
+            }
+            .yoga-theme .session-sub { font-size:.82rem;color:var(--text-m);font-family:'Merriweather',serif;font-style:italic; }
+            .yoga-theme .badge-blue, .yoga-theme .badge-violet {
+                padding:6px 15px;border-radius:100px;font-size:.7rem;font-weight:600;
+            }
+            .yoga-theme .badge-blue { background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.3);color:var(--blue-l); }
+            .yoga-theme .badge-violet { background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.3);color:var(--violet-l); }
+            .yoga-theme .yoga-card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 22px;
+                overflow: hidden;
+                box-shadow: 0 32px 80px rgba(0,0,0,.45);
+                position: relative;
+            }
+            .yoga-theme .exercise-row {
+                padding: 24px 28px 20px;
+                display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+            .yoga-theme .exercise-badge {
+                display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;
+                background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.25);
+                font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--violet-l);
+                margin-bottom:10px;
+            }
+            .yoga-theme .exercise-name { font-family:'Merriweather',serif;font-size:1.5rem;font-weight:700;color:var(--text); }
+            .yoga-theme .exercise-desc { font-size:.84rem;color:var(--text-s);font-family:'Merriweather',serif;font-style:italic; }
+            .yoga-theme .timer-block { text-align:right; }
+            .yoga-theme .timer-label { font-size:.68rem;color:var(--text-m);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px; }
+            .yoga-theme .timer-value { font-family:'Merriweather',serif;font-size:2.6rem;font-weight:700;color:var(--text); }
+            .yoga-theme .demo-section { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+            .yoga-theme .demo-frame {
+                position: relative;
+                border-radius: 18px;
+                overflow: hidden;
+                background: linear-gradient(135deg, #0a1628 0%, #0d1e3a 50%, #0a1830 100%);
+                border: 1px solid var(--border);
+                min-height: 300px;
+                display:flex;align-items:center;justify-content:center;
+            }
+            .yoga-theme .controls-row {
+                padding: 20px 28px 24px;
+                display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+            }
+            .yoga-theme .ctrl-btn {
+                display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:14px;
+                font-size:.85rem;font-weight:600;cursor:pointer;border:none;
+            }
+            .yoga-theme .btn-start { background: linear-gradient(135deg, var(--violet), var(--blue)); color:#fff; }
+            .yoga-theme .btn-next { background: rgba(255,255,255,.06); color: var(--text-s); border:1px solid var(--border); }
+            .yoga-theme .btn-back { background: transparent; color: var(--text-m); border:1px solid rgba(255,255,255,.06); }
+            .yoga-theme .status-text { margin-left:auto;font-size:.78rem;color:var(--text-m);font-family:'Merriweather',serif;font-style:italic; }
+        </style>
+
+        <div class="wrap">
+            <div class="session-card">
+                <div>
+                    <p class="session-label">Focus Session</p>
+                    <h2 class="session-title">Yoga Coach</h2>
+                    <p class="session-sub">Follow guided yoga exercises to reduce stress.</p>
+                </div>
+                <div class="session-badges">
+                    <span class="badge-blue">20 sec</span>
+                    <span id="yoga-step-count" class="badge-violet">1/4</span>
+                </div>
+            </div>
+
+            <div class="yoga-card">
+                <div class="exercise-row">
+                    <div>
+                        <div class="exercise-badge">Current Exercise</div>
+                        <h3 id="yoga-exercise-title" class="exercise-name">Child Pose</h3>
+                        <p id="yoga-exercise-desc" class="exercise-desc">Relax your back and breathe slowly.</p>
+                    </div>
+                    <div class="timer-block">
+                        <p class="timer-label">Time left</p>
+                        <p id="yoga-timer" class="timer-value">20s</p>
+                    </div>
+                </div>
+
+                <div class="demo-section">
+                    <div class="demo-frame" id="yoga-demo-canvas">
+                        <div id="yoga-demo-shape" class="relative w-full h-full" style="height:300px;"></div>
+                    </div>
+                </div>
+
+                <div class="controls-row">
+                    <button id="yoga-start-btn" class="ctrl-btn btn-start">Start Yoga</button>
+                    <button id="yoga-next-btn" class="ctrl-btn btn-next">Next Exercise</button>
+                    <button id="yoga-back-btn" class="ctrl-btn btn-back">Back to Coping Tools</button>
+                    <p id="yoga-status" class="status-text">Click Start Yoga to begin.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ai-chat-focus" class="hidden space-y-5">
+        <div class="ai-coach-header card overflow-hidden relative p-0">
+            <div class="ai-header-bg absolute inset-0"></div>
+            <div class="ai-orbs-wrapper pointer-events-none absolute inset-0 overflow-hidden">
+                <div class="ai-orb ai-orb-1"></div>
+                <div class="ai-orb ai-orb-2"></div>
+                <div class="ai-orb ai-orb-3"></div>
+            </div>
+            <div class="relative z-10 flex items-center justify-between gap-4 p-6">
+                <div class="flex items-center gap-4">
+                    <div class="ai-avatar-ring">
+                        <div class="ai-avatar-inner">
+                            <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="ai-session-label">✦ Focus Session</p>
+                        <h2 class="ai-session-title">AI Chat Coach</h2>
+                        <p class="ai-session-desc">Motivation · Guidance · Support · Any Language</p>
+                    </div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="ai-live-badge">
+                        <span class="ai-live-dot"></span>
+                        24 / 7 Live
+                    </span>
+                    <div class="ai-pulse-bars">
+                        <span class="ai-bar" style="--h:10px;--d:0s"></span>
+                        <span class="ai-bar" style="--h:18px;--d:.15s"></span>
+                        <span class="ai-bar" style="--h:14px;--d:.3s"></span>
+                        <span class="ai-bar" style="--h:20px;--d:.45s"></span>
+                        <span class="ai-bar" style="--h:12px;--d:.6s"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ai-chat-body card p-0 overflow-hidden">
+            <div id="ai-chat-messages" class="ai-messages-area p-5 h-[400px] overflow-y-auto space-y-4">
+                <div class="ai-bubble ai-bubble-bot">
+                    <div class="ai-bubble-avatar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                        </svg>
+                    </div>
+                    <div class="ai-bubble-content">
+                        <p class="ai-bubble-text">Hello! I am here to help. What do you need right now?</p>
+                        <span class="ai-bubble-time">just now</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-divider"></div>
+
+            <div class="ai-chips-row px-5 pt-3 pb-0">
+                <button class="ai-chip" onclick="document.getElementById('ai-chat-input').value='I feel stressed and overwhelmed'">😰 I feel stressed</button>
+                <button class="ai-chip" onclick="document.getElementById('ai-chat-input').value='Give me a quick motivation boost'">⚡ Motivation boost</button>
+                <button class="ai-chip" onclick="document.getElementById('ai-chat-input').value='Help me focus on my studies'">📚 Focus tips</button>
+                <button class="ai-chip" onclick="document.getElementById('ai-chat-input').value='I need help relaxing right now'">🌿 Help me relax</button>
+            </div>
+
+            <div class="ai-input-wrapper px-5 pt-3 pb-5">
+                <div class="ai-input-box">
+                    <textarea id="ai-chat-input"
+                              class="ai-textarea"
+                              rows="2"
+                              placeholder="Write your message in any language..."></textarea>
+                    <div class="ai-input-actions">
+                        <div class="ai-input-meta">
+                            <span id="ai-chat-status" class="ai-status-text">● Ready</span>
+                        </div>
+                        <div class="ai-input-btns">
+                            <button id="ai-chat-clear-btn" class="ai-btn-ghost" title="New conversation">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                                </svg>
+                                New
+                            </button>
+                            <button id="ai-chat-back-btn" class="ai-btn-ghost" title="Back to tools">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+                                </svg>
+                                Back
+                            </button>
+                            <button id="ai-chat-send-btn" class="ai-btn-send">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                                </svg>
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Breathing Exercise Modal -->
+<div id="breathing-modal" class="modal hidden" data-controller="modal">
+    <div class="modal-content max-w-xl">
+        <div class="breath-modal">
+            <div class="modal-head">
+                <p class="head-eyebrow">Relax Session</p>
+                <h3 class="head-title">Assistant Respiration</h3>
+                <p class="head-sub">A soft voice and gentle guidance to calm stress.</p>
+            </div>
+
+            <div id="breathing-frame" class="stage">
+                <div class="caustic"></div>
+                <div class="light-ray"></div>
+
+                <div class="particle" style="width:5px;height:5px;background:rgba(34,211,238,.6);top:22%;left:15%;--pd:4.2s;--pdl:0s"></div>
+                <div class="particle" style="width:3px;height:3px;background:rgba(103,232,249,.8);top:35%;right:18%;--pd:5.5s;--pdl:-.9s"></div>
+                <div class="particle" style="width:4px;height:4px;background:rgba(124,58,237,.5);top:60%;left:10%;--pd:3.8s;--pdl:-.4s"></div>
+                <div class="particle" style="width:3px;height:3px;background:rgba(34,211,238,.7);top:45%;right:12%;--pd:6.2s;--pdl:-1.3s"></div>
+                <div class="particle" style="width:5px;height:5px;background:rgba(186,230,253,.4);top:70%;right:28%;--pd:4.8s;--pdl:-.7s"></div>
+                <div class="particle" style="width:2px;height:2px;background:rgba(103,232,249,.9);top:18%;left:40%;--pd:5s;--pdl:-2s"></div>
+
+                <div class="ripple" id="rip4"></div>
+                <div class="ripple" id="rip3"></div>
+                <div class="ripple" id="rip2"></div>
+                <div class="ripple" id="rip1"></div>
+
+                <svg class="arc-svg" id="arc-svg" width="180" height="180" viewBox="0 0 180 180">
+                    <circle id="arc-track" cx="90" cy="90" r="90"/>
+                    <circle id="arc-prog"  cx="90" cy="90" r="90"/>
+                </svg>
+
+                <div class="orb-outer" id="orb-outer">
+                    <div class="orb" id="breathing-orb"></div>
+                    <div id="breathing-aura" class="absolute inset-0 rounded-full opacity-50"></div>
+                    <div class="tentacle t1" id="tent1"></div>
+                    <div class="tentacle t2" id="tent2"></div>
+                    <div class="tentacle t3" id="tent3"></div>
+                    <div class="tentacle t4" id="tent4"></div>
+                    <div class="tentacle t5" id="tent5"></div>
+                </div>
+
+                <div class="countdown" id="countdown"></div>
+
+                <div class="phase-wrap">
+                    <p class="phase-text" id="breathing-phase">Ready to breathe</p>
+                    <p class="phase-pattern">Pattern: Inhale 4s · Hold 7s · Exhale 8s</p>
+                </div>
+            </div>
+
+            <div class="phase-dots">
+                <div class="pdot active" id="dot-i"></div>
+                <div class="pdot" id="dot-h"></div>
+                <div class="pdot" id="dot-e"></div>
+            </div>
+
+            <div class="btn-grid">
+                <button id="breathing-voice-start" class="btn btn-voice">Start Voice Assistant</button>
+                <button id="breathing-voice-stop" class="btn btn-stop">Stop Voice</button>
+                <button id="breathing-manual-start" class="btn btn-visual">Start Visual Only</button>
+                <button id="breathing-close-btn" class="btn btn-close" data-action="click->modal#close">Close</button>
+            </div>
+
+            <div class="status-bar">
+                <span class="status-dot breathing-status-dot"></span>
+                <span class="status-label" id="breathing-status">Assistant status: idle</span>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* Global typography for these interfaces */
+    .breath-modal,
+    .breath-modal *,
+    .journal-theme,
+    .journal-theme *,
+    .yoga-theme,
+    .yoga-theme *,
+    .ai-coach-header,
+    .ai-coach-header *,
+    .ai-chat-body,
+    .ai-chat-body * {
+        font-family: 'Inter', sans-serif !important;
+    }
+    .breath-modal {
+        --bg:#03080f;--deep:#040c1a;--teal:#0891b2;--teal-l:#22d3ee;--aqua:#06b6d4;--aqua-l:#67e8f9;
+        --frost:#bae6fd;--violet:#7c3aed;--violet-l:#a78bfa;--text:#e0f2fe;--text-s:#7fb3cc;--text-m:#2d6080;
+        --fh:'Inter', sans-serif;--fb:'Inter', sans-serif;
+        background: linear-gradient(170deg, #06111f 0%, #030a17 55%, #050e1c 100%);
+        border-radius: 32px; border:1px solid rgba(34,211,238,.12);
+        box-shadow:0 0 0 1px rgba(34,211,238,.05),0 40px 120px rgba(0,0,0,.85),inset 0 1px 0 rgba(34,211,238,.08);
+        position: relative; overflow: hidden; padding: 12px 0 8px;
+        font-family: var(--fb);
+    }
+    .breath-modal::before {
+        content:'';position:absolute;top:0;left:30%;right:30%;height:1px;
+        background: linear-gradient(90deg, transparent, var(--aqua-l), var(--teal-l), var(--aqua-l), transparent);
+        opacity:.7;
+    }
+    .modal-head { text-align:center; padding: 30px 28px 0; }
+    .head-eyebrow { font-size:.6rem; letter-spacing:.28em; text-transform:uppercase; color:var(--aqua); margin-bottom:10px; }
+    .head-title { font-family:var(--fh); font-size:2rem; font-weight:300; color:var(--text); margin-bottom:6px; }
+    .head-sub { font-family:var(--fh); font-style:italic; font-size:.88rem; color:var(--text-m); }
+    .stage { position:relative; margin:22px 20px 0; height:290px; border-radius:24px; overflow:hidden; background:radial-gradient(ellipse 100% 120% at 50% 110%, #041526 0%, #030810 70%); border:1px solid rgba(34,211,238,.07); }
+    .caustic { position:absolute; inset:0; pointer-events:none;
+        background: radial-gradient(ellipse 70% 50% at 50% 85%, rgba(8,145,178,.06) 0%, transparent 60%),
+                    radial-gradient(ellipse 40% 30% at 20% 20%, rgba(6,182,212,.04) 0%, transparent 50%),
+                    radial-gradient(ellipse 30% 25% at 80% 25%, rgba(124,58,237,.03) 0%, transparent 50%); }
+    .light-ray { position:absolute; left:0; right:0; height:1px; top:30%;
+        background:linear-gradient(90deg, transparent 0%, rgba(34,211,238,.25) 30%, rgba(103,232,249,.4) 50%, rgba(34,211,238,.25) 70%, transparent 100%);
+        animation: rayFloat 8s ease-in-out infinite; }
+    @keyframes rayFloat { 0%,100% { top:25%; opacity:.6; } 50% { top:45%; opacity:.3; } }
+    .ripple { position:absolute; top:50%; left:50%; transform:translate(-50%,-58%); border-radius:50%; border:1px solid rgba(34,211,238,.15); pointer-events:none; transition:width .9s ease,height .9s ease,opacity .9s ease; }
+    #rip1{width:100px;height:100px;} #rip2{width:140px;height:140px;border-color:rgba(34,211,238,.09);} #rip3{width:185px;height:185px;border-color:rgba(34,211,238,.05);} #rip4{width:232px;height:232px;border-color:rgba(34,211,238,.03);}
+    .arc-svg { position:absolute; top:50%; left:50%; transform:translate(-50%,-58%) rotate(-90deg); pointer-events:none; z-index:3; }
+    #arc-track{fill:none;stroke:rgba(34,211,238,.07);stroke-width:2;} #arc-prog{fill:none;stroke:var(--aqua-l);stroke-width:2;stroke-linecap:round;stroke-dasharray:565;stroke-dashoffset:565;filter:drop-shadow(0 0 4px var(--aqua));}
+    .orb-outer { position:absolute; top:50%; left:50%; transform:translate(-50%,-58%); width:80px; height:80px; z-index:4; }
+    .orb { width:100%; height:100%; border-radius:50%;
+        background: radial-gradient(circle at 38% 32%, rgba(255,255,255,.35) 0%, rgba(103,232,249,.7) 20%, rgba(8,145,178,.85) 50%, rgba(3,56,120,.95) 80%, rgba(2,28,64,1) 100%);
+        box-shadow:0 0 0 1px rgba(34,211,238,.4),0 0 30px rgba(6,182,212,.5),0 0 70px rgba(6,182,212,.2),inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 8px rgba(0,0,100,.4);
+        animation: orbIdle 4s ease-in-out infinite;
+    }
+    @keyframes orbIdle { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+    .tentacle { position:absolute; bottom:-14px; left:50%; width:2px; background:linear-gradient(180deg, rgba(34,211,238,.5), transparent); border-radius:2px; transform-origin:top center; animation: tentacleSway 3s ease-in-out infinite; opacity:0; }
+    .t1{margin-left:-16px;} .t2{margin-left:-8px;} .t3{margin-left:0px;} .t4{margin-left:8px;} .t5{margin-left:16px;}
+    @keyframes tentacleSway { 0%,100%{transform:translateX(-50%) rotate(0deg)} 50%{transform:translateX(-50%) rotate(8deg)} }
+    .particle { position:absolute; border-radius:50%; pointer-events:none; animation: partFloat var(--pd,5s) ease-in-out infinite; animation-delay:var(--pdl,0s); }
+    @keyframes partFloat { 0%,100%{transform:translateY(0) translateX(0) scale(1);opacity:.25} 50%{transform:translateY(-18px) translateX(5px) scale(1.3);opacity:.7} }
+    .phase-wrap { position:absolute; bottom:26px; left:0; right:0; text-align:center; z-index:6; }
+    .phase-text { font-family:var(--fh); font-size:1.1rem; font-style:italic; color:var(--aqua-l); text-shadow:0 0 24px rgba(103,232,249,.6); margin-bottom:5px; }
+    .phase-pattern { font-size:.68rem; color:var(--text-m); letter-spacing:.1em; text-transform:uppercase; }
+    .countdown { position:absolute; top:50%; left:50%; transform:translate(-50%,-58%); z-index:7; font-family:var(--fh); font-size:1.6rem; font-style:italic; color:rgba(255,255,255,.7); text-shadow:0 0 20px rgba(103,232,249,.8); opacity:0; }
+    .phase-dots { display:flex; gap:8px; justify-content:center; align-items:center; padding:14px 0 0; }
+    .pdot { width:8px;height:8px;border-radius:50%; background:rgba(34,211,238,.15); border:1px solid rgba(34,211,238,.1); transition:all .4s; }
+    .pdot.active { width:28px; border-radius:4px; background:var(--aqua); border-color:var(--aqua); box-shadow:0 0 12px var(--aqua); }
+    .btn-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:20px 20px 0; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 14px; border-radius:16px; font-size:.8rem; cursor:pointer; border:none; }
+    .btn-voice { background:linear-gradient(135deg,#0891b2,#0e7490); color:#fff; }
+    .btn-stop { background:rgba(244,63,94,.1); color:#fda4af; border:1px solid rgba(244,63,94,.2); }
+    .btn-visual { background:rgba(34,211,238,.07); color:var(--aqua-l); border:1px solid rgba(34,211,238,.14); }
+    .btn-close { background:rgba(255,255,255,.04); color:var(--text-s); border:1px solid rgba(255,255,255,.07); }
+    .status-bar { padding:14px 20px 24px; display:flex; align-items:center; justify-content:center; gap:8px; }
+    .status-dot { width:7px;height:7px;border-radius:50%; background:var(--text-m); }
+    .status-dot.on { background:var(--aqua); box-shadow:0 0 10px var(--aqua); }
+    .status-label { font-size:.72rem; color:var(--text-m); font-family:var(--fh); font-style:italic; }
+
+    /* Match Start buttons to Breathing start color */
+    .tool-start-btn {
+        background: linear-gradient(135deg, #0891b2, #0e7490) !important;
+        border: 1px solid rgba(34,211,238,.25) !important;
+        color: #fff !important;
+        box-shadow: 0 8px 24px rgba(8,145,178,.4) !important;
+    }
+    .tool-start-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 32px rgba(8,145,178,.55) !important;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+
+    :root {
+        --ai-accent:    #2563eb;
+        --ai-accent2:   #38bdf8;
+        --ai-accent3:   #0ea5e9;
+        --ai-bg-glass:  rgba(7, 13, 32, 0.82);
+        --ai-border:    rgba(56, 189, 248, 0.28);
+        --ai-text:      #e6efff;
+        --ai-muted:     rgba(188, 210, 246, 0.6);
+        --ai-radius:    1.25rem;
+        --ai-font-head: 'Space Grotesk', sans-serif;
+        --ai-font-body: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .ai-coach-header { border: 1px solid var(--ai-border) !important; }
+    .ai-header-bg {
+        background:
+            radial-gradient(ellipse 80% 120% at 0% 50%, rgba(37,99,235,0.22) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 100% at 100% 30%, rgba(56,189,248,0.15) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 80% at 50% 100%, rgba(14,165,233,0.1) 0%, transparent 55%),
+            #0b1224;
+    }
+    .ai-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(40px);
+        animation: aiOrbDrift 12s ease-in-out infinite;
+    }
+    .ai-orb-1 { width:160px; height:160px; top:-40px; left:-20px; background:rgba(37,99,235,.35); animation-delay:0s; }
+    .ai-orb-2 { width:100px; height:100px; top:10px; right:60px; background:rgba(56,189,248,.25); animation-delay:-4s; }
+    .ai-orb-3 { width:120px; height:120px; bottom:-30px; left:40%; background:rgba(14,165,233,.2); animation-delay:-8s; }
+    @keyframes aiOrbDrift {
+        0%,100% { transform: translate(0,0) scale(1); }
+        33%      { transform: translate(12px,-8px) scale(1.06); }
+        66%      { transform: translate(-8px,10px) scale(0.95); }
+    }
+
+    .ai-avatar-ring {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        padding: 3px;
+        background: conic-gradient(from 0deg, var(--ai-accent), var(--ai-accent2), var(--ai-accent3), var(--ai-accent));
+        animation: aiRingSpin 6s linear infinite;
+        flex-shrink: 0;
+    }
+    @keyframes aiRingSpin { to { filter: hue-rotate(360deg); } }
+    .ai-avatar-inner {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        background: #0f172a;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .ai-session-label {
+        font-family: var(--ai-font-body);
+        font-size: 0.68rem;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--ai-accent2);
+        font-weight: 500;
+    }
+    .ai-session-title {
+        font-family: var(--ai-font-head);
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.1;
+        letter-spacing: -.01em;
+        background: linear-gradient(90deg, #fff 40%, var(--ai-accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .ai-session-desc {
+        font-family: var(--ai-font-body);
+        font-size: .8rem;
+        color: var(--ai-muted);
+        margin-top: 2px;
+    }
+
+    .ai-live-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 4px 12px;
+        border-radius: 100px;
+        border: 1px solid rgba(56,189,248,.35);
+        background: rgba(56,189,248,.1);
+        font-family: var(--ai-font-body);
+        font-size: .72rem;
+        font-weight: 600;
+        color: var(--ai-accent2);
+        letter-spacing: .05em;
+        text-transform: uppercase;
+    }
+    .ai-live-dot {
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: var(--ai-accent2);
+        box-shadow: 0 0 0 0 rgba(56,189,248,.6);
+        animation: aiLivePulse 1.8s ease-out infinite;
+    }
+    @keyframes aiLivePulse {
+        0%   { box-shadow: 0 0 0 0 rgba(56,189,248,.6); }
+        70%  { box-shadow: 0 0 0 7px rgba(56,189,248,0); }
+        100% { box-shadow: 0 0 0 0 rgba(56,189,248,0); }
+    }
+
+    .ai-pulse-bars { display:flex; align-items:center; gap:3px; }
+    .ai-bar {
+        display: block;
+        width: 4px;
+        height: var(--h);
+        border-radius: 10px;
+        background: linear-gradient(180deg, var(--ai-accent), var(--ai-accent2));
+        opacity: .7;
+        animation: aiBarPulse 1.2s ease-in-out infinite;
+        animation-delay: var(--d);
+    }
+    @keyframes aiBarPulse { 0%,100%{transform:scaleY(.4);opacity:.4;} 50%{transform:scaleY(1);opacity:.9;} }
+
+    .ai-chat-body { border: 1px solid var(--ai-border) !important; background: #0b1224; }
+    .ai-messages-area {
+        height: 380px;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        background:
+            radial-gradient(ellipse 70% 50% at 10% 0%, rgba(37,99,235,.08) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 60% at 90% 100%, rgba(56,189,248,.06) 0%, transparent 70%),
+            #0b1224;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(56,189,248,.4) transparent;
+    }
+    .ai-messages-area::-webkit-scrollbar { width: 4px; }
+    .ai-messages-area::-webkit-scrollbar-thumb { background: rgba(56,189,248,.4); border-radius: 99px; }
+
+    .ai-bubble { display:flex; gap:10px; align-items:flex-start; animation: aiBubbleIn .35s cubic-bezier(.34,1.4,.64,1) both; }
+    @keyframes aiBubbleIn { from{opacity:0;transform:translateY(12px) scale(.96);} }
+    .ai-bubble-user { flex-direction: row-reverse; }
+    .ai-bubble-avatar {
+        width: 32px; height: 32px; border-radius: 50%;
+        flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(135deg, var(--ai-accent), var(--ai-accent2));
+        color: white; box-shadow: 0 0 12px rgba(37,99,235,.4);
+    }
+    .ai-bubble-user .ai-bubble-avatar { background: linear-gradient(135deg,#0f172a,#1f2937); box-shadow: none; }
+    .ai-bubble-content { display:flex; flex-direction:column; gap:3px; max-width:75%; }
+    .ai-bubble-text {
+        font-family: var(--ai-font-body);
+        font-size: .88rem;
+        line-height: 1.55;
+        color: var(--ai-text);
+        padding: 10px 14px;
+        border-radius: 16px 16px 16px 4px;
+        background: rgba(37,99,235,.18);
+        border: 1px solid rgba(37,99,235,.25);
+    }
+    .ai-bubble-user .ai-bubble-text {
+        background: rgba(255,255,255,.06);
+        border-color: rgba(255,255,255,.1);
+        border-radius: 16px 16px 4px 16px;
+        color: rgba(255,255,255,.88);
+    }
+    .ai-bubble-time { font-family: var(--ai-font-body); font-size: .67rem; color: var(--ai-muted); padding: 0 4px; }
+    .ai-bubble-user .ai-bubble-time { text-align: right; }
+
+    .ai-input-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(56,189,248,.3) 30%, rgba(37,99,235,.25) 70%, transparent); }
+    .ai-chips-row { display:flex; flex-wrap:wrap; gap:8px; padding:12px 20px 4px; }
+    .ai-chip {
+        font-family: var(--ai-font-body);
+        font-size: .75rem;
+        font-weight: 500;
+        color: var(--ai-muted);
+        padding: 5px 12px;
+        border-radius: 100px;
+        border: 1px solid rgba(56,189,248,.25);
+        background: rgba(37,99,235,.08);
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+    .ai-chip:hover { border-color: rgba(56,189,248,.6); background: rgba(37,99,235,.18); color: #bfdbfe; transform: translateY(-1px); }
+
+    .ai-input-wrapper { padding: 0 20px 20px; }
+    .ai-input-box { border: 1px solid var(--ai-border); border-radius: var(--ai-radius); background: rgba(255,255,255,.04); overflow: hidden; transition: border-color .25s; }
+    .ai-input-box:focus-within { border-color: rgba(56,189,248,.6); box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+    .ai-textarea {
+        width: 100%;
+        padding: 14px 16px 10px;
+        font-family: var(--ai-font-body);
+        font-size: .88rem;
+        color: var(--ai-text);
+        background: transparent;
+        border: none;
+        outline: none;
+        resize: none;
+        line-height: 1.55;
+    }
+    .ai-textarea::placeholder { color: var(--ai-muted); }
+    .ai-input-actions { display:flex; align-items:center; justify-content:space-between; padding:8px 12px 10px; border-top:1px solid rgba(37,99,235,.12); }
+    .ai-status-text { font-family: var(--ai-font-body); font-size: .72rem; color: var(--ai-accent2); opacity: .85; }
+    .ai-input-btns { display:flex; align-items:center; gap:8px; }
+    .ai-btn-ghost {
+        display:inline-flex; align-items:center; gap:5px;
+        font-family: var(--ai-font-body); font-size:.78rem; font-weight:500; color: var(--ai-muted);
+        padding:6px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.08);
+        background: transparent; cursor: pointer; transition: all .2s;
+    }
+    .ai-btn-ghost:hover { background: rgba(255,255,255,.07); color: #e6efff; border-color: rgba(255,255,255,.15); }
+    .ai-btn-send {
+        display:inline-flex; align-items:center; gap:7px;
+        font-family: var(--ai-font-body); font-size:.83rem; font-weight:600; color:white;
+        padding:8px 18px; border-radius:10px; border:none; cursor:pointer;
+        background: linear-gradient(135deg, var(--ai-accent), #3b82f6);
+        box-shadow: 0 4px 14px rgba(37,99,235,.4);
+        transition: all .2s;
+        position: relative; overflow: hidden;
+    }
+    .ai-btn-send:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.55); }
+    .ai-btn-send:active { transform: translateY(0); }
+    #breathing-frame .ocean-surface {
+        background:
+            radial-gradient(140% 120% at 10% 18%, rgba(56,189,248,0.28) 0%, rgba(56,189,248,0.08) 45%, rgba(2,6,23,0.0) 72%),
+            radial-gradient(140% 120% at 85% 15%, rgba(20,184,166,0.22) 0%, rgba(2,6,23,0.0) 60%),
+            radial-gradient(120% 120% at 70% 80%, rgba(59,130,246,0.22) 0%, rgba(2,6,23,0.0) 65%),
+            conic-gradient(from 210deg at 40% 60%, rgba(6,182,212,0.35), rgba(2,132,199,0.12), rgba(2,6,23,0.0), rgba(14,116,144,0.18), rgba(6,182,212,0.35)),
+            repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0 2px, rgba(255,255,255,0.0) 2px 8px);
+        filter: saturate(1.25) contrast(1.08);
+    }
+    #breathing-frame .ocean-glint {
+        mix-blend-mode: screen;
+        opacity: 0.5;
+        background:
+            radial-gradient(55% 35% at 60% 35%, rgba(255,255,255,0.2), rgba(255,255,255,0.0) 70%),
+            linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.0) 55%);
+        animation: oceanGlint 12s ease-in-out infinite;
+    }
+    #breathing-waves {
+        opacity: 0.45;
+    }
+    .rlife-wave {
+        position: absolute;
+        left: -10%;
+        right: -10%;
+        height: 52%;
+        bottom: -12%;
+        border-radius: 50%;
+        background:
+            radial-gradient(60% 70% at 50% 40%, rgba(56,189,248,0.55), rgba(56,189,248,0.12) 70%, rgba(56,189,248,0.02) 100%);
+        transform: translateY(0) scaleX(1.1);
+        animation: rlifeWaveFloat 7s ease-in-out infinite;
+        box-shadow: inset 0 18px 40px rgba(2,132,199,0.22);
+    }
+    .rlife-wave.wave-2 {
+        height: 60%;
+        bottom: -18%;
+        opacity: 0.75;
+        animation-duration: 9s;
+        animation-delay: -2s;
+        background:
+            radial-gradient(60% 70% at 50% 40%, rgba(59,130,246,0.45), rgba(59,130,246,0.1) 70%, rgba(59,130,246,0.02) 100%);
+    }
+    .rlife-wave.wave-3 {
+        height: 66%;
+        bottom: -24%;
+        opacity: 0.55;
+        animation-duration: 11s;
+        animation-delay: -4s;
+        background:
+            radial-gradient(60% 70% at 50% 40%, rgba(14,165,233,0.35), rgba(14,165,233,0.08) 70%, rgba(14,165,233,0.02) 100%);
+    }
+    #breathing-frame.breathing-waves-active #breathing-waves {
+        opacity: 0.95;
+    }
+    #breathing-frame.breathing-waves-active .rlife-wave {
+        animation: rlifeWavePulse 2.2s ease-in-out infinite;
+    }
+    #breathing-frame.breathing-waves-active .rlife-wave.wave-2 {
+        animation-duration: 2.6s;
+    }
+    #breathing-frame.breathing-waves-active .rlife-wave.wave-3 {
+        animation-duration: 3.0s;
+    }
+    @keyframes rlifeWaveFloat {
+        0% { transform: translateY(0) scaleX(1.05); }
+        50% { transform: translateY(-6px) scaleX(1.12); }
+        100% { transform: translateY(0) scaleX(1.05); }
+    }
+    @keyframes rlifeWavePulse {
+        0% { transform: translateY(0) scaleX(1.05); }
+        40% { transform: translateY(-10px) scaleX(1.12); }
+        70% { transform: translateY(-4px) scaleX(1.08); }
+        100% { transform: translateY(0) scaleX(1.05); }
+    }
+    @keyframes oceanGlint {
+        0% { opacity: 0.35; transform: translateY(0); }
+        50% { opacity: 0.65; transform: translateY(-6px); }
+        100% { opacity: 0.35; transform: translateY(0); }
+    }
+
+    /* Light mode fixes */
+    html:not(.dark) .journal-theme {
+        --bg: #f6f8ff;
+        --bg2: #eef2ff;
+        --card: #ffffff;
+        --card2: #f3f6ff;
+        --border: rgba(37, 99, 235, .12);
+        --border2: rgba(37, 99, 235, .22);
+        --text: #0f172a;
+        --text-soft: #334155;
+        --text-muted: #64748b;
+    }
+    html:not(.dark) .journal-theme .session-card {
+        background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 55%, #eef3ff 100%);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, .08);
+    }
+    html:not(.dark) .journal-theme .journal-card,
+    html:not(.dark) .journal-theme .entries-card {
+        background: #ffffff;
+        box-shadow: 0 14px 40px rgba(15, 23, 42, .08);
+    }
+    html:not(.dark) .journal-theme #journal-input {
+        background: #ffffff;
+        color: #0f172a;
+    }
+    html:not(.dark) .journal-theme .entry-item {
+        background: #f8fafc;
+    }
+    html:not(.dark) .journal-theme .abtn-back {
+        border-color: rgba(15, 23, 42, .08);
+        color: #64748b;
+    }
+
+    html:not(.dark) .yoga-theme {
+        --bg: #f7f9ff;
+        --card: #ffffff;
+        --card2: #f3f6ff;
+        --border: rgba(37, 99, 235, .12);
+        --border2: rgba(37, 99, 235, .22);
+        --text: #0f172a;
+        --text-s: #334155;
+        --text-m: #64748b;
+    }
+    html:not(.dark) .yoga-theme .session-card {
+        background: linear-gradient(135deg, #f4f7ff 0%, #ffffff 60%, #eef3ff 100%);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, .08);
+    }
+    html:not(.dark) .yoga-theme .yoga-card {
+        background: #ffffff;
+        box-shadow: 0 14px 40px rgba(15, 23, 42, .08);
+    }
+    html:not(.dark) .yoga-theme .demo-frame {
+        background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 55%, #eef3ff 100%);
+    }
+    html:not(.dark) .yoga-theme .btn-next {
+        background: #f1f5f9;
+        color: #334155;
+    }
+    html:not(.dark) .yoga-theme .btn-back {
+        border-color: rgba(15, 23, 42, .08);
+        color: #64748b;
+    }
+
+    html:not(.dark) {
+        --ai-accent: #1d4ed8;
+        --ai-accent2: #38bdf8;
+        --ai-accent3: #0ea5e9;
+        --ai-bg-glass: rgba(248, 250, 252, 0.95);
+        --ai-border: rgba(37, 99, 235, 0.18);
+        --ai-text: #0f172a;
+        --ai-muted: #64748b;
+    }
+    html:not(.dark) .ai-header-bg {
+        background:
+            radial-gradient(ellipse 80% 120% at 0% 50%, rgba(37,99,235,0.12) 0%, transparent 65%),
+            radial-gradient(ellipse 60% 100% at 100% 30%, rgba(56,189,248,0.1) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 80% at 50% 100%, rgba(14,165,233,0.08) 0%, transparent 55%),
+            #f8fafc;
+    }
+    html:not(.dark) .ai-coach-header,
+    html:not(.dark) .ai-chat-body {
+        background: #f8fafc !important;
+    }
+    html:not(.dark) .ai-messages-area {
+        background:
+            radial-gradient(ellipse 70% 50% at 10% 0%, rgba(37,99,235,.06) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 60% at 90% 100%, rgba(56,189,248,.05) 0%, transparent 70%),
+            #f8fafc;
+    }
+    html:not(.dark) .ai-session-title {
+        background: linear-gradient(90deg, #0f172a 40%, var(--ai-accent2));
+        -webkit-text-fill-color: transparent;
+    }
+    html:not(.dark) .ai-bubble-text {
+        background: rgba(37, 99, 235, .12);
+        color: #0f172a;
+    }
+    html:not(.dark) .ai-bubble-user .ai-bubble-text {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    html:not(.dark) .ai-input-box {
+        background: #ffffff;
+    }
+
+    html:not(.dark) .breath-modal {
+        --text: #0f172a;
+        --text-s: #475569;
+        --text-m: #64748b;
+        background: linear-gradient(170deg, #f8fafc 0%, #eef2ff 55%, #f8fafc 100%);
+        border: 1px solid rgba(37,99,235,.15);
+        box-shadow: 0 30px 80px rgba(15, 23, 42, .15);
+    }
+    html:not(.dark) .breath-modal .stage {
+        background: radial-gradient(ellipse 100% 120% at 50% 110%, #e0f2fe 0%, #f8fafc 70%);
+    }
+    html:not(.dark) .breath-modal .btn-close {
+        background: #f1f5f9;
+        color: #475569;
+        border-color: rgba(15, 23, 42, .08);
+    }
+</style>
+
 <script>
 (function () {
-    const tools = {{ tools|json_encode|raw }};
+    const journalFocus = document.getElementById('journal-focus');
+    const yogaFocus = document.getElementById('yoga-focus');
+    const aiChatFocus = document.getElementById('ai-chat-focus');
+    const toolsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3.gap-6');
+    const tipsSection = document.querySelector('h2.text-lg.font-semibold.mb-4')?.closest('.card');
+    const resourcesSection = Array.from(document.querySelectorAll('.card h2.text-lg.font-semibold.mb-4'))
+        .find((x) => x.textContent.trim() === 'Additional Resources')?.closest('.card');
 
-    const modal = document.getElementById('tool-modal');
-    const closeBtn = document.getElementById('tool-modal-close');
-    const laterBtn = document.getElementById('tool-modal-later');
-    const startBtn = document.getElementById('tool-modal-start');
+    const journalInput = document.getElementById('journal-input');
+    const journalList = document.getElementById('journal-list');
+    const journalStatus = document.getElementById('journal-status');
+    const saveBtn = document.getElementById('save-journal-entry');
+    const newBtn = document.getElementById('new-journal-entry');
+    const backBtn = document.getElementById('back-to-tools');
+    const startVoiceBtn = document.getElementById('start-voice-journal');
+    const stopVoiceBtn = document.getElementById('stop-voice-journal');
+    const langSelect = document.getElementById('journal-lang');
+    const yogaExerciseTitle = document.getElementById('yoga-exercise-title');
+    const yogaExerciseDesc = document.getElementById('yoga-exercise-desc');
+    const yogaDemoShape = document.getElementById('yoga-demo-shape');
+    const yogaTimer = document.getElementById('yoga-timer');
+    const yogaStepCount = document.getElementById('yoga-step-count');
+    const yogaStartBtn = document.getElementById('yoga-start-btn');
+    const yogaNextBtn = document.getElementById('yoga-next-btn');
+    const yogaBackBtn = document.getElementById('yoga-back-btn');
+    const yogaStatus = document.getElementById('yoga-status');
+    const aiChatMessages = document.getElementById('ai-chat-messages');
+    const aiChatInput = document.getElementById('ai-chat-input');
+    const aiChatSendBtn = document.getElementById('ai-chat-send-btn');
+    const aiChatClearBtn = document.getElementById('ai-chat-clear-btn');
+    const aiChatBackBtn = document.getElementById('ai-chat-back-btn');
+    const aiChatStatus = document.getElementById('ai-chat-status');
+    const quoteTypeSelect = document.getElementById('quote-type-select');
+    const quoteEnabledToggle = document.getElementById('quote-enabled-toggle');
+    const quotePositionReset = document.getElementById('quote-position-reset');
+    const breathingQuickCta = document.getElementById('breathing-quick-cta');
+    const breathingOrb = document.getElementById('breathing-orb');
+    const breathingAura = document.getElementById('breathing-aura');
+    const breathingPhase = document.getElementById('breathing-phase');
+    const breathingStatus = document.getElementById('breathing-status');
+    const breathingFrame = document.getElementById('breathing-frame');
+    const breathingVoiceStartBtn = document.getElementById('breathing-voice-start');
+    const breathingVoiceStopBtn = document.getElementById('breathing-voice-stop');
+    const breathingManualStartBtn = document.getElementById('breathing-manual-start');
+    const breathingCloseBtn = document.getElementById('breathing-close-btn');
+    const breathingModal = document.getElementById('breathing-modal');
 
-    const titleEl = document.getElementById('tool-modal-title');
-    const descEl = document.getElementById('tool-modal-desc');
-    const iconWrap = document.getElementById('tool-modal-icon');
+    const journalListUrl = '{{ path('app_wellbeing_tools_journal_list') }}';
+    const journalCreateUrl = '{{ path('app_wellbeing_tools_journal_create') }}';
+    const detectLanguageUrl = '{{ path('app_wellbeing_tools_journal_detect_language') }}';
+    const journalUpdateBase = '/wellbeing/tools/journal/';
+    const journalDeleteBase = '/wellbeing/tools/journal/';
+    const aiChatUrl = '{{ path('app_wellbeing_tools_ai_chat') }}';
 
-    const timerWrap = document.getElementById('tool-modal-timer');
-    const timerText = document.getElementById('tool-modal-time');
+    let editId = null;
+    let entries = [];
+    let recognitionRunning = false;
+    let autoDetectTimer = null;
+    let autoSwitchLock = false;
+    let lastDetectedCode = '';
+    let yogaTimerInterval = null;
+    let yogaSecondsLeft = 20;
+    let yogaStepIndex = 0;
+    let yogaCompleted = false;
+    let breathingTimerHandles = [];
+    let breathingRunning = false;
+    let breathingAccessGranted = false;
+    const breathingBgMusic = new Audio('{{ asset('audio/meditation.mp3') }}');
+    breathingBgMusic.loop = true;
+    breathingBgMusic.volume = 0.18;
+    const voiceSupported = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
+    let selectedBreathingVoice = null;
+    let aiChatHistory = [];
 
-    let currentTool = null;
-    let interval = null;
-    let remaining = 0;
+    const yogaExercises = [
+        { title: 'Neck Release', description: 'Tilt head gently left and right. Keep shoulders relaxed.', demo: 'neck', gifKey: 'gif1' },
+        { title: 'Shoulder Rolls', description: 'Roll shoulders forward then backward with slow breaths.', demo: 'shoulders', gifKey: 'gif2' },
+        { title: 'Seated Twist', description: 'Sit tall, twist softly to each side, no force.', demo: 'twist', gifKey: 'gif3' },
+        { title: 'Cat-Cow Stretch', description: 'Alternate arching and rounding your back with your breath.', demo: 'catcow', gifKey: 'gif4' },
+        { title: 'Child Pose', description: 'Kneel, stretch your arms forward, and breathe deeply.', demo: 'child', gifKey: 'gif5' },
+        { title: 'Standing Side Stretch', description: 'Raise one arm and stretch side body, then switch.', demo: 'side', gifKey: 'gif1' },
+        { title: 'Wrist Release', description: 'Circle wrists slowly and extend fingers to reduce tension.', demo: 'wrist', gifKey: 'gif2' },
+        { title: 'Ankle Circles', description: 'Lift one foot slightly and make gentle ankle circles.', demo: 'ankle', gifKey: 'gif3' },
+        { title: 'Seated Breath Reset', description: 'Sit comfortably and breathe in 4 counts, out 6 counts.', demo: 'breath', gifKey: 'gif5' }
+    ];
 
-    function openModal(toolKey) {
-        currentTool = tools.find(t => t.key === toolKey);
-        if (!currentTool) return;
+    const yogaHumanMedia = {
+        child: '{{ asset('images/yoga/child.jpg') }}',
+        catcow: '{{ asset('images/yoga/catcow.jpg') }}',
+        downward: '{{ asset('images/yoga/downward.jpg') }}',
+        fold: '{{ asset('images/yoga/fold.jpg') }}'
+    };
 
-        titleEl.textContent = currentTool.name;
-        descEl.textContent = currentTool.description;
+    const yogaFrames = {
+        neck: [yogaHumanMedia.fold, yogaHumanMedia.child],
+        shoulders: [yogaHumanMedia.catcow, yogaHumanMedia.fold],
+        twist: [yogaHumanMedia.fold, yogaHumanMedia.downward],
+        catcow: [yogaHumanMedia.catcow, yogaHumanMedia.downward],
+        child: [yogaHumanMedia.child, yogaHumanMedia.fold],
+        side: [yogaHumanMedia.downward, yogaHumanMedia.child],
+        wrist: [yogaHumanMedia.catcow, yogaHumanMedia.child],
+        ankle: [yogaHumanMedia.downward, yogaHumanMedia.fold],
+        breath: [yogaHumanMedia.child, yogaHumanMedia.catcow]
+    };
 
-        // reset timer
-        clearInterval(interval);
-        interval = null;
-        remaining = Number(currentTool.durationSeconds || 0);
-        timerWrap.classList.toggle('hidden', remaining <= 0);
+    // Put your provided GIF files here:
+    // public/images/yoga_gif/gif1.gif ... gif5.gif
+    const yogaGifMap = {
+        gif1: '{{ asset('images/yoga_gif/gif1.gif') }}',
+        gif2: '{{ asset('images/yoga_gif/gif2.gif') }}',
+        gif3: '{{ asset('images/yoga_gif/gif3.gif') }}',
+        gif4: '{{ asset('images/yoga_gif/gif4.gif') }}',
+        gif5: '{{ asset('images/yoga_gif/gif5.gif') }}'
+    };
 
-        // icon (simple mapping)
-        const iconMap = {
-            wind: 'wind',
-            sparkles: 'sparkles',
-            heart: 'heart',
-            clock: 'timer',
-            book: 'book-open',
-            music: 'music'
-        };
-        const lucideName = iconMap[currentTool.icon] || 'heart';
-        iconWrap.innerHTML = `<i data-lucide="${lucideName}" class="w-10 h-10"></i>`;
+    function renderYogaLocalDemo(kind, gifKey = '') {
+        if (!yogaDemoShape) return;
+        const frames = yogaFrames[kind] || [yogaHumanMedia.child, yogaHumanMedia.fold];
+        const gifSrc = yogaGifMap[gifKey] || '';
+        yogaDemoShape.innerHTML = `
+            <style>
+                @keyframes yogaFrameA {0%,48%{opacity:1}52%,100%{opacity:0}}
+                @keyframes yogaFrameB {0%,48%{opacity:0}52%,100%{opacity:1}}
+                @keyframes yogaStudioFloat {0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+            </style>
+            <div class="relative w-full h-full rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600/40 bg-[#0b173a] p-4" style="height:300px;">
+                <div class="w-full h-full rounded-xl bg-gradient-to-b from-slate-100 to-white dark:from-slate-200 dark:to-slate-100 flex items-center justify-center">
+                    <div class="relative rounded-lg overflow-hidden shadow-lg border border-slate-300 bg-white" style="width:min(420px,100%);height:240px;animation:yogaStudioFloat 2.6s ease-in-out infinite;">
+                        ${gifSrc ? `<img id="yoga-demo-gif" src="${gifSrc}" alt="Yoga GIF demo" class="absolute inset-0 w-full h-full object-contain bg-white">` : ''}
+                        <div id="yoga-demo-fallback" class="absolute inset-0 ${gifSrc ? 'hidden' : ''}">
+                            <img src="${frames[0]}" alt="Yoga frame A" class="absolute inset-0 w-full h-full object-contain bg-white" style="animation:yogaFrameA 2.4s ease-in-out infinite;">
+                            <img src="${frames[1]}" alt="Yoga frame B" class="absolute inset-0 w-full h-full object-contain bg-white" style="animation:yogaFrameB 2.4s ease-in-out infinite;">
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute left-7 bottom-7 px-3 py-1 rounded-lg bg-slate-900/60 text-white text-sm font-semibold">Guided Human Demo</div>
+            </div>
+        `;
 
-        // refresh lucide icons
-        if (window.lucide) window.lucide.createIcons();
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        const gifEl = document.getElementById('yoga-demo-gif');
+        const fallbackEl = document.getElementById('yoga-demo-fallback');
+        if (gifEl && fallbackEl) {
+            gifEl.addEventListener('error', () => {
+                gifEl.classList.add('hidden');
+                fallbackEl.classList.remove('hidden');
+            }, { once: true });
+        }
     }
 
-    function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        clearInterval(interval);
-        interval = null;
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 
-    function formatTime(seconds) {
-        const m = Math.floor(seconds / 60);
-        const s = seconds % 60;
-        return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    function showJournalMode() {
+        stopYogaTimer();
+        journalFocus?.classList.remove('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        journalFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function startTimer() {
-        if (!currentTool) return;
+    function showToolsMode() {
+        stopYogaTimer();
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.remove('hidden');
+        resourcesSection?.classList.remove('hidden');
+        toolsGrid?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-        if (!remaining || remaining <= 0) {
-            // Ongoing tool
-            closeModal();
+    function stopYogaTimer() {
+        if (yogaTimerInterval) {
+            clearInterval(yogaTimerInterval);
+            yogaTimerInterval = null;
+        }
+    }
+
+    function renderYogaStep() {
+        const exercise = yogaExercises[yogaStepIndex];
+        if (!exercise) return;
+        if (yogaExerciseTitle) yogaExerciseTitle.textContent = exercise.title;
+        if (yogaExerciseDesc) yogaExerciseDesc.textContent = exercise.description;
+        renderYogaLocalDemo(exercise.demo, exercise.gifKey || '');
+        if (yogaStepCount) yogaStepCount.textContent = `${yogaStepIndex + 1}/${yogaExercises.length}`;
+        if (yogaTimer) yogaTimer.textContent = `${yogaSecondsLeft}s`;
+        if (yogaStatus && !yogaCompleted) {
+            yogaStatus.textContent = `Exercise ${yogaStepIndex + 1} of ${yogaExercises.length}`;
+        }
+    }
+
+    function nextYogaStep(autoStart = true) {
+        stopYogaTimer();
+        if (yogaStepIndex >= yogaExercises.length - 1) {
+            finishYogaSession();
             return;
         }
+        yogaStepIndex += 1;
+        yogaSecondsLeft = 20;
+        renderYogaStep();
+        if (autoStart) startYogaTimer();
+    }
 
-        timerWrap.classList.remove('hidden');
-        timerText.textContent = formatTime(remaining);
+    function finishYogaSession() {
+        yogaCompleted = true;
+        if (yogaExerciseTitle) yogaExerciseTitle.textContent = 'Session Complete';
+        if (yogaExerciseDesc) yogaExerciseDesc.textContent = 'Great job. You completed all yoga exercises.';
+        if (yogaTimer) yogaTimer.textContent = '0s';
+        if (yogaStepCount) yogaStepCount.textContent = `${yogaExercises.length}/${yogaExercises.length}`;
+        if (yogaStatus) yogaStatus.textContent = 'Yoga Coach: all exercises completed.';
+        if (yogaNextBtn) yogaNextBtn.disabled = true;
 
-        clearInterval(interval);
-        interval = setInterval(() => {
-            remaining -= 1;
-            timerText.textContent = formatTime(Math.max(remaining, 0));
+        speakAssistant('Great job. You completed all yoga exercises.');
+    }
 
-            if (remaining <= 0) {
-                clearInterval(interval);
-                interval = null;
-                closeModal();
+    function startYogaTimer() {
+        stopYogaTimer();
+        if (yogaCompleted) return;
+        yogaSecondsLeft = 20;
+        if (yogaTimer) yogaTimer.textContent = `${yogaSecondsLeft}s`;
+        yogaTimerInterval = setInterval(() => {
+            yogaSecondsLeft -= 1;
+            if (yogaTimer) yogaTimer.textContent = `${Math.max(0, yogaSecondsLeft)}s`;
+            if (yogaSecondsLeft <= 0) {
+                nextYogaStep(true);
             }
         }, 1000);
     }
 
-    document.querySelectorAll('[data-open-tool]').forEach(btn => {
-        btn.addEventListener('click', () => openModal(btn.getAttribute('data-open-tool')));
+    function showYogaMode() {
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.remove('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        yogaStepIndex = 0;
+        yogaSecondsLeft = 20;
+        yogaCompleted = false;
+        if (yogaNextBtn) yogaNextBtn.disabled = false;
+        if (yogaStatus) yogaStatus.textContent = 'Click Start Yoga to begin.';
+        renderYogaStep();
+        yogaFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function appendAiChatMessage(role, content) {
+        if (!aiChatMessages) return;
+        const bubble = document.createElement('div');
+        bubble.className = role === 'user' ? 'ai-bubble ai-bubble-user' : 'ai-bubble ai-bubble-bot';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'ai-bubble-avatar';
+        avatar.innerHTML = role === 'user'
+            ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>'
+            : '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>';
+
+        const contentWrap = document.createElement('div');
+        contentWrap.className = 'ai-bubble-content';
+
+        const textEl = document.createElement('div');
+        textEl.className = 'ai-bubble-text';
+        textEl.textContent = content;
+
+        const timeEl = document.createElement('span');
+        timeEl.className = 'ai-bubble-time';
+        timeEl.textContent = 'just now';
+
+        contentWrap.appendChild(textEl);
+        contentWrap.appendChild(timeEl);
+
+        bubble.appendChild(avatar);
+        bubble.appendChild(contentWrap);
+        aiChatMessages.appendChild(bubble);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    function showAiChatMode() {
+        stopYogaTimer();
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.remove('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        aiChatFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        aiChatInput?.focus();
+    }
+
+    function resetAiChat() {
+        aiChatHistory = [];
+        if (aiChatMessages) {
+            aiChatMessages.innerHTML = `
+                <div class="ai-bubble ai-bubble-bot">
+                    <div class="ai-bubble-avatar">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+                        </svg>
+                    </div>
+                    <div class="ai-bubble-content">
+                        <p class="ai-bubble-text">Hello! I am here to help. What do you need right now?</p>
+                        <span class="ai-bubble-time">just now</span>
+                    </div>
+                </div>
+            `;
+        }
+        if (aiChatInput) {
+            aiChatInput.value = '';
+        }
+        if (aiChatStatus) {
+            aiChatStatus.textContent = 'Ready';
+        }
+    }
+
+    async function sendAiChatMessage() {
+        const text = (aiChatInput?.value || '').trim();
+        if (!text) {
+            if (aiChatStatus) aiChatStatus.textContent = 'Write a message first.';
+            return;
+        }
+
+        appendAiChatMessage('user', text);
+        aiChatHistory.push({ role: 'user', content: text });
+        if (aiChatInput) aiChatInput.value = '';
+        if (aiChatStatus) aiChatStatus.textContent = 'AI is typing...';
+
+        if (aiChatSendBtn) aiChatSendBtn.disabled = true;
+
+        try {
+            const res = await fetch(aiChatUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    message: text,
+                    history: aiChatHistory
+                })
+            });
+
+            if (res.status === 401) {
+                window.location.href = '{{ path('app_login') }}';
+                return;
+            }
+
+            const data = await res.json();
+            if (!data.ok || !data.reply) {
+                throw new Error(data.message || 'AI response failed');
+            }
+
+            const reply = String(data.reply).trim();
+            appendAiChatMessage('assistant', reply);
+            aiChatHistory.push({ role: 'assistant', content: reply });
+            aiChatHistory = aiChatHistory.slice(-20);
+            if (aiChatStatus) aiChatStatus.textContent = data.source === 'ai' ? 'Answered by AI' : 'Fallback response';
+        } catch (error) {
+            appendAiChatMessage('assistant', 'Sorry, I could not generate a reply right now. Please try again.');
+            if (aiChatStatus) aiChatStatus.textContent = 'Error: ' + (error?.message || 'Unknown error');
+        } finally {
+            if (aiChatSendBtn) aiChatSendBtn.disabled = false;
+        }
+    }
+
+    function renderEntries() {
+        if (!journalList) return;
+        if (!entries.length) {
+            journalList.innerHTML = '<div class="entries-empty">No journal entries yet.</div>';
+            const countEl = document.getElementById('entries-count');
+            if (countEl) countEl.textContent = '0 entry';
+            return;
+        }
+        const countEl = document.getElementById('entries-count');
+        if (countEl) countEl.textContent = `${entries.length} ${entries.length === 1 ? 'entry' : 'entries'}`;
+        journalList.innerHTML = entries.map((entry) => `
+            <div class="entry-item">
+                <p class="entry-date">
+                    <span class="entry-date-dot"></span>
+                    ${escapeHtml(entry.createdAt || '')}
+                </p>
+                <p class="entry-text">${escapeHtml(entry.content)}</p>
+                <div class="entry-actions">
+                    <button class="ebtn ebtn-edit journal-edit" data-id="${entry.id}">Edit</button>
+                    <button class="ebtn ebtn-delete journal-delete" data-id="${entry.id}">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadEntries() {
+        const res = await fetch(journalListUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin'
+        });
+        if (res.status === 401) {
+            window.location.href = '{{ path('app_login') }}';
+            return;
+        }
+        const data = await res.json();
+        entries = Array.isArray(data.entries) ? data.entries : [];
+        renderEntries();
+    }
+
+    function resetJournalForm() {
+        editId = null;
+        if (journalInput) journalInput.value = '';
+        if (journalStatus) journalStatus.textContent = 'Voice: idle';
+    }
+
+    function clearBreathingTimers() {
+        breathingTimerHandles.forEach((id) => clearTimeout(id));
+        breathingTimerHandles = [];
+        breathingRunning = false;
+    }
+
+    function triggerWavePulse() {
+        if (!breathingFrame) return;
+        breathingFrame.classList.add('breathing-waves-active');
+        window.clearTimeout(breathingFrame._waveTimeout);
+        breathingFrame._waveTimeout = window.setTimeout(() => {
+            breathingFrame.classList.remove('breathing-waves-active');
+        }, 1400);
+    }
+
+    function stopBreathingVoice() {
+        clearBreathingTimers();
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        try {
+            breathingBgMusic.pause();
+            breathingBgMusic.currentTime = 0;
+        } catch (e) {}
+        if (breathingPhase) breathingPhase.textContent = 'Ready to breathe';
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: stopped';
+        if (breathingOrb) {
+            breathingOrb.style.transform = 'scale(1)';
+            breathingOrb.style.opacity = '0.9';
+        }
+        if (breathingAura) {
+            breathingAura.style.transform = 'scale(1)';
+            breathingAura.style.opacity = '0.45';
+        }
+        if (breathingFrame) {
+            breathingFrame.classList.remove('breathing-waves-active');
+        }
+    }
+
+    function animateBreathing(phase) {
+        if (!breathingOrb || !breathingAura || !breathingPhase) return;
+        if (phase === 'inhale') {
+            breathingPhase.textContent = 'Inhale slowly...';
+            breathingOrb.style.transform = 'scale(1.2)';
+            breathingOrb.style.opacity = '1';
+            breathingAura.style.transform = 'scale(1.35)';
+            breathingAura.style.opacity = '0.75';
+        } else if (phase === 'hold') {
+            breathingPhase.textContent = 'Hold gently...';
+            breathingOrb.style.transform = 'scale(1.2)';
+            breathingAura.style.transform = 'scale(1.35)';
+        } else {
+            breathingPhase.textContent = 'Exhale softly...';
+            breathingOrb.style.transform = 'scale(0.95)';
+            breathingOrb.style.opacity = '0.8';
+            breathingAura.style.transform = 'scale(1)';
+            breathingAura.style.opacity = '0.35';
+        }
+    }
+
+    function buildSoftUtterance(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.78;
+        utterance.pitch = 0.92;
+        utterance.volume = 0.95;
+        utterance.lang = 'en-US';
+        if (selectedBreathingVoice) {
+            utterance.voice = selectedBreathingVoice;
+        }
+        return utterance;
+    }
+
+    function speakSoft(text) {
+        if (!voiceSupported) return;
+        window.speechSynthesis.cancel();
+        triggerWavePulse();
+        window.speechSynthesis.speak(buildSoftUtterance(text));
+    }
+
+    function speakAssistant(text) {
+        if (!voiceSupported) return;
+        window.speechSynthesis.cancel();
+        triggerWavePulse();
+        window.speechSynthesis.speak(buildSoftUtterance(text));
+    }
+
+    function initBreathingVoices() {
+        if (!voiceSupported) return;
+        const pickVoice = () => {
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return;
+            const assistantName = /assistant|google|microsoft|siri|alexa/i;
+            const femaleName = /female|zira|samantha|aria|jenny|olivia|amy|emma|lily|ava|joanna|kendra|kimberly|salli|ivy|victoria|catherine|amelie|audrey|julie|susan/i;
+            const preferredLang = /^en[-_]/i;
+            const fallbackLang = /^en/i;
+            const isFemale = (v) => femaleName.test(v.name || '') || /female/i.test(v.gender || '');
+            const isAssistant = (v) => assistantName.test(v.name || '');
+            selectedBreathingVoice =
+                voices.find((v) => preferredLang.test(v.lang) && isFemale(v) && isAssistant(v)) ||
+                voices.find((v) => fallbackLang.test(v.lang) && isFemale(v) && isAssistant(v)) ||
+                voices.find((v) => preferredLang.test(v.lang) && isFemale(v)) ||
+                voices.find((v) => fallbackLang.test(v.lang) && isFemale(v)) ||
+                voices.find((v) => preferredLang.test(v.lang) && isAssistant(v)) ||
+                voices.find((v) => fallbackLang.test(v.lang) && isAssistant(v)) ||
+                voices.find((v) => preferredLang.test(v.lang)) ||
+                voices.find((v) => fallbackLang.test(v.lang)) ||
+                voices[0];
+        };
+        pickVoice();
+        if (!selectedBreathingVoice) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                pickVoice();
+            };
+        }
+    }
+
+    function startBreathingCycle(useVoice) {
+        if (!breathingAccessGranted) {
+            if (breathingStatus) breathingStatus.textContent = 'Open this assistant from the Start Breathing Exercise tool.';
+            return;
+        }
+        clearBreathingTimers();
+        animateBreathing('inhale');
+        if (breathingStatus) {
+            breathingStatus.textContent = useVoice
+                ? 'Assistant status: speaking with soft voice'
+                : 'Assistant status: visual guidance only';
+        }
+        if (useVoice && !voiceSupported && breathingStatus) {
+            breathingStatus.textContent = 'Voice not supported by this browser. Visual guidance running.';
+        }
+        try {
+            breathingBgMusic.currentTime = 0;
+            breathingBgMusic.play().catch(() => {
+                if (breathingStatus) breathingStatus.textContent = 'Music blocked by browser. Click Start again.';
+            });
+        } catch (e) {}
+        breathingRunning = true;
+        let elapsed = 0;
+        const rounds = 3;
+
+        for (let round = 0; round < rounds; round++) {
+            const inhaleAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('inhale');
+                if (useVoice) speakSoft('Inhale slowly... 1, 2, 3, 4.');
+            }, inhaleAt * 1000));
+            elapsed += 4;
+
+            const holdAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('hold');
+                if (useVoice) speakSoft('Hold gently... 1, 2, 3, 4, 5, 6, 7.');
+            }, holdAt * 1000));
+            elapsed += 7;
+
+            const exhaleAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('exhale');
+                if (useVoice) speakSoft('Exhale softly... 1, 2, 3, 4, 5, 6, 7, 8.');
+            }, exhaleAt * 1000));
+            elapsed += 8;
+        }
+
+        breathingTimerHandles.push(setTimeout(() => {
+            breathingRunning = false;
+            if (breathingPhase) breathingPhase.textContent = 'Session complete. You can start again.';
+            if (breathingStatus) breathingStatus.textContent = 'Assistant status: session complete';
+        }, elapsed * 1000));
+    }
+
+    breathingVoiceStartBtn?.addEventListener('click', () => {
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: starting...';
+        startBreathingCycle(true);
     });
 
-    closeBtn.addEventListener('click', closeModal);
-    laterBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    breathingManualStartBtn?.addEventListener('click', () => {
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: starting visual session...';
+        startBreathingCycle(false);
+    });
 
-    startBtn.addEventListener('click', startTimer);
+    breathingVoiceStopBtn?.addEventListener('click', () => {
+        stopBreathingVoice();
+    });
+
+    breathingCloseBtn?.addEventListener('click', () => {
+        if (breathingRunning) {
+            stopBreathingVoice();
+        }
+        if (breathingModal) {
+            breathingModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+
+    initBreathingVoices();
+
+    if (quoteTypeSelect) {
+        const allowedQuoteTypes = ['motivation', 'funny', 'calm', 'focus'];
+        let initialType = 'motivation';
+        try {
+            const saved = String(localStorage.getItem('rlife_quote_type') || 'motivation').trim().toLowerCase();
+            if (allowedQuoteTypes.includes(saved)) {
+                initialType = saved;
+            }
+        } catch (e) {}
+
+        quoteTypeSelect.value = initialType;
+        quoteTypeSelect.addEventListener('change', () => {
+            const nextType = String(quoteTypeSelect.value || 'motivation').trim().toLowerCase();
+            if (!allowedQuoteTypes.includes(nextType)) return;
+            try {
+                localStorage.setItem('rlife_quote_type', nextType);
+            } catch (e) {}
+            if (typeof loadGlobalQuote === 'function') {
+                loadGlobalQuote();
+            }
+        });
+    }
+
+    if (quoteEnabledToggle) {
+        let enabled = true;
+        try {
+            enabled = String(localStorage.getItem('rlife_quote_enabled') || '1') !== '0';
+        } catch (e) {}
+        quoteEnabledToggle.checked = enabled;
+        quoteEnabledToggle.addEventListener('change', () => {
+            try {
+                localStorage.setItem('rlife_quote_enabled', quoteEnabledToggle.checked ? '1' : '0');
+            } catch (e) {}
+            if (typeof initGlobalQuoteTicker === 'function') {
+                initGlobalQuoteTicker();
+            }
+        });
+    }
+
+    if (quotePositionReset) {
+        quotePositionReset.addEventListener('click', () => {
+            try {
+                localStorage.removeItem('rlife_quote_position');
+            } catch (e) {}
+            if (typeof applyQuotePosition === 'function') {
+                applyQuotePosition();
+            }
+        });
+    }
+
+    async function handleToolStart(btn) {
+        const key = btn.getAttribute('data-tool-key') || '';
+        const name = (btn.getAttribute('data-tool-name') || '').toLowerCase();
+        if (key === 'breathing_exercise') {
+            breathingAccessGranted = true;
+            if (breathingStatus) breathingStatus.textContent = 'Assistant status: ready';
+            if (breathingModal) {
+                breathingModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            return;
+        }
+        if (key === 'gratitude_journal') {
+            showJournalMode();
+            await loadEntries().catch(() => {});
+            journalInput?.focus();
+            return;
+        }
+        if (key === 'yoga_coach' || name.includes('yoga')) {
+            showYogaMode();
+            return;
+        }
+        if (key === 'ai_chat_coach' || (name.includes('ai') && name.includes('chat'))) {
+            showAiChatMode();
+            return;
+        }
+        if (key === 'nature_sounds') {
+            window.dispatchEvent(new CustomEvent('rlife-spotify-start', {
+                detail: {
+                    preset: 'nature',
+                    url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8?utm_source=generator'
+                }
+            }));
+        }
+    }
+
+    document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const btn = target.closest('.tool-start-btn');
+        if (!btn) return;
+        event.preventDefault();
+        handleToolStart(btn);
+    });
+
+    breathingQuickCta?.addEventListener('click', () => {
+        if (toolsGrid) {
+            toolsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (breathingStatus) {
+            breathingStatus.textContent = 'Click Start on Breathing Exercise card to activate assistant.';
+        }
+    });
+
+    backBtn?.addEventListener('click', () => {
+        resetJournalForm();
+        showToolsMode();
+    });
+
+    yogaBackBtn?.addEventListener('click', () => {
+        stopYogaTimer();
+        showToolsMode();
+    });
+
+    yogaStartBtn?.addEventListener('click', () => {
+        if (yogaFocus?.classList.contains('hidden')) {
+            showYogaMode();
+        }
+        if (yogaCompleted) {
+            showYogaMode();
+        }
+        renderYogaStep();
+        startYogaTimer();
+    });
+
+    yogaNextBtn?.addEventListener('click', () => {
+        if (yogaCompleted) return;
+        nextYogaStep(true);
+    });
+
+    aiChatBackBtn?.addEventListener('click', () => {
+        showToolsMode();
+    });
+
+    aiChatClearBtn?.addEventListener('click', () => {
+        resetAiChat();
+    });
+
+    aiChatSendBtn?.addEventListener('click', async () => {
+        await sendAiChatMessage();
+    });
+
+    aiChatInput?.addEventListener('keydown', async (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            await sendAiChatMessage();
+        }
+    });
+
+    newBtn?.addEventListener('click', () => {
+        resetJournalForm();
+        journalInput?.focus();
+    });
+
+    saveBtn?.addEventListener('click', async () => {
+        const content = (journalInput?.value || '').trim();
+        if (!content) {
+            journalStatus.textContent = 'Write or speak something first.';
+            return;
+        }
+        const payload = {
+            content,
+            languageCode: (langSelect?.value || '') || lastDetectedCode || null,
+            inputMode: recognitionRunning ? 'voice' : 'text'
+        };
+        try {
+            const res = await fetch(editId ? (journalUpdateBase + editId) : journalCreateUrl, {
+                method: editId ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            if (res.status === 401) {
+                window.location.href = '{{ path('app_login') }}';
+                return;
+            }
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.message || 'Save failed');
+            resetJournalForm();
+            await loadEntries();
+            showToolsMode();
+        } catch (error) {
+            journalStatus.textContent = 'Save error: ' + error.message;
+        }
+    });
+
+    journalList?.addEventListener('click', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const id = Number(target.getAttribute('data-id') || 0);
+        if (!id) return;
+
+        if (target.classList.contains('journal-edit')) {
+            const entry = entries.find((x) => Number(x.id) === id);
+            if (!entry || !journalInput) return;
+            editId = id;
+            journalInput.value = entry.content || '';
+            showJournalMode();
+            journalInput.focus();
+            return;
+        }
+
+        if (target.classList.contains('journal-delete')) {
+            try {
+                const res = await fetch(journalDeleteBase + id, {
+                    method: 'DELETE',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (res.status === 401) {
+                    window.location.href = '{{ path('app_login') }}';
+                    return;
+                }
+                const data = await res.json();
+                if (!data.ok) throw new Error(data.message || 'Delete failed');
+                if (editId === id) editId = null;
+                await loadEntries();
+            } catch (error) {
+                journalStatus.textContent = 'Delete error: ' + error.message;
+            }
+        }
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    async function detectLanguageForAutoMode(sampleText) {
+        if ((langSelect?.value || '').trim() !== '') return null;
+        const text = (sampleText || '').trim();
+        if (text.length < 8) return null;
+
+        const res = await fetch(detectLanguageUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ text })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.ok || !data.languageCode) return null;
+        return data;
+    }
+
+    function maybeAutoDetectAndSwitch(sampleText) {
+        if ((langSelect?.value || '').trim() !== '') return;
+        if (!recognition) return;
+        if (autoDetectTimer) {
+            clearTimeout(autoDetectTimer);
+            autoDetectTimer = null;
+        }
+        autoDetectTimer = setTimeout(async () => {
+            try {
+                const result = await detectLanguageForAutoMode(sampleText);
+                if (!result) return;
+
+                const detectedCode = String(result.languageCode || '').trim();
+                if (!detectedCode) return;
+
+                if (detectedCode === lastDetectedCode && recognition.lang === detectedCode) return;
+                lastDetectedCode = detectedCode;
+                if (journalStatus) {
+                    journalStatus.textContent = `Voice: auto-detected ${result.label || detectedCode}`;
+                }
+
+                if (recognitionRunning && recognition.lang !== detectedCode) {
+                    autoSwitchLock = true;
+                    try {
+                        recognition.stop();
+                    } catch (e) {}
+                    setTimeout(() => {
+                        try {
+                            recognition.lang = detectedCode;
+                            recognition.start();
+                        } catch (e) {}
+                        autoSwitchLock = false;
+                    }, 180);
+                } else {
+                    recognition.lang = detectedCode;
+                }
+            } catch (e) {
+                // Silent fallback to browser default
+            }
+        }, 320);
+    }
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onstart = () => {
+            recognitionRunning = true;
+            journalStatus.textContent = 'Voice: listening...';
+        };
+        recognition.onend = () => {
+            if (autoSwitchLock) return;
+            recognitionRunning = false;
+            journalStatus.textContent = 'Voice: idle';
+        };
+        recognition.onerror = (event) => {
+            recognitionRunning = false;
+            journalStatus.textContent = 'Voice error: ' + event.error;
+        };
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const text = event.results[i][0].transcript;
+                if (event.results[i].isFinal) transcript += text + ' ';
+            }
+            if (transcript && journalInput) {
+                journalInput.value = (journalInput.value ? journalInput.value + ' ' : '') + transcript.trim();
+                maybeAutoDetectAndSwitch(transcript.trim());
+            }
+        };
+    }
+
+    startVoiceBtn?.addEventListener('click', () => {
+        if (!recognition) {
+            journalStatus.textContent = 'Voice not supported in this browser.';
+            return;
+        }
+        const selected = (langSelect?.value || '').trim();
+        lastDetectedCode = '';
+        recognition.lang = selected || (navigator.language || 'en-US');
+        recognition.start();
+    });
+
+    stopVoiceBtn?.addEventListener('click', () => {
+        if (recognitionRunning && recognition) recognition.stop();
+    });
 })();
 </script>
 {% endblock %}
