@@ -425,6 +425,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getCoins(): int
+    {
+        return $this->coins;
+    }
+
+    public function setCoins(int $coins): static
+    {
+        $this->coins = max(0, $coins);
+
+        return $this;
+    }
+
     public function getCareers(): Collection
     {
         return $this->careers;

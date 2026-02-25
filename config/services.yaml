@@ -39,3 +39,7 @@ services:
         bind:
             $geminiApiKey: '%gemini_api_key%'
 
+    App\Service\GeminiService:
+        bind:
+            $geminiApiKey: '%gemini_api_key%'
+
