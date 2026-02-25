@@ -55,16 +55,9 @@
         "symfony/polyfill-php82": "*"
     },
     "scripts": {
-        "auto-scripts": {
-            "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
-        },
-        "post-install-cmd": [
-            "@auto-scripts"
-        ],
-        "post-update-cmd": [
-            "@auto-scripts"
-        ]
+        "dev": "encore dev",
+        "build": "encore production --progress",
+        "watch": "encore dev --watch"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -82,10 +75,23 @@
         "@hotwired/stimulus": "^3.0.0",
         "@hotwired/turbo": "^7.1.0 || ^8.0",
         "@symfony/stimulus-bridge": "^3.2.0 || ^4.0.0",
-        "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets"
+        "@symfony/ux-turbo": "file:vendor/symfony/ux-turbo/assets",
+        "@symfony/webpack-encore": "^5.3.1",
+        "postcss-loader": "^8.2.1"
     },
     "dependencies": {
+        "@tailwindcss/aspect-ratio": "^0.4.2",
+        "@tailwindcss/container-queries": "^0.1.1",
+        "@tailwindcss/forms": "^0.5.11",
+        "@tailwindcss/postcss": "^4.2.1",
+        "@tailwindcss/typography": "^0.5.19",
         "@types/three": "^0.183.1",
+        "autoprefixer": "^10.4.24",
+        "chart.js": "^4.5.1",
+        "core-js": "^3.48.0",
+        "gsap": "^3.14.2",
+        "postcss": "^8.5.6",
+        "tailwindcss": "^3.4.19",
         "three": "^0.183.1"
     }
 }

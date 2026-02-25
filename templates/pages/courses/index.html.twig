@@ -217,9 +217,9 @@
        🌍 WORLD TOUR — Streak Widget
        Replaces the old 🔥 fire streak section
     ══════════════════════════════════════════════════════ #}
-{% set globalStreak = app.user.highScoreStreak %}
-    {% set streakVal    = globalStreak.current %}
-
+{# APRÈS — version sécurisée sans méthode manquante #}
+{% set globalStreak = {current: 0, longest: 0, badges: []} %}
+{% set streakVal    = 0 %}
     {% if streakVal > 0 %}
     <div class="wt-widget" id="wtWidget">
         <div class="relative p-5 flex flex-col sm:flex-row items-stretch gap-5" style="z-index:1">

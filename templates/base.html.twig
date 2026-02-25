@@ -488,7 +488,8 @@
                         </p>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</p>
+                        <p class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins is defined ? app.user.coins : 0 }} 🪙
+</p>
                     </div>
                 </div>
             </div>

@@ -66,6 +66,12 @@ class EvaluationMatiere
         return $this->id;
     }
 
+    // Compatibility alias used by legacy templates/forms
+    public function getIdEval(): ?int
+    {
+        return $this->id;
+    }
+
     public function getUser(): ?User
     {
         return $this->user;
@@ -126,10 +132,37 @@ class EvaluationMatiere
         return $this->priorite;
     }
 
+    // Compatibility alias used by legacy templates/forms
+    public function getPrioriteE(): ?string
+    {
+        return $this->priorite;
+    }
+
     public function setPriorite(?string $priorite): static
     {
         $this->priorite = $priorite;
         return $this;
+    }
+
+    // Compatibility alias used by legacy templates/forms
+    public function setPrioriteE(?string $priorite): static
+    {
+        $this->priorite = $priorite;
+        return $this;
+    }
+
+    public function getPercentage(): float
+    {
+        if (($this->noteMaximaleEval ?? 0) <= 0) {
+            return 0.0;
+        }
+
+        return round((($this->scoreEval ?? 0) / $this->noteMaximaleEval) * 100, 2);
+    }
+
+    public function getProgress(): float
+    {
+        return $this->getPercentage();
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
