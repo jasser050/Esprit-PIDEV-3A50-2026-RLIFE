@@ -1541,6 +1541,980 @@
     {% endfor %}
 </div>
 
+<div id="global-motivation-quote"
+     class="rlife-quote-card hidden select-none"
+     style="touch-action:none;">
+    <div class="rlife-quote-corner rlife-quote-corner-tl"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-tr"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-bl"></div>
+    <div class="rlife-quote-corner rlife-quote-corner-br"></div>
+
+    <div class="rlife-quote-topbar">
+        <div class="rlife-quote-topbar-left">
+            <span class="rlife-quote-blinker"></span>
+            <span class="rlife-quote-sys">SYS · QUOTE</span>
+        </div>
+        <button class="rlife-quote-close" id="global-quote-close" aria-label="Close">✕</button>
+    </div>
+
+    <div class="rlife-quote-body">
+        <div class="rlife-quote-mark">"</div>
+        <p id="global-quote-text" class="rlife-quote-text">Stay steady. Your effort matters.</p>
+    </div>
+
+    <div class="rlife-quote-footer">
+        <span id="global-quote-author" class="rlife-quote-author">— Daily Wisdom</span>
+        <div class="rlife-quote-drag">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <div class="rlife-quote-scan"></div>
+</div>
+<div id="global-quote-dropzone"
+     class="fixed left-1/2 -translate-x-1/2 bottom-4 z-[9999] w-14 h-14 rounded-full border-2 border-red-200/70 bg-red-500/55 text-white hidden items-center justify-center shadow-[0_12px_30px_rgba(220,38,38,0.32)] pointer-events-none transition-all duration-200">
+    <div class="flex flex-col items-center leading-none">
+        <i data-lucide="trash-2" class="w-5 h-5"></i>
+    </div>
+</div>
+<div id="global-spotify-widget" class="sp-widget sp-md hidden" data-turbo-permanent>
+    <div id="global-spotify-panel" class="sp-shell hidden">
+        <div id="global-spotify-fab" class="sp-topbar">
+            <div class="sp-drag-dots">
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+                <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
+            </div>
+            <span id="spotify-current-title" class="sp-topbar-label">Nature Sounds</span>
+            <div class="sp-topbar-actions">
+                <button class="sp-size-btn" data-size="sm">S</button>
+                <button class="sp-size-btn active" data-size="md">M</button>
+                <button class="sp-size-btn" data-size="lg">L</button>
+                <button class="sp-size-btn" data-size="xl">XL</button>
+                <button id="spotify-delete" class="sp-close-btn" title="Hide">✕</button>
+            </div>
+        </div>
+
+        <div class="sp-playlist-row">
+            <button class="spotify-preset sp-pl-btn active" data-preset="nature">🌿 Nature</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="quran">🕌 Quran</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="relax">🧘 Relax</button>
+            <button class="spotify-preset sp-pl-btn" data-preset="motivation">⚡ Motivation</button>
+        </div>
+        <input id="spotify-size" type="hidden" value="360">
+
+        <div id="global-spotify-embed-wrap" class="sp-embed-wrap">
+            <div id="spotify-loading" class="sp-loading sp-hidden">
+                <svg class="sp-loading-icon" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r="20"/>
+                </svg>
+                <p>Loading…</p>
+            </div>
+            <div id="spotify-soundcloud-fallback" class="sp-sc-fallback sp-hidden">
+                <div>
+                    <p class="sp-sc-title">SoundCloud preview blocked</p>
+                    <p class="sp-sc-sub">Open the playlist to listen.</p>
+                    <button id="spotify-soundcloud-open" class="sp-sc-btn">Open SoundCloud</button>
+                </div>
+            </div>
+            <iframe id="global-spotify-iframe"
+                    src=""
+                    width="100%" height="152" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+            <iframe id="global-soundcloud-iframe"
+                    src=""
+                    width="100%" height="152" frameBorder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    allowfullscreen=""
+                    loading="eager"
+                    class="hidden"></iframe>
+        </div>
+
+        <div id="spotify-quran-list" class="hidden sp-quran-list">
+            <div class="sp-quran-header">
+                <p class="sp-quran-title">Quran Recitation</p>
+                <div class="sp-quran-reciter">
+                    <button id="quran-reciter-luhaidan" class="sp-quran-btn active">Al‑Luhaidan</button>
+                    <button id="quran-reciter-dossari" class="sp-quran-btn">Y. Al‑Dossari</button>
+                </div>
+            </div>
+            <div id="spotify-quran-items" class="sp-quran-items"></div>
+            <button id="spotify-quran-playlist" class="sp-quran-link">Open Full Playlist</button>
+        </div>
+
+        <div class="sp-footer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#1DB954" style="flex-shrink:0">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+            <p class="sp-footer-text">Listening via <strong>Spotify</strong> • Drag to move</p>
+        </div>
+    </div>
+</div>
+<div id="sp-bubble" class="sp-bubble hidden" aria-label="Music bubble">
+    <div class="sp-ring" id="sp-ring">
+        <div class="sp-inner">
+            <div class="sp-eq sp-eq-paused" id="sp-eq">
+                <span class="sp-bar" style="--d:0s"></span>
+                <span class="sp-bar" style="--d:.15s"></span>
+                <span class="sp-bar" style="--d:.3s"></span>
+                <span class="sp-bar" style="--d:.45s"></span>
+                <span class="sp-bar" style="--d:.6s"></span>
+            </div>
+            <svg id="sp-logo" width="22" height="22" viewBox="0 0 24 24" fill="#1DB954">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+        </div>
+    </div>
+    <div class="sp-tip" id="sp-tip">Click to open</div>
+</div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+    :root {
+        --sp-green: #1DB954;
+        --sp-green2: #1ed760;
+        --sp-black: #121212;
+        --sp-dark: #181818;
+        --sp-surface: #282828;
+        --sp-text: #FFFFFF;
+        --sp-muted: #B3B3B3;
+        --sp-radius: 16px;
+    }
+
+    .sp-widget {
+        position: fixed;
+        bottom: 32px;
+        right: 32px;
+        z-index: 9999;
+        user-select: none;
+        font-family: 'DM Sans', sans-serif;
+        display: none;
+        animation: spSlideIn .45s cubic-bezier(.34,1.4,.64,1) both;
+    }
+    .sp-widget.sp-visible { display: block; }
+    .sp-widget.sp-sm { width: 280px; }
+    .sp-widget.sp-md { width: 360px; }
+    .sp-widget.sp-lg { width: 460px; }
+    .sp-widget.sp-xl { width: 580px; }
+
+    .sp-shell {
+        background: var(--sp-dark);
+        border-radius: var(--sp-radius);
+        overflow: hidden;
+        box-shadow: 0 24px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    @keyframes spSlideIn {
+        from { opacity:0; transform:translateY(40px) scale(.92); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+
+    .sp-topbar {
+        background: var(--sp-black);
+        padding: 10px 14px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: grab;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+        gap: 8px;
+    }
+    .sp-topbar:active { cursor: grabbing; }
+    .sp-drag-dots { display: flex; gap: 4px; align-items: center; flex: 0 0 auto; }
+    .sp-drag-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.2); }
+    .sp-topbar-label {
+        font-size: .7rem;
+        font-weight: 600;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: var(--sp-muted);
+        flex: 1;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .sp-topbar-actions { display: flex; gap: 4px; align-items: center; }
+    .sp-size-btn {
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.1);
+        color: var(--sp-muted);
+        padding: 3px 7px;
+        border-radius: 6px;
+        font-size: .62rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .15s;
+        line-height: 1;
+    }
+    .sp-size-btn:hover { background: rgba(255,255,255,.12); color: white; }
+    .sp-size-btn.active { background: var(--sp-green); border-color: var(--sp-green); color: #000; }
+    .sp-close-btn {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: rgba(255,255,255,.08);
+        border: none; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        color: var(--sp-muted); font-size: .7rem; transition: all .15s; margin-left: 2px;
+    }
+    .sp-close-btn:hover { background: #e22134; color: white; }
+    .sp-close-btn.sp-pin-active { background: var(--sp-green); color: #000; }
+
+    .sp-playlist-row {
+        background: var(--sp-black);
+        padding: 8px 12px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .sp-playlist-row.sp-list-hidden { display: none; }
+    .sp-pl-btn {
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.1);
+        color: var(--sp-muted);
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: .72rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all .2s;
+        white-space: nowrap;
+    }
+    .sp-pl-btn:hover { background: rgba(255,255,255,.14); color: white; }
+    .sp-pl-btn.active {
+        background: var(--sp-green);
+        border-color: var(--sp-green);
+        color: #000;
+        font-weight: 700;
+        box-shadow: 0 0 12px rgba(29,185,84,.35);
+    }
+
+    .sp-embed-wrap { position: relative; overflow: hidden; background: var(--sp-black); }
+    #global-spotify-iframe, #global-soundcloud-iframe { width: 100%; border: none; display: block; transition: height .35s cubic-bezier(.4,0,.2,1); }
+    .sp-loading { position: absolute; inset: 0; background: var(--sp-black); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; z-index: 2; transition: opacity .4s; }
+    .sp-loading.sp-hidden { opacity: 0; pointer-events: none; }
+    .sp-loading-icon { width: 48px; height: 48px; }
+    .sp-loading-icon circle { stroke: var(--sp-green); stroke-width: 3; fill: none; stroke-dasharray: 100; stroke-dashoffset: 100; animation: spLoadDash 1.5s ease-in-out infinite; transform-origin: center; transform: rotate(-90deg); }
+    @keyframes spLoadDash { 0%{stroke-dashoffset:100} 50%{stroke-dashoffset:20} 100%{stroke-dashoffset:100} }
+    .sp-loading p { font-size: .8rem; color: var(--sp-muted); }
+
+    .sp-sc-fallback { position: absolute; inset: 0; background: linear-gradient(135deg, rgba(13,16,24,.96), rgba(18,24,38,.96)); display: flex; align-items: center; justify-content: center; z-index: 3; text-align: center; padding: 12px; }
+    .sp-sc-fallback.sp-hidden { opacity: 0; pointer-events: none; }
+    .sp-sc-title { font-size: .85rem; color: var(--sp-text); font-weight: 600; }
+    .sp-sc-sub { font-size: .72rem; color: var(--sp-muted); margin-top: 4px; }
+    .sp-sc-btn { margin-top: 10px; font-size: .72rem; padding: 6px 12px; border-radius: 999px; background: var(--sp-green); color: #0b0f14; font-weight: 600; }
+
+    .sp-quran-list {
+        margin: 10px 10px 6px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(255,255,255,.04);
+        padding: 8px;
+    }
+    .sp-quran-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .sp-quran-title { font-size: .7rem; color: var(--sp-muted); }
+    .sp-quran-reciter { display: flex; gap: 6px; }
+    .sp-quran-btn {
+        font-size: .68rem; padding: 3px 8px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.12);
+        color: var(--sp-muted); background: rgba(255,255,255,.06);
+    }
+    .sp-quran-btn.active { background: var(--sp-green); border-color: var(--sp-green); color: #000; font-weight: 600; }
+    .sp-quran-items { max-height: 64px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 6px; }
+    .sp-quran-items button { font-size: .68rem; padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.05); color: var(--sp-text); text-align: left; }
+    .sp-quran-link { margin-top: 6px; width: 100%; font-size: .68rem; padding: 5px 8px; border-radius: 8px; background: rgba(255,255,255,.08); color: var(--sp-text); }
+
+    .sp-footer {
+        background: var(--sp-surface);
+        padding: 7px 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .sp-footer-text { font-size: .65rem; color: rgba(255,255,255,.35); }
+    .sp-footer-text strong { color: var(--sp-green); }
+
+    .sp-bubble {
+        position: fixed;
+        bottom: 28px;
+        right: 28px;
+        z-index: 99999;
+        cursor: pointer;
+        animation: spBubIn .4s cubic-bezier(.34,1.56,.64,1) both;
+        pointer-events: auto;
+        touch-action: manipulation;
+    }
+    .sp-bubble.sp-bubble-active .sp-inner {
+        border-color: #1DB954;
+        box-shadow: 0 6px 24px rgba(29,185,84,.35);
+    }
+    @keyframes spBubIn { from{opacity:0;transform:scale(.3)} to{opacity:1;transform:scale(1)} }
+    .sp-ring { position: relative; width: 56px; height: 56px; border-radius: 50%; }
+    .sp-ring::before {
+        content: '';
+        position: absolute; inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, #1DB954, #69ff9c, #1DB954);
+        animation: ringSpin 3s linear infinite;
+        opacity: 0;
+        transition: opacity .35s;
+    }
+    .sp-ring.playing::before { opacity: 1; }
+    @keyframes ringSpin { to { transform: rotate(360deg); } }
+    .sp-inner {
+        position: relative; z-index: 1;
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: #121212;
+        border: 2px solid rgba(255,255,255,.1);
+        box-shadow: 0 4px 20px rgba(0,0,0,.6);
+        display: flex; align-items: center; justify-content: center;
+        transition: border-color .25s, box-shadow .25s;
+    }
+    .sp-bubble:hover .sp-inner {
+        border-color: #1DB954;
+        box-shadow: 0 6px 24px rgba(29,185,84,.4);
+    }
+    .sp-eq { display: flex; gap: 2.5px; align-items: flex-end; height: 18px; }
+    .sp-bar {
+        display: block;
+        width: 3px;
+        height: 14px;
+        border-radius: 3px;
+        background: #1DB954;
+        transform-origin: bottom;
+        animation: eqBounce 1s ease-in-out infinite;
+        animation-delay: var(--d);
+    }
+    @keyframes eqBounce {
+        0%,100% { transform: scaleY(.25); }
+        50%      { transform: scaleY(1); }
+    }
+    .sp-eq-paused .sp-bar { animation: none; transform: scaleY(.25); }
+    .sp-tip {
+        position: absolute;
+        right: 66px;
+        bottom: 50%;
+        transform: translateY(50%);
+        background: #282828;
+        color: white;
+        font-size: .7rem;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity .2s;
+        box-shadow: 0 4px 12px rgba(0,0,0,.5);
+        border: 1px solid rgba(255,255,255,.08);
+    }
+    .sp-tip::after {
+        content: '';
+        position: absolute;
+        left: 100%; top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-left-color: #282828;
+    }
+    .sp-bubble:hover .sp-tip { opacity: 1; }
+
+    /* Quote visibility in light mode */
+    html:not(.dark) #global-motivation-quote {
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%) !important;
+        border-color: rgba(2, 132, 199, .25) !important;
+        box-shadow: 0 18px 50px rgba(2, 132, 199, .25) !important;
+    }
+    html:not(.dark) #global-quote-text {
+        color: #0f172a !important;
+    }
+
+    /* Quote redesign */
+    .rlife-quote-card {
+        --q-bg: #060d1f;
+        --q-neon: #7dd3fc;
+        --q-dim: rgba(125, 211, 252, 0.45);
+        --q-faint: rgba(125, 211, 252, 0.07);
+        --q-text: #e7f1ff;
+        --q-muted: rgba(125, 211, 252, 0.6);
+        position: fixed;
+        left: 16px;
+        bottom: 16px;
+        z-index: 9999;
+        width: min(320px, 88vw);
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        will-change: transform;
+        background: var(--q-bg);
+        border: 1px solid var(--q-dim);
+        overflow: hidden;
+        clip-path: polygon(
+            12px 0%, calc(100% - 12px) 0%,
+            100% 12px, 100% calc(100% - 12px),
+            calc(100% - 12px) 100%, 12px 100%,
+            0% calc(100% - 12px), 0% 12px
+        );
+        box-shadow:
+            0 0 0 1px rgba(125,211,252,0.1),
+            0 0 40px rgba(125,211,252,0.12),
+            0 24px 60px rgba(0,0,0,0.75);
+        animation: quoteRise .5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes quoteRise {
+        from { opacity:0; transform:translateY(20px) scale(0.97); }
+        to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .rlife-quote-card.rlife-quote-dragging { cursor: grabbing; }
+    .rlife-quote-corner {
+        position: absolute;
+        width: 14px; height: 14px;
+        z-index: 10; pointer-events: none;
+    }
+    .rlife-quote-corner-tl { top:0; left:0;  border-top:2px solid var(--q-neon); border-left:2px solid var(--q-neon); }
+    .rlife-quote-corner-tr { top:0; right:0; border-top:2px solid var(--q-neon); border-right:2px solid var(--q-neon); }
+    .rlife-quote-corner-bl { bottom:0; left:0;  border-bottom:2px solid var(--q-neon); border-left:2px solid var(--q-neon); }
+    .rlife-quote-corner-br { bottom:0; right:0; border-bottom:2px solid var(--q-neon); border-right:2px solid var(--q-neon); }
+    .rlife-quote-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-bottom: 1px solid rgba(125,211,252,0.12);
+        background: rgba(125,211,252,0.05);
+        cursor: grab;
+    }
+    .rlife-quote-topbar-left { display:flex; align-items:center; gap:8px; }
+    .rlife-quote-blinker {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--q-neon);
+        box-shadow: 0 0 8px var(--q-neon), 0 0 16px rgba(125,211,252,0.4);
+        animation: quoteBlink 1.6s step-end infinite;
+    }
+    @keyframes quoteBlink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+    .rlife-quote-sys {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.54rem;
+        letter-spacing: 0.2em;
+        color: var(--q-muted);
+        text-transform: uppercase;
+    }
+    .rlife-quote-close {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.65rem;
+        color: var(--q-muted);
+        background: none;
+        border: 1px solid rgba(125,211,252,0.15);
+        width: 20px; height: 20px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+        transition: all 0.2s;
+    }
+    .rlife-quote-close:hover {
+        color: var(--q-neon);
+        background: rgba(125,211,252,0.12);
+        border-color: var(--q-neon);
+        box-shadow: 0 0 12px rgba(125,211,252,0.3);
+    }
+    .rlife-quote-body { padding: 20px 18px 14px; position: relative; }
+    .rlife-quote-mark {
+        font-family: 'Inter', sans-serif;
+        font-size: 5rem;
+        line-height: 1;
+        color: var(--q-faint);
+        position: absolute;
+        top: 6px; left: 10px;
+        pointer-events: none;
+        filter: drop-shadow(0 0 10px rgba(125,211,252,0.1));
+    }
+    .rlife-quote-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.02rem;
+        color: var(--q-text);
+        line-height: 1.42;
+        letter-spacing: 0.01em;
+        position: relative;
+        z-index: 1;
+        padding-left: 4px;
+        text-shadow: 0 0 24px rgba(125,211,252,0.15);
+        transition: opacity 0.35s ease;
+    }
+    .rlife-quote-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px 13px;
+        border-top: 1px solid rgba(125,211,252,0.08);
+        cursor: grab;
+    }
+    .rlife-quote-author {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.62rem;
+        font-weight: 500;
+        color: var(--q-muted);
+        letter-spacing: 0.07em;
+    }
+    .rlife-quote-drag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 4px;
+        cursor: grab;
+        padding: 6px 10px;
+        opacity: 0.55;
+        border-radius: 10px;
+        border: 1px solid rgba(125,211,252,0.16);
+        background: rgba(125,211,252,0.06);
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s;
+    }
+    .rlife-quote-drag:hover {
+        opacity: 0.85;
+        background: rgba(125,211,252,0.12);
+        border-color: rgba(125,211,252,0.35);
+    }
+    .rlife-quote-drag:active { cursor: grabbing; }
+    .rlife-quote-drag span { display:block; width:14px; height:1px; background:var(--q-neon); }
+    .rlife-quote-scan {
+        position: absolute; inset: 0;
+        background: repeating-linear-gradient(
+            180deg,
+            transparent 0px, transparent 3px,
+            rgba(125,211,252,0.015) 3px, rgba(125,211,252,0.015) 4px
+        );
+        pointer-events: none; z-index: 20;
+    }
+    html:not(.dark) .rlife-quote-card {
+        --q-bg: #e0f2fe;
+        --q-neon: #38bdf8;
+        --q-dim: rgba(56, 189, 248, 0.45);
+        --q-faint: rgba(56, 189, 248, 0.16);
+        --q-text: #0f172a;
+        --q-muted: rgba(15, 23, 42, 0.6);
+        box-shadow: 0 18px 50px rgba(2, 132, 199, .18);
+    }
+</style>
+
+<!-- Global Quote + Spotify Logic (lightweight restore) -->
+<script>
+    let globalQuoteTimer = null;
+    let globalQuoteDragBound = false;
+    let globalQuoteCloseBound = false;
+    let nextQuoteTimeout = null;
+
+    const spotifyStateKey = 'rlife_spotify_state';
+    const spotifyStartedKey = 'rlife_spotify_started';
+    const spotifyPresets = {
+        nature: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8?utm_source=generator',
+        quran: 'https://open.spotify.com/embed/playlist/6DucBXrk2M11buAXRbVzRx?utm_source=generator',
+        relax: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCadgRdKQ?utm_source=generator',
+        motivation: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX3rxVfibe1L0?utm_source=generator'
+    };
+    const spotifyPresetLabels = {
+        nature: 'Nature Sounds',
+        quran: 'Quran (Islamic Recitation)',
+        relax: 'Relax Sounds',
+        motivation: 'Motivation Music'
+    };
+
+    function normalizeSpotifyUrl(url) {
+        if (!url) return '';
+        let clean = String(url).trim();
+        clean = clean.replace('https://open.spotify.com/intl-fr/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl-en/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl/', 'https://open.spotify.com/');
+        clean = clean.split('?')[0];
+        if (clean.includes('/embed/')) return clean + '?utm_source=generator';
+        if (clean.includes('open.spotify.com/')) {
+            clean = clean.replace('open.spotify.com/', 'open.spotify.com/embed/');
+            return clean + '?utm_source=generator';
+        }
+        return url;
+    }
+
+    function normalizeSpotifyListUrl(url) {
+        const clean = normalizeSpotifyUrl(url);
+        if (clean.includes('/embed/playlist/')) {
+            return clean + '&view=list&theme=0';
+        }
+        return clean;
+    }
+
+    function readSpotifyState() {
+        try {
+            const raw = localStorage.getItem(spotifyStateKey);
+            if (!raw) return { enabled: false, open: false, url: '', size: 360, preset: 'nature' };
+            const parsed = JSON.parse(raw);
+            return {
+                enabled: !!parsed.enabled,
+                open: !!parsed.open,
+                url: String(parsed.url || ''),
+                size: Number(parsed.size || 360),
+                preset: String(parsed.preset || 'nature')
+            };
+        } catch (e) {
+            return { enabled: false, open: false, url: '', size: 360, preset: 'nature' };
+        }
+    }
+
+    function writeSpotifyState(state) {
+        try {
+            localStorage.setItem(spotifyStateKey, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    function applySpotifySize(sizeValue) {
+        const root = document.getElementById('global-spotify-widget');
+        const iframe = document.getElementById('global-spotify-iframe');
+        const wrap = document.getElementById('global-spotify-embed-wrap');
+        if (!root || !iframe) return;
+        const sizeKey = sizeValue >= 540 ? 'xl' : sizeValue >= 440 ? 'lg' : sizeValue >= 340 ? 'md' : 'sm';
+        const heightMap = { sm: 152, md: 200, lg: 240, xl: 280 };
+        const h = heightMap[sizeKey] || 200;
+        iframe.style.height = h + 'px';
+        iframe.setAttribute('height', String(h));
+        if (wrap) wrap.style.height = h + 'px';
+        root.classList.remove('sp-sm', 'sp-md', 'sp-lg', 'sp-xl');
+        if (sizeValue >= 540) root.classList.add('sp-xl');
+        else if (sizeValue >= 440) root.classList.add('sp-lg');
+        else if (sizeValue >= 340) root.classList.add('sp-md');
+        else root.classList.add('sp-sm');
+    }
+
+    function renderSpotifyWidget(state) {
+        const root = document.getElementById('global-spotify-widget');
+        const panel = document.getElementById('global-spotify-panel');
+        const iframe = document.getElementById('global-spotify-iframe');
+        const bubble = document.getElementById('sp-bubble');
+        const title = document.getElementById('spotify-current-title');
+        if (!root || !panel || !iframe) return;
+
+        if (!state.enabled) {
+            root.classList.add('hidden');
+            if (bubble) bubble.classList.add('hidden');
+            return;
+        }
+
+        const rawUrl = state.url || spotifyPresets[state.preset] || spotifyPresets.nature;
+        const normalizedUrl = (state.preset === 'nature' || state.preset === 'relax' || state.preset === 'motivation')
+            ? normalizeSpotifyListUrl(rawUrl)
+            : normalizeSpotifyUrl(rawUrl);
+
+        if (title) title.textContent = spotifyPresetLabels[state.preset] || 'Nature Sounds';
+        if (iframe.src !== normalizedUrl) iframe.src = normalizedUrl;
+
+        applySpotifySize(state.size || 360);
+        root.classList.remove('hidden');
+        root.classList.add('sp-visible');
+
+        if (state.open) {
+            panel.classList.remove('hidden');
+            panel.style.display = 'block';
+            if (bubble) bubble.classList.add('hidden');
+        } else {
+            panel.classList.add('hidden');
+            panel.style.display = 'none';
+            if (bubble && String(localStorage.getItem(spotifyStartedKey) || '0') === '1') {
+                bubble.classList.remove('hidden');
+            }
+        }
+    }
+
+    function initSpotifyWidget() {
+        let state = readSpotifyState();
+        renderSpotifyWidget(state);
+
+        const sizeButtons = document.querySelectorAll('.sp-size-btn');
+        const presetButtons = document.querySelectorAll('.spotify-preset');
+        const deleteBtn = document.getElementById('spotify-delete');
+        const bubble = document.getElementById('sp-bubble');
+        const panel = document.getElementById('global-spotify-panel');
+        const root = document.getElementById('global-spotify-widget');
+
+        sizeButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const key = String(btn.getAttribute('data-size') || 'md');
+                const nextSize = key === 'xl' ? 580 : key === 'lg' ? 460 : key === 'md' ? 360 : 280;
+                state.size = nextSize;
+                writeSpotifyState(state);
+                renderSpotifyWidget(state);
+            });
+        });
+
+        presetButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const preset = String(btn.getAttribute('data-preset') || 'nature');
+                state.enabled = true;
+                state.open = true;
+                state.preset = preset;
+                state.url = spotifyPresets[preset] || spotifyPresets.nature;
+                localStorage.setItem(spotifyStartedKey, '1');
+                writeSpotifyState(state);
+                renderSpotifyWidget(state);
+            });
+        });
+
+        bubble?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            state.open = true;
+            state.enabled = true;
+            localStorage.setItem(spotifyStartedKey, '1');
+            writeSpotifyState(state);
+            renderSpotifyWidget(state);
+        });
+
+        deleteBtn?.addEventListener('click', () => {
+            state.enabled = false;
+            state.open = false;
+            state.url = '';
+            state.preset = 'nature';
+            localStorage.setItem(spotifyStartedKey, '0');
+            writeSpotifyState(state);
+            if (panel) panel.classList.add('hidden');
+            if (root) root.classList.add('hidden');
+            if (bubble) bubble.classList.add('hidden');
+        });
+
+        window.addEventListener('rlife-spotify-start', function(event) {
+            const detail = event.detail || {};
+            const preset = String(detail.preset || 'nature');
+            state.enabled = true;
+            state.open = true;
+            state.preset = preset;
+            state.url = String(detail.url || spotifyPresets[preset] || spotifyPresets.nature);
+            localStorage.setItem(spotifyStartedKey, '1');
+            writeSpotifyState(state);
+            renderSpotifyWidget(state);
+        });
+    }
+
+    function isQuoteEnabled() {
+        try {
+            return String(localStorage.getItem('rlife_quote_enabled') || '1') !== '0';
+        } catch (e) {
+            return true;
+        }
+    }
+
+    function getStoredQuotePosition() {
+        try {
+            const raw = localStorage.getItem('rlife_quote_position');
+            if (!raw) return null;
+            const pos = JSON.parse(raw);
+            if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.y)) return null;
+            return { x: Number(pos.x), y: Number(pos.y) };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getDismissedUntil() {
+        try {
+            const raw = localStorage.getItem('rlife_quote_dismissed_until');
+            const value = Number(raw || 0);
+            return Number.isFinite(value) ? value : 0;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    function applyQuotePosition() {
+        const box = document.getElementById('global-motivation-quote');
+        if (!box) return;
+        const pos = getStoredQuotePosition();
+        if (!pos) {
+            box.style.left = '1rem';
+            box.style.bottom = '1rem';
+            box.style.right = 'auto';
+            box.style.top = 'auto';
+            return;
+        }
+        box.style.left = pos.x + 'px';
+        box.style.top = pos.y + 'px';
+        box.style.right = 'auto';
+        box.style.bottom = 'auto';
+    }
+
+    function resetQuoteDragVisuals() {
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (box) {
+            box.style.transform = '';
+            box.style.opacity = '';
+        }
+        if (zone) {
+            zone.classList.remove('scale-110');
+            zone.classList.remove('flex');
+            zone.classList.add('hidden');
+        }
+    }
+
+    function quoteIsOverDropzone() {
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (!box || !zone) return false;
+        const a = box.getBoundingClientRect();
+        const b = zone.getBoundingClientRect();
+        return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    }
+
+    function bindQuoteDrag() {
+        if (globalQuoteDragBound) return;
+        const box = document.getElementById('global-motivation-quote');
+        const zone = document.getElementById('global-quote-dropzone');
+        if (!box || !zone) return;
+        globalQuoteDragBound = true;
+
+        box.addEventListener('pointerdown', function(event) {
+            if (box.classList.contains('hidden')) return;
+            if (event.button !== undefined && event.button !== 0) return;
+            if (event.target && event.target.closest && event.target.closest('#global-quote-close')) return;
+            const rect = box.getBoundingClientRect();
+            box.style.left = rect.left + 'px';
+            box.style.top = rect.top + 'px';
+            box.style.right = 'auto';
+            box.style.bottom = 'auto';
+            box._rlifeStartLeft = rect.left;
+            box._rlifeStartTop = rect.top;
+            box._rlifeStartX = event.clientX;
+            box._rlifeStartY = event.clientY;
+            box.style.transition = 'none';
+            box.classList.add('rlife-quote-dragging');
+            box.setPointerCapture(event.pointerId);
+            zone.classList.remove('hidden');
+            zone.classList.add('flex');
+            event.preventDefault();
+        });
+
+        box.addEventListener('pointermove', function(event) {
+            if (!box.classList.contains('rlife-quote-dragging')) return;
+            const dx = event.clientX - box._rlifeStartX;
+            const dy = event.clientY - box._rlifeStartY;
+            box.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+            if (quoteIsOverDropzone()) zone.classList.add('scale-110');
+            else zone.classList.remove('scale-110');
+        });
+
+        function onDragEnd(event) {
+            if (!box.classList.contains('rlife-quote-dragging')) return;
+            const dx = event.clientX - box._rlifeStartX;
+            const dy = event.clientY - box._rlifeStartY;
+            const shouldDismiss = quoteIsOverDropzone() || (dy > 140 && dx > 50);
+            if (shouldDismiss) {
+                box.classList.add('hidden');
+                try {
+                    localStorage.setItem('rlife_quote_dismissed_until', String(Date.now() + 120000));
+                } catch (e) {}
+            } else {
+                const startLeft = Number(box._rlifeStartLeft || 0);
+                const startTop = Number(box._rlifeStartTop || 0);
+                const nextLeft = startLeft + dx;
+                const nextTop = startTop + dy;
+                const maxLeft = Math.max(8, window.innerWidth - box.offsetWidth - 8);
+                const maxTop = Math.max(8, window.innerHeight - box.offsetHeight - 8);
+                const clampedLeft = Math.min(Math.max(8, nextLeft), maxLeft);
+                const clampedTop = Math.min(Math.max(8, nextTop), maxTop);
+                box.style.left = clampedLeft + 'px';
+                box.style.top = clampedTop + 'px';
+                box.style.right = 'auto';
+                box.style.bottom = 'auto';
+                try {
+                    localStorage.setItem('rlife_quote_position', JSON.stringify({ x: clampedLeft, y: clampedTop }));
+                } catch (e) {}
+            }
+            box.style.transform = '';
+            box.style.transition = '';
+            box.classList.remove('rlife-quote-dragging');
+            resetQuoteDragVisuals();
+        }
+
+        box.addEventListener('pointerup', onDragEnd);
+        box.addEventListener('pointercancel', onDragEnd);
+    }
+
+    function bindQuoteClose() {
+        if (globalQuoteCloseBound) return;
+        const closeBtn = document.getElementById('global-quote-close');
+        const box = document.getElementById('global-motivation-quote');
+        if (!closeBtn || !box) return;
+        globalQuoteCloseBound = true;
+        closeBtn.addEventListener('click', () => {
+            box.classList.add('hidden');
+            if (nextQuoteTimeout) {
+                clearTimeout(nextQuoteTimeout);
+                nextQuoteTimeout = null;
+            }
+            try {
+                localStorage.setItem('rlife_quote_dismissed_until', String(Date.now() + 120000));
+            } catch (e) {}
+        });
+    }
+
+    async function loadGlobalQuote() {
+        const box = document.getElementById('global-motivation-quote');
+        const text = document.getElementById('global-quote-text');
+        const author = document.getElementById('global-quote-author');
+        if (!box || !text) return;
+        applyQuotePosition();
+        if (!isQuoteEnabled()) {
+            box.classList.add('hidden');
+            return;
+        }
+        const dismissedUntil = getDismissedUntil();
+        if (dismissedUntil && Date.now() < dismissedUntil) {
+            box.classList.add('hidden');
+            return;
+        }
+        try {
+            let quoteType = 'motivation';
+            try {
+                quoteType = String(localStorage.getItem('rlife_quote_type') || 'motivation').trim() || 'motivation';
+            } catch (e) {}
+            const response = await fetch('{{ path('app_wellbeing_motivation_quote') }}' + '?type=' + encodeURIComponent(quoteType), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                cache: 'no-store'
+            });
+            const data = await response.json();
+            text.textContent = data.quote || 'One focused step now beats overthinking.';
+            if (author) {
+                const typeLabel = (quoteType || 'motivation').toUpperCase();
+                author.textContent = '— ' + typeLabel;
+            }
+            box.classList.remove('hidden');
+            bindQuoteDrag();
+            bindQuoteClose();
+        } catch (e) {
+            box.classList.add('hidden');
+        }
+    }
+
+    function initGlobalQuoteTicker() {
+        if (globalQuoteTimer) {
+            clearInterval(globalQuoteTimer);
+            globalQuoteTimer = null;
+        }
+        if (nextQuoteTimeout) {
+            clearTimeout(nextQuoteTimeout);
+            nextQuoteTimeout = null;
+        }
+        resetQuoteDragVisuals();
+        applyQuotePosition();
+        if (!isQuoteEnabled()) {
+            const box = document.getElementById('global-motivation-quote');
+            if (box) box.classList.add('hidden');
+            return;
+        }
+        loadGlobalQuote();
+        globalQuoteTimer = setInterval(loadGlobalQuote, 120000);
+    }
+
+    window.applyQuotePosition = applyQuotePosition;
+    window.initGlobalQuoteTicker = initGlobalQuoteTicker;
+    window.initSpotifyWidget = initSpotifyWidget;
+</script>
+
 <!-- ==================== PET MANAGEMENT MODAL ==================== -->
 {% if app.user %}
 <div id="petManagementModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
@@ -1697,6 +2671,15 @@
             window.RLife3D.autoInitPetScenes();
             setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
         }
+        if (window.RLifeAudio && typeof window.RLifeAudio.resume === 'function') {
+            window.RLifeAudio.resume();
+        }
+        if (typeof window.initGlobalQuoteTicker === 'function') {
+            window.initGlobalQuoteTicker();
+        }
+        if (typeof window.initSpotifyWidget === 'function') {
+            window.initSpotifyWidget();
+        }
         console.log('Page initialized: Icons loaded');
     });
     document.addEventListener('turbo:load', function() {
@@ -1704,6 +2687,15 @@
         if (window.RLife3D) {
             window.RLife3D.autoInitPetScenes();
             setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
+        }
+        if (window.RLifeAudio && typeof window.RLifeAudio.resume === 'function') {
+            window.RLifeAudio.resume();
+        }
+        if (typeof window.initGlobalQuoteTicker === 'function') {
+            window.initGlobalQuoteTicker();
+        }
+        if (typeof window.initSpotifyWidget === 'function') {
+            window.initSpotifyWidget();
         }
     });
     document.addEventListener('turbo:frame-load', function() { window.initIcons(); });

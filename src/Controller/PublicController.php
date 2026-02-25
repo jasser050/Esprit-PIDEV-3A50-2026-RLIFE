@@ -72,6 +72,7 @@ class PublicController extends AbstractController
             $weeklyGoal = $request->request->get('weekly_goal', 5);
             $interests = $request->request->all('interests') ?? [];
             $notifications = $request->request->get('notifications') ? true : false;
+            $avatarType = $request->request->get('avatar_type');
             
             // Validate required fields
             if (!$email || !$password || !$firstName || !$lastName || !$username) {
@@ -102,8 +103,10 @@ class PublicController extends AbstractController
                 $user->setUsername($username);
                 $user->setGender($gender);
                 
-                // Assign avatar based on gender
-                $avatarType = $gender === 'female' ? 'female_avatar_1' : 'male_avatar_1';
+                // Assign avatar (from selection or default by gender)
+                if (!$avatarType) {
+                    $avatarType = $gender === 'female' ? 'female-avatar.glb' : 'male-avatar.glb';
+                }
                 $user->setAvatarType($avatarType);
                 
                 // Hash password

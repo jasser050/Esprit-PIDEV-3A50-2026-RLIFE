@@ -14,11 +14,61 @@
     .spline-viewer {
         z-index: 1 !important;
     }
+    .avatar-card {
+        position: relative;
+        border-radius: 16px;
+        border: 2px solid rgba(148,163,184,0.3);
+        background: rgba(15,23,42,0.6);
+        overflow: hidden;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+    .avatar-card.selected {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99,102,241,0.35), 0 12px 32px rgba(15,23,42,0.4);
+        transform: translateY(-2px);
+    }
+    .avatar-card .avatar-canvas-container {
+        height: 160px;
+        width: 100%;
+        background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.18), transparent 60%);
+    }
+    .avatar-card .avatar-label {
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #cbd5f5;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        border-top: 1px solid rgba(148,163,184,0.15);
+        background: rgba(2,6,23,0.6);
+    }
+    .avatar-card .avatar-check {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: rgba(15,23,42,0.8);
+        border: 1px solid rgba(148,163,184,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transform: scale(0.8);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .avatar-card.selected .avatar-check {
+        opacity: 1;
+        transform: scale(1);
+    }
 </style>
 {% endblock %}
 
 {% block javascripts %}
 {{ parent() }}
+{{ encore_entry_script_tags('avatar-selector') }}
 <!-- Spline 3D Viewer -->
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
 <!-- face-api.js for Face ID -->
@@ -276,6 +326,36 @@
                                 </div>
                             </label>
                         </div>
+                    </div>
+
+                    <!-- Avatar Gallery -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Choose your avatar</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {% set avatars = [
+                                { file: 'male-avatar.glb', label: 'Classic (Male)' },
+                                { file: 'male-avatar1.glb', label: 'Explorer (Male)' },
+                                { file: 'male-avatar2.glb', label: 'Scholar (Male)' },
+                                { file: 'male-avatar3.glb', label: 'Athlete (Male)' },
+                                { file: 'male-avatar4.glb', label: 'Artist (Male)' },
+                                { file: 'male-avatar5.glb', label: 'Tech (Male)' },
+                                { file: 'male-avatar6.glb', label: 'Creative (Male)' },
+                                { file: 'male-avatar7.glb', label: 'Leader (Male)' },
+                                { file: 'female-avatar.glb', label: 'Classic (Female)' },
+                                { file: 'female-avatar2.glb', label: 'Elegant (Female)' },
+                                { file: 'female-avatar3.glb', label: 'Professional (Female)' }
+                            ] %}
+                            {% for avatar in avatars %}
+                                <div class="avatar-card" data-avatar="{{ avatar.file }}">
+                                    <div class="avatar-canvas-container" data-avatar-path="/avatars/{{ avatar.file }}"></div>
+                                    <div class="avatar-check">
+                                        <i data-lucide="check" class="w-4 h-4 text-primary-300"></i>
+                                    </div>
+                                    <div class="avatar-label">{{ avatar.label }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="avatar_type" name="avatar_type" value="male-avatar.glb">
                     </div>
 
                     <!-- Study Level -->

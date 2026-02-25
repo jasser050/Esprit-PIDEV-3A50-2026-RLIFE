@@ -42,6 +42,7 @@
                             <!-- 3D Avatar Animation Container (INSIDE profile pic) -->
                             <div id="avatar-climb-container" 
                                  data-gender="{{ app.user.gender ?? 'male' }}" 
+                                 data-avatar-type="{{ app.user.avatarType ?: ((app.user.gender ?? 'male') == 'female' ? 'female-avatar.glb' : 'male-avatar.glb') }}"
                                  class="absolute inset-0 z-10 pointer-events-none">
                             </div>
                         </div>
