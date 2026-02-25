@@ -196,75 +196,50 @@ $course->nomMatiere = $matieresNames
     }
 
 #[Route('/new', name: 'app_courses_new', methods: ['GET', 'POST'])]
-    public function new(
-        Request $request,
-        EntityManagerInterface $entityManager,
-        MatiereRepository $matiereRepository
-    ): Response {
-        $evaluation = new EvaluationMatiere();
-        $allMatieres = $matiereRepository->findAll();
-        
-        $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
-        $form->handleRequest($request);
+public function new(
+    Request $request,
+    EntityManagerInterface $entityManager,
+    MatiereRepository $matiereRepository
+): Response {
+    $evaluation = new EvaluationMatiere();
+    $allMatieres = $matiereRepository->findAll();
+    
+    $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
+    $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            $this->addFlash('info', '✅ Formulaire soumis');
-            
-            // Vérifier si le formulaire est valide
-            if (!$form->isValid()) {
-                $this->addFlash('error', '❌ Formulaire invalide');
+    if ($form->isSubmitted() && $form->isValid()) {
+        $matiereId = $request->request->get('matiere_id');
+        $matiere = $matiereId ? $matiereRepository->find((int)$matiereId) : null;
+
+        if (!$matiere) {
+            $this->addFlash('error', '❌ No subject selected.');
+        } else {
+            try {
+                $evaluation->setUser($this->getUser());
                 
-                // Afficher TOUTES les erreurs
-                foreach ($form->getErrors(true) as $error) {
-                    $this->addFlash('error', '🔴 ' . $error->getMessage());
-                }
-            } else {
-                $this->addFlash('info', '✅ Formulaire valide');
-            }
-            
-            $matiereId = $request->request->get('matiere_id');
-            $this->addFlash('info', 'Matière ID: ' . ($matiereId ?: 'VIDE'));
-            
-            if (!$matiereId) {
-                $this->addFlash('error', '❌ Pas de matière sélectionnée');
-            } else {
-                $matiere = $matiereRepository->find((int)$matiereId);
-                $this->addFlash('info', 'Matière: ' . ($matiere ? $matiere->getNomMatiere() : 'NULL'));
+                $entityManager->persist($evaluation);
+                $entityManager->flush();
                 
-                if ($matiere && $form->isValid()) {
-                    try {
-                        $this->addFlash('info', '🚀 Début enregistrement...');
-                        
-                        $evaluation->setUser($this->getUser());
-                        $this->addFlash('info', '✅ User défini');
-                        
-                        $entityManager->persist($evaluation);
-                        $entityManager->flush();
-                        $this->addFlash('info', '✅ Evaluation enregistrée - ID: ' . $evaluation->getIdEval());
-                        
-                        $evalMat = new EvalMat();
-                        $evalMat->setEvaluation($evaluation);
-                        $evalMat->setMatiere($matiere);
-                        $entityManager->persist($evalMat);
-                        $entityManager->flush();
-                        $this->addFlash('info', '✅ EvalMat enregistré - ID: ' . $evalMat->getId());
-                        
-                        $this->addFlash('success', '🎉 Évaluation ajoutée avec succès !');
-                        return $this->redirectToRoute('app_courses');
-                        
-                    } catch (\Exception $e) {
-                        $this->addFlash('error', '💥 Erreur SQL: ' . $e->getMessage());
-                    }
-                }
+                $evalMat = new EvalMat();
+                $evalMat->setEvaluation($evaluation);
+                $evalMat->setMatiere($matiere);
+                $entityManager->persist($evalMat);
+                $entityManager->flush();
+                
+                $this->addFlash('success', '🎉 Evaluation added successfully!');
+                return $this->redirectToRoute('app_courses');
+                
+            } catch (\Exception $e) {
+                $this->addFlash('error', '❌ Something went wrong, please try again.');
             }
         }
-
-        return $this->render('pages/courses/new.html.twig', [
-            'form' => $form->createView(),
-            'allMatieres' => $allMatieres,
-        ]);
     }
 
+    return $this->render('pages/courses/new.html.twig', [
+        'form' => $form->createView(),
+        'allMatieres' => $allMatieres,
+    ]);
+}
 
 
 
@@ -313,57 +288,27 @@ public function edit(
     MatiereRepository $matiereRepository
 ): Response {
 
-    $allMatieres = $matiereRepository->findAll();
-
     $form = $this->createForm(EvaluationMatiereType::class, $evaluation);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
-
-        $matiereId = $request->request->get('matiere_id');
-
-        if ($matiereId) {
-
-            $matiere = $matiereRepository->find((int) $matiereId);
-
-            if (!$matiere) {
-                $this->addFlash('error', 'Matière invalide.');
-                return $this->redirectToRoute('app_courses_edit', [
-                    'id' => $evaluation->getId()
-                ]);
-            }
-
-            // 🔥 Supprimer proprement les anciennes relations
-            foreach ($evaluation->getEvalMats() as $evalMat) {
-                $evaluation->removeEvalMat($evalMat);
-                $entityManager->remove($evalMat);
-            }
-
-            // 🔥 Ajouter la nouvelle relation
-            $evalMat = new EvalMat();
-            $evalMat->setEvaluation($evaluation);
-            $evalMat->setMatiere($matiere);
-
-            $evaluation->addEvalMat($evalMat);
-
-            $entityManager->persist($evalMat);
-        }
-
+        // ✅ La matière ne change pas en edit — juste flush()
         $entityManager->flush();
 
-        $this->addFlash('success', 'Évaluation mise à jour avec succès 🎉');
-
+        $this->addFlash('success', 'Evaluation updated successfully!');
         return $this->redirectToRoute('app_courses');
     }
 
+    if ($form->isSubmitted() && !$form->isValid()) {
+        $this->addFlash('error', 'Please correct the errors below before submitting.');
+    }
+
     return $this->render('pages/courses/edit.html.twig', [
-        'form' => $form->createView(),
+        'form'       => $form->createView(),
         'evaluation' => $evaluation,
-        'allMatieres' => $allMatieres,
+        'allMatieres' => $matiereRepository->findAll(),
     ]);
 }
-
-
 
 
 

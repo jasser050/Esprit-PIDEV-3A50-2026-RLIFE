@@ -10,7 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -27,12 +26,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank(message: 'Email is required')]
-    #[Assert\Email(message: 'Please enter a valid email address')]
-    #[Assert\Length(
-        max: 180,
-        maxMessage: 'Email cannot be longer than {{ limit }} characters'
-    )]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, nullable: true, unique: true)]
@@ -51,45 +44,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'First name is required')]
-    #[Assert\Length(
-        min: 2,
-        max: 100,
-        minMessage: 'First name must be at least {{ limit }} characters',
-        maxMessage: 'First name cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z\s\-\']+$/',
-        message: 'First name can only contain letters, spaces, hyphens and apostrophes'
-    )]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
-    #[Assert\NotBlank(message: 'Last name is required')]
-    #[Assert\Length(
-        min: 2,
-        max: 100,
-        minMessage: 'Last name must be at least {{ limit }} characters',
-        maxMessage: 'Last name cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z\s\-\']+$/',
-        message: 'Last name can only contain letters, spaces, hyphens and apostrophes'
-    )]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 50)]
-    #[Assert\NotBlank(message: 'Username is required')]
-    #[Assert\Length(
-        min: 3,
-        max: 50,
-        minMessage: 'Username must be at least {{ limit }} characters',
-        maxMessage: 'Username cannot be longer than {{ limit }} characters'
-    )]
-    #[Assert\Regex(
-        pattern: '/^[a-zA-Z0-9_]+$/',
-        message: 'Username can only contain letters, numbers and underscores'
-    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -99,11 +59,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phoneNumber = null;
 
     #[ORM\Column(length: 10)]
-    #[Assert\NotBlank(message: 'Gender is required')]
-    #[Assert\Choice(
-        choices: ['male', 'female', 'other'],
-        message: 'Please select a valid gender'
-    )]
     private ?string $gender = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -155,9 +110,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private int $coins = 0;
 
     /**
-     
+     * @var Collection<int, Career>
      */
-       private Collection $careers;
+    #[ORM\OneToMany(targetEntity: Career::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $careers;
 
     #[ORM\OneToOne(targetEntity: UserSettings::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?UserSettings $settings = null;
@@ -469,19 +425,31 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     
-     */
     public function getCareers(): Collection
     {
         return $this->careers;
     }
 
-    
-      
-        
+    public function addCareer(Career $career): static
+    {
+        if (!$this->careers->contains($career)) {
+            $this->careers->add($career);
+            $career->setUser($this);
+        }
 
-    
+        return $this;
+    }
+
+    public function removeCareer(Career $career): static
+    {
+        if ($this->careers->removeElement($career)) {
+            if ($career->getUser() === $this) {
+                $career->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 
     public function getSettings(): ?UserSettings
     {
@@ -592,7 +560,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->projects;
     }
 
-    public function addProject(Project $project): self
+    public function addProject(Project $project): static
     {
         if (!$this->projects->contains($project)) {
             $this->projects->add($project);
@@ -602,7 +570,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeProject(Project $project): self
+    public function removeProject(Project $project): static
     {
         if ($this->projects->removeElement($project)) {
             if ($project->getUser() === $this) {
@@ -621,7 +589,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->assignments;
     }
 
-    public function addAssignment(Assignment $assignment): self
+    public function addAssignment(Assignment $assignment): static
     {
         if (!$this->assignments->contains($assignment)) {
             $this->assignments->add($assignment);
@@ -631,7 +599,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeAssignment(Assignment $assignment): self
+    public function removeAssignment(Assignment $assignment): static
     {
         if ($this->assignments->removeElement($assignment)) {
             if ($assignment->getUser() === $this) {
@@ -650,7 +618,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->decks;
     }
 
-    public function addDeck(Deck $deck): self
+    public function addDeck(Deck $deck): static
     {
         if (!$this->decks->contains($deck)) {
             $this->decks->add($deck);
@@ -660,7 +628,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeDeck(Deck $deck): self
+    public function removeDeck(Deck $deck): static
     {
         if ($this->decks->removeElement($deck)) {
             if ($deck->getUser() === $this) {
@@ -671,223 +639,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-// ==========================================
-// 🔥 SYSTÈME DE STREAK - DÉBUT
-// ==========================================
-
-/**
- * 🔥 Calculer le streak de notes élevées (> 75%)
- */
-public function getHighScoreStreak(?Matiere $matiere = null): array
-{
-    $evaluations = $this->getEvaluationsOrderedByDate($matiere);
-    
-    $currentStreak = 0;
-    $longestStreak = 0;
-    $badges = [];
-    
-    foreach ($evaluations as $eval) {
-        if ($eval->getPercentage() >= 75) {
-            $currentStreak++;
-            if ($currentStreak > $longestStreak) {
-                $longestStreak = $currentStreak;
-            }
-        } else {
-            $currentStreak = 0;
-        }
-    }
-    
-    // Attribution des badges selon le streak actuel
-    if ($currentStreak >= 10) {
-        $badges[] = '👑 Legend';
-    } elseif ($currentStreak >= 7) {
-        $badges[] = '🔥 On Fire';
-    } elseif ($currentStreak >= 5) {
-        $badges[] = '⚡ Unstoppable';
-    } elseif ($currentStreak >= 3) {
-        $badges[] = '⭐ Great Streak';
-    }
-    
-    return [
-        'current' => $currentStreak,
-        'longest' => $longestStreak,
-        'badges' => $badges,
-        'status' => $this->getStreakStatus($currentStreak)
-    ];
-}
-
-/**
- * 🎯 Calculer le streak de notes parfaites (> 90%)
- */
-public function getPerfectScoreStreak(?Matiere $matiere = null): array
-{
-    $evaluations = $this->getEvaluationsOrderedByDate($matiere);
-    
-    $currentStreak = 0;
-    $longestStreak = 0;
-    
-    foreach ($evaluations as $eval) {
-        if ($eval->getPercentage() >= 90) {
-            $currentStreak++;
-            if ($currentStreak > $longestStreak) {
-                $longestStreak = $currentStreak;
-            }
-        } else {
-            $currentStreak = 0;
-        }
-    }
-    
-    $badges = [];
-    if ($currentStreak >= 5) {
-        $badges[] = '🌟 Master';
-    } elseif ($currentStreak >= 3) {
-        $badges[] = '💎 Perfectionist';
-    } elseif ($currentStreak >= 2) {
-        $badges[] = '✨ Excellent';
-    }
-    
-    return [
-        'current' => $currentStreak,
-        'longest' => $longestStreak,
-        'badges' => $badges,
-        'status' => $this->getStreakStatus($currentStreak)
-    ];
-}
-
-/**
- * 📈 Calculer le streak de progression
- */
-public function getProgressionStreak(?Matiere $matiere = null): array
-{
-    $evaluations = $this->getEvaluationsOrderedByDate($matiere);
-    
-    $currentStreak = 0;
-    $longestStreak = 0;
-    $previousPercentage = null;
-    
-    foreach ($evaluations as $eval) {
-        if ($previousPercentage !== null && $eval->getPercentage() > $previousPercentage) {
-            $currentStreak++;
-            if ($currentStreak > $longestStreak) {
-                $longestStreak = $currentStreak;
-            }
-        } else {
-            $currentStreak = 0;
-        }
-        $previousPercentage = $eval->getPercentage();
-    }
-    
-    $badges = [];
-    if ($currentStreak >= 7) {
-        $badges[] = '🎖️ Excellence Path';
-    } elseif ($currentStreak >= 5) {
-        $badges[] = '🚀 Momentum';
-    } elseif ($currentStreak >= 3) {
-        $badges[] = '📈 Rising Star';
-    }
-    
-    return [
-        'current' => $currentStreak,
-        'longest' => $longestStreak,
-        'badges' => $badges,
-        'status' => $this->getStreakStatus($currentStreak)
-    ];
-}
-
-/**
- * 🔴 Streak de priorités urgentes bien gérées
- */
-public function getUrgentPriorityStreak(): array
-{
-    $urgentEvals = array_filter(
-        $this->getEvaluationsOrderedByDate()->toArray(),
-        fn($eval) => $eval->getPrioriteE() === 'urgent'
-    );
-    
-    $currentStreak = 0;
-    $longestStreak = 0;
-    
-    foreach ($urgentEvals as $eval) {
-        if ($eval->getPercentage() >= 70) {
-            $currentStreak++;
-            if ($currentStreak > $longestStreak) {
-                $longestStreak = $currentStreak;
-            }
-        } else {
-            $currentStreak = 0;
-        }
-    }
-    
-    $badges = [];
-    if ($currentStreak >= 10) {
-        $badges[] = '💪 Clutch Player';
-    } elseif ($currentStreak >= 5) {
-        $badges[] = '🎯 Crisis Manager';
-    } elseif ($currentStreak >= 3) {
-        $badges[] = '⏰ Pressure Master';
-    }
-    
-    return [
-        'current' => $currentStreak,
-        'longest' => $longestStreak,
-        'badges' => $badges,
-        'status' => $this->getStreakStatus($currentStreak)
-    ];
-}
-
-/**
- * 📊 Obtenir toutes les statistiques de streak
- */
-public function getAllStreakStats(?Matiere $matiere = null): array
-{
-    return [
-        'high_score' => $this->getHighScoreStreak($matiere),
-        'perfect_score' => $this->getPerfectScoreStreak($matiere),
-        'progression' => $this->getProgressionStreak($matiere),
-        'urgent_priority' => $this->getUrgentPriorityStreak(),
-    ];
-}
-
-/**
- * 🏆 Obtenir tous les badges gagnés
- */
-public function getAllBadges(): array
-{
-    $allStats = $this->getAllStreakStats();
-    $allBadges = [];
-    
-    foreach ($allStats as $type => $stats) {
-        foreach ($stats['badges'] as $badge) {
-            $allBadges[] = [
-                'name' => $badge,
-                'type' => $type,
-                'streak' => $stats['current']
-            ];
-        }
-    }
-    
-    return $allBadges;
-}
-
-/**
- * Obtenir le statut visuel du streak
- */
-private function getStreakStatus(int $streak): array
-{
-    if ($streak >= 10) {
-        return ['emoji' => '👑', 'message' => 'LEGENDARY!', 'color' => 'gold', 'class' => 'warning'];
-    } elseif ($streak >= 7) {
-        return ['emoji' => '🔥', 'message' => 'ON FIRE!', 'color' => 'red', 'class' => 'danger'];
-    } elseif ($streak >= 5) {
-        return ['emoji' => '⚡', 'message' => 'Unstoppable!', 'color' => 'orange', 'class' => 'warning'];
-    } elseif ($streak >= 3) {
-        return ['emoji' => '⭐', 'message' => 'Great!', 'color' => 'blue', 'class' => 'primary'];
-    } elseif ($streak >= 1) {
-        return ['emoji' => '✨', 'message' => 'Keep Going!', 'color' => 'lightblue', 'class' => 'info'];
-    }
-    
-    return ['emoji' => '💤', 'message' => 'Start Now!', 'color' => 'gray', 'class' => 'secondary'];
-}
+   
 
 /**
  * Obtenir les évaluations triées par date
@@ -1713,139 +1465,6 @@ private function getMotivationalQuote(float $average): string
     public function setAvatarType(?string $avatarType): self
     {
         $this->avatarType = $avatarType;
-        return $this;
-    }
-
-    public function isVerified(): bool
-    {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): self
-    {
-        $this->isVerified = $isVerified;
-        return $this;
-    }
-
-    public function getVerificationToken(): ?string
-    {
-        return $this->verificationToken;
-    }
-
-    public function setVerificationToken(?string $verificationToken): self
-    {
-        $this->verificationToken = $verificationToken;
-        return $this;
-    }
-
-    public function getVerificationTokenExpiresAt(): ?\DateTimeImmutable
-    {
-        return $this->verificationTokenExpiresAt;
-    }
-
-    public function setVerificationTokenExpiresAt(?\DateTimeImmutable $verificationTokenExpiresAt): self
-    {
-        $this->verificationTokenExpiresAt = $verificationTokenExpiresAt;
-        return $this;
-    }
-
-    public function isVerificationTokenExpired(): bool
-    {
-        if (!$this->verificationTokenExpiresAt) {
-            return true;
-        }
-        return $this->verificationTokenExpiresAt < new \DateTimeImmutable();
-    }
-
-    public function getFaceDescriptor(): ?array
-    {
-        return $this->faceDescriptor;
-    }
-
-    public function setFaceDescriptor(?array $faceDescriptor): static
-    {
-        $this->faceDescriptor = $faceDescriptor;
-        return $this;
-    }
-
-    public function hasFaceRegistered(): bool
-    {
-        return $this->faceDescriptor !== null && count($this->faceDescriptor) > 0;
-    }
-
-    public function getResetPasswordToken(): ?string
-    {
-        return $this->resetPasswordToken;
-    }
-
-    public function setResetPasswordToken(?string $resetPasswordToken): static
-    {
-        $this->resetPasswordToken = $resetPasswordToken;
-        return $this;
-    }
-
-    public function getResetPasswordTokenExpiresAt(): ?\DateTimeImmutable
-    {
-        return $this->resetPasswordTokenExpiresAt;
-    }
-
-    public function setResetPasswordTokenExpiresAt(?\DateTimeImmutable $resetPasswordTokenExpiresAt): static
-    {
-        $this->resetPasswordTokenExpiresAt = $resetPasswordTokenExpiresAt;
-        return $this;
-    }
-
-    public function isResetPasswordTokenExpired(): bool
-    {
-        if (!$this->resetPasswordTokenExpiresAt) {
-            return true;
-        }
-        return $this->resetPasswordTokenExpiresAt < new \DateTimeImmutable();
-    }
-
-    public function getCoins(): int
-    {
-        return $this->coins;
-    }
-
-    public function setCoins(int $coins): static
-    {
-        $this->coins = max(0, $coins);
-        return $this;
-    }
-
-    public function addCoins(int $amount): static
-    {
-        $this->coins += $amount;
-        return $this;
-    }
-
-    public function removeCoins(int $amount): static
-    {
-        $this->coins = max(0, $this->coins - $amount);
-        return $this;
-    }
-
-    public function spendCoins(int $amount): static
-    {
-        return $this->removeCoins($amount);
-    }
-
-    /**
-     * @return Collection<int, Pet>
-     */
-    public function getPets(): Collection
-    {
-        return $this->pets;
-    }
-
-    public function addPet(Pet $pet): static
-    {
-        if (!$this->pets->contains($pet)) {
-            $this->pets->add($pet);
-            $pet->setUser($this);
-        }
-
         return $this;
     }
 

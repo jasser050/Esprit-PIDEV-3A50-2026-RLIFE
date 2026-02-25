@@ -1,0 +1,1068 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Flashcard Guide — Create the Perfect Card{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { inter: ['Inter', 'sans-serif'] },
+      colors: {
+        emerald: { 400:'#34d399', 500:'#10b981', 600:'#059669' },
+        amber:   { 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706' },
+      }
+    }
+  }
+}
+</script>
+<style>
+* { font-family: 'Inter', sans-serif; box-sizing: border-box; color: black; }
+
+/* ─── FLIP CARD ─── */
+.flip-scene {
+  perspective: 1200px;
+  cursor: pointer;
+}
+.flip-card {
+  position: relative;
+  width: 100%;
+  transition: transform 0.7s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+}
+.flip-scene.flipped .flip-card {
+  transform: rotateY(180deg);
+}
+.flip-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ─── SHIMMER ─── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.shimmer-text {
+  background: linear-gradient(90deg, #10b981, #fbbf24, #10b981);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ─── PULSE RING ─── */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0;   }
+}
+.pulse-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid #10b981;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* ─── FLOAT ─── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px);  }
+  50%       { transform: translateY(-6px); }
+}
+.float { animation: float 3s ease-in-out infinite; }
+
+/* ─── SLIDE IN ─── */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+.slide-in { animation: slideInUp 0.5s ease both; }
+
+/* ─── TAB ACTIVE ─── */
+.model-tab.active {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(16,185,129,0.35);
+}
+
+/* ─── QUALITY BAR ANIMATE ─── */
+.q-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  width: 0;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #10b981; border-radius: 9999px; }
+
+/* ─── HINT BOUNCE ─── */
+@keyframes bounce-x {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(4px); }
+}
+.bounce-hint { animation: bounce-x 1.2s ease-in-out infinite; }
+
+/* ─── GRADIENT BORDER ─── */
+.gradient-border {
+  position: relative;
+  border-radius: 1.25rem;
+  padding: 1px;
+  background: linear-gradient(135deg, #10b981, #fbbf24, #ec4899);
+}
+.gradient-border-inner {
+  background: white;
+  border-radius: calc(1.25rem - 1px);
+}
+
+/* ─── GLOWING BTN ─── */
+.btn-glow {
+  box-shadow: 0 0 20px rgba(16,185,129,0.4);
+  transition: box-shadow 0.3s, transform 0.2s;
+}
+.btn-glow:hover {
+  box-shadow: 0 0 35px rgba(16,185,129,0.65);
+  transform: translateY(-2px);
+}
+
+/* ─── TYPING DOTS ─── */
+@keyframes dot-bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40%            { transform: scale(1.1); opacity: 1;   }
+}
+.dot-1 { animation: dot-bounce 1.2s infinite; }
+.dot-2 { animation: dot-bounce 1.2s 0.2s infinite; }
+.dot-3 { animation: dot-bounce 1.2s 0.4s infinite; }
+
+/* ─── STEP CONNECTOR ─── */
+.step-line::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 48px;
+  width: 2px; height: calc(100% + 24px);
+  background: linear-gradient(180deg, #10b981, transparent);
+  transform: translateX(-50%);
+}
+
+/* Override white text on dark/colored backgrounds */
+.flip-face *,
+.flip-back *,
+.bg-gradient-to-r.from-emerald-500 *,
+.bg-gradient-to-br.from-emerald-500 *,
+.bg-gradient-to-br.from-gray-900 *,
+.bg-gradient-to-br.from-gray-900 p,
+.bg-gradient-to-br.from-gray-900 span,
+.bg-gradient-to-br.from-gray-900 div,
+.bg-gradient-to-r.from-gray-900 *,
+[class*="bg-gradient-to"][class*="from-gray-9"] *,
+[class*="bg-gradient-to"][class*="from-emerald"] *,
+[class*="bg-gradient-to"][class*="from-blue-6"] *,
+[class*="bg-gradient-to"][class*="from-amber-5"] *,
+[class*="bg-gradient-to"][class*="from-rose-6"] *,
+[class*="bg-gradient-to"][class*="from-teal-6"] *,
+[class*="bg-gradient-to"][class*="from-violet-6"] *,
+[class*="bg-gradient-to"][class*="from-indigo"] * {
+  color: inherit;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-emerald-50/30 font-inter">
+
+  <!-- ████ HERO ████ -->
+  <div class="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-emerald-900 pt-16 pb-20 px-4">
+    <!-- Background pattern -->
+    <div class="absolute inset-0 opacity-10"
+         style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 40px 40px;"></div>
+
+    <!-- Glow orbs -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-500 rounded-full opacity-10 blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-80 h-80 bg-amber-500 rounded-full opacity-10 blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
+
+    <div class="relative max-w-4xl mx-auto text-center">
+      <!-- Back -->
+      <a href="{{ path('app_flashcard_new', {deck_id: deckId}) }}"
+         class="inline-flex items-center gap-2 text-gray-400 hover:text-emerald-400 text-sm font-medium mb-8 transition-colors duration-200 group">
+        <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to the form
+      </a>
+
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-4 py-1.5 mb-6">
+        <span class="relative flex h-2 w-2 pulse-ring">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full block"></span>
+        </span>
+        <span class="text-emerald-400 text-xs font-700 tracking-widest uppercase">Interactive Guide · AI Enabled</span>
+      </div>
+
+      <h1 class="text-4xl md:text-6xl font-800 text-white leading-tight mb-4">
+        Create the perfect
+        <span class="shimmer-text block">flashcard. 🧠</span>
+      </h1>
+      <p class="text-gray-400 text-lg font-300 max-w-xl mx-auto mb-10 leading-relaxed">
+        6 interactive templates, animated flip cards, AI coach — everything you need to memorize effectively.
+      </p>
+
+      <!-- Stats -->
+      <div class="inline-flex items-center gap-0 bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <div class="px-8 py-4 text-center border-r border-white/10">
+          <div class="text-2xl font-800 text-emerald-400">6</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wider mt-0.5">Templates</div>
+        </div>
+        <div class="px-8 py-4 text-center border-r border-white/10">
+          <div class="text-2xl font-800 text-amber-400">3D</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wider mt-0.5">Real Flip</div>
+        </div>
+        <div class="px-8 py-4 text-center">
+          <div class="text-2xl font-800 text-pink-400">AI</div>
+          <div class="text-xs text-gray-500 uppercase tracking-wider mt-0.5">Coach</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ████ STICKY NAV ████ -->
+  <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 flex gap-1 overflow-x-auto py-2 scrollbar-hide">
+      <a href="#models"     class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">📐 Templates</a>
+      <a href="#ai-coach"   class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">🤖 AI Coach</a>
+      <a href="#quality"    class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">✅ Quality</a>
+      <a href="#examples"   class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">⚡ Examples</a>
+      <a href="#difficulty" class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">🎯 Difficulty</a>
+      <a href="#tips"       class="nav-anchor shrink-0 px-4 py-2 rounded-xl text-sm font-600 text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-all">💡 Tips</a>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 py-16 space-y-24">
+
+    <!-- ████ SECTION 1 — TEMPLATES + FLIP ████ -->
+    <section id="models">
+      <div class="text-center mb-12">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>
+          Card Templates
+          <div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">Choose the right template</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">Click on a template, then <strong>click on the card</strong> to flip it and see the answer.</p>
+      </div>
+
+      <!-- Model Tabs -->
+      <div class="flex flex-wrap justify-center gap-2 mb-10" id="model-tabs">
+        <button onclick="showModel('definition',this)"  class="model-tab active px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">📌 Definition</button>
+        <button onclick="showModel('process',this)"     class="model-tab px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">🔄 Process</button>
+        <button onclick="showModel('compare',this)"     class="model-tab px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">⚖️ Comparison</button>
+        <button onclick="showModel('cause',this)"       class="model-tab px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">🔗 Cause/Effect</button>
+        <button onclick="showModel('formula',this)"     class="model-tab px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">🧮 Formula</button>
+        <button onclick="showModel('qcm',this)"         class="model-tab px-5 py-2.5 rounded-2xl text-sm font-600 border border-gray-200 text-gray-600 hover:border-emerald-400 transition-all duration-200">📝 MCQ</button>
+      </div>
+
+      <!-- DEFINITION -->
+      <div id="panel-definition" class="model-panel slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <!-- LEFT: Info -->
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-2xl">📌</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">Definition Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full">Beginner</span>
+                  <span class="text-xs font-600 bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">Versatile</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Perfect for memorizing a concept, technical term, or key notion. Simple, direct, and very effective with the SRS system.</p>
+
+            <!-- Quality bars -->
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-600 text-gray-500 w-20 shrink-0">Clarity</span>
+                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="q-bar-fill bg-gradient-to-r from-emerald-400 to-emerald-600" data-width="90"></div>
+                </div>
+                <span class="text-xs font-700 text-emerald-600 w-8 text-right">90%</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-600 text-gray-500 w-20 shrink-0">Precision</span>
+                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="q-bar-fill bg-gradient-to-r from-emerald-400 to-teal-500" data-width="95"></div>
+                </div>
+                <span class="text-xs font-700 text-emerald-600 w-8 text-right">95%</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-600 text-gray-500 w-20 shrink-0">Retention</span>
+                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="q-bar-fill bg-gradient-to-r from-amber-400 to-orange-500" data-width="80"></div>
+                </div>
+                <span class="text-xs font-700 text-amber-600 w-8 text-right">80%</span>
+              </div>
+            </div>
+
+            <!-- Tips grid -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                <div class="text-lg mb-1">✅</div>
+                <p class="text-xs text-gray-600 leading-relaxed"><strong class="text-gray-800">1 concept = 1 card.</strong> Never stack two definitions on the same card.</p>
+              </div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                <div class="text-lg mb-1">📝</div>
+                <p class="text-xs text-gray-600 leading-relaxed"><strong class="text-gray-800">Concrete example</strong> in the description to anchor the concept.</p>
+              </div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                <div class="text-lg mb-1">🎯</div>
+                <p class="text-xs text-gray-600 leading-relaxed"><strong class="text-gray-800">Direct question:</strong> start with "What is…", "Define…"</p>
+              </div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100">
+                <div class="text-lg mb-1">⚡</div>
+                <p class="text-xs text-gray-600 leading-relaxed"><strong class="text-gray-800">Short answer:</strong> 1–3 sentences max. No copy-pasting.</p>
+              </div>
+            </div>
+
+            <button onclick="copyTemplate('definition')" id="copy-definition"
+              class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 hover:border-emerald-400 transition-all duration-200 flex items-center justify-center gap-2">
+              📋 Copy template
+            </button>
+          </div>
+
+          <!-- RIGHT: 3D Flip Card -->
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2">
+              <span class="bounce-hint">👆</span> Click the card to flip it
+            </p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:340px;">
+              <div class="flip-card" style="height:340px;">
+                <!-- FRONT -->
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-6">
+                      <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-lg" style="box-shadow:0 0 8px #10b981"></div>
+                      <span class="text-xs font-700 text-emerald-400 tracking-widest uppercase">Question</span>
+                    </div>
+                    <p class="text-white text-xl font-600 leading-relaxed">
+                      What is <span class="text-emerald-400">photosynthesis</span>?
+                    </p>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-600 font-500">📌 Definition · Biology</span>
+                    <div class="flex gap-1">
+                      <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- BACK -->
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-700 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-4">
+                      <div class="w-2 h-2 rounded-full bg-white opacity-80"></div>
+                      <span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span>
+                    </div>
+                    <p class="text-white text-base font-500 leading-relaxed mb-4">
+                      A biochemical process by which plants convert <strong>light into chemical energy</strong> (glucose), using CO₂ and H₂O.
+                    </p>
+                    <div class="bg-white/15 rounded-2xl px-4 py-3">
+                      <p class="text-white/90 text-sm font-500">
+                        📝 Formula: <strong>CO₂ + H₂O + light → glucose + O₂</strong>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-white/60 font-500">Level ⭐⭐⭐</span>
+                    <span class="text-xs bg-white/20 text-white px-3 py-1 rounded-full font-600">Quality score: 93%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flip indicator -->
+            <div class="flex justify-center gap-2 mt-4">
+              <div class="w-2 h-2 rounded-full bg-emerald-400 transition-all" id="dot-front-def"></div>
+              <div class="w-2 h-2 rounded-full bg-gray-200 transition-all" id="dot-back-def"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROCESS -->
+      <div id="panel-process" class="model-panel hidden slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-2xl">🔄</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">Process Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">Intermediate</span>
+                  <span class="text-xs font-600 bg-purple-100 text-purple-700 px-2.5 py-0.5 rounded-full">Sciences</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Ideal for sequences, algorithms, procedures, or any ordered list of steps.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🔢</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Number each step.</strong> The order must be unambiguous.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🧠</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Add a mnemonic device</strong> in the description.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">❓</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Question type:</strong> "In what order…", "What are the steps of…"</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">📌</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Max 6–7 steps</strong> per card. Beyond that, split into multiple cards.</p></div>
+            </div>
+            <button onclick="copyTemplate('process')" class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">📋 Copy template</button>
+          </div>
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2"><span class="bounce-hint">👆</span> Click to flip</p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:340px;">
+              <div class="flip-card" style="height:340px;">
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 to-blue-950 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-6">
+                      <div class="w-2 h-2 rounded-full bg-blue-400" style="box-shadow:0 0 8px #60a5fa"></div>
+                      <span class="text-xs font-700 text-blue-400 tracking-widest uppercase">Question</span>
+                    </div>
+                    <p class="text-white text-xl font-600 leading-relaxed">What are the <span class="text-blue-400">4 stages of mitosis</span> in chronological order?</p>
+                  </div>
+                  <span class="text-xs text-gray-600 font-500">🔄 Process · Biology</span>
+                </div>
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-4"><div class="w-2 h-2 rounded-full bg-white opacity-80"></div><span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span></div>
+                    <div class="space-y-2">
+                      <div class="flex items-start gap-3 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm w-5 shrink-0">1</span><p class="text-white/90 text-sm"><strong>Prophase</strong> — chromosome condensation</p></div>
+                      <div class="flex items-start gap-3 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm w-5 shrink-0">2</span><p class="text-white/90 text-sm"><strong>Metaphase</strong> — alignment at the equator</p></div>
+                      <div class="flex items-start gap-3 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm w-5 shrink-0">3</span><p class="text-white/90 text-sm"><strong>Anaphase</strong> — chromatid separation</p></div>
+                      <div class="flex items-start gap-3 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm w-5 shrink-0">4</span><p class="text-white/90 text-sm"><strong>Telophase</strong> — 2 daughter nuclei formed</p></div>
+                    </div>
+                  </div>
+                  <span class="text-xs bg-white/20 text-white px-3 py-1 rounded-full font-600 self-start">💡 Mnemonic: PMAT</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPARE -->
+      <div id="panel-compare" class="model-panel hidden slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-2xl">⚖️</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">Comparison Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full">Intermediate</span>
+                  <span class="text-xs font-600 bg-rose-100 text-rose-700 px-2.5 py-0.5 rounded-full">Anti-confusion</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Distinguish two similar concepts that are often confused. Mandatory symmetrical structure.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">⚖️</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Symmetrical structure:</strong> same criteria for A and B.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🎯</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Mention the common point</strong> to avoid any confusion.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">📋</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Template:</strong> "What is the difference between X and Y?"</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">💡</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Concrete example</strong> for each concept in the description.</p></div>
+            </div>
+            <button onclick="copyTemplate('compare')" class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">📋 Copy template</button>
+          </div>
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2"><span class="bounce-hint">👆</span> Click to flip</p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:340px;">
+              <div class="flip-card" style="height:340px;">
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 to-amber-950 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-6"><div class="w-2 h-2 rounded-full bg-amber-400" style="box-shadow:0 0 8px #fbbf24"></div><span class="text-xs font-700 text-amber-400 tracking-widest uppercase">Question</span></div>
+                    <p class="text-white text-xl font-600 leading-relaxed">What is the difference between <span class="text-amber-400">RAM</span> and <span class="text-amber-400">ROM</span>?</p>
+                  </div>
+                  <span class="text-xs text-gray-600 font-500">⚖️ Comparison · Computer Science</span>
+                </div>
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-amber-500 to-orange-600 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-4"><div class="w-2 h-2 rounded-full bg-white opacity-80"></div><span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span></div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div class="bg-white/15 rounded-2xl p-3"><p class="text-white font-700 text-sm mb-2">RAM</p><p class="text-white/80 text-xs">Volatile · R+W · fast · temporary</p></div>
+                      <div class="bg-white/15 rounded-2xl p-3"><p class="text-white font-700 text-sm mb-2">ROM</p><p class="text-white/80 text-xs">Non-volatile · read-only · firmware</p></div>
+                    </div>
+                    <div class="mt-3 bg-white/10 rounded-xl px-3 py-2"><p class="text-white/80 text-xs">📌 Common point: both are types of computer memory.</p></div>
+                  </div>
+                  <span class="text-xs bg-white/20 text-white px-3 py-1 rounded-full font-600 self-start">Quality score: 91%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAUSE/EFFECT -->
+      <div id="panel-cause" class="model-panel hidden slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-2xl">🔗</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">Cause / Effect Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-rose-100 text-rose-700 px-2.5 py-0.5 rounded-full">Analytical</span>
+                  <span class="text-xs font-600 bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full">History · Sciences</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Understanding causal relationships in history, science, economics. 2–4 causes max.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🔗</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Analytical questions:</strong> "Why…", "What caused…"</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">📊</div><p class="text-xs text-gray-600"><strong class="text-gray-800">2–4 main causes.</strong> Avoid exhaustive lists.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🎯</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Conclude with the effect</strong> in one clear, memorable sentence.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🔑</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Prioritize</strong> with ①②③ putting the most important cause first.</p></div>
+            </div>
+            <button onclick="copyTemplate('cause')" class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">📋 Copy template</button>
+          </div>
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2"><span class="bounce-hint">👆</span> Click to flip</p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:360px;">
+              <div class="flip-card" style="height:360px;">
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 to-rose-950 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-6"><div class="w-2 h-2 rounded-full bg-rose-400" style="box-shadow:0 0 8px #f87171"></div><span class="text-xs font-700 text-rose-400 tracking-widest uppercase">Question</span></div>
+                    <p class="text-white text-xl font-600 leading-relaxed">Why did the <span class="text-rose-400">Industrial Revolution</span> begin in England?</p>
+                  </div>
+                  <span class="text-xs text-gray-600 font-500">🔗 Cause/Effect · History</span>
+                </div>
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-rose-600 to-pink-700 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-3"><div class="w-2 h-2 rounded-full bg-white opacity-80"></div><span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span></div>
+                    <div class="space-y-2">
+                      <div class="flex items-start gap-2 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm shrink-0">①</span><p class="text-white/90 text-xs">Abundance of coal and iron ore</p></div>
+                      <div class="flex items-start gap-2 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm shrink-0">②</span><p class="text-white/90 text-xs">Developed banking system → available capital</p></div>
+                      <div class="flex items-start gap-2 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm shrink-0">③</span><p class="text-white/90 text-xs">Colonial empire = markets and raw materials</p></div>
+                      <div class="flex items-start gap-2 bg-white/10 rounded-xl px-3 py-2"><span class="text-white font-800 text-sm shrink-0">④</span><p class="text-white/90 text-xs">Freedom of enterprise (fewer guilds)</p></div>
+                    </div>
+                    <div class="mt-3 bg-white/15 rounded-xl px-3 py-2"><p class="text-white/90 text-xs"><strong>Effect:</strong> Textile and steam boom 1760–1840.</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULA -->
+      <div id="panel-formula" class="model-panel hidden slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-2xl">🧮</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">Formula Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-teal-100 text-teal-700 px-2.5 py-0.5 rounded-full">Exact Sciences</span>
+                  <span class="text-xs font-600 bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">Advanced</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Math, physics, chemistry, finance. Application context is mandatory. Units too.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🧮</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Always explain the variables.</strong> A formula without context is useless.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">📏</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Include units</strong> for each variable (kg, m/s, J…).</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">💡</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Concrete numerical example</strong> to anchor the formula.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🔢</div><p class="text-xs text-gray-600"><strong class="text-gray-800">1 formula = 1 card.</strong> Never mix multiple equations.</p></div>
+            </div>
+            <button onclick="copyTemplate('formula')" class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">📋 Copy template</button>
+          </div>
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2"><span class="bounce-hint">👆</span> Click to flip</p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:360px;">
+              <div class="flip-card" style="height:360px;">
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 to-teal-950 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-6"><div class="w-2 h-2 rounded-full bg-teal-400" style="box-shadow:0 0 8px #2dd4bf"></div><span class="text-xs font-700 text-teal-400 tracking-widest uppercase">Question</span></div>
+                    <p class="text-white text-xl font-600 leading-relaxed">What is the formula for <span class="text-teal-400">kinetic energy</span> and what do its variables represent?</p>
+                  </div>
+                  <span class="text-xs text-gray-600 font-500">🧮 Formula · Physics</span>
+                </div>
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-teal-600 to-cyan-700 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-3"><div class="w-2 h-2 rounded-full bg-white opacity-80"></div><span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span></div>
+                    <div class="bg-white/20 rounded-2xl px-4 py-3 text-center mb-4"><p class="text-white text-xl font-800 font-mono">KE = ½ × m × v²</p></div>
+                    <div class="space-y-1.5">
+                      <p class="text-white/90 text-sm">→ <strong>KE</strong> = kinetic energy <span class="text-white/60 text-xs">(Joules, J)</span></p>
+                      <p class="text-white/90 text-sm">→ <strong>m</strong> = object mass <span class="text-white/60 text-xs">(kg)</span></p>
+                      <p class="text-white/90 text-sm">→ <strong>v</strong> = velocity <span class="text-white/60 text-xs">(m/s)</span></p>
+                    </div>
+                    <div class="mt-3 bg-white/10 rounded-xl px-3 py-2"><p class="text-white/80 text-xs">📌 Ex: 1000 kg car at 30 m/s → KE = 450,000 J</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MCQ -->
+      <div id="panel-qcm" class="model-panel hidden slide-in">
+        <div class="grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-2xl bg-violet-50 border border-violet-200 flex items-center justify-center text-2xl">📝</div>
+              <div>
+                <h3 class="text-xl font-700 text-gray-900">MCQ Template</h3>
+                <div class="flex gap-2 mt-1">
+                  <span class="text-xs font-600 bg-violet-100 text-violet-700 px-2.5 py-0.5 rounded-full">Exam</span>
+                  <span class="text-xs font-600 bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full">Strategic</span>
+                </div>
+              </div>
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">Exam practice. Wrong answers must be plausible and instructive.</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🎯</div><p class="text-xs text-gray-600"><strong class="text-gray-800">One correct answer only.</strong> Distractors must be credible.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">💬</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Explain WHY</strong> the wrong answers are incorrect.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">❌</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Avoid "none of the above"</strong> — too easy to guess by elimination.</p></div>
+              <div class="bg-gray-50 rounded-2xl p-3 border border-gray-100"><div class="text-lg mb-1">🔤</div><p class="text-xs text-gray-600"><strong class="text-gray-800">Options A/B/C/D</strong> of similar length for realism.</p></div>
+            </div>
+            <button onclick="copyTemplate('qcm')" class="mt-5 w-full py-3 rounded-2xl border-2 border-emerald-200 text-emerald-700 text-sm font-700 hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">📋 Copy template</button>
+          </div>
+          <div>
+            <p class="text-center text-sm text-gray-400 font-500 mb-4 flex items-center justify-center gap-2"><span class="bounce-hint">👆</span> Click to flip</p>
+            <div class="flip-scene" onclick="this.classList.toggle('flipped')" style="height:380px;">
+              <div class="flip-card" style="height:380px;">
+                <div class="flip-face w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-gray-900 to-violet-950 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-5"><div class="w-2 h-2 rounded-full bg-violet-400" style="box-shadow:0 0 8px #a78bfa"></div><span class="text-xs font-700 text-violet-400 tracking-widest uppercase">MCQ</span></div>
+                    <p class="text-white text-lg font-600 mb-5">Which language is <span class="text-violet-400">compiled</span>?</p>
+                    <div class="space-y-2">
+                      <div class="px-4 py-2.5 bg-white/5 rounded-xl border border-white/10 text-gray-400 text-sm">A) Python</div>
+                      <div class="px-4 py-2.5 bg-white/5 rounded-xl border border-white/10 text-gray-400 text-sm">B) JavaScript</div>
+                      <div class="px-4 py-2.5 bg-violet-500/20 rounded-xl border border-violet-400/40 text-white text-sm font-600">C) C++</div>
+                      <div class="px-4 py-2.5 bg-white/5 rounded-xl border border-white/10 text-gray-400 text-sm">D) PHP</div>
+                    </div>
+                  </div>
+                  <span class="text-xs text-gray-600 font-500">📝 MCQ · Computer Science</span>
+                </div>
+                <div class="flip-back w-full h-full rounded-3xl shadow-xl bg-gradient-to-br from-violet-600 to-purple-700 p-8 flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center gap-2 mb-3"><div class="w-2 h-2 rounded-full bg-white opacity-80"></div><span class="text-xs font-700 text-white/80 tracking-widest uppercase">Answer</span></div>
+                    <div class="bg-green-400/20 border border-green-400/30 rounded-2xl px-4 py-2.5 mb-4"><p class="text-green-300 font-700">✅ C) C++ is compiled</p></div>
+                    <div class="space-y-1.5">
+                      <p class="text-white/80 text-xs">❌ Python = interpreted (bytecode)</p>
+                      <p class="text-white/80 text-xs">❌ JavaScript = interpreted (JIT browser)</p>
+                      <p class="text-white/80 text-xs">❌ PHP = interpreted server-side</p>
+                    </div>
+                    <div class="mt-3 bg-white/10 rounded-xl px-3 py-2"><p class="text-white/80 text-xs">📌 Compiled = translated to machine code before execution.</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ SECTION 2 — AI COACH ████ -->
+    <section id="ai-coach">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>AI Coach<div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">Analyze your card with AI</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">Paste your question and answer — the AI detects issues, scores your card, and suggests improvements.</p>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-emerald-500 to-teal-600 px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center text-lg">🤖</div>
+            <div>
+              <p class="text-white font-700 text-sm">AI Teaching Assistant</p>
+              <p class="text-emerald-100 text-xs">Powered by Claude AI</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 bg-white/15 rounded-full px-3 py-1.5">
+            <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-green-300"></span></span>
+            <span class="text-white text-xs font-700 uppercase tracking-wide">Online</span>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="grid md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="block text-xs font-700 text-gray-500 uppercase tracking-wider mb-2">Your Question</label>
+              <textarea id="ai-q" rows="5" placeholder="Paste or write your question here…&#10;Ex: What is photosynthesis?"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm text-gray-800 placeholder-gray-300 resize-none focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all"></textarea>
+            </div>
+            <div>
+              <label class="block text-xs font-700 text-gray-500 uppercase tracking-wider mb-2">Your Answer</label>
+              <textarea id="ai-r" rows="5" placeholder="Paste or write your answer here…&#10;Ex: Photosynthesis is…"
+                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-sm text-gray-800 placeholder-gray-300 resize-none focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 transition-all"></textarea>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-3 mb-5">
+            <button onclick="doAnalyze()" id="btn-analyze"
+              class="btn-glow flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white px-6 py-3 rounded-2xl text-sm font-700 shadow-lg transition-all">
+              🔍 Analyze with AI
+            </button>
+            <button onclick="doGenerate()" id="btn-generate"
+              class="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white px-6 py-3 rounded-2xl text-sm font-700 shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
+              ✨ Generate a flashcard
+            </button>
+            <button onclick="doClear()"
+              class="flex items-center gap-2 bg-gray-100 text-gray-500 px-5 py-3 rounded-2xl text-sm font-600 hover:bg-gray-200 transition-all">
+              🗑 Clear
+            </button>
+          </div>
+
+          <!-- Result -->
+          <div id="ai-result" class="hidden bg-gradient-to-br from-gray-50 to-emerald-50/30 border border-gray-100 rounded-2xl p-5">
+            <div id="ai-result-inner" class="text-sm text-gray-700 leading-relaxed"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ FORMULA STRIP ████ -->
+    <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-3xl p-8 text-center relative overflow-hidden">
+      <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, #10b981 1px, transparent 0); background-size: 32px 32px;"></div>
+      <p class="text-gray-400 text-xs font-700 uppercase tracking-widest mb-4">The formula for a perfect flashcard</p>
+      <div class="flex flex-wrap justify-center items-center gap-3 text-base font-700">
+        <span class="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-xl border border-emerald-500/30">1 concept</span>
+        <span class="text-gray-600 text-xl">+</span>
+        <span class="bg-amber-500/20 text-amber-400 px-4 py-2 rounded-xl border border-amber-500/30">precise question</span>
+        <span class="text-gray-600 text-xl">+</span>
+        <span class="bg-blue-500/20 text-blue-400 px-4 py-2 rounded-xl border border-blue-500/30">memorable answer</span>
+        <span class="text-gray-600 text-xl">+</span>
+        <span class="bg-pink-500/20 text-pink-400 px-4 py-2 rounded-xl border border-pink-500/30">concrete example</span>
+      </div>
+    </div>
+
+    <!-- ████ SECTION 3 — QUALITY ████ -->
+    <section id="quality">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>Quality Rules<div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">The 8 rules of a perfect flashcard</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">Based on cognitive science research and the SRS method.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {%- set rules = [
+          {n:'1',color:'emerald',icon:'🎯',t:'1 concept per card',d:'1 card = 1 idea. If you want to write "and also…", make a 2nd card.'},
+          {n:'2',color:'blue',icon:'❓',t:'Precise and direct question',d:'Avoid "Explain chapter 3". Prefer "What is the par value of a share?"'},
+          {n:'3',color:'teal',icon:'✍️',t:'Short and memorable answer',d:'Max 2–3 sentences. If the answer is 10 lines long, split into multiple cards.'},
+          {n:'4',color:'amber',icon:'🧠',t:'Use your own words',d:'Rephrase rather than copy-paste. The brain retains what it has processed.'},
+          {n:'5',color:'orange',icon:'💡',t:'Add a concrete example',d:'Examples anchor abstract concepts. Put them in the description.'},
+          {n:'6',color:'violet',icon:'🏷️',t:'Descriptive and unique title',d:'The title must let you find the card again. "Definition 1" = bad title.'},
+          {n:'7',color:'sky',icon:'⭐',t:'Honest difficulty level',d:'1 = instant answer. 5 = really have to think. Be honest with yourself.'},
+          {n:'8',color:'rose',icon:'✅',t:'Can you actually answer it?',d:'Before saving, cover the answer and try to respond. If you get stuck, rewrite.'},
+        ] -%}
+        {% for r in rules %}
+        <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-8 h-8 rounded-xl bg-{{ r.color }}-100 flex items-center justify-center text-{{ r.color }}-600 font-800 text-sm">{{ r.n }}</div>
+            <span class="text-xl">{{ r.icon }}</span>
+          </div>
+          <h4 class="font-700 text-gray-900 text-sm mb-2">{{ r.t }}</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">{{ r.d }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ████ SECTION 4 — EXAMPLES ████ -->
+    <section id="examples">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>Real Examples<div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">Good vs Bad — See the difference</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">Examples drawn from the most common mistakes.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-rose-50 border border-rose-200 rounded-3xl p-6">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center text-rose-500 font-800 text-sm">✗</div>
+            <span class="font-800 text-rose-700 text-sm uppercase tracking-wide">Bad Practices</span>
+          </div>
+          <div class="space-y-3">
+            <div class="bg-white rounded-2xl p-4 border border-rose-100">
+              <p class="text-sm text-gray-700 mb-1">❌ <strong>Question:</strong> "Tell me about DNA"</p>
+              <p class="text-xs text-rose-400">→ Too vague, unpredictable answer</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-rose-100">
+              <p class="text-sm text-gray-700 mb-1">❌ <strong>Answer:</strong> [15-line paragraph copy-pasted from notes]</p>
+              <p class="text-xs text-rose-400">→ Not memorable, too dense</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-rose-100">
+              <p class="text-sm text-gray-700 mb-1">❌ <strong>Title:</strong> "Card 1"</p>
+              <p class="text-xs text-rose-400">→ Impossible to find in the deck</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-rose-100">
+              <p class="text-sm text-gray-700 mb-1">❌ <strong>Multi-concept:</strong> "Describe mitosis AND meiosis AND their differences"</p>
+              <p class="text-xs text-rose-400">→ 3 cards in one = cognitive overload</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-6">
+          <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600 font-800 text-sm">✓</div>
+            <span class="font-800 text-emerald-700 text-sm uppercase tracking-wide">Good Practices</span>
+          </div>
+          <div class="space-y-3">
+            <div class="bg-white rounded-2xl p-4 border border-emerald-100">
+              <p class="text-sm text-gray-700 mb-1">✅ <strong>Question:</strong> "What is DNA and what is its role?"</p>
+              <p class="text-xs text-emerald-500">→ Targeted, testable, clear</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-emerald-100">
+              <p class="text-sm text-gray-700 mb-1">✅ <strong>Answer:</strong> "DNA is a double helix molecule containing genetic instructions."</p>
+              <p class="text-xs text-emerald-500">→ 1–2 sentences, memorable</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-emerald-100">
+              <p class="text-sm text-gray-700 mb-1">✅ <strong>Title:</strong> "DNA — Definition and role"</p>
+              <p class="text-xs text-emerald-500">→ Clear, findable, descriptive</p>
+            </div>
+            <div class="bg-white rounded-2xl p-4 border border-emerald-100">
+              <p class="text-sm text-gray-700 mb-1">✅ <strong>1 concept:</strong> "What is the difference between mitosis and meiosis?" (dedicated card)</p>
+              <p class="text-xs text-emerald-500">→ Focused, effective, reviewable</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ████ SECTION 5 — DIFFICULTY ████ -->
+    <section id="difficulty">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>Difficulty Levels<div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">Choosing the right level</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">The level influences the review frequency in the SRS system. Be precise!</p>
+      </div>
+      <div class="space-y-3">
+        {%- set levels = [
+          {stars:'⭐',n:1,label:'Easy',color:'emerald',desc:'Memorized — you answer instantly without effort.',eg:'Ex: "What is the capital of France?" → Paris'},
+          {stars:'⭐⭐',n:2,label:'Simple',color:'teal',desc:'You need 2–3 seconds but you know the answer.',eg:'Ex: Water formula → H₂O with 2 H, 1 O'},
+          {stars:'⭐⭐⭐',n:3,label:'Medium',color:'amber',desc:'Concept to understand, not just memorize. Requires thinking.',eg:'Ex: Explain the principle of conservation of energy'},
+          {stars:'⭐⭐⭐⭐',n:4,label:'Hard',color:'orange',desc:'Complex topic — you hesitate or often make mistakes.',eg:'Ex: Prove Gödel\'s theorem or analyze O(n log n) complexity'},
+          {stars:'⭐⭐⭐⭐⭐',n:5,label:'Expert',color:'rose',desc:'Advanced concept requiring multiple intensive review sessions.',eg:'Ex: Prove the residue theorem or multi-step integration by parts'},
+        ] -%}
+        {% for l in levels %}
+        <div class="bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm hover:shadow-md hover:border-{{ l.color }}-200 transition-all duration-200 flex items-center gap-4 flex-wrap">
+          <div class="text-lg min-w-24">{{ l.stars }}</div>
+          <div class="w-20">
+            <span class="text-xs font-700 text-{{ l.color }}-600 bg-{{ l.color }}-50 px-2.5 py-1 rounded-full">Lvl. {{ l.n }}</span>
+          </div>
+          <div class="flex-1 min-w-48">
+            <p class="font-700 text-gray-900 text-sm mb-0.5">{{ l.label }}</p>
+            <p class="text-gray-500 text-xs">{{ l.desc }}</p>
+          </div>
+          <div class="text-xs text-gray-400 italic">{{ l.eg }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ████ SECTION 6 — TIPS ████ -->
+    <section id="tips">
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 text-emerald-600 text-xs font-700 uppercase tracking-widest mb-3">
+          <div class="w-8 h-px bg-emerald-400"></div>Expert Tips<div class="w-8 h-px bg-emerald-400"></div>
+        </div>
+        <h2 class="text-3xl font-800 text-gray-900 mb-3">10 learning tips</h2>
+        <p class="text-gray-500 max-w-xl mx-auto">Drawn from neuroscience research and the habits of top students.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {%- set tips = [
+          {e:'🔁',t:'Spaced repetition',d:'Review at D+1, D+3, D+7, D+14. Scientifically proven.'},
+          {e:'🔊',t:'Say the answer out loud',d:'Before flipping. Auditory memory reinforces visual memory.'},
+          {e:'✍️',t:'Write before looking',d:'Writing the answer on paper activates deep memorization.'},
+          {e:'🌙',t:'Review before sleeping',d:'Sleep consolidates memories. It really works!'},
+          {e:'📱',t:'Create right after class',d:'80% of information is forgotten within 24h without review.'},
+          {e:'🏷️',t:'Use the description field',d:'For classic traps, common mistakes, and exceptions.'},
+          {e:'🖼️',t:'Add an image',d:'The brain retains 60% better with a visual support.'},
+          {e:'📚',t:'Group by topic',d:'Separate decks by subject. Avoid catch-all decks.'},
+          {e:'❓',t:'10 seconds max',d:'If you can\'t answer in 10s, the card is too difficult.'},
+          {e:'🎯',t:'Quality > Quantity',d:'50 good cards > 200 sloppy cards. Always.'},
+        ] -%}
+        {% for tip in tips %}
+        <div class="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+          <div class="text-2xl mb-3">{{ tip.e }}</div>
+          <h4 class="font-700 text-gray-900 text-sm mb-2">{{ tip.t }}</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">{{ tip.d }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- ████ FOOTER CTA ████ -->
+    <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-10 text-center relative overflow-hidden shadow-2xl">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 28px 28px;"></div>
+      <div class="relative">
+        <div class="text-5xl mb-5 float">🚀</div>
+        <h2 class="text-3xl font-800 text-white mb-3">Ready to create your perfect flashcard?</h2>
+        <p class="text-emerald-100 mb-8 max-w-md mx-auto">You have all the tools — templates, tips, and AI analysis. Go for it!</p>
+        <a href="{{ path('app_flashcard_new', {deck_id: deckId}) }}"
+          class="inline-flex items-center gap-3 bg-white text-emerald-700 font-800 px-8 py-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-base">
+          ✨ Create my flashcard now
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div><!-- end container -->
+</div><!-- end page -->
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+/* ── MODEL TABS ── */
+function showModel(name, btn) {
+  document.querySelectorAll('.model-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.model-tab').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById('panel-' + name);
+  panel.classList.remove('hidden');
+  panel.style.animation = 'none';
+  requestAnimationFrame(() => { panel.style.animation = ''; });
+  btn.classList.add('active');
+  animateQBars(panel);
+}
+
+/* ── QUALITY BARS ── */
+function animateQBars(panel) {
+  panel.querySelectorAll('.q-bar-fill').forEach(el => {
+    el.style.width = '0';
+    requestAnimationFrame(() => {
+      setTimeout(() => { el.style.width = el.dataset.width + '%'; }, 120);
+    });
+  });
+}
+
+/* ── COPY TEMPLATES ── */
+const templates = {
+  definition: `TITLE: [Term] — Definition\n\nQUESTION:\nWhat is [term / concept]?\n\nANSWER:\n[Term] is [definition in 1-2 sentences].\n\nDESCRIPTION (optional):\nExample: [concrete example]\nCommon mistake: [trap to avoid]`,
+  process:    `TITLE: [Process] — Steps\n\nQUESTION:\nWhat are the [N] steps of [process] in order?\n\nANSWER:\n1. [Step 1] — [short description]\n2. [Step 2] — [short description]\n3. [Step 3] — [short description]\n\nDESCRIPTION (optional):\nMnemonic: [memory aid]`,
+  compare:    `TITLE: [A] vs [B] — Comparison\n\nQUESTION:\nWhat is the difference between [A] and [B]?\n\nANSWER:\n[A]:\n→ [characteristic 1]\n→ [characteristic 2]\n\n[B]:\n→ [characteristic 1]\n→ [characteristic 2]\n\nCommon point: [similarity]`,
+  cause:      `TITLE: [Event] — Causes & Effects\n\nQUESTION:\nWhy did [event / phenomenon] occur?\n\nANSWER:\nMain causes:\n① [Cause 1]\n② [Cause 2]\n③ [Cause 3]\n\nEffect(s): [result / consequence]`,
+  formula:    `TITLE: [Formula name]\n\nQUESTION:\nWhat is the formula for [quantity] and what do its variables represent?\n\nANSWER:\n[Formula]\n\nWhere:\n→ [variable 1] = [meaning] (unit)\n→ [variable 2] = [meaning] (unit)\n\nNumerical example: [calculation with real numbers]`,
+  qcm:        `TITLE: [Subject] — MCQ\n\nQUESTION:\n[Direct question on the subject?]\n\nA) [Option A]\nB) [Option B]\nC) [CORRECT ANSWER]\nD) [Option D]\n\nANSWER:\nCorrect: C) [Correct answer]\n\nWhy the others are wrong:\n→ A) [Explanation]\n→ B) [Explanation]\n→ D) [Explanation]`
+};
+
+function copyTemplate(type) {
+  const btn = document.getElementById('copy-' + type) || event.target;
+  navigator.clipboard.writeText(templates[type]).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✅ Copied!';
+    btn.classList.add('bg-emerald-50', 'border-emerald-400', 'text-emerald-600');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('bg-emerald-50','border-emerald-400','text-emerald-600'); }, 2000);
+  }).catch(() => alert('Template copied!'));
+}
+
+/* ── AI FUNCTIONS ── */
+function setLoading(btnId, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = true;
+  btn.innerHTML = `<span class="flex items-center gap-2"><span class="dot-1 w-2 h-2 rounded-full bg-white inline-block"></span><span class="dot-2 w-2 h-2 rounded-full bg-white inline-block"></span><span class="dot-3 w-2 h-2 rounded-full bg-white inline-block"></span> ${label}</span>`;
+  return btn;
+}
+function resetBtn(btn, label) { btn.disabled = false; btn.innerHTML = label; }
+
+function showResult(html) {
+  const el = document.getElementById('ai-result');
+  el.classList.remove('hidden');
+  document.getElementById('ai-result-inner').innerHTML = html;
+}
+
+async function doAnalyze() {
+  const q = document.getElementById('ai-q').value.trim();
+  const r = document.getElementById('ai-r').value.trim();
+  if (!q && !r) { showResult('<p class="text-amber-600 font-600">⚠️ Enter a question or answer to analyze.</p>'); return; }
+
+  const btn = setLoading('btn-analyze', 'Analyzing…');
+  showResult('<div class="flex items-center gap-3 text-gray-500"><span class="dot-1 w-2 h-2 bg-emerald-400 rounded-full inline-block"></span><span class="dot-2 w-2 h-2 bg-emerald-400 rounded-full inline-block"></span><span class="dot-3 w-2 h-2 bg-emerald-400 rounded-full inline-block"></span> AI is analyzing your card…</div>');
+
+  const prompt = `You are an expert in pedagogy and memorization techniques (SRS, spaced repetition, cognitive load). Analyze this flashcard:\n\nQUESTION: ${q || "(not provided)"}\nANSWER: ${r || "(not provided)"}\n\nProvide a structured analysis in 4 parts:\n1. 🎯 QUALITY SCORE (out of 10) with a 1-sentence justification\n2. ✅ STRENGTHS (2-3 positive points)\n3. ⚠️ AREAS FOR IMPROVEMENT (2-3 concrete suggestions)\n4. 💡 IMPROVED VERSION (suggest a rewritten question AND answer)\n\nBe direct, concise, and constructive. Reply in English.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || '').join('\n') || '';
+    showResult(text ? `<pre class="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-700">${escHtml(text)}</pre>` : '<p class="text-rose-500">❌ No response received.</p>');
+  } catch(e) { showResult(localAnalysis(q, r)); }
+  resetBtn(btn, '🔍 Analyze with AI');
+}
+
+async function doGenerate() {
+  const q = document.getElementById('ai-q').value.trim();
+  if (!q) { showResult('<p class="text-amber-600 font-600">⚠️ Paste a text or concept in the "Question" field to generate.</p>'); return; }
+
+  const btn = setLoading('btn-generate', 'Generating…');
+  showResult('<div class="flex items-center gap-3 text-gray-500"><span class="dot-1 w-2 h-2 bg-amber-400 rounded-full inline-block"></span><span class="dot-2 w-2 h-2 bg-amber-400 rounded-full inline-block"></span><span class="dot-3 w-2 h-2 bg-amber-400 rounded-full inline-block"></span> Generating your flashcard…</div>');
+
+  const prompt = `From the following text, generate 2–3 pedagogically optimized flashcards:\n\nTEXT: ${q}\n\nFor each flashcard:\n- TITLE: [descriptive title]\n- QUESTION: [precise and testable question]\n- ANSWER: [short answer, 1–3 sentences max]\n- LEVEL: [1-5]\n- TEMPLATE: [Definition/Process/Comparison/Cause-Effect/Formula]\n\nReply in English.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || '').join('\n') || '';
+    showResult(text ? `<pre class="whitespace-pre-wrap font-inter text-sm leading-relaxed text-gray-700">${escHtml(text)}</pre>` : '<p class="text-rose-500">❌ Generation failed.</p>');
+  } catch(e) { showResult('<p class="text-rose-500">❌ Connection error. Check your API key.</p>'); }
+  resetBtn(btn, '✨ Generate a flashcard');
+}
+
+function doClear() {
+  document.getElementById('ai-q').value = '';
+  document.getElementById('ai-r').value = '';
+  document.getElementById('ai-result').classList.add('hidden');
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function localAnalysis(q, r) {
+  let score = 7, goods = [], issues = [];
+  if(q) {
+    if(q.length < 15) { issues.push('⚠️ Question too short — add more context'); score -= 1; }
+    else goods.push('✅ Correct question length');
+    if(!q.includes('?')) { issues.push('⚠️ No question mark'); score -= 0.5; }
+    else goods.push('✅ Question is well-phrased');
+  }
+  if(r) {
+    if(r.length > 500) { issues.push('⚠️ Answer too long — max 3-4 sentences'); score -= 1; }
+    else goods.push('✅ Correct answer length');
+    if(r.length < 20) { issues.push('⚠️ Answer too short'); score -= 1; }
+  } else { issues.push('⚠️ Missing answer — essential!'); score -= 2; }
+  score = Math.max(1, Math.min(10, score));
+  return `<div class="space-y-3">
+    <div class="flex items-center gap-2"><span class="text-2xl font-800 text-emerald-600">${score.toFixed(1)}/10</span><span class="text-gray-500 text-sm">Quality score</span></div>
+    <div><p class="text-xs font-700 text-emerald-700 uppercase tracking-wide mb-1">✅ Strengths</p><p class="text-sm text-gray-600">${goods.join('<br>') || '• Card under construction'}</p></div>
+    <div><p class="text-xs font-700 text-amber-700 uppercase tracking-wide mb-1">⚠️ To improve</p><p class="text-sm text-gray-600">${issues.join('<br>') || '• No issues detected 🎉'}</p></div>
+    <p class="text-xs text-gray-400 italic">💡 Configure your API key in the Symfony controller for a complete analysis.</p>
+  </div>`;
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => {
+  animateQBars(document.getElementById('panel-definition'));
+});
+</script>
+{% endblock %}

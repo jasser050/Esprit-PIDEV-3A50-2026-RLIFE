@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Positive;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
-
+use Symfony\Component\Validator\Constraints\Range;
 class EvaluationMatiereType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -63,20 +63,32 @@ class EvaluationMatiereType extends AbstractType
                 ],
                 'constraints' => [
                     new NotBlank(['message' => 'The duration is required']),
-                    new Positive(['message' => 'The duration must be positive']),
-                ],
+new Range([                          // ← remplace Positive
+            'min'               => 1,
+            'max'               => 600,
+            'notInRangeMessage' => 'Duration must be between {{ min }} and {{ max }} minutes.',
+        ]),                ],
             ])
 
+            // 🔥 Priority — validation ajoutée
             ->add('prioriteE', ChoiceType::class, [
-                'label' => 'Priority',
-                'choices' => [
-                    'Low' => 'low',
+                'label'       => 'Priority',
+                'choices'     => [
+                    'Low'    => 'low',
                     'Medium' => 'medium',
-                    'High' => 'high',
+                    'High'   => 'high',
                     'Urgent' => 'urgent',
                 ],
                 'placeholder' => 'Select a priority',
-                'required' => false,
+                'required'    => true,   // <-- était false, maintenant true
+                'constraints' => [
+                    new NotBlank(['message' => 'Please select a priority level.']),
+                    new Assert\NotNull(['message' => 'Priority cannot be null.']),
+                    new Assert\Choice([
+                        'choices' => ['low', 'medium', 'high', 'urgent'],
+                        'message' => 'Invalid priority value "{{ value }}". Choose: low, medium, high or urgent.',
+                    ]),
+                ],
             ]);
     }
 

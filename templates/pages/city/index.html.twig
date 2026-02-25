@@ -1,0 +1,1325 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}🏙 EduCity — Ma Ville{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* ── Isolation totale : ne touche PAS au layout de la template ── */
+#ec-root {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Canvas Three.js : toujours fond sombre quelle que soit la template */
+#cityCanvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  background: #070d1e; /* visible avant init Three.js */
+}
+#cityCanvas:active { cursor: grabbing; }
+
+/* Labels DOM 3D */
+#labelsWrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.lb3d {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  padding: 3px 9px 4px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity .2s;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(201,168,76,.3);
+  background: rgba(4,8,18,.88);
+  color: #e2e8f0;
+}
+.lb3d.country {
+  border-color: rgba(201,168,76,.6);
+  color: #c9a84c;
+}
+.lb3d::after {
+  content: '';
+  position: absolute;
+  left: 50%; bottom: -5px;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(201,168,76,.4);
+  border-bottom: none;
+}
+.lb3d.building::after { border-top-color: rgba(255,255,255,.15); }
+
+/* ── HUD TOP ── */
+#ec-hud {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  min-height: 54px;
+  background: linear-gradient(180deg, rgba(4,8,20,.97) 0%, rgba(4,8,20,.78) 100%);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(201,168,76,.18);
+}
+.ec-brand {
+  font-size: .92rem;
+  font-weight: 900;
+  color: #c9a84c;
+  white-space: nowrap;
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: .02em;
+}
+.ec-sep { width: 1px; height: 20px; background: rgba(201,168,76,.2); flex-shrink: 0; }
+.ec-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(201,168,76,.18);
+  flex-shrink: 0;
+}
+.ec-stat-val { font-size: .82rem; font-weight: 800; color: #c9a84c; line-height: 1; }
+.ec-stat-lbl { font-size: .56rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; margin-top: 1px; }
+.ec-sp { flex: 1; }
+.ec-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(201,168,76,.22);
+  background: rgba(201,168,76,.07);
+  color: #c9a84c;
+  font-size: .7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.ec-btn:hover { background: rgba(201,168,76,.2); }
+.ec-btn.active { background: rgba(201,168,76,.25); border-color: #c9a84c; }
+
+/* ── LEFT PANEL ── */
+#ec-left {
+  position: absolute;
+  left: 0; top: 54px; bottom: 0;
+  width: 230px;
+  z-index: 90;
+  background: rgba(4,8,20,.97);
+  border-right: 1px solid rgba(201,168,76,.15);
+  overflow-y: auto;
+  transition: transform .3s ease;
+}
+#ec-left::-webkit-scrollbar { width: 3px; }
+#ec-left::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); border-radius: 99px; }
+
+.ps { padding: 11px 12px 10px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.pl { font-size: 8px; letter-spacing: .3em; text-transform: uppercase; color: #374151; margin-bottom: 8px; }
+
+.lvl-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+.lvl-badge {
+  width: 38px; height: 38px; border-radius: 8px; flex-shrink: 0;
+  background: linear-gradient(135deg, #c9a84c, #8b6914);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 900; color: #0a0a0f;
+  font-family: Georgia, serif;
+  box-shadow: 0 4px 12px rgba(201,168,76,.28);
+}
+.lvl-name { font-size: .76rem; font-weight: 700; color: #e2e8f0; }
+.lvl-sub  { font-size: .6rem; color: #64748b; }
+.xp-bar { height: 3px; background: rgba(255,255,255,.06); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.xp-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, #c9a84c, #ffe066); transition: width 1.2s; }
+
+.sk-card { border-radius: 8px; padding: 8px 10px; margin-bottom: 5px; border: 1px solid; position: relative; }
+.sk-hot  { background: rgba(201,168,76,.05); border-color: rgba(201,168,76,.22); }
+.sk-good { background: rgba(74,222,128,.04); border-color: rgba(74,222,128,.18); }
+.sk-blue { background: rgba(96,165,250,.04); border-color: rgba(96,165,250,.18); }
+.sk-num  { font-size: 1.35rem; font-weight: 900; line-height: 1; font-family: Georgia, serif; }
+.sk-lbl  { font-size: .58rem; color: #64748b; letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+.sk-icon { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); font-size: 1rem; }
+
+.c-dot {
+  width: 26px; height: 26px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; cursor: default;
+  transition: transform .2s; border: 1px solid;
+}
+.c-dot:hover { transform: scale(1.3); }
+
+.b-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 7px;
+  border: 1px solid rgba(74,222,128,.15);
+  background: rgba(74,222,128,.03);
+  margin-bottom: 4px;
+}
+.b-icon { width: 26px; height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: .82rem; flex-shrink: 0; }
+.b-name  { font-size: .68rem; font-weight: 700; color: #e2e8f0; }
+.b-bonus { font-size: .58rem; color: #4ade80; }
+
+/* ── STORE PANEL ── */
+#ec-store {
+  position: absolute;
+  right: 0; top: 54px; bottom: 0;
+  width: 258px;
+  z-index: 90;
+  background: rgba(4,8,20,.97);
+  border-left: 1px solid rgba(201,168,76,.15);
+  transform: translateX(100%);
+  transition: transform .3s ease;
+  overflow-y: auto;
+}
+#ec-store::-webkit-scrollbar { width: 3px; }
+#ec-store::-webkit-scrollbar-thumb { background: rgba(201,168,76,.2); border-radius: 99px; }
+#ec-store.open { transform: translateX(0); }
+
+.st-title { font-family: Georgia, serif; font-size: .9rem; font-weight: 900; color: #c9a84c; padding: 13px 14px 4px; }
+.st-bal   { font-size: .68rem; color: #64748b; padding: 3px 14px 10px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.st-bal span { color: #c9a84c; font-weight: 700; }
+.st-tabs  { display: flex; gap: 4px; padding: 8px 11px; border-bottom: 1px solid rgba(255,255,255,.04); }
+.st-tab {
+  flex: 1; padding: 5px; border-radius: 7px;
+  border: 1px solid rgba(201,168,76,.18);
+  background: transparent; color: #64748b;
+  font-size: .64rem; font-weight: 700; cursor: pointer;
+  text-align: center; transition: all .2s; font-family: inherit;
+}
+.st-tab.active { background: rgba(201,168,76,.12); border-color: rgba(201,168,76,.42); color: #c9a84c; }
+
+.si { border-radius: 10px; padding: 10px; margin-bottom: 7px; border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02); position: relative; overflow: hidden; transition: all .2s; }
+.si:not(.owned):not(.locked) { cursor: pointer; }
+.si:not(.owned):not(.locked):hover { border-color: rgba(201,168,76,.32); background: rgba(201,168,76,.04); transform: translateY(-1px); }
+.si.locked  { opacity: .3; }
+.si.owned   { border-color: rgba(74,222,128,.3); background: rgba(74,222,128,.04); cursor: default; }
+
+.si-head  { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.si-ico   { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.si-name  { font-size: .76rem; font-weight: 700; color: #e2e8f0; }
+.si-type  { font-size: .59rem; color: #64748b; text-transform: uppercase; letter-spacing: .06em; }
+.si-desc  { font-size: .63rem; color: #64748b; line-height: 1.5; margin-bottom: 6px; }
+.si-foot  { display: flex; align-items: center; justify-content: space-between; }
+.si-price { font-size: .74rem; font-weight: 700; color: #c9a84c; }
+.si-buy {
+  padding: 4px 11px; border-radius: 6px;
+  background: linear-gradient(135deg, #c9a84c, #ffe066);
+  color: #0a0a0f; font-size: .63rem; font-weight: 800;
+  border: none; cursor: pointer; font-family: inherit;
+  transition: all .2s; white-space: nowrap;
+}
+.si-buy:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 4px 12px rgba(201,168,76,.4); }
+.si-buy:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+.si-rarity {
+  position: absolute; top: 7px; right: 7px;
+  font-size: .52rem; font-weight: 800; padding: 2px 5px; border-radius: 99px; letter-spacing: .07em;
+}
+.r-common    { background: rgba(100,116,139,.2); color: #94a3b8; }
+.r-rare      { background: rgba(59,130,246,.2);  color: #60a5fa; }
+.r-epic      { background: rgba(168,85,247,.2);  color: #c084fc; }
+.r-legendary { background: rgba(201,168,76,.22); color: #c9a84c; }
+
+/* ── TOOLBAR ── */
+#ec-tb {
+  position: absolute;
+  bottom: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  display: flex; gap: 5px;
+  background: rgba(4,8,20,.93);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: 13px; padding: 6px 9px;
+}
+.tb {
+  width: 38px; height: 38px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.04);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; cursor: pointer; transition: all .2s;
+  position: relative; text-decoration: none;
+}
+.tb:hover { background: rgba(201,168,76,.12); border-color: rgba(201,168,76,.32); transform: translateY(-2px); }
+.tb.active { background: rgba(201,168,76,.2); border-color: #c9a84c; }
+.tb-tip {
+  position: absolute; bottom: 46px; left: 50%; transform: translateX(-50%);
+  background: rgba(4,8,20,.96); border: 1px solid rgba(201,168,76,.2);
+  border-radius: 5px; padding: 3px 8px; font-size: .58rem; white-space: nowrap;
+  color: #e2e8f0; pointer-events: none; opacity: 0; transition: opacity .2s;
+}
+.tb:hover .tb-tip { opacity: 1; }
+.tb-sep { width: 1px; background: rgba(201,168,76,.18); margin: 3px 0; }
+
+/* ── TOAST ── */
+#ec-toast {
+  position: absolute; bottom: 70px; left: 50%;
+  transform: translateX(-50%) translateY(8px);
+  z-index: 200; padding: 7px 15px; border-radius: 10px;
+  background: rgba(4,8,20,.97); border: 1px solid rgba(201,168,76,.25);
+  font-size: .76rem; font-weight: 700; color: #e2e8f0;
+  opacity: 0; transition: all .3s; pointer-events: none; white-space: nowrap;
+}
+#ec-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── INFO POPUP ── */
+#ec-popup {
+  position: absolute; z-index: 150;
+  background: rgba(4,8,20,.96); border: 1px solid rgba(201,168,76,.3);
+  border-radius: 12px; padding: 11px 14px; min-width: 155px;
+  opacity: 0; transition: opacity .22s; pointer-events: none;
+  backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,.7);
+}
+#ec-popup.show { opacity: 1; pointer-events: all; }
+.pp-title { font-size: .8rem; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+.pp-sub   { font-size: .63rem; color: #64748b; margin-bottom: 4px; }
+.pp-bonus { font-size: .67rem; color: #4ade80; font-weight: 600; }
+.pp-loc   { font-size: .67rem; color: #c9a84c; font-weight: 600; }
+
+/* ── MODAL ── */
+#ec-modal {
+  position: absolute; inset: 0; z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.8); backdrop-filter: blur(10px);
+  opacity: 0; pointer-events: none; transition: opacity .3s;
+}
+#ec-modal.show { opacity: 1; pointer-events: all; }
+.m-box {
+  background: linear-gradient(145deg, #080e1c, #06091a);
+  border: 1px solid rgba(201,168,76,.22); border-radius: 20px;
+  padding: 26px; max-width: 360px; width: 90%; text-align: center;
+  transform: scale(.92); transition: transform .3s;
+  box-shadow: 0 24px 80px rgba(0,0,0,.8);
+  position: relative;
+}
+#ec-modal.show .m-box { transform: scale(1); }
+.m-flag  { font-size: 3rem; margin-bottom: 9px; }
+.m-title { font-family: Georgia, serif; font-size: 1.35rem; font-weight: 900; color: #c9a84c; margin-bottom: 4px; }
+.m-sub   { font-size: .76rem; color: #64748b; margin-bottom: 14px; }
+.m-btn   { padding: 9px 24px; border-radius: 10px; background: linear-gradient(135deg, #c9a84c, #ffe066); color: #0a0a0f; font-size: .8rem; font-weight: 800; border: none; cursor: pointer; transition: all .2s; }
+.m-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(201,168,76,.4); }
+.m-close { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 6px; border: 1px solid rgba(201,168,76,.2); background: rgba(255,255,255,.04); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .72rem; color: #64748b; }
+
+/* Coin pop */
+@keyframes coinPop { 0%{transform:translate(-50%,0);opacity:1} 100%{transform:translate(-50%,-55px);opacity:0} }
+.coin-pop { position: absolute; left: 50%; top: 80px; font-size: .88rem; font-weight: 800; color: #ffe066; pointer-events: none; animation: coinPop .85s ease forwards; z-index: 999; }
+
+/* Light mode compatibility — si la template force un fond clair */
+@media (prefers-color-scheme: light) {
+  #ec-hud, #ec-left, #ec-store, #ec-tb, #ec-toast, #ec-popup, .m-box { /* already dark by design — keep as is */ }
+}
+</style>
+{% endblock %}
+
+{% block body %}
+{# Inject Twig data into JS #}
+<script>
+var EC = {
+  coins:      {{ cityData.coins }},
+  level:      {{ cityData.level }},
+  streak:     {{ cityData.streak.current }},
+  buildings:  {{ cityData.buildings|json_encode|raw }},
+  countries:  {{ cityData.countries|json_encode|raw }},
+  xpPct:      {{ cityData.xp_percent }},
+  stats: {
+    evals:   {{ cityData.stats.total_evals }},
+    elite:   {{ cityData.stats.elite }},
+    success: {{ cityData.stats.success_rate }},
+  },
+  population:     {{ cityData.population }},
+  nextLevel:      {{ cityData.next_level_coins }},
+};
+var ALL_COUNTRIES = {{ allCountries|json_encode|raw }};
+</script>
+
+<div id="ec-root">
+  <!-- Canvas -->
+  <canvas id="cityCanvas"></canvas>
+  <div id="labelsWrap"></div>
+
+  <!-- HUD -->
+  <div id="ec-hud">
+    <div class="ec-brand">🏙 EduCity</div>
+    <div class="ec-sep"></div>
+    <div class="ec-stat">
+      <span>💰</span>
+      <div><div class="ec-stat-val" id="hCoins">{{ cityData.coins }}</div><div class="ec-stat-lbl">Coins</div></div>
+    </div>
+    <div class="ec-stat">
+      <span>🔥</span>
+      <div><div class="ec-stat-val">{{ cityData.streak.current }}</div><div class="ec-stat-lbl">Streak</div></div>
+    </div>
+    <div class="ec-stat">
+      <span>🏗</span>
+      <div><div class="ec-stat-val" id="hBuildings">{{ cityData.buildings|length }}</div><div class="ec-stat-lbl">Bâtiments</div></div>
+    </div>
+    <div class="ec-stat">
+      <span>🌍</span>
+      <div><div class="ec-stat-val">{{ cityData.countries|length }} / 12</div><div class="ec-stat-lbl">Pays</div></div>
+    </div>
+    <div class="ec-stat">
+      <span>👥</span>
+      <div><div class="ec-stat-val">{{ cityData.population|number_format(0, '.', ' ') }}</div><div class="ec-stat-lbl">Population</div></div>
+    </div>
+    <div class="ec-sp"></div>
+    <a href="{{ path('app_courses') }}" class="ec-btn">← Courses</a>
+    <button class="ec-btn" id="storeBtn" onclick="ecToggleStore()">🛒 Store</button>
+    <button class="ec-btn" id="nightBtn" onclick="ecToggleNight()">🌙 Nuit</button>
+  </div>
+
+  <!-- Left panel -->
+  <div id="ec-left">
+    <div class="ps">
+      <div class="pl">Ma Ville</div>
+      <div class="lvl-wrap">
+        <div class="lvl-badge">{{ cityData.level }}</div>
+        <div>
+          <div class="lvl-name">Scholar City</div>
+          <div class="lvl-sub">{{ cityData.stats.total_evals }} évaluations</div>
+        </div>
+      </div>
+      <div class="xp-bar"><div class="xp-fill" style="width:{{ cityData.xp_percent }}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.58rem;color:#64748b;margin-top:4px">
+        <span>{{ cityData.coins }} coins</span>
+        <span>Niv. {{ cityData.level + 1 }} → {{ cityData.next_level_coins }}</span>
+      </div>
+    </div>
+
+    <div class="ps">
+      <div class="pl">Streaks</div>
+      <div class="sk-card sk-hot">
+        <div class="sk-num" style="color:#c9a84c">{{ cityData.streak.current }}</div>
+        <div class="sk-lbl">High Score ≥75%</div>
+        <div class="sk-icon">🔥</div>
+      </div>
+      <div class="sk-card sk-good">
+        <div class="sk-num" style="color:#4ade80">{{ cityData.stats.elite }}</div>
+        <div class="sk-lbl">Évals ≥90%</div>
+        <div class="sk-icon">🌟</div>
+      </div>
+      <div class="sk-card sk-blue" style="margin-bottom:0">
+        <div class="sk-num" style="color:#60a5fa">{{ cityData.stats.success_rate }}%</div>
+        <div class="sk-lbl">Taux de réussite</div>
+        <div class="sk-icon">📈</div>
+      </div>
+    </div>
+
+    <div class="ps">
+      <div class="pl">Pays débloqués</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        {% for country in allCountries %}
+          {% set unlocked = false %}
+          {% for uc in cityData.countries %}{% if uc.id == country.id %}{% set unlocked = true %}{% endif %}{% endfor %}
+          <div class="c-dot"
+               title="{{ country.name }} · Streak ×{{ country.streak }}"
+               style="border-color:{{ unlocked ? 'rgba(201,168,76,.38)' : 'rgba(255,255,255,.07)' }};
+                      background:{{ unlocked ? 'rgba(201,168,76,.1)' : 'rgba(255,255,255,.02)' }};
+                      filter:{{ unlocked ? 'none' : 'grayscale(1)' }};
+                      opacity:{{ unlocked ? '1' : '0.25' }}">
+            {{ country.flag }}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="ps" style="border-bottom:none">
+      <div class="pl">Bâtiments (<span id="bldCount">{{ cityData.buildings|length }}</span>)</div>
+      <div id="bldList">
+        {% for b in cityData.buildings %}
+          <div class="b-item">
+            <div class="b-icon" style="background:rgba(59,130,246,.1)">{{ b.icon }}</div>
+            <div>
+              <div class="b-name">{{ b.name }}</div>
+              <div class="b-bonus">{{ b.bonus }}</div>
+            </div>
+          </div>
+        {% endfor %}
+        {% if cityData.buildings|length == 0 %}
+          <div style="font-size:.68rem;color:#64748b;text-align:center;padding:12px 0">
+            Score ≥75% pour construire !
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Info popup (click 3D) -->
+  <div id="ec-popup">
+    <div class="pp-title" id="ppTitle">—</div>
+    <div class="pp-sub"   id="ppSub"></div>
+    <div id="ppExtra"></div>
+  </div>
+
+  <!-- Store -->
+  <div id="ec-store">
+    <div class="st-title">🛒 Academic Store</div>
+    <div class="st-bal">Solde : <span id="stCoins">{{ cityData.coins }}</span> 💰</div>
+    <div class="st-tabs">
+      <button class="st-tab active" onclick="ecTab('buildings')">🏗 Bâtiments</button>
+      <button class="st-tab"        onclick="ecTab('countries')">🌍 Pays</button>
+    </div>
+    <div style="padding:9px 11px" id="stItems"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <div id="ec-tb">
+    <div class="tb active" id="tbView" onclick="ecMode()">👁<div class="tb-tip">Vue libre</div></div>
+    <div class="tb" onclick="ecResetCam()">🎯<div class="tb-tip">Centrer ville</div></div>
+    <div class="tb" onclick="ecGoPlayer()">🧑<div class="tb-tip">Mon avatar</div></div>
+    <div class="tb-sep"></div>
+    <div class="tb" onclick="ecToggleLeft()">📊<div class="tb-tip">Stats</div></div>
+    <a class="tb" href="{{ path('app_streak_dashboard') }}">🔥<div class="tb-tip">Streaks</div></a>
+    <a class="tb" href="{{ path('app_ai_coach') }}">🤖<div class="tb-tip">AI Coach</div></a>
+  </div>
+
+  <!-- Toast -->
+  <div id="ec-toast"></div>
+
+  <!-- Modal -->
+  <div id="ec-modal">
+    <div class="m-box">
+      <div class="m-close" onclick="document.getElementById('ec-modal').classList.remove('show')">✕</div>
+      <div class="m-flag"  id="mFlag">🇫🇷</div>
+      <div class="m-title" id="mTitle">Pays débloqué !</div>
+      <div class="m-sub"   id="mSub"></div>
+      <button class="m-btn" onclick="document.getElementById('ec-modal').classList.remove('show')">🏙 Voir ma ville !</button>
+    </div>
+  </div>
+</div><!-- /ec-root -->
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+// ════════════════════════════════════════════════════
+//  CONSTANTES
+// ════════════════════════════════════════════════════
+
+// Config visuelle par type de bâtiment
+var B = {
+  library:    { c:0x0e1c3a, a:'#3b82f6', w:3.4, h:4.6,  d:2.8, fl:4,  co:3 },
+  lab:        { c:0x081e12, a:'#10b981', w:3.0, h:7.2,  d:2.5, fl:6,  co:3 },
+  cafe:       { c:0x261208, a:'#f97316', w:2.8, h:3.0,  d:2.4, fl:2,  co:2 },
+  museum:     { c:0x1e1606, a:'#c9a84c', w:5.0, h:3.8,  d:4.0, fl:3,  co:4 },
+  university: { c:0x18082a, a:'#8b5cf6', w:4.2, h:9.8,  d:3.0, fl:8,  co:3 },
+  stadium:    { c:0x220606, a:'#ef4444', w:6.2, h:2.8,  d:5.2, fl:2,  co:5 },
+  hospital:   { c:0x0a1620, a:'#fca5a5', w:3.8, h:8.2,  d:3.0, fl:7,  co:3 },
+  tower:      { c:0x0e0e06, a:'#c9a84c', w:2.4, h:13.5, d:2.4, fl:11, co:2 },
+};
+
+// Mapping id → clé cfg (un bâtiment Twig peut avoir n'importe quel .id)
+var ID2CFG = {
+  library:'library', lab:'lab', cafe:'cafe', museum:'museum',
+  university:'university', stadium:'stadium', hospital:'hospital', tower:'tower',
+};
+
+// Slots de placement des bâtiments — grille fixe autour du centre
+// 24 positions garantissant qu'elles ne se chevauchent pas
+var SLOTS = [
+  {x:-10,z:-10},{x: 10,z:-10},{x:-10,z: 10},{x: 10,z: 10},
+  {x:  0,z:-16},{x:-16,z:  0},{x: 16,z:  0},{x:  0,z: 16},
+  {x: -7,z: -7},{x:  7,z: -7},{x: -7,z:  7},{x:  7,z:  7},
+  {x:-13,z: -7},{x: 13,z: -7},{x:-13,z:  7},{x: 13,z:  7},
+  {x: -7,z:-13},{x:  7,z:-13},{x: -7,z: 13},{x:  7,z: 13},
+  {x:-18,z:-12},{x: 18,z:-12},{x:-18,z: 12},{x: 18,z: 12},
+];
+var usedSlots = [];   // indices de SLOTS déjà utilisés
+
+function nextSlot() {
+  for (var i = 0; i < SLOTS.length; i++) {
+    if (usedSlots.indexOf(i) === -1) {
+      usedSlots.push(i);
+      return SLOTS[i];
+    }
+  }
+  // Débordement : position aléatoire loin du centre
+  var a = Math.random() * Math.PI * 2;
+  return { x: Math.cos(a) * 22, z: Math.sin(a) * 22 };
+}
+
+// Cercle de 12 monuments autour de la ville (rayon 28)
+var MON_RING = (function() {
+  var out = [], n = 12, r = 28;
+  for (var i = 0; i < n; i++) {
+    var a = (i / n) * Math.PI * 2;
+    out.push({ x: Math.cos(a) * r, z: Math.sin(a) * r });
+  }
+  return out;
+})();
+var COUNTRY_ORDER = ['france','egypt','japan','brazil','uae','usa','india','australia','kenya','china','argentina','russia'];
+
+// ════════════════════════════════════════════════════
+//  ÉTAT GLOBAL
+// ════════════════════════════════════════════════════
+var scene, cam, renderer, clock;
+var player;
+var bldObjs  = [];   // {grp, cfgKey, data, lbl}  — bâtiments sur la map
+var monObjs  = [];   // {grp, data, lbl}           — monuments pays
+var clickable = [];  // {grp, info}                — pour raycasting
+
+var nightMode = false;
+var sun, ambLight, starMat, moonMesh, moonLight;
+
+// Caméra sphérique
+var cH = 0, cV = 0.52, cR = 32;
+var cT = new THREE.Vector3(); // target
+
+// Drag
+var dragging = false, rightBtn = false, pm = {x:0,y:0};
+var mouseDownPos = {x:0,y:0};
+
+var labelsWrap, raycaster, mouse;
+
+// ════════════════════════════════════════════════════
+//  BOOT
+// ════════════════════════════════════════════════════
+function boot() {
+  if (typeof THREE === 'undefined') { setTimeout(boot, 100); return; }
+  var canvas = document.getElementById('cityCanvas');
+  if (!canvas) { setTimeout(boot, 100); return; }
+
+  labelsWrap = document.getElementById('labelsWrap');
+  raycaster  = new THREE.Raycaster();
+  mouse      = new THREE.Vector2();
+  clock      = new THREE.Clock();
+
+  var W = window.innerWidth, H = window.innerHeight;
+
+  // ── Renderer ──
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+  renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.92;
+  renderer.setClearColor(0x070d1e, 1); // fond sombre explicite
+
+  window.addEventListener('resize', function() {
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h);
+    cam.aspect = w / h;
+    cam.updateProjectionMatrix();
+  });
+
+  // ── Scene ──
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x070d1e);
+  scene.fog = new THREE.FogExp2(0x070d1e, 0.013);
+
+  // ── Camera ──
+  cam = new THREE.PerspectiveCamera(50, W / H, 0.1, 350);
+  camUpdate();
+
+  // ── Lights ──
+  ambLight = new THREE.AmbientLight(0x1a2a4a, 0.72); scene.add(ambLight);
+  sun = new THREE.DirectionalLight(0xfff4e0, 2.1);
+  sun.position.set(22, 42, 16);
+  sun.castShadow = true;
+  sun.shadow.mapSize.width = sun.shadow.mapSize.height = 2048;
+  sun.shadow.camera.left = sun.shadow.camera.bottom = -50;
+  sun.shadow.camera.right = sun.shadow.camera.top   =  50;
+  sun.shadow.bias = -0.0004;
+  scene.add(sun);
+  var fill = new THREE.DirectionalLight(0x4488cc, 0.42);
+  fill.position.set(-15, 10, -20); scene.add(fill);
+  scene.add(new THREE.HemisphereLight(0x1e3248, 0x0c1a08, 0.44));
+
+  // ── Build world ──
+  buildEnv();
+  buildPlayer();
+  buildInitBuildings();
+  buildMonuments();
+  setupControls();
+  setupRaycast();
+  animate();
+  renderStore();
+
+  toast('🏙 Bienvenue ! Clique sur un objet pour ses infos.');
+}
+
+// ════════════════════════════════════════════════════
+//  HELPERS TEXTURE
+// ════════════════════════════════════════════════════
+function makeTex(fn, size) {
+  size = size || 512;
+  var c = document.createElement('canvas'); c.width = c.height = size;
+  fn(c.getContext('2d'), size);
+  var t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+// ════════════════════════════════════════════════════
+//  ENVIRONNEMENT
+// ════════════════════════════════════════════════════
+function buildEnv() {
+  // Sol asphalte
+  var asph = makeTex(function(g, s) {
+    g.fillStyle = '#121820'; g.fillRect(0,0,s,s);
+    for (var i = 0; i < 700; i++) {
+      var x=Math.random()*s, y=Math.random()*s, v=60+Math.floor(Math.random()*28);
+      g.fillStyle='rgba('+v+','+v+','+(v+10)+',0.26)';
+      g.beginPath(); g.arc(x,y,0.4+Math.random()*1.8,0,Math.PI*2); g.fill();
+    }
+  });
+  asph.repeat.set(12,12);
+  var ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(160,160),
+    new THREE.MeshStandardMaterial({ map:asph, roughness:0.94, metalness:0.06 })
+  );
+  ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+
+  // Routes
+  var roadTex = makeTex(function(g,s){
+    g.fillStyle='#0d1118'; g.fillRect(0,0,s,s);
+    g.strokeStyle='rgba(201,168,76,0.5)'; g.lineWidth=3; g.setLineDash([28,22]);
+    g.beginPath(); g.moveTo(s/2,0); g.lineTo(s/2,s); g.stroke();
+    g.beginPath(); g.moveTo(0,s/2); g.lineTo(s,s/2); g.stroke();
+    g.setLineDash([]);
+  });
+  roadTex.repeat.set(5,5);
+  var rm = new THREE.MeshStandardMaterial({ map:roadTex, roughness:0.88, metalness:0.12 });
+  var rh = new THREE.Mesh(new THREE.PlaneGeometry(160,7),rm); rh.rotation.x=-Math.PI/2; rh.position.y=0.02; scene.add(rh);
+  var rv = new THREE.Mesh(new THREE.PlaneGeometry(7,160),rm); rv.rotation.x=-Math.PI/2; rv.position.y=0.02; scene.add(rv);
+
+  // Trottoirs
+  var pave = makeTex(function(g,s){
+    g.fillStyle='#1c2430'; g.fillRect(0,0,s,s);
+    var bw=24,bh=12;
+    for(var row=0;row<s/bh+1;row++) for(var col=0;col<s/bw+2;col++){
+      var ox=(row%2===0)?0:bw/2, x=col*bw-ox, y=row*bh, v=36+Math.floor(Math.random()*14);
+      g.fillStyle='rgb('+(v+8)+','+(v+10)+','+(v+22)+')';
+      g.fillRect(x+1,y+1,bw-2,bh-2);
+    }
+  });
+  pave.repeat.set(6,6);
+  var sm = new THREE.MeshStandardMaterial({ map:pave, roughness:0.9 });
+  [[-13,0,160,5],[13,0,160,5],[0,-13,5,160],[0,13,5,160]].forEach(function(r){
+    var sw = new THREE.Mesh(new THREE.BoxGeometry(r[2],0.1,r[3]),sm);
+    sw.position.set(r[0],0.05,r[1]); sw.receiveShadow=true; scene.add(sw);
+  });
+
+  // Îlots verts
+  [[-10,-10,10,10],[10,-10,10,10],[-10,10,10,10],[10,10,10,10],
+   [0,-17,7,5],[-17,0,5,7],[17,0,5,7],[0,17,7,5]].forEach(function(b,i){
+    var m = new THREE.Mesh(new THREE.BoxGeometry(b[2],0.06,b[3]),
+      new THREE.MeshStandardMaterial({color:[0x090e14,0x091008,0x0a0812,0x120a06,0x081012,0x100c04,0x0a100a,0x0e0810][i%8],roughness:0.95}));
+    m.position.set(b[0],0.03,b[1]); m.receiveShadow=true; scene.add(m);
+  });
+
+  // Étoiles
+  var spts=[]; for(var i=0;i<2000;i++){var a=Math.random()*Math.PI*2,phi=Math.random()*Math.PI,r=130+Math.random()*80;spts.push(Math.sin(phi)*Math.cos(a)*r,15+Math.cos(phi)*r*0.55,Math.sin(phi)*Math.sin(a)*r);}
+  var sGeo=new THREE.BufferGeometry(); sGeo.setAttribute('position',new THREE.Float32BufferAttribute(spts,3));
+  starMat=new THREE.PointsMaterial({color:0xffffff,size:0.22,transparent:true,opacity:0.72});
+  scene.add(new THREE.Points(sGeo,starMat));
+
+  // Lune
+  moonMesh=new THREE.Mesh(new THREE.SphereGeometry(2.8,18,18),
+    new THREE.MeshStandardMaterial({color:0xfff8e8,emissive:0xfff8e8,emissiveIntensity:0.28,roughness:0.95}));
+  moonMesh.position.set(48,68,-75); scene.add(moonMesh);
+  moonLight=new THREE.PointLight(0xfff8e0,1.3,280); moonLight.position.copy(moonMesh.position); scene.add(moonLight);
+
+  // Arbres
+  var treePos=[[-4,-4],[-4,4],[4,-4],[4,4],[-9,-16],[-9,16],[9,-16],[9,16],[-16,-9],[16,-9],[-16,9],[16,9],[-20,-3],[-20,3],[20,-3],[20,3],[-3,-20],[3,-20],[-3,20],[3,20]];
+  treePos.forEach(function(p){ mkTree(p[0],p[1],0.7+Math.random()*0.55); });
+  for(var i=0;i<22;i++){var a2=Math.random()*Math.PI*2,r2=22+Math.random()*22,tx=Math.cos(a2)*r2,tz=Math.sin(a2)*r2;if(Math.abs(tx)>5&&Math.abs(tz)>5)mkTree(tx,tz,0.55+Math.random()*0.8);}
+
+  // Lampadaires
+  [[-3.5,-3.5],[3.5,-3.5],[-3.5,3.5],[3.5,3.5],[-9,0],[9,0],[0,-9],[0,9],[-15,-5],[15,-5],[-15,5],[15,5]].forEach(function(p){ mkLamp(p[0],p[1]); });
+}
+
+function mkTree(x,z,sc){
+  sc=sc||1;
+  var g=new THREE.Group();
+  var trunk=new THREE.Mesh(new THREE.CylinderGeometry(0.06*sc,0.13*sc,0.9*sc,8),new THREE.MeshStandardMaterial({color:0x3a250f,roughness:0.95}));
+  trunk.position.y=0.45*sc; trunk.castShadow=true; g.add(trunk);
+  var lm=new THREE.MeshStandardMaterial({color:[0x1a4818,0x1e5620,0x286228,0x153e12][Math.floor(Math.random()*4)],roughness:0.88});
+  for(var l=0;l<3;l++){var lh=(0.88+Math.random()*0.55)*sc,lr=(0.44+Math.random()*0.22-l*0.06)*sc;var lf=new THREE.Mesh(new THREE.ConeGeometry(lr,lh,9),lm);lf.position.y=0.9*sc+l*0.42*sc;lf.castShadow=true;g.add(lf);}
+  g.position.set(x,0,z); scene.add(g);
+}
+
+function mkLamp(x,z){
+  var g=new THREE.Group();
+  var pm2=new THREE.MeshStandardMaterial({color:0x282832,metalness:0.88,roughness:0.22});
+  var pole=new THREE.Mesh(new THREE.CylinderGeometry(0.045,0.072,4.2,7),pm2); pole.position.y=2.1; pole.castShadow=true; g.add(pole);
+  var arm=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,0.95,5),pm2); arm.rotation.z=Math.PI/2; arm.position.set(0.47,4.05,0); g.add(arm);
+  var bulb=new THREE.Mesh(new THREE.SphereGeometry(0.135,8,8),new THREE.MeshStandardMaterial({color:0xfff4a0,emissive:0xfff4a0,emissiveIntensity:1.3})); bulb.position.set(0.94,4.0,0); g.add(bulb);
+  var pl=new THREE.PointLight(0xffd060,2.0,10); pl.position.set(0.94,3.95,0); g.add(pl);
+  g.position.set(x,0,z); scene.add(g);
+}
+
+// ════════════════════════════════════════════════════
+//  JOUEUR (avatar)
+// ════════════════════════════════════════════════════
+function buildPlayer(){
+  var g=new THREE.Group();
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.29,0.68,12),new THREE.MeshStandardMaterial({color:0x2563eb,roughness:0.7,metalness:0.18}));
+  body.position.y=0.62; body.castShadow=true; g.add(body);
+  var head=new THREE.Mesh(new THREE.SphereGeometry(0.22,14,14),new THREE.MeshStandardMaterial({color:0xfdd8a0,roughness:0.8}));
+  head.position.y=1.18; head.castShadow=true; g.add(head);
+  var eyeM=new THREE.MeshStandardMaterial({color:0x111111,roughness:0.9});
+  [-0.08,0.08].forEach(function(x){var e=new THREE.Mesh(new THREE.SphereGeometry(0.04,6,6),eyeM);e.position.set(x,1.22,0.19);g.add(e);});
+  var capM=new THREE.MeshStandardMaterial({color:0xc9a84c,roughness:0.6,metalness:0.1});
+  var cap=new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.25,0.09,14),capM); cap.position.y=1.33; g.add(cap);
+  var brim=new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.34,0.04,14),capM); brim.position.y=1.27; g.add(brim);
+  var legM=new THREE.MeshStandardMaterial({color:0x1e3a5f,roughness:0.8});
+  [-0.1,0.1].forEach(function(x){var leg=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.11,0.44,8),legM);leg.position.set(x,0.22,0);leg.castShadow=true;g.add(leg);});
+  var shM=new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:0.9});
+  [-0.1,0.1].forEach(function(x){var sh=new THREE.Mesh(new THREE.BoxGeometry(0.15,0.09,0.24),shM);sh.position.set(x,0.045,0.04);g.add(sh);});
+  var halo=new THREE.Mesh(new THREE.CircleGeometry(0.55,18),new THREE.MeshBasicMaterial({color:0xc9a84c,transparent:true,opacity:0.2,side:THREE.DoubleSide}));
+  halo.rotation.x=-Math.PI/2; halo.position.y=0.01; halo.userData.isHalo=true; g.add(halo);
+  var pl=new THREE.PointLight(0x4488ff,1.4,6); pl.position.y=1.2; g.add(pl);
+  g.position.set(0,0,0); scene.add(g); player=g;
+
+  // Label joueur
+  var lb=mkLabel('🧑 Moi','building');
+  lb.style.color='#c9a84c'; lb.style.borderColor='rgba(201,168,76,.65)';
+  g.userData.label=lb;
+  g.userData.clickInfo={name:'Mon Avatar',icon:'🧑',bonus:'Niveau '+EC.level,type:'player'};
+  g.traverse(function(c){if(c.isMesh)c.userData.clickInfo=g.userData.clickInfo;});
+}
+
+// ════════════════════════════════════════════════════
+//  BÂTIMENTS — fenêtres procédurales
+// ════════════════════════════════════════════════════
+function makeWinTex(floors,cols){
+  return makeTex(function(g,s){
+    g.fillStyle='#1a2030'; g.fillRect(0,0,s,s);
+    for(var n=0;n<120;n++){var x=Math.random()*s,y=Math.random()*s,v=Math.floor(Math.random()*18);g.fillStyle='rgba('+(26+v)+','+(30+v)+','+(46+v)+',0.5)';g.fillRect(x,y,3+Math.random()*9,2+Math.random()*14);}
+    var fh=s/floors,fw=s/cols;
+    for(var f=0;f<floors;f++) for(var c=0;c<cols;c++){
+      var wx=c*fw+fw*.14,wy=f*fh+fh*.14,ww=fw*.72,wh=fh*.64;
+      if(Math.random()>.26){var w2=Math.random(),wr=208+Math.floor(w2*46),wg=192+Math.floor(w2*26),wb=135+Math.floor((1-w2)*72);g.fillStyle='rgba('+wr+','+wg+','+wb+',0.9)';g.fillRect(wx,wy,ww,wh);g.fillStyle='rgba(255,255,255,0.1)';g.fillRect(wx,wy,ww*.26,wh);}
+      else{g.fillStyle='rgba(12,16,26,0.96)';g.fillRect(wx,wy,ww,wh);}
+      g.strokeStyle='rgba(55,70,95,0.45)';g.lineWidth=0.7;g.strokeRect(wx,wy,ww,wh);
+    }
+  },256);
+}
+
+/**
+ * Construit un bâtiment et l'ajoute à la scène.
+ * @param {string}  cfgKey  — clé dans B (ex: 'library')
+ * @param {object}  slot    — {x, z}
+ * @param {object}  info    — {name, icon, bonus, type}
+ * @param {number}  delay   — ms avant l'animation d'apparition
+ * @returns {object} obj avec .grp .cfgKey .data .lbl
+ */
+function mkBuilding(cfgKey, slot, info, delay){
+  var cfg  = B[cfgKey] || B.library;
+  var acc  = parseInt(cfg.a.replace('#',''), 16);
+  var g    = new THREE.Group();
+
+  var baseMat   = new THREE.MeshStandardMaterial({color:cfg.c,roughness:0.92,metalness:0.1});
+  var winTex    = makeWinTex(cfg.fl, cfg.co);
+  var facadeMat = new THREE.MeshStandardMaterial({map:winTex,roughness:0.82,metalness:0.1});
+  var accMat    = new THREE.MeshStandardMaterial({color:acc,emissive:acc,emissiveIntensity:0.2,roughness:0.7,metalness:0.35});
+
+  // Fondation
+  var base=new THREE.Mesh(new THREE.BoxGeometry(cfg.w+.5,.55,cfg.d+.5),baseMat);
+  base.position.y=.275; base.castShadow=true; base.receiveShadow=true; g.add(base);
+
+  // Corps : 6 matériaux, façades Est/Ouest = fenêtres
+  var body=new THREE.Mesh(new THREE.BoxGeometry(cfg.w,cfg.h,cfg.d),[baseMat,baseMat,baseMat,baseMat,facadeMat,facadeMat]);
+  body.position.y=cfg.h/2+.55; body.castShadow=true; body.receiveShadow=true; g.add(body);
+
+  // Bandes horizontales (planchers)
+  for(var f=1;f<cfg.fl;f++){
+    var band=new THREE.Mesh(new THREE.BoxGeometry(cfg.w+.06,.09,cfg.d+.06),new THREE.MeshStandardMaterial({color:0x0e1420,roughness:0.95,metalness:0.22}));
+    band.position.y=.55+(f/cfg.fl)*cfg.h; g.add(band);
+  }
+
+  // Toit
+  var roof=new THREE.Mesh(new THREE.BoxGeometry(cfg.w+.22,.45,cfg.d+.22),new THREE.MeshStandardMaterial({color:0x0c1220,roughness:0.92,metalness:0.22}));
+  roof.position.y=cfg.h+.55+.225; roof.castShadow=true; g.add(roof);
+
+  // Enseigne
+  var sign=new THREE.Mesh(new THREE.BoxGeometry(cfg.w+.06,.42,.08),accMat);
+  sign.position.set(0,1.4,cfg.d/2+.04); g.add(sign);
+
+  // Antenne sur hauts immeubles
+  if(cfg.h>7){
+    var ant=new THREE.Mesh(new THREE.CylinderGeometry(.035,.062,cfg.h*.15,7),new THREE.MeshStandardMaterial({color:0x606070,metalness:0.9,roughness:0.2}));
+    ant.position.y=cfg.h+.55+.45+cfg.h*.075; ant.castShadow=true; g.add(ant);
+    var blnk=new THREE.Mesh(new THREE.SphereGeometry(.072,7,7),new THREE.MeshStandardMaterial({color:0xff1818,emissive:0xff1818,emissiveIntensity:1.2}));
+    blnk.position.y=cfg.h+.55+.45+cfg.h*.15+.07; blnk.userData.blink=true; g.add(blnk);
+  }
+
+  // Lumières
+  var glow=new THREE.PointLight(acc,.75,8); glow.position.set(0,cfg.h*.5+.55,0); g.add(glow);
+  var sg=new THREE.PointLight(acc,.4,5); sg.position.set(0,.9,cfg.d/2+.7); g.add(sg);
+
+  // Placement
+  g.position.set(slot.x, 0, slot.z);
+  g.scale.set(1, 0.01, 1); // écrasé → monte par animation
+
+  // userData pour raycasting
+  g.userData.clickInfo = info;
+  g.traverse(function(c){ if(c.isMesh) c.userData.clickInfo = info; });
+
+  scene.add(g);
+
+  // Label DOM flottant
+  var lb = mkLabel((info.icon||'🏢')+' '+info.name, 'building');
+
+  // Animation de montée (rise)
+  setTimeout(function(){
+    var t0 = performance.now();
+    (function rise(now){
+      var t = Math.min((now-t0)/1100, 1);
+      var e = 1 - Math.pow(1-t, 4);
+      g.scale.y = e;
+      if(t < 1) requestAnimationFrame(rise);
+    })(performance.now());
+  }, delay||0);
+
+  var obj = { grp:g, cfgKey:cfgKey, data:info, lbl:lb };
+  clickable.push({ grp:g, info:info });
+  return obj;
+}
+
+// Bâtiments initiaux (depuis Twig)
+function buildInitBuildings(){
+  EC.buildings.forEach(function(b, i){
+    var slot   = nextSlot();
+    var cfgKey = ID2CFG[b.id] || 'library';
+    var info   = { name:b.name, icon:b.icon, bonus:b.bonus, type:'building', cfgKey:cfgKey };
+    var obj    = mkBuilding(cfgKey, slot, info, i * 400);
+    bldObjs.push(obj);
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  MONUMENTS PAYS
+// ════════════════════════════════════════════════════
+function buildMonuments(){
+  EC.countries.forEach(function(c, idx){
+    var ri = COUNTRY_ORDER.indexOf(c.id);
+    if(ri < 0) ri = idx;
+    var pos = MON_RING[ri % MON_RING.length];
+    setTimeout(function(){ mkMonument(c, pos); }, idx*480 + 1000);
+  });
+}
+
+function mkMonument(country, pos){
+  var col = parseInt((country.color||'#c9a84c').replace('#',''), 16);
+  var g   = new THREE.Group();
+
+  var smat = new THREE.MeshStandardMaterial({color:0x232e40,roughness:0.85,metalness:0.32});
+  var tmat = new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:0.24,roughness:0.62,metalness:0.42});
+
+  // Socle
+  var base=new THREE.Mesh(new THREE.BoxGeometry(2.0,.45,2.0),smat); base.position.y=.225; base.castShadow=true; g.add(base);
+  var plinth=new THREE.Mesh(new THREE.BoxGeometry(1.15,.28,1.15),new THREE.MeshStandardMaterial({color:0x2e3848,roughness:0.8,metalness:0.38})); plinth.position.y=.59; g.add(plinth);
+
+  // Tour centrale
+  var tower=new THREE.Mesh(new THREE.CylinderGeometry(.16,.26,5.8,14),tmat); tower.position.y=3.62; tower.castShadow=true; g.add(tower);
+
+  // Anneaux
+  for(var i=0;i<4;i++){var ring=new THREE.Mesh(new THREE.TorusGeometry(.23,.03,7,16),tmat);ring.position.y=1.2+i*1.15;ring.rotation.x=Math.PI/2;g.add(ring);}
+
+  // Pointe
+  var tip=new THREE.Mesh(new THREE.ConeGeometry(.24,1.3,9),tmat); tip.position.y=7.5; g.add(tip);
+
+  // Billboard (canvas → texture)
+  var fc=document.createElement('canvas'); fc.width=128; fc.height=64;
+  var ctx=fc.getContext('2d');
+  ctx.fillStyle='rgba(4,8,24,0.9)'; ctx.fillRect(0,0,128,64);
+  ctx.font='26px Arial'; ctx.fillText(country.flag,8,40);
+  ctx.fillStyle='#c9a84c'; ctx.font='bold 13px Arial'; ctx.fillText(country.name,46,26);
+  ctx.fillStyle='#94a3b8'; ctx.font='10px Arial'; ctx.fillText(country.monumentName||'',46,42);
+  var flagMesh=new THREE.Mesh(new THREE.PlaneGeometry(2.4,1.2),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(fc),transparent:true,side:THREE.DoubleSide}));
+  flagMesh.position.set(0,9.2,0); g.add(flagMesh);
+
+  // Lumières
+  var gl=new THREE.PointLight(col,2.2,12); gl.position.y=4; g.add(gl);
+  var sl=new THREE.PointLight(col,.7,5); sl.position.set(0,.3,0); g.add(sl);
+
+  g.position.set(pos.x,0,pos.z);
+  g.scale.set(1,0.01,1);
+
+  var info={name:(country.name)+' — '+(country.monumentName||'Monument'),icon:country.flag,bonus:'Streak ×'+country.streak+' requis',type:'country',city:country.city||''};
+  g.userData.clickInfo=info;
+  g.traverse(function(c){if(c.isMesh)c.userData.clickInfo=info;});
+
+  scene.add(g);
+
+  var lb=mkLabel(country.flag+' '+country.name,'country');
+  lb.dataset.type='country';
+
+  // Rise animation
+  var t0=performance.now();
+  (function rise(now){
+    var t=Math.min((now-t0)/1300,1), e=1-Math.pow(1-t,4);
+    g.scale.y=e; if(t<1) requestAnimationFrame(rise);
+  })(performance.now());
+
+  monObjs.push({grp:g,data:info,lbl:lb,pos:pos});
+  clickable.push({grp:g,info:info});
+}
+
+// ════════════════════════════════════════════════════
+//  LABELS DOM flottants
+// ════════════════════════════════════════════════════
+function mkLabel(text, type){
+  var el=document.createElement('div');
+  el.className='lb3d '+(type||'building');
+  el.textContent=text;
+  el.style.opacity='0';
+  labelsWrap.appendChild(el);
+  return el;
+}
+
+function w2s(pos3){ // world → screen {x,y,behind}
+  var v=pos3.clone().project(cam);
+  return {
+    x: (v.x+1)/2*window.innerWidth,
+    y: (-v.y+1)/2*window.innerHeight,
+    behind: v.z>1
+  };
+}
+
+function updateLabels(){
+  // Joueur
+  if(player && player.userData.label){
+    var pp=new THREE.Vector3(); player.getWorldPosition(pp); pp.y+=2.4;
+    var sc=w2s(pp); var lb=player.userData.label;
+    if(sc.behind){lb.style.opacity='0';}
+    else{lb.style.left=sc.x+'px';lb.style.top=sc.y+'px';lb.style.opacity='1';}
+  }
+  // Bâtiments — utilise cfgKey pour récupérer la bonne hauteur
+  bldObjs.forEach(function(o){
+    if(!o.lbl||!o.grp) return;
+    var cfg=B[o.cfgKey]||B.library;
+    var pos=o.grp.position.clone(); pos.y+=cfg.h+2.2;
+    var sc=w2s(pos); var dist=cam.position.distanceTo(o.grp.position);
+    if(sc.behind||dist>38){o.lbl.style.opacity='0';}
+    else{o.lbl.style.left=sc.x+'px';o.lbl.style.top=sc.y+'px';o.lbl.style.opacity=dist<22?'1':'0.45';}
+  });
+  // Monuments
+  monObjs.forEach(function(o){
+    if(!o.lbl||!o.grp) return;
+    var pos=o.grp.position.clone(); pos.y+=10.5;
+    var sc=w2s(pos); var dist=cam.position.distanceTo(o.grp.position);
+    if(sc.behind||dist>58){o.lbl.style.opacity='0';}
+    else{o.lbl.style.left=sc.x+'px';o.lbl.style.top=sc.y+'px';o.lbl.style.opacity=dist<30?'1':'0.38';}
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  RAYCASTING — clic sur les objets 3D
+//  (distingue drag vs clic par déplacement < 6px)
+// ════════════════════════════════════════════════════
+function setupRaycast(){
+  var canvas=document.getElementById('cityCanvas');
+  canvas.addEventListener('mousedown',function(e){ mouseDownPos={x:e.clientX,y:e.clientY}; });
+  canvas.addEventListener('mouseup',function(e){
+    var dx=Math.abs(e.clientX-mouseDownPos.x), dy=Math.abs(e.clientY-mouseDownPos.y);
+    if(dx>6||dy>6) return; // c'était un drag
+
+    mouse.x=(e.clientX/window.innerWidth)*2-1;
+    mouse.y=-(e.clientY/window.innerHeight)*2+1;
+    raycaster.setFromCamera(mouse,cam);
+
+    var meshes=[];
+    clickable.forEach(function(o){ o.grp.traverse(function(c){if(c.isMesh)meshes.push(c);}); });
+    if(player) player.traverse(function(c){if(c.isMesh)meshes.push(c);});
+
+    var hits=raycaster.intersectObjects(meshes,false);
+    if(hits.length>0){
+      var info=hits[0].object.userData.clickInfo;
+      if(info) showPopup(info, e.clientX, e.clientY);
+    } else {
+      hidePopup();
+    }
+  });
+}
+
+var popTimer;
+function showPopup(info,x,y){
+  var root=document.getElementById('ec-root');
+  var rr=root.getBoundingClientRect();
+  var pop=document.getElementById('ec-popup');
+  document.getElementById('ppTitle').textContent=(info.icon||'')+' '+(info.name||'—');
+  document.getElementById('ppSub').textContent=info.type==='country'?'📍 '+(info.city||''):'';
+  document.getElementById('ppExtra').innerHTML=info.type==='country'
+    ?'<div class="pp-loc">'+info.bonus+'</div>'
+    :(info.bonus?'<div class="pp-bonus">✨ '+info.bonus+'</div>':'');
+  pop.style.left=Math.min(x-rr.left+12, window.innerWidth-185)+'px';
+  pop.style.top =Math.min(y-rr.top-36,  window.innerHeight-130)+'px';
+  pop.classList.add('show');
+  clearTimeout(popTimer);
+  popTimer=setTimeout(hidePopup,4500);
+}
+function hidePopup(){ document.getElementById('ec-popup').classList.remove('show'); }
+
+// ════════════════════════════════════════════════════
+//  CAMÉRA
+// ════════════════════════════════════════════════════
+function camUpdate(){
+  cam.position.x=cT.x+Math.sin(cH)*Math.cos(cV)*cR;
+  cam.position.y=cT.y+Math.sin(cV)*cR;
+  cam.position.z=cT.z+Math.cos(cH)*Math.cos(cV)*cR;
+  cam.lookAt(cT);
+}
+
+function setupControls(){
+  var canvas=document.getElementById('cityCanvas');
+  canvas.addEventListener('mousedown',function(e){ dragging=true; rightBtn=e.button===2; pm={x:e.clientX,y:e.clientY}; });
+  canvas.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+  canvas.addEventListener('mousemove',function(e){
+    if(!dragging) return;
+    var dx=(e.clientX-pm.x)*.008, dy=(e.clientY-pm.y)*.008; pm={x:e.clientX,y:e.clientY};
+    if(rightBtn){
+      cT.x-=Math.cos(cH)*dx*cR*.42; cT.z-=Math.sin(cH)*dx*cR*.42;
+      cT.x+=Math.sin(cH)*dy*cR*.42; cT.z-=Math.cos(cH)*dy*cR*.42;
+    } else {
+      cH-=dx; cV=Math.max(.08,Math.min(1.45,cV+dy));
+    }
+    camUpdate();
+  });
+  canvas.addEventListener('mouseup',  function(){ dragging=false; });
+  canvas.addEventListener('mouseleave',function(){ dragging=false; });
+  canvas.addEventListener('wheel',function(e){ cR=Math.max(4,Math.min(75,cR+e.deltaY*.06)); camUpdate(); });
+  var lt=null;
+  canvas.addEventListener('touchstart',function(e){ lt=e.touches[0]; });
+  canvas.addEventListener('touchmove',function(e){
+    if(!lt)return; e.preventDefault();
+    var t=e.touches[0];
+    cH-=(t.clientX-lt.clientX)*.008; cV=Math.max(.08,Math.min(1.45,cV+(t.clientY-lt.clientY)*.008));
+    lt=t; camUpdate();
+  },{passive:false});
+}
+
+window.ecResetCam=function(){ cH=0; cV=0.52; cR=32; cT.set(0,0,0); camUpdate(); };
+window.ecGoPlayer=function(){
+  if(!player)return;
+  cT.set(player.position.x,0,player.position.z); cR=12; cV=0.58; camUpdate();
+  toast('🧑 Caméra sur ton avatar !');
+};
+
+// ════════════════════════════════════════════════════
+//  BOUCLE D'ANIMATION
+// ════════════════════════════════════════════════════
+function animate(){
+  requestAnimationFrame(animate);
+  var t=clock.getElapsedTime();
+
+  // Flottement léger des bâtiments
+  bldObjs.forEach(function(o,i){ if(o.grp) o.grp.position.y=Math.sin(t*.22+i)*.02; });
+
+  // Avatar
+  if(player){
+    player.position.y=Math.sin(t*1.9)*.065;
+    player.rotation.y=t*.38;
+    player.traverse(function(c){if(c.userData&&c.userData.isHalo&&c.material){c.material.opacity=.12+.14*Math.sin(t*2.2);}});
+  }
+
+  // Monuments rotation douce
+  monObjs.forEach(function(o,i){ if(o.grp) o.grp.rotation.y=t*.045+i*.52; });
+
+  // Blink antennes
+  scene.traverse(function(obj){
+    if(obj.userData&&obj.userData.blink&&obj.material){obj.material.emissiveIntensity=.4+.95*((Math.sin(t*2.9+obj.id*.75)+1)*.5);}
+  });
+
+  // Lune en orbite lente
+  moonMesh.position.x=48*Math.cos(t*.012); moonMesh.position.z=-75+28*Math.sin(t*.012);
+  moonLight.position.copy(moonMesh.position);
+
+  // Nuit / Jour
+  if(nightMode){
+    scene.background.setHex(0x010306); scene.fog.color.setHex(0x010306);
+    ambLight.intensity=.22; sun.intensity=.12; starMat.opacity=1.0;
+  } else {
+    scene.background.setHex(0x070d1e); scene.fog.color.setHex(0x070d1e);
+    ambLight.intensity=.72; sun.intensity=2.1; starMat.opacity=.68;
+  }
+
+  updateLabels();
+  renderer.render(scene,cam);
+}
+
+// ════════════════════════════════════════════════════
+//  STORE
+// ════════════════════════════════════════════════════
+var SBLD=[
+  {id:'library',    name:'Bibliothèque', icon:'📚', color:'#3b82f6', cost:200,  rarity:'common',    bonus:'+5% XP Math',      desc:'Améliore tes compétences en mathématiques.'},
+  {id:'lab',        name:'Laboratoire',  icon:'🔬', color:'#10b981', cost:350,  rarity:'rare',      bonus:'+10% XP Science',  desc:'Booste tes scores en sciences.'},
+  {id:'museum',     name:'Musée',         icon:'🏛', color:'#c9a84c', cost:500,  rarity:'rare',      bonus:'Quiz culture',     desc:'Débloque des quiz culturels bonus.'},
+  {id:'university', name:'Université',   icon:'🎓', color:'#8b5cf6', cost:800,  rarity:'epic',      bonus:'+25% XP total',    desc:'Multiplie tous tes gains XP.'},
+  {id:'stadium',    name:'Stade',         icon:'🏟', color:'#ef4444', cost:600,  rarity:'epic',      bonus:'+Streak bonus',    desc:'Double les bonus de streak.'},
+  {id:'tower',      name:"Tour d'Or",    icon:'🏆', color:'#c9a84c', cost:1200, rarity:'legendary', bonus:'×2 coins/éval',    desc:'Double tes gains de coins.'},
+  {id:'hospital',   name:'Hôpital',       icon:'🏥', color:'#fca5a5', cost:400,  rarity:'rare',      bonus:'Streak protect',   desc:'Protège ton streak une fois.'},
+  {id:'cafe',       name:'Café',          icon:'☕', color:'#f97316', cost:150,  rarity:'common',    bonus:'+Motivation',      desc:'Boost de motivation quotidien.'},
+];
+
+var storeBought=[], storeOpen=false, storeTab='buildings';
+
+window.ecToggleStore=function(){
+  storeOpen=!storeOpen;
+  document.getElementById('ec-store').classList.toggle('open',storeOpen);
+  document.getElementById('storeBtn').classList.toggle('active',storeOpen);
+  if(storeOpen) renderStore();
+};
+window.ecTab=function(tab){
+  storeTab=tab;
+  document.querySelectorAll('.st-tab').forEach(function(el,i){el.classList.toggle('active',['buildings','countries'][i]===tab);});
+  renderStore();
+};
+
+function renderStore(){
+  var el=document.getElementById('stItems'); el.innerHTML='';
+  if(storeTab==='buildings'){
+    SBLD.forEach(function(item){
+      var owned   = storeBought.some(function(b){return b.id===item.id;});
+      var canBuy  = EC.coins >= item.cost && !owned;
+      var d=document.createElement('div');
+      d.className='si '+(owned?'owned':canBuy?'':'locked');
+      d.innerHTML=
+        '<div class="si-rarity r-'+item.rarity+'">'+item.rarity.toUpperCase()+'</div>'+
+        '<div class="si-head">'+
+          '<div class="si-ico" style="background:'+item.color+'20;border:1px solid '+item.color+'40">'+item.icon+'</div>'+
+          '<div><div class="si-name">'+item.name+'</div><div class="si-type">'+item.bonus+'</div></div>'+
+        '</div>'+
+        '<div class="si-desc">'+item.desc+'</div>'+
+        '<div class="si-foot">'+
+          '<div class="si-price">'+(owned?'<span style="color:#4ade80">✓ Construit</span>':'💰 '+item.cost.toLocaleString())+'</div>'+
+          '<button class="si-buy" '+(owned||!canBuy?'disabled':'')+' onclick="ecBuy(\''+item.id+'\')">'+(owned?'Sur la map':canBuy?'Acheter ➜':'Insuffisant')+'</button>'+
+        '</div>';
+      el.appendChild(d);
+    });
+  } else {
+    ALL_COUNTRIES.forEach(function(c){
+      var unlocked=EC.countries.some(function(uc){return uc.id===c.id;});
+      var reach=EC.streak>=c.streak;
+      var d=document.createElement('div'); d.className='si '+(unlocked||reach?'':'locked');
+      d.innerHTML=
+        '<div class="si-head">'+
+          '<div class="si-ico" style="font-size:1.3rem;background:rgba(255,255,255,.04)">'+c.flag+'</div>'+
+          '<div><div class="si-name">'+c.flag+' '+c.name+'</div><div class="si-type">'+c.monument+' · Streak ×'+c.streak+'</div></div>'+
+        '</div>'+
+        '<div class="si-desc">'+(c.monumentName||'')+' · '+(c.city||'')+'</div>'+
+        '<div class="si-foot">'+
+          '<div class="si-price">'+(reach?'🔓 Débloqué':'🔒 Streak ×'+c.streak+' requis')+'</div>'+
+          '<button class="si-buy" disabled>'+(unlocked?'✓ Sur la map':reach?'Auto':'🔒')+'</button>'+
+        '</div>';
+      el.appendChild(d);
+    });
+  }
+}
+
+// ── BUG FIX PRINCIPAL : achat → apparition immédiate sur la map ──
+window.ecBuy=function(id){
+  var item=SBLD.find(function(b){return b.id===id;});
+  if(!item){ toast('❌ Bâtiment introuvable'); return; }
+  if(EC.coins<item.cost){ toast('❌ Coins insuffisants !'); return; }
+  if(storeBought.some(function(b){return b.id===id;})){ toast('⚠️ Déjà construit !'); return; }
+
+  // 1. Déduire les coins
+  EC.coins -= item.cost;
+  storeBought.push(item);
+
+  // 2. Màj affichage coins
+  document.getElementById('hCoins').textContent   = EC.coins.toLocaleString();
+  document.getElementById('stCoins').textContent  = EC.coins.toLocaleString();
+
+  // 3. ══ CONSTRUIRE SUR LA MAP ══
+  var slot   = nextSlot();                              // slot libre garanti
+  var cfgKey = ID2CFG[item.id] || 'library';           // clé visuelle
+  var info   = { name:item.name, icon:item.icon, bonus:item.bonus, type:'building', cfgKey:cfgKey };
+  var obj    = mkBuilding(cfgKey, slot, info, 0);       // délai 0 = immédiat
+  bldObjs.push(obj);                                    // enregistrer
+
+  // 4. Màj HUD bâtiments
+  document.getElementById('hBuildings').textContent = bldObjs.length;
+
+  // 5. Màj liste panel gauche
+  syncBldList();
+
+  // 6. Caméra sur le nouveau bâtiment
+  setTimeout(function(){
+    cT.set(slot.x, 0, slot.z); cR=18; cV=0.55; camUpdate();
+  }, 250);
+
+  // 7. Toast + coin pop
+  toast('🏗 '+item.name+' construite sur la map !');
+  var pop=document.createElement('div'); pop.className='coin-pop';
+  pop.textContent='-'+item.cost+' 💰';
+  document.getElementById('ec-root').appendChild(pop);
+  setTimeout(function(){pop.remove();},900);
+
+  // 8. Ré-afficher le store
+  renderStore();
+};
+
+function syncBldList(){
+  var list=document.getElementById('bldList');
+  var cnt=document.getElementById('bldCount');
+  cnt.textContent=bldObjs.length;
+  list.innerHTML='';
+  bldObjs.forEach(function(o){
+    var d=o.data;
+    var el=document.createElement('div'); el.className='b-item';
+    el.innerHTML='<div class="b-icon" style="background:rgba(59,130,246,.1)">'+(d.icon||'🏢')+'</div>'+
+      '<div><div class="b-name">'+d.name+'</div><div class="b-bonus">'+(d.bonus||'')+'</div></div>';
+    list.appendChild(el);
+  });
+}
+
+// ════════════════════════════════════════════════════
+//  MODE NUIT
+// ════════════════════════════════════════════════════
+window.ecToggleNight=function(){
+  nightMode=!nightMode;
+  document.getElementById('nightBtn').textContent=nightMode?'☀️ Jour':'🌙 Nuit';
+  toast(nightMode?'🌙 NIGHTMODE':'☀️ LIGHTMODE');
+};
+
+// ════════════════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════════════════
+function toast(msg){
+  var t=document.getElementById('ec-toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove('show');},3200);
+}
+var leftVis=true;
+window.ecToggleLeft=function(){
+  leftVis=!leftVis;
+  document.getElementById('ec-left').style.transform=leftVis?'':'translateX(-230px)';
+};
+window.ecMode=function(){
+  document.querySelectorAll('#ec-tb .tb').forEach(function(t){t.classList.remove('active');});
+  var v=document.getElementById('tbView'); if(v) v.classList.add('active');
+};
+
+// ════════════════════════════════════════════════════
+//  DÉMARRAGE
+// ════════════════════════════════════════════════════
+setTimeout(boot, 80);
+
+})();
+</script>
+{% endblock %}

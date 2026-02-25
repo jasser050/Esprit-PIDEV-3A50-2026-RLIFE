@@ -153,7 +153,6 @@ class RevisionController extends AbstractController
 
         $flashcard = new Flashcard();
         $flashcard->setDeck($deck);
-        
 
         $form = $this->createForm(FlashcardType::class, $flashcard);
         $form->handleRequest($request);
@@ -191,6 +190,28 @@ class RevisionController extends AbstractController
         return $this->render('pages/flashcard/new.html.twig', [
             'form' => $form->createView(),
             'deck' => $deck,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // ✨ AI GUIDE — GUIDE PÉDAGOGIQUE IA
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/flashcard/ai-guide/{deck_id}', name: 'app_flashcard_ai_guide', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function aiGuide(
+        int $deck_id,
+        DeckRepository $deckRepository
+    ): Response {
+        $deck = $deckRepository->find($deck_id);
+
+        if (!$deck) {
+            throw $this->createNotFoundException('Deck introuvable');
+        }
+
+        return $this->render('pages/flashcard/ai_guide.html.twig', [
+            'deck'   => $deck,
+            'deckId' => $deck_id,
         ]);
     }
 
@@ -343,7 +364,6 @@ PROMPT;
                 $aiData = $response->toArray();
                 $content = $aiData['choices'][0]['message']['content'] ?? '[]';
 
-                // Nettoyage JSON
                 $content = preg_replace('/```json\s*/i', '', $content);
                 $content = preg_replace('/```/', '', $content);
                 $content = trim($content);
@@ -396,7 +416,6 @@ PROMPT;
                     $theme
                 ));
             } else {
-                // Fallback sans IA
                 for ($i = 0; $i < $count; $i++) {
                     $flashcard = new Flashcard();
                     $flashcard->setDeck($deck);
@@ -540,7 +559,138 @@ PROMPT;
     }
 
     // ─────────────────────────────────────────────────────────────
-    // QR CODE GENERATION (corrigée)
+    // 🤖 DÉTECTION AUTOMATIQUE DES CARTES MAL FORMULÉES
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/deck/{id}/analyze', name: 'app_deck_analyze', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function analyzeCards(
+        Deck $deck,
+        FlashcardRepository $flashcardRepository,
+        HttpClientInterface $httpClient
+    ): JsonResponse {
+        $flashcards = $flashcardRepository->findBy(['deck' => $deck]);
+
+        if (empty($flashcards)) {
+            return $this->json(['error' => 'Aucune carte à analyser.'], 400);
+        }
+
+        $cardsText = '';
+        foreach ($flashcards as $i => $fc) {
+            $cardsText .= sprintf(
+                "Carte %d (ID:%d)\nTitre: %s\nQuestion: %s\nRéponse: %s\n\n",
+                $i + 1,
+                $fc->getId(),
+                $fc->getTitre() ?? 'Sans titre',
+                $fc->getQuestion(),
+                $fc->getReponse()
+            );
+        }
+
+        $prompt = <<<PROMPT
+Tu es un expert pédagogique. Analyse ces flashcards et détecte les problèmes de formulation.
+
+Retourne UNIQUEMENT un objet JSON avec ce format EXACT (rien d'autre, pas de markdown) :
+{
+  "score_global": <note de qualité globale du deck de 0 à 10>,
+  "cartes": [
+    {
+      "id": <ID de la carte>,
+      "titre": "<titre de la carte>",
+      "problemes": ["<problème 1>", "<problème 2>"],
+      "suggestion": "<suggestion d'amélioration concrète>",
+      "severite": "faible|moyen|grave",
+      "question_corrigee": "<nouvelle version améliorée de la question>",
+      "reponse_corrigee": "<nouvelle version améliorée de la réponse>"
+    }
+  ]
+}
+
+Types de problèmes à détecter :
+- "Question trop vague" : question générale sans précision
+- "Réponse trop longue" : réponse de plus de 3 phrases
+- "Carte ambiguë" : question ou réponse peut être interprétée de plusieurs façons
+- "Trop complexe" : contient plusieurs questions/concepts dans une seule carte
+- "Question fermée" : question à laquelle on répond juste par oui/non
+- "Réponse incomplète" : réponse trop courte ou vague
+
+Règles :
+- Si une carte est bien formulée, ne l'inclus PAS dans "cartes"
+- Si toutes les cartes sont bonnes, "cartes" = []
+- "score_global" = 10 si tout est parfait, baisse selon le nombre et la gravité des problèmes
+- "question_corrigee" et "reponse_corrigee" sont TOUJOURS présents pour les cartes problématiques
+
+Voici les cartes à analyser :
+
+{$cardsText}
+PROMPT;
+
+        try {
+            $apiKey = $_ENV['OPENROUTER_API_KEY'] ?? '';
+
+            if (empty($apiKey)) {
+                return $this->json(['error' => 'Clé API non configurée.'], 500);
+            }
+
+            $response = $httpClient->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type'  => 'application/json',
+                    'HTTP-Referer'  => 'http://localhost:8000',
+                    'X-Title'       => 'RLIFE Study App',
+                ],
+                'json' => [
+                    'model'      => 'anthropic/claude-3-haiku',
+                    'max_tokens' => 2048,
+                    'messages'   => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                ],
+                'timeout' => 45,
+            ]);
+
+            $body    = $response->toArray();
+            $content = $body['choices'][0]['message']['content'] ?? '{}';
+
+            $content = preg_replace('/^```json\s*/i', '', trim($content));
+            $content = preg_replace('/\s*```$/', '', $content);
+
+            $parsed = json_decode($content, true);
+
+            $scoreGlobal = $parsed['score_global'] ?? 10;
+            $cartes      = $parsed['cartes'] ?? [];
+
+            if (!is_array($cartes)) {
+                $cartes = [];
+            }
+
+            foreach ($cartes as &$carte) {
+                $fcId = $carte['id'] ?? null;
+                if ($fcId) {
+                    foreach ($flashcards as $fc) {
+                        if ($fc->getId() === $fcId) {
+                            $carte['question_originale'] = $fc->getQuestion();
+                            $carte['reponse_originale']  = $fc->getReponse();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return $this->json([
+                'total'        => count($flashcards),
+                'problemes'    => count($cartes),
+                'score_global' => $scoreGlobal,
+                'cartes'       => $cartes,
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Erreur IA : ' . $e->getMessage()], 500);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // QR CODE GENERATION
     // ─────────────────────────────────────────────────────────────
 
     #[Route('/deck/{id}/qrcode', name: 'app_deck_qrcode', methods: ['GET'])]
@@ -600,7 +750,7 @@ PROMPT;
     }
 
     // ─────────────────────────────────────────────────────────────
-    // SHARE & IMPORT (les autres méthodes QR / partage)
+    // SHARE & IMPORT
     // ─────────────────────────────────────────────────────────────
 
     #[Route('/deck/{id}/share', name: 'app_deck_share', methods: ['GET'])]
@@ -621,7 +771,6 @@ PROMPT;
     }
 
     // ⚠️ REMOVED: Duplicate import route - handled by QrCodeController
-    // #[Route('/import/{token}', name: 'app_qrcode_import', methods: ['GET', 'POST'])]
     public function importDeck(
         string $token,
         DeckRepository $deckRepository,
@@ -732,7 +881,56 @@ PROMPT;
     }
 
     // ─────────────────────────────────────────────────────────────
-    // HELPERS (simulate, spaced repetition, tokens)
+    // 🤖 CORRECTION AUTOMATIQUE D'UNE CARTE
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/flashcard/{id}/correct', name: 'app_flashcard_correct', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function correctCard(
+        Flashcard $flashcard,
+        Request $request,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+
+        $questionCorrigee = trim($data['question_corrigee'] ?? '');
+        $reponseCorrigee  = trim($data['reponse_corrigee'] ?? '');
+
+        if (empty($questionCorrigee) || empty($reponseCorrigee)) {
+            return $this->json(['error' => 'Question et réponse corrigées requises.'], 400);
+        }
+
+        $flashcard->setQuestion($questionCorrigee);
+        $flashcard->setReponse($reponseCorrigee);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => '✅ Carte corrigée avec succès !',
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // TRANSLATE FLASHCARD
+    // ─────────────────────────────────────────────────────────────
+
+    #[Route('/flashcard/{id}/translate', name: 'app_flashcard_translate', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function translateFlashcard(Flashcard $flashcard): Response
+    {
+        if ($flashcard->getCreatedBy() !== $this->getUser() &&
+            $flashcard->getDeck()->getUser() !== $this->getUser()) {
+            $this->addFlash('error', 'Vous n\'avez pas accès à cette flashcard.');
+            return $this->redirectToRoute('app_revisions');
+        }
+
+        return $this->render('pages/flashcard/translate.html.twig', [
+            'flashcard' => $flashcard,
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // HELPERS
     // ─────────────────────────────────────────────────────────────
 
     private function updateSpacedRepetition(Flashcard $flashcard, int $score): void
@@ -813,20 +1011,5 @@ PROMPT;
         } catch (\Exception $e) {
             return null;
         }
-    }
-    #[Route('/flashcard/{id}/translate', name: 'app_flashcard_translate', methods: ['GET'])]
-    #[IsGranted('ROLE_USER')]
-    public function translateFlashcard(Flashcard $flashcard): Response
-    {
-        // Vérifier que l'utilisateur a accès à cette flashcard
-        if ($flashcard->getCreatedBy() !== $this->getUser() && 
-            $flashcard->getDeck()->getUser() !== $this->getUser()) {
-            $this->addFlash('error', 'Vous n\'avez pas accès à cette flashcard.');
-            return $this->redirectToRoute('app_revisions');
-        }
-
-        return $this->render('pages/flashcard/translate.html.twig', [
-            'flashcard' => $flashcard,
-        ]);
     }
 }
