@@ -797,7 +797,8 @@
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Coins</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</p>
+                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins is defined ? app.user.coins : 0 }} 🪙
+</p>
                     </div>
                 </div>
 
@@ -860,7 +861,8 @@
         </div>
         <div class="p-5">
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 text-center">
-                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</span>
+                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins is defined ? app.user.coins : 0 }} 🪙
+</span>
             </p>
             <div class="space-y-3">
                 {% set foods = [
