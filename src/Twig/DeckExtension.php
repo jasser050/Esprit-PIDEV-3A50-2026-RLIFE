@@ -25,6 +25,7 @@ class DeckExtension extends AbstractExtension
             new TwigFunction('deck_count', [$this, 'getDeckCount']),
             new TwigFunction('assignment_count', [$this, 'getAssignmentCount']),
             new TwigFunction('project_count', [$this, 'getProjectCount']),
+            new TwigFunction('sidebar_projects', [$this, 'getSidebarProjects']),
         ];
     }
 
@@ -50,6 +51,20 @@ class DeckExtension extends AbstractExtension
             return 0;
         }
 
-        return $this->projectRepository->countByUser($user);
+        return count($this->projectRepository->findByUserWithFilters($user, 'createdAt', 'DESC'));
+    }
+
+    /**
+     * @return array<int, \App\Entity\Project>
+     */
+    public function getSidebarProjects(int $limit = 5): array
+    {
+        $user = $this->security->getUser();
+        if (!$user instanceof User) {
+            return [];
+        }
+
+        $projects = $this->projectRepository->findByUserWithFilters($user, 'createdAt', 'DESC');
+        return array_slice($projects, 0, max(1, $limit));
     }
 }

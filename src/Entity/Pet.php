@@ -35,9 +35,14 @@ class Pet
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $lastHungerAt;
+
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->lastHungerAt = $now;
     }
 
     public function getId(): ?int
@@ -114,6 +119,17 @@ class Pet
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getLastHungerAt(): \DateTimeImmutable
+    {
+        return $this->lastHungerAt;
+    }
+
+    public function setLastHungerAt(\DateTimeImmutable $lastHungerAt): self
+    {
+        $this->lastHungerAt = $lastHungerAt;
+        return $this;
     }
 
     // Helper: pet mood label

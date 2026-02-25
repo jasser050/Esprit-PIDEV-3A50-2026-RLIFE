@@ -39,11 +39,3 @@ services:
         bind:
             $geminiApiKey: '%gemini_api_key%'
 
-    # PusherService ??? explicit constructor arguments
-    App\Service\PusherService:
-        arguments:
-            $appId: '%pusher.app_id%'
-            $key: '%pusher.key%'
-            $secret: '%pusher.secret%'
-            $cluster: '%pusher.cluster%'
-

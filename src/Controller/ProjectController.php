@@ -130,8 +130,12 @@ class ProjectController extends AbstractController
         ProjectShareRepository $shareRepository,
         ProjectStatsService $statsService
     ): Response {
-        $isOwner = $project->getUser() === $this->getUser();
-        $hasAccess = $shareRepository->hasAccess($project, $this->getUser());
+        $currentUser = $this->getUser();
+        $isOwner = $project->getUser() === $currentUser;
+        $userShare = (!$isOwner && $currentUser instanceof User)
+            ? $shareRepository->findUserShareForProject($project, $currentUser)
+            : null;
+        $hasAccess = $userShare !== null;
 
         if (!$isOwner && !$hasAccess) {
             throw $this->createAccessDeniedException();
@@ -149,6 +153,7 @@ class ProjectController extends AbstractController
         $aiQuality = $request->getSession()->get(sprintf('project_ai_quality_%d', $project->getId()), []);
         $aiSprint = $request->getSession()->get(sprintf('project_ai_sprint_%d', $project->getId()), []);
         $aiReport = $request->getSession()->get(sprintf('project_ai_report_%d', $project->getId()), []);
+        $lastMeetUrl = $request->getSession()->get(sprintf('project_last_meet_%d', $project->getId()));
 
         return $this->render('pages/projects/show.html.twig', [
             'project'      => $project,
@@ -161,6 +166,8 @@ class ProjectController extends AbstractController
             'ai_quality' => is_array($aiQuality) ? $aiQuality : [],
             'ai_sprint' => is_array($aiSprint) ? $aiSprint : [],
             'ai_report' => is_array($aiReport) ? $aiReport : [],
+            'can_edit_project' => $isOwner || ($userShare && $userShare->getRole() === 'editor'),
+            'last_meet_url' => is_string($lastMeetUrl) ? $lastMeetUrl : null,
         ]);
     }
 
@@ -506,9 +513,16 @@ class ProjectController extends AbstractController
     public function edit(
         Request $request,
         Project $project,
+        ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
-        if ($project->getUser() !== $this->getUser()) {
+        $currentUser = $this->getUser();
+        $isOwner = $project->getUser() === $currentUser;
+        $canEditShared = !$isOwner && $currentUser instanceof User
+            ? $shareRepository->hasEditAccess($project, $currentUser)
+            : false;
+
+        if (!$isOwner && !$canEditShared) {
             throw $this->createAccessDeniedException();
         }
 
@@ -630,7 +644,10 @@ class ProjectController extends AbstractController
         }
 
         $email = $request->request->get('email');
-        $role = $request->request->get('role', 'viewer');
+        $role = (string) $request->request->get('role', 'viewer');
+        if (!in_array($role, ['viewer', 'editor'], true)) {
+            $role = 'viewer';
+        }
 
         $userToShare = $userRepository->findOneBy(['email' => $email]);
 
@@ -670,6 +687,72 @@ class ProjectController extends AbstractController
         );
 
         $this->addFlash('success', 'Project shared successfully!');
+        return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+    }
+
+    #[Route('/{id}/meet/create', name: 'app_project_create_meet', methods: ['POST'])]
+    public function createMeet(
+        Project $project,
+        Request $request,
+        ProjectShareRepository $shareRepository,
+        NotificationManager $notificationManager
+    ): Response {
+        if ($project->getUser() !== $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('create_project_meet_' . $project->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Invalid meeting creation request.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        $shares = $shareRepository->findByProject($project);
+        if ($shares === []) {
+            $this->addFlash('warning', 'Share the project first, then create a meeting.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        $currentUser = $this->getUser();
+        $ownerName = $currentUser instanceof User
+            ? ($currentUser->getFullName() ?: $currentUser->getEmail())
+            : 'Project owner';
+
+        $meetUrl = $this->generateMeetUrl($project);
+        $request->getSession()->set(sprintf('project_last_meet_%d', $project->getId()), $meetUrl);
+        $sentCount = 0;
+
+        foreach ($shares as $share) {
+            $sharedUser = $share->getSharedWithUser();
+            if (!$sharedUser) {
+                continue;
+            }
+
+            $notificationManager->createNotification(
+                $sharedUser,
+                'Project meeting invitation',
+                sprintf('%s invited you to a meeting for "%s".', $ownerName, $project->getTitre()),
+                'project_meet',
+                $meetUrl
+            );
+            $sentCount++;
+        }
+
+        if ($currentUser instanceof User) {
+            $notificationManager->createNotification(
+                $currentUser,
+                'Project meeting created',
+                sprintf('You created a meeting for "%s".', $project->getTitre()),
+                'project_meet',
+                $meetUrl
+            );
+        }
+
+        if ($sentCount === 0) {
+            $this->addFlash('warning', 'No recipients were found for this meeting invitation.');
+            return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+        }
+
+        $this->addFlash('success', sprintf('Meeting link created and sent to %d member(s): %s', $sentCount, $meetUrl));
         return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
     }
 
@@ -765,5 +848,46 @@ class ProjectController extends AbstractController
         $normalized = mb_strtolower(trim($status));
         $normalized = str_replace(['Ã©', 'Ã¨', 'Ãª', 'é', 'è', 'ê'], 'e', $normalized);
         return in_array($normalized, ['termine', 'completed', 'done'], true);
+    }
+    private function generateMeetUrl(Project $project): string
+    {
+        $configuredBaseUrl = $_ENV['PROJECT_MEET_BASE_URL'] ?? $_SERVER['PROJECT_MEET_BASE_URL'] ?? null;
+        $baseUrl = rtrim((string) ($configuredBaseUrl ?: 'https://meet.google.com/new'), '/');
+
+        // Google Meet creation endpoint does not support custom room slugs.
+        if (str_contains($baseUrl, 'meet.google.com/new')) {
+            return $baseUrl;
+        }
+
+        $titleSlug = $this->sanitizeMeetSlug((string) $project->getTitre());
+        if ($titleSlug === '') {
+            $titleSlug = 'project';
+        }
+
+        try {
+            $randomSuffix = substr(bin2hex(random_bytes(3)), 0, 6);
+        } catch (\Throwable) {
+            $randomSuffix = substr(uniqid('', true), -6);
+        }
+
+        $room = sprintf('rlife-%s-%d-%s', $titleSlug, (int) $project->getId(), $randomSuffix);
+        if (strlen($room) > 180) {
+            $room = substr($room, 0, 180);
+        }
+
+        return $baseUrl . '/' . trim($room, '/');
+    }
+
+    private function sanitizeMeetSlug(string $value): string
+    {
+        $slug = mb_strtolower(trim($value));
+        $slug = (string) preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = trim($slug, '-');
+
+        if (strlen($slug) > 40) {
+            $slug = substr($slug, 0, 40);
+        }
+
+        return trim($slug, '-');
     }
 }

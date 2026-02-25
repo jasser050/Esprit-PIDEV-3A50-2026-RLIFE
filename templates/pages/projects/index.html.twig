@@ -86,16 +86,27 @@
                             <p class="text-sm text-slate-600 dark:text-slate-300">Project-level hard challenges with bottleneck analysis and execution tactics.</p>
                         </div>
                     </div>
-                    <form method="post" action="{{ path('app_ai_productivity_generate') }}">
-                        <input type="hidden" name="_token" value="{{ csrf_token('generate_ai_plan') }}">
+                <form method="post" action="{{ path('app_ai_productivity_generate') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('generate_ai_plan') }}">
+                    <div class="flex gap-2">
                         <button type="submit" class="btn btn-primary shadow-sm">
                             <i data-lucide="bot" class="w-4 h-4"></i>
                             Generate Hard Plan
                         </button>
-                    </form>
-                </div>
+                        <a href="{{ path('app_ai_productivity_how_to_use') }}" class="btn btn-secondary shadow-sm">
+                            <i data-lucide="circle-help" class="w-4 h-4"></i>
+                            How To Use
+                        </a>
+                    </div>
+                </form>
+            </div>
 
-                {% if ai_plan.recommendations is defined and ai_plan.recommendations|length > 0 %}
+            <div class="rounded-2xl border border-cyan-200/80 dark:border-cyan-700/60 bg-white/75 dark:bg-slate-900/40 p-4">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">Quick AI flow for Projects</p>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Generate plan -> Start hard challenge -> Complete project/task updates -> Claim reward before expiry.</p>
+            </div>
+
+            {% if ai_plan.recommendations is defined and ai_plan.recommendations|length > 0 %}
                     <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                         <span class="inline-flex items-center gap-1.5">
                             <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-300"></i>
@@ -390,19 +401,65 @@
                     <i data-lucide="pie-chart" class="w-5 h-5 text-primary-600"></i>
                     Distribution by Status
                 </h3>
-                <div class="h-72">
-                    <canvas id="statutChart"></canvas>
+                <div class="h-72"
+                     data-controller="chart"
+                     data-chart-type-value="pie"
+                     data-chart-data-value='{{ {
+                        "labels": ["In Progress", "Completed", "Pending", "Overdue"],
+                        "datasets": [{
+                            "label": "Projects",
+                            "data": [
+                                stats.enCours|default(0),
+                                stats.termines|default(0),
+                                stats.enAttente|default(0),
+                                stats.enRetard|default(0)
+                            ],
+                            "backgroundColor": ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"],
+                            "borderColor": ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"]
+                        }]
+                     }|json_encode|e('html_attr') }}'
+                     data-chart-options-value='{{ {
+                        "plugins": {
+                            "legend": {
+                                "position": "bottom"
+                            }
+                        }
+                     }|json_encode|e('html_attr') }}'>
+                    <canvas data-chart-target="canvas"></canvas>
                 </div>
             </div>
 
-            <!-- Bar Chart - Projets crÃ©Ã©s par annÃ©e (exemple) -->
+            <!-- Bar Chart - Projets crÃ©Ã©s par mois -->
             <div class="card p-6">
                 <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-primary-600"></i>
-                    Projects created by year
+                    Projects created over time
                 </h3>
-                <div class="h-72">
-                    <canvas id="anneeChart"></canvas>
+                {% set progressionLabels = stats.progressionData.labels|default([]) %}
+                {% set progressionValues = stats.progressionData.data|default([]) %}
+                <div class="h-72"
+                     data-controller="chart"
+                     data-chart-type-value="bar"
+                     data-chart-data-value='{{ {
+                        "labels": progressionLabels|length > 0 ? progressionLabels : ["No data"],
+                        "datasets": [{
+                            "label": "Projects created",
+                            "data": progressionValues|length > 0 ? progressionValues : [0]
+                        }]
+                     }|json_encode|e('html_attr') }}'
+                     data-chart-options-value='{{ {
+                        "plugins": {
+                            "legend": {
+                                "display": false
+                            }
+                        },
+                        "scales": {
+                            "y": {
+                                "beginAtZero": true
+                            }
+                        }
+                     }|json_encode|e('html_attr') }}'>
+                    <canvas data-chart-target="canvas"></canvas>
                 </div>
             </div>
         </div>
@@ -411,68 +468,5 @@
 {% endblock %}
 
 {% block javascripts %}
-{{ parent() }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    lucide.createIcons();
-
-    // Graphique 1 : RÃ©partition par statut (Pie)
-    const statutCtx = document.getElementById('statutChart');
-    if (statutCtx) {
-        new Chart(statutCtx, {
-            type: 'pie',
-            data: {
-                labels: ['In Progress', 'Completed', 'Pending'],
-                datasets: [{
-                    data: [
-                        {{ stats.enCours|default(0) }},
-                        {{ stats.termines|default(0) }},
-                        {{ stats.enAttente|default(0) }}
-                    ],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
-                    borderWidth: 1,
-                    borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' }
-                    }
-                }
-            }
-        });
-    }
-
-    // Graphique 2 : Projets par annÃ©e (Bar) - exemple statique, adapte avec vraies donnÃ©es
-    const anneeCtx = document.getElementById('anneeChart');
-    if (anneeCtx) {
-        new Chart(anneeCtx, {
-            type: 'bar',
-            data: {
-                labels: ['2023', '2024', '2025', '2026'],
-                datasets: [{
-                    label: 'Number of projects created',
-                    data: [3, 8, 12, 5], // â† Remplace par vraies donnÃ©es depuis le controller
-                    backgroundColor: '#6366f1',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } },
-                    x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-</script>
+    {{ parent() }}
 {% endblock %}

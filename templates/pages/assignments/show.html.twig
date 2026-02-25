@@ -30,10 +30,12 @@
                 {{ assignment.project.titre }}
             </p>
         </div>
-        <a href="{{ path('app_assignments_edit', { id: assignment.id }) }}" class="btn btn-secondary">
-            <i data-lucide="edit-2" class="w-5 h-5"></i>
-            Edit
-        </a>
+        {% if can_edit_assignment|default(false) %}
+            <a href="{{ path('app_assignments_edit', { id: assignment.id }) }}" class="btn btn-secondary">
+                <i data-lucide="edit-2" class="w-5 h-5"></i>
+                Edit
+            </a>
+        {% endif %}
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -256,10 +258,12 @@
             <div class="card p-6">
                 <h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
                 <div class="space-y-2">
-                    <a href="{{ path('app_assignments_edit', {'id': assignment.id}) }}" class="w-full btn btn-secondary justify-start">
-                        <i data-lucide="edit-2" class="w-5 h-5"></i>
-                        Edit
-                    </a>
+                    {% if can_edit_assignment|default(false) %}
+                        <a href="{{ path('app_assignments_edit', {'id': assignment.id}) }}" class="w-full btn btn-secondary justify-start">
+                            <i data-lucide="edit-2" class="w-5 h-5"></i>
+                            Edit
+                        </a>
+                    {% endif %}
                     <a href="{{ path('app_assignments_export_single_pdf', {'id': assignment.id}) }}" class="w-full btn btn-secondary justify-start">
                         <i data-lucide="file-down" class="w-5 h-5"></i>
                         Download PDF

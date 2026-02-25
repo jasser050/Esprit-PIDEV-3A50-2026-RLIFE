@@ -6,7 +6,7 @@
 <!-- Avatar Container for Dashboard Animation -->
 <div id="avatar-container" class="fixed inset-0 z-50 pointer-events-none"></div>
 
-<div class="space-y-6 animate-fade-in">
+<div class="space-y-6 animate-fade-in text-slate-900 dark:text-slate-100">
     <!-- Pet Hero Section -->
     <div class="relative overflow-hidden rounded-3xl border border-violet-200/70 dark:border-violet-800/60 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-sky-50 dark:from-violet-950/60 dark:via-fuchsia-950/40 dark:to-slate-900">
         <div class="absolute -top-10 -right-10 h-44 w-44 rounded-full bg-violet-300/20 dark:bg-violet-500/20 blur-3xl pointer-events-none"></div>
@@ -39,22 +39,22 @@
                                     <p class="text-sm text-slate-600 dark:text-slate-300">{{ petMood }}</p>
                                 </div>
                             </div>
-                            <a href="{{ path('app_pet_manage') }}" class="btn btn-secondary btn-sm">Manage Pet</a>
+                            <a href="{{ path('app_pet_manage') }}" class="btn btn-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-md shadow-cyan-500/30">Manage Pet</a>
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                            <div class="rounded-xl px-3 py-2 bg-white/80 dark:bg-slate-800/70 border border-violet-200/70 dark:border-violet-700/60">
+                            <div class="rounded-xl px-3 py-2 bg-gradient-to-br from-cyan-50 to-blue-100 dark:from-cyan-900/35 dark:to-blue-900/35 border border-cyan-200/70 dark:border-cyan-600/45">
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Level</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white">Lv. {{ app.user.mainPet.level }}</p>
                             </div>
-                            <div class="rounded-xl px-3 py-2 bg-white/80 dark:bg-slate-800/70 border border-violet-200/70 dark:border-violet-700/60">
+                            <div class="rounded-xl px-3 py-2 bg-gradient-to-br from-fuchsia-50 to-violet-100 dark:from-fuchsia-900/30 dark:to-violet-900/35 border border-fuchsia-200/70 dark:border-fuchsia-600/45">
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Coins</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ app.user.coins }}</p>
                             </div>
-                            <div class="rounded-xl px-3 py-2 bg-white/80 dark:bg-slate-800/70 border border-violet-200/70 dark:border-violet-700/60">
+                            <div class="rounded-xl px-3 py-2 bg-gradient-to-br from-emerald-50 to-cyan-100 dark:from-emerald-900/30 dark:to-cyan-900/35 border border-emerald-200/70 dark:border-emerald-600/45">
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Hunger</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ app.user.mainPet.hunger }}/100</p>
                             </div>
-                            <div class="rounded-xl px-3 py-2 bg-white/80 dark:bg-slate-800/70 border border-violet-200/70 dark:border-violet-700/60">
+                            <div class="rounded-xl px-3 py-2 bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/35 border border-amber-200/70 dark:border-amber-600/45">
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Type</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-white">{{ app.user.mainPet.type|capitalize }}</p>
                             </div>
@@ -73,7 +73,7 @@
                                 <input type="hidden" name="food_type" value="basic">
                                 <button type="submit" class="btn btn-primary">Feed Pet (50 coins)</button>
                             </form>
-                            <a href="{{ path('app_pet_change_type') }}" class="btn btn-secondary">Change Type</a>
+                            <a href="{{ path('app_pet_change_type') }}" class="btn bg-gradient-to-r from-fuchsia-500 to-violet-600 hover:from-fuchsia-400 hover:to-violet-500 text-white shadow-md shadow-fuchsia-500/30">Change Type</a>
                         </div>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                     {% for rec in ai_plan.recommendations|slice(0, 6) %}
                         {% set challengeKey = rec.type ~ ':' ~ rec.target_id %}
                         {% set challenge = ai_challenges[challengeKey]|default(null) %}
-                        <div class="rounded-2xl border border-cyan-200/70 dark:border-cyan-800/60 bg-white/80 dark:bg-slate-900/60 p-4 space-y-3">
+                        <div class="rounded-2xl border border-cyan-200/70 dark:border-cyan-500/45 bg-gradient-to-br from-cyan-50/95 via-blue-50/95 to-violet-50/95 dark:from-cyan-950/45 dark:via-blue-950/45 dark:to-violet-950/45 p-4 space-y-3">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ rec.title }}</p>
@@ -131,11 +131,11 @@
                                 <span class="badge badge-primary badge-pill">{{ rec.reward_coins }} coins</span>
                             </div>
                             <div class="grid grid-cols-2 gap-2 text-xs">
-                                <div class="rounded-lg border border-slate-200 dark:border-slate-700 px-2 py-1.5">
+                                <div class="rounded-lg border border-cyan-200 dark:border-cyan-500/40 bg-white/65 dark:bg-cyan-950/25 px-2 py-1.5">
                                     <p class="text-slate-500 dark:text-slate-400">Estimate</p>
                                     <p class="font-semibold text-slate-900 dark:text-white">{{ rec.estimated_minutes }} min</p>
                                 </div>
-                                <div class="rounded-lg border border-slate-200 dark:border-slate-700 px-2 py-1.5">
+                                <div class="rounded-lg border border-fuchsia-200 dark:border-fuchsia-500/40 bg-white/65 dark:bg-fuchsia-950/25 px-2 py-1.5">
                                     <p class="text-slate-500 dark:text-slate-400">Challenge</p>
                                     <p class="font-semibold text-slate-900 dark:text-white">{{ rec.challenge_minutes }} min</p>
                                 </div>
@@ -170,7 +170,7 @@
                                 <form method="post" action="{{ path('app_ai_productivity_accept') }}">
                                     <input type="hidden" name="_token" value="{{ csrf_token('accept_ai_recommendation') }}">
                                     <input type="hidden" name="recommendation_index" value="{{ loop.index0 }}">
-                                    <button type="submit" class="btn btn-secondary btn-sm">Accept Challenge</button>
+                                    <button type="submit" class="btn btn-sm bg-gradient-to-r from-violet-500 to-fuchsia-600 hover:from-violet-400 hover:to-fuchsia-500 text-white shadow-md shadow-violet-500/30">Accept Challenge</button>
                                 </form>
                             {% endif %}
                         </div>
@@ -362,7 +362,7 @@
                                 <i data-lucide="clock" class="w-3 h-3"></i>
                                 <span>{{ event.start_time }}</span>
                                 {% if event.location %}
-                                <span class="text-secondary-300 dark:text-secondary-600">Â·</span>
+                                <span class="text-secondary-300 dark:text-secondary-600">&middot;</span>
                                 <i data-lucide="map-pin" class="w-3 h-3"></i>
                                 <span class="truncate">{{ event.location }}</span>
                                 {% endif %}

@@ -88,11 +88,22 @@
                 </div>
                 <form method="post" action="{{ path('app_ai_productivity_generate') }}">
                     <input type="hidden" name="_token" value="{{ csrf_token('generate_ai_plan') }}">
-                    <button type="submit" class="btn btn-primary shadow-sm">
-                        <i data-lucide="bot" class="w-4 h-4"></i>
-                        Generate Hard Plan
-                    </button>
+                    <div class="flex gap-2">
+                        <button type="submit" class="btn btn-primary shadow-sm">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            Generate Hard Plan
+                        </button>
+                        <a href="{{ path('app_ai_productivity_how_to_use') }}" class="btn btn-secondary shadow-sm">
+                            <i data-lucide="circle-help" class="w-4 h-4"></i>
+                            How To Use
+                        </a>
+                    </div>
                 </form>
+            </div>
+
+            <div class="rounded-2xl border border-cyan-200/80 dark:border-cyan-700/60 bg-white/75 dark:bg-slate-900/40 p-4">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">Quick AI flow for Assignments</p>
+                <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Generate plan -> Start hard challenge -> Mark assignment completed -> Claim reward before expiry.</p>
             </div>
 
             {% if ai_plan.recommendations is defined and ai_plan.recommendations|length > 0 %}
@@ -423,99 +434,75 @@
         </div>
     </div>
 </div>
-<!-- Graphiques (après les stats) -->
+<!-- Graphiques (apres les stats) -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
-    <!-- Pie Chart - Répartition par statut -->
     <div class="card p-6">
         <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
             <i data-lucide="pie-chart" class="w-5 h-5 text-primary-600"></i>
             Distribution by Status
         </h3>
-        <div class="h-72">
-            <canvas id="statutChart"></canvas>
+        <div class="h-72"
+             data-controller="chart"
+             data-chart-type-value="pie"
+             data-chart-data-value='{{ {
+                "labels": ["To Do", "In Progress", "Completed", "Overdue"],
+                "datasets": [{
+                    "label": "Tasks",
+                    "data": [
+                        stats.aFaire|default(0),
+                        stats.enCours|default(0),
+                        stats.termines|default(0),
+                        stats.enRetard|default(0)
+                    ],
+                    "backgroundColor": ["#f59e0b", "#3b82f6", "#10b981", "#ef4444"],
+                    "borderColor": ["#f59e0b", "#3b82f6", "#10b981", "#ef4444"]
+                }]
+             }|json_encode|e('html_attr') }}'
+             data-chart-options-value='{{ {
+                "plugins": {
+                    "legend": {
+                        "position": "bottom"
+                    }
+                }
+             }|json_encode|e('html_attr') }}'>
+            <canvas data-chart-target="canvas"></canvas>
         </div>
     </div>
 
-    <!-- Bar Chart - Tâches par priorité -->
     <div class="card p-6">
         <h3 class="text-lg font-semibold mb-4 text-secondary-900 dark:text-white flex items-center gap-2">
             <i data-lucide="bar-chart-3" class="w-5 h-5 text-primary-600"></i>
             Tasks by Priority
         </h3>
-        <div class="h-72">
-            <canvas id="prioriteChart"></canvas>
+        <div class="h-72"
+             data-controller="chart"
+             data-chart-type-value="bar"
+             data-chart-data-value='{{ {
+                "labels": ["High", "Medium", "Low"],
+                "datasets": [{
+                    "label": "Tasks",
+                    "data": [
+                        stats.haute|default(0),
+                        stats.moyenne|default(0),
+                        stats.basse|default(0)
+                    ],
+                    "backgroundColor": ["#ef4444", "#f59e0b", "#3b82f6"]
+                }]
+             }|json_encode|e('html_attr') }}'
+             data-chart-options-value='{{ {
+                "plugins": {
+                    "legend": {
+                        "display": false
+                    }
+                },
+                "scales": {
+                    "y": {
+                        "beginAtZero": true
+                    }
+                }
+             }|json_encode|e('html_attr') }}'>
+            <canvas data-chart-target="canvas"></canvas>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ parent() }}
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
-{% endblock %}
-{% block javascripts %}
-{{ parent() }}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    lucide.createIcons();
-
-    // Graphique 1 : Répartition par statut (Pie)
-    const statutCtx = document.getElementById('statutChart');
-    if (statutCtx) {
-        new Chart(statutCtx, {
-            type: 'pie',
-            data: {
-                labels: ['To Do', 'In Progress', 'Completed'],
-                datasets: [{
-                    data: [{{ stats.aFaire|default(0) }}, {{ stats.enCours|default(0) }}, {{ stats.termines|default(0) }}],
-                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981'],
-                    borderWidth: 1,
-                    borderColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } }
-                }
-            }
-        });
-    }
-
-    // Graphique 2 : Tâches par priorité (Bar)
-    const prioriteCtx = document.getElementById('prioriteChart');
-    if (prioriteCtx) {
-        new Chart(prioriteCtx, {
-            type: 'bar',
-            data: {
-                labels: ['High', 'Medium', 'Low'],
-                datasets: [{
-                    label: 'Number of tasks',
-                    data: [
-                        {{ stats.haute|default(0) }},
-                        {{ stats.moyenne|default(0) }},
-                        {{ stats.basse|default(0) }}
-                    ],
-                    backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } },
-                    x: { ticks: { color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151' } }
-                },
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-</script>
 {% endblock %}

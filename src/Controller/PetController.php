@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ProjectShareRepository;
 use App\Service\NotificationManager;
+use App\Service\PetHungerService;
 use App\Service\RewardService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,6 +22,7 @@ class PetController extends AbstractController
     public function __construct(
         private readonly RewardService $rewardService,
         private readonly NotificationManager $notificationManager,
+        private readonly PetHungerService $petHungerService,
         private readonly EntityManagerInterface $em
     ) {
     }
@@ -120,6 +122,9 @@ class PetController extends AbstractController
             return $this->errorResponse($request, 'No companion found.', 404);
         }
 
+        // Ensure hunger reflects elapsed time before applying food effect.
+        $this->petHungerService->syncPetHunger($pet);
+
         $foods = [
             'basic' => ['cost' => 50, 'reduce' => 20, 'name' => 'Basic food'],
             'premium' => ['cost' => 120, 'reduce' => 45, 'name' => 'Premium meal'],
@@ -141,6 +146,7 @@ class PetController extends AbstractController
         $previousHunger = $pet->getHunger();
         $newHunger = max(0, $previousHunger - $food['reduce']);
         $pet->setHunger($newHunger);
+        $pet->setLastHungerAt(new \DateTimeImmutable());
         $pet->addCoinsSpent($food['cost']);
 
         $levelUp = false;

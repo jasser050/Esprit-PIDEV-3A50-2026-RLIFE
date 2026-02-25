@@ -80,15 +80,27 @@ class AssignmentController extends AbstractController
     #[Route('/new', name: 'app_assignments_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
+        ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
         $assignment = new Assignment();
+        $currentUser = $this->getUser();
 
         // If coming from a project
         if ($projectId = $request->query->get('project_id')) {
             $project = $entityManager->getRepository(Project::class)->find($projectId);
-            if ($project && $project->getUser() === $this->getUser()) {
+            $canUseProject = false;
+            if ($project && $project->getUser() === $currentUser) {
+                $canUseProject = true;
+            } elseif ($project && $currentUser) {
+                $share = $shareRepository->findOneByProjectAndUser($project, $currentUser);
+                $canUseProject = $share !== null && $share->getRole() === 'editor';
+            }
+
+            if ($canUseProject) {
                 $assignment->setProject($project);
+            } else {
+                $this->addFlash('error', 'You do not have permission to add tasks to this project.');
             }
         }
 
@@ -144,7 +156,9 @@ class AssignmentController extends AbstractController
         // Check if user is owner, collaborator, or has project access
         $isOwner = $assignment->getUser() === $this->getUser();
         $isCollaborator = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $this->getUser()) !== null;
-        $hasProjectAccess = $shareRepository->hasAccess($assignment->getProject(), $this->getUser());
+        $projectShare = $shareRepository->findOneByProjectAndUser($assignment->getProject(), $this->getUser());
+        $hasProjectAccess = $projectShare !== null;
+        $isViewerOnProject = $projectShare !== null && $projectShare->getRole() === 'viewer';
 
         if (!$isOwner && !$isCollaborator && !$hasProjectAccess) {
             throw $this->createAccessDeniedException();
@@ -190,6 +204,7 @@ class AssignmentController extends AbstractController
             'collaborators'   => $collaborators,
             'comments'        => $comments,
             'commentForm'     => $commentForm->createView(),
+            'can_edit_assignment' => $isOwner && !$isViewerOnProject,
         ]);
     }
 
@@ -197,9 +212,17 @@ class AssignmentController extends AbstractController
     public function edit(
         Request $request,
         Assignment $assignment,
+        ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
-        if ($assignment->getUser() !== $this->getUser()) {
+        $currentUser = $this->getUser();
+        $isOwner = $assignment->getUser() === $currentUser;
+
+        $project = $assignment->getProject();
+        $share = $project && $currentUser ? $shareRepository->findOneByProjectAndUser($project, $currentUser) : null;
+        $isViewerOnProject = $share !== null && $share->getRole() === 'viewer';
+
+        if (!$isOwner || $isViewerOnProject) {
             throw $this->createAccessDeniedException();
         }
 
@@ -242,9 +265,17 @@ class AssignmentController extends AbstractController
     public function delete(
         Request $request,
         Assignment $assignment,
+        ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
-        if ($assignment->getUser() !== $this->getUser()) {
+        $currentUser = $this->getUser();
+        $isOwner = $assignment->getUser() === $currentUser;
+
+        $project = $assignment->getProject();
+        $share = $project && $currentUser ? $shareRepository->findOneByProjectAndUser($project, $currentUser) : null;
+        $isViewerOnProject = $share !== null && $share->getRole() === 'viewer';
+
+        if (!$isOwner || $isViewerOnProject) {
             throw $this->createAccessDeniedException();
         }
 

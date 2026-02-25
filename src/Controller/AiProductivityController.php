@@ -22,6 +22,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class AiProductivityController extends AbstractController
 {
+    #[Route('/how-to-use', name: 'app_ai_productivity_how_to_use', methods: ['GET'])]
+    public function howToUse(): Response
+    {
+        return $this->render('pages/ai_productivity/how_to_use.html.twig');
+    }
+
     #[Route('/generate', name: 'app_ai_productivity_generate', methods: ['POST'])]
     public function generate(
         Request $request,

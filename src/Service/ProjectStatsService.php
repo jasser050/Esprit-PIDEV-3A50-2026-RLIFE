@@ -15,7 +15,7 @@ class ProjectStatsService
 
     public function getProjectStats(User $user): array
     {
-        $projects = $this->projectRepository->findByUser($user);
+        $projects = $this->projectRepository->findByUserWithFilters($user, 'createdAt', 'DESC');
         $total = count($projects);
 
         $doneStatuses = ['Termine', 'Terminé', 'TerminÃ©', 'Completed'];

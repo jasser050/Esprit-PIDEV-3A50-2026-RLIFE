@@ -185,6 +185,78 @@
             animation: mv-presence-pulse 1.8s ease-in-out infinite;
         }
 
+        html:not(.dark) .metaverse-shell {
+            --mv-bg-1: #eef4ff;
+            --mv-bg-2: #dfeeff;
+            --mv-bg-3: #f6fbff;
+            --mv-neon: #0284c7;
+            --mv-neon-2: #9333ea;
+            --mv-text: #0f172a;
+            --mv-muted: #334155;
+            border: 1px solid rgba(2, 132, 199, 0.24);
+            box-shadow: 0 30px 70px rgba(15, 23, 42, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+            background:
+                radial-gradient(circle at 20% 15%, #ffffff 0%, var(--mv-bg-2) 38%, var(--mv-bg-1) 100%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.3) 46%, rgba(226, 232, 240, 0.75) 100%);
+        }
+
+        html:not(.dark) .metaverse-shell::before {
+            background:
+                radial-gradient(circle at 80% 12%, rgba(147, 51, 234, 0.16), transparent 44%),
+                radial-gradient(circle at 15% 68%, rgba(2, 132, 199, 0.16), transparent 42%),
+                repeating-linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 0, rgba(15, 23, 42, 0.04) 1px, transparent 1px, transparent 7px);
+        }
+
+        html:not(.dark) .mv-title {
+            color: #0f172a;
+            text-shadow: 0 0 14px rgba(2, 132, 199, 0.2);
+        }
+
+        html:not(.dark) .mv-subtitle {
+            color: #334155;
+        }
+
+        html:not(.dark) .mv-chip {
+            border: 1px solid rgba(2, 132, 199, 0.25);
+            color: #0f172a;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(226, 232, 240, 0.88));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 10px 18px rgba(2, 132, 199, 0.12);
+        }
+
+        html:not(.dark) .mv-card {
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(239, 246, 255, 0.92));
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        html:not(.dark) .mv-card:hover {
+            border-color: rgba(2, 132, 199, 0.34);
+            box-shadow: 0 20px 36px rgba(15, 23, 42, 0.14), 0 0 16px rgba(2, 132, 199, 0.18);
+        }
+
+        html:not(.dark) .mv-pet-stage {
+            border: 1px solid rgba(2, 132, 199, 0.24);
+            background:
+                radial-gradient(circle at 50% 22%, rgba(2, 132, 199, 0.18), rgba(2, 132, 199, 0) 62%),
+                linear-gradient(180deg, rgba(241, 245, 249, 0.95), rgba(226, 232, 240, 0.95));
+            box-shadow: inset 0 0 24px rgba(148, 163, 184, 0.28);
+        }
+
+        html:not(.dark) .mv-meta {
+            color: #334155;
+        }
+
+        html:not(.dark) .mv-projects {
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            background: linear-gradient(140deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.94));
+        }
+
+        html:not(.dark) .mv-presence {
+            border: 1px solid rgba(2, 132, 199, 0.24);
+            background: rgba(241, 245, 249, 0.9);
+            color: #0f172a;
+        }
+
         @keyframes mv-aurora {
             0%, 100% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.75; }
             50% { transform: translate3d(0, 8px, 0) scale(1.08); opacity: 1; }
@@ -223,7 +295,7 @@
         <div class="relative z-10 space-y-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
-                    <p class="text-xs tracking-[0.24em] uppercase text-cyan-300/85 mb-2">Social Habitat</p>
+                    <p class="text-xs tracking-[0.24em] uppercase text-sky-700 dark:text-cyan-300/85 mb-2">Social Habitat</p>
                     <h1 class="mv-title text-3xl md:text-4xl font-bold">Pet Metaverse</h1>
                     <p class="mv-subtitle mt-2 max-w-2xl">
                         A shared holographic world where companions of project collaborators gather in one immersive space.
@@ -237,11 +309,11 @@
             {% if community|length > 0 %}
                 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                     {% for member in community %}
-                        <div class="mv-card p-5 space-y-4 {{ member.is_self ? 'ring-1 ring-cyan-300/45' : '' }}">
+                        <div class="mv-card p-5 space-y-4 {{ member.is_self ? 'ring-1 ring-sky-400/50 dark:ring-cyan-300/45' : '' }}">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <p class="text-xs uppercase tracking-wide text-cyan-200/80">{{ member.is_self ? 'You' : member.user.fullName }}</p>
-                                    <p class="text-xl font-semibold text-cyan-50 mt-0.5">{{ member.pet.name }}</p>
+                                    <p class="text-xs uppercase tracking-wide text-slate-600 dark:text-cyan-200/80">{{ member.is_self ? 'You' : member.user.fullName }}</p>
+                                    <p class="text-xl font-semibold text-slate-900 dark:text-cyan-50 mt-0.5">{{ member.pet.name }}</p>
                                 </div>
                                 <span class="mv-chip px-3 py-1.5 rounded-full text-xs font-semibold">Lv. {{ member.pet.level }}</span>
                             </div>
@@ -263,13 +335,13 @@
 
                             {% if not member.is_self %}
                                 <div class="mv-projects rounded-xl p-3.5">
-                                    <p class="text-xs font-semibold text-cyan-100 mb-1.5">Shared projects</p>
+                                    <p class="text-xs font-semibold text-slate-700 dark:text-cyan-100 mb-1.5">Shared projects</p>
                                     {% if member.shared_projects|length > 0 %}
                                         {% for p in member.shared_projects|slice(0, 3) %}
-                                            <p class="text-xs text-cyan-200/85">- {{ p }}</p>
+                                            <p class="text-xs text-slate-600 dark:text-cyan-200/85">- {{ p }}</p>
                                         {% endfor %}
                                     {% else %}
-                                        <p class="text-xs text-cyan-200/65">Connected collaborator</p>
+                                        <p class="text-xs text-slate-500 dark:text-cyan-200/65">Connected collaborator</p>
                                     {% endif %}
                                 </div>
                             {% endif %}
@@ -278,8 +350,8 @@
                 </div>
             {% else %}
                 <div class="mv-card p-10 text-center">
-                    <p class="text-xl font-semibold text-cyan-50">No companions in your metaverse yet</p>
-                    <p class="text-sm text-cyan-200/75 mt-2">
+                    <p class="text-xl font-semibold text-slate-900 dark:text-cyan-50">No companions in your metaverse yet</p>
+                    <p class="text-sm text-slate-600 dark:text-cyan-200/75 mt-2">
                         Share projects with other users and this world will come alive.
                     </p>
                 </div>

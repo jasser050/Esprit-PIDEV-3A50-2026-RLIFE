@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}How To Use AI{% endblock %}
+
+{% block body %}
+<div class="space-y-6 animate-fade-in">
+    <div class="card p-6">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">How To Use AI For Projects And Assignments</h1>
+                <p class="text-slate-600 dark:text-slate-300 mt-1">Practical workflow to generate, accept, and claim AI challenge rewards.</p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ path('app_project_index') }}" class="btn btn-secondary">Projects</a>
+                <a href="{{ path('app_assignments') }}" class="btn btn-secondary">Assignments</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <section class="card p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Projects: Recommended Flow</h2>
+            <ol class="space-y-3 text-sm text-slate-700 dark:text-slate-300 list-decimal pl-5">
+                <li>Open the Projects page and click <strong>Generate Hard Plan</strong>.</li>
+                <li>Review AI project cards and choose one challenge.</li>
+                <li>Click <strong>Start Hard Challenge</strong> to create a timed challenge.</li>
+                <li>Complete work and set project status to completed when done.</li>
+                <li>Return to the card and click <strong>Claim Reward</strong> before expiry.</li>
+            </ol>
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-xs text-slate-600 dark:text-slate-400">
+                Tip: on a specific project page, use AI toolkit actions (risk, quality, sprint, balance) to generate concrete execution tasks.
+            </div>
+        </section>
+
+        <section class="card p-6 space-y-4">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Assignments: Recommended Flow</h2>
+            <ol class="space-y-3 text-sm text-slate-700 dark:text-slate-300 list-decimal pl-5">
+                <li>Open the Assignments page and click <strong>Generate Hard Plan</strong>.</li>
+                <li>Pick an AI task recommendation that matches your priority.</li>
+                <li>Click <strong>Start Hard Challenge</strong> and complete the task.</li>
+                <li>Set assignment status to completed.</li>
+                <li>Click <strong>Claim Reward</strong> before challenge expiry.</li>
+            </ol>
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3 text-xs text-slate-600 dark:text-slate-400">
+                Tip: if claim fails, check current status and ensure the challenge has not expired.
+            </div>
+        </section>
+    </div>
+
+    <section class="card p-6 space-y-3">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Common Issues</h2>
+        <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300 list-disc pl-5">
+            <li>No recommendations shown: generate a new plan and refresh.</li>
+            <li>Cannot claim reward: target must be completed and challenge still active.</li>
+            <li>Old challenge data: start a new challenge from the latest recommendation.</li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

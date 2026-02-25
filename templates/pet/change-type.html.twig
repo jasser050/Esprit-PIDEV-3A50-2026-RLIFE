@@ -3,7 +3,7 @@
 {% block title %}Change Companion{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 py-12 px-4">
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 py-12 px-4 text-slate-900 dark:text-slate-100">
     <div class="max-w-4xl mx-auto">
 
         <div class="text-center mb-12">
@@ -43,8 +43,10 @@
                                    required
                                    {% if value == currentPet.type %}checked disabled{% endif %}>
 
-                            <div class="pet-choice-card h-64 bg-white dark:bg-slate-800 rounded-3xl shadow-md border-2 border-transparent peer-checked:border-purple-500 peer-checked:shadow-purple-300 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all overflow-hidden">
-                                <div id="pet3d-{{ value }}" class="h-40 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center">
+                            <div class="pet-choice-card h-64 bg-gradient-to-br from-cyan-50 via-fuchsia-50 to-violet-100 dark:from-cyan-950/45 dark:via-fuchsia-950/40 dark:to-violet-950/45 rounded-3xl shadow-md border-2 border-cyan-200 dark:border-cyan-600/45 peer-checked:border-purple-500 peer-checked:shadow-purple-300 dark:peer-checked:shadow-purple-900/40 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed transition-all overflow-hidden">
+                                <div id="pet3d-{{ value }}"
+                                     data-no-auto-init="true"
+                                     class="h-40 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center">
                                     <!-- 3D preview injected by JS -->
                                 </div>
 
@@ -62,7 +64,7 @@
 
             <div class="flex flex-col sm:flex-row justify-center gap-6">
                 <a href="{{ path('app_dashboard') }}"
-                   class="px-10 py-4 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold rounded-2xl transition text-center">
+                   class="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-2xl transition text-center shadow-md shadow-cyan-500/30">
                     Cancel
                 </a>
 
@@ -81,36 +83,37 @@
     {{ parent() }}
 
     <script>
-        function createPetPreview(containerId, color) {
+        function createPetPreview(containerId, type, color) {
             const container = document.getElementById(containerId);
             if (!container) return;
             if (!window.RLife3D) return;
+            if (container._rlife3d) return;
 
             window.RLife3D.renderPet(container, {
+                type: type,
                 color: color,
                 emissive: 0x312e81,
-                spin: 0.01
+                spin: 0.01,
+                lowQuality: true,
+                disableImportedModel: true
             });
         }
 
         function initChangeType3D() {
             if (!window.RLife3D) return;
-
             const previews = {
-                'pet3d-cat': 0xf472b6,
-                'pet3d-dog': 0x60a5fa,
-                'pet3d-dragon': 0xa855f7,
-                'pet3d-fox': 0xfb923c,
-                'pet3d-bird': 0x4ade80,
-                'pet3d-hamster': 0xfbbf24,
-                'pet3d-panda': 0x94a3b8,
-                'pet3d-rabbit': 0xfda4af
+                'pet3d-cat': { type: 'cat', color: 0xf472b6 },
+                'pet3d-dog': { type: 'dog', color: 0x60a5fa },
+                'pet3d-dragon': { type: 'dragon', color: 0xa855f7 },
+                'pet3d-fox': { type: 'fox', color: 0xfb923c },
+                'pet3d-bird': { type: 'bird', color: 0x4ade80 },
+                'pet3d-hamster': { type: 'hamster', color: 0xfbbf24 },
+                'pet3d-panda': { type: 'panda', color: 0x94a3b8 },
+                'pet3d-rabbit': { type: 'rabbit', color: 0xfda4af }
             };
 
             window.RLife3D.ensureThree(() => {
-                Object.entries(previews).forEach(([id, color]) => {
-                    createPetPreview(id, color);
-                });
+                Object.entries(previews).forEach(([id, spec]) => createPetPreview(id, spec.type, spec.color));
             });
         }
 

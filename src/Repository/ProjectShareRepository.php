@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Project;
 use App\Entity\ProjectShare;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -71,6 +72,17 @@ class ProjectShareRepository extends ServiceEntityRepository
     {
         $share = $this->findOneByProjectAndUser($project, $user);
         return $share !== null;
+    }
+
+    public function findUserShareForProject(Project $project, User $user): ?ProjectShare
+    {
+        return $this->findOneByProjectAndUser($project, $user);
+    }
+
+    public function hasEditAccess(Project $project, User $user): bool
+    {
+        $share = $this->findUserShareForProject($project, $user);
+        return $share !== null && $share->getRole() === 'editor';
     }
 
     /**
