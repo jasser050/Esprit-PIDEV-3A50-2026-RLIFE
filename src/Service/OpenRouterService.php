@@ -2,8 +2,8 @@
 
 namespace App\Service;
 
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class OpenRouterService
 {
@@ -19,38 +19,48 @@ class OpenRouterService
     }
 
     /**
-     * Génère du texte via OpenRouter (ex: questions QCM)
+     * Generate text from a plain prompt.
      */
     public function generate(string $prompt, array $options = []): ?string
     {
+        return $this->chat([
+            ['role' => 'user', 'content' => $prompt],
+        ], $options);
+    }
+
+    /**
+     * Send a complete chat payload to OpenRouter.
+     *
+     * @param array<int, array{role:string, content:string}> $messages
+     */
+    public function chat(array $messages, array $options = []): ?string
+    {
         $defaultOptions = [
-            'model' => 'anthropic/claude-3.5-sonnet',     // ou google/gemini-flash-1.5, openai/gpt-4o-mini, etc.
+            'model' => 'anthropic/claude-3.5-sonnet',
             'temperature' => 0.7,
-            'max_tokens' => 1500,
+            'max_tokens' => 1200,
         ];
 
         $payload = array_merge($defaultOptions, $options);
-        $payload['messages'] = [
-            ['role' => 'user', 'content' => $prompt]
-        ];
+        $payload['messages'] = $messages;
 
         try {
             $response = $this->client->request('POST', 'https://openrouter.ai/api/v1/chat/completions', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
-                    'HTTP-Referer' => 'https://ton-site.com',           // obligatoire selon OpenRouter
-                    'X-Title' => 'RLIFE Quiz Generator',                 // optionnel mais conseillé
+                    'HTTP-Referer' => 'http://localhost:8000',
+                    'X-Title' => 'RLIFE Wellbeing',
                 ],
                 'json' => $payload,
             ]);
 
-            $data = $response->toArray();
+            $data = $response->toArray(false);
 
-            return $data['choices'][0]['message']['content'] ?? null;
-
+            return (string) ($data['choices'][0]['message']['content'] ?? '');
         } catch (TransportExceptionInterface $e) {
-            // Log l'erreur si tu as un logger
+            return null;
+        } catch (\Throwable $e) {
             return null;
         }
     }

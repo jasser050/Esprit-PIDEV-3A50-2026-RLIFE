@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Data\SampleData;
+use App\Entity\User;
 use App\Entity\WellBeing;
 use App\Repository\WellBeingRepository;
 use App\Service\WellbeingAiService;
@@ -20,6 +21,11 @@ class WellbeingController extends AbstractController
     #[Route('', name: 'app_wellbeing', methods: ['GET'])]
     public function index(WellBeingRepository $repo, Request $request): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
         // Get sort parameter
         $sort = $request->query->get('sort', 'entryDate');
 
@@ -36,7 +42,7 @@ class WellbeingController extends AbstractController
         // Get order by or default to entryDate DESC
         $orderBy = $sortOptions[$sort] ?? ['entryDate' => 'DESC'];
 
-        $checkins = $repo->findBy([], $orderBy, 10);
+        $checkins = $repo->findBy(['user' => $user], $orderBy, 10);
 
         $stats = $this->calculateStats($checkins);
 
@@ -73,12 +79,19 @@ class WellbeingController extends AbstractController
     #[Route('/checkins', name: 'app_wellbeing_checkins', methods: ['GET'])]
     public function checkins(WellBeingRepository $repo, Request $request): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
         $search = $request->query->get('search', '');
         $mood = $request->query->get('mood', '');
         $sort = $request->query->get('sort', 'entryDate');
         $order = $request->query->get('order', 'DESC');
 
         $qb = $repo->createQueryBuilder('w');
+
+        $qb->andWhere('w.user = :user')->setParameter('user', $user);
 
         if ($search) {
             $qb->andWhere('w.note LIKE :search OR w.mood LIKE :search')
@@ -115,6 +128,11 @@ class WellbeingController extends AbstractController
     #[Route('/checkins/new', name: 'app_wellbeing_checkin_new', methods: ['GET', 'POST'])]
     public function checkinNew(Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('wellbeing_new', (string)$request->request->get('_token'))) {
                 throw $this->createAccessDeniedException();
@@ -128,6 +146,7 @@ class WellbeingController extends AbstractController
             $wb->setSleepHours((float)$request->request->get('sleep_hours', 7));
             $wb->setNote($request->request->get('notes'));
             $wb->setCreatedAt(new \DateTime());
+            $wb->setUser($user);
 
             $em->persist($wb);
             $em->flush();
@@ -144,6 +163,14 @@ class WellbeingController extends AbstractController
     #[Route('/checkins/{id}/edit', name: 'app_wellbeing_checkin_edit', methods: ['GET', 'POST'])]
     public function edit(WellBeing $checkin, Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+        if ($checkin->getUser()?->getId() !== $user->getId()) {
+            throw $this->createNotFoundException();
+        }
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('wellbeing_edit_'.$checkin->getId(), (string)$request->request->get('_token'))) {
                 throw $this->createAccessDeniedException();
@@ -171,6 +198,14 @@ class WellbeingController extends AbstractController
     #[Route('/checkins/{id}/delete', name: 'app_wellbeing_checkin_delete', methods: ['POST'])]
     public function delete(WellBeing $checkin, Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+        if ($checkin->getUser()?->getId() !== $user->getId()) {
+            throw $this->createNotFoundException();
+        }
+
         if ($this->isCsrfTokenValid('wellbeing_delete_'.$checkin->getId(), (string)$request->request->get('_token'))) {
             $em->remove($checkin);
             $em->flush();
@@ -183,7 +218,12 @@ class WellbeingController extends AbstractController
     #[Route('/export/pdf', name: 'app_wellbeing_export_pdf', methods: ['GET'])]
     public function exportPdf(WellBeingRepository $repo, Request $request): Response
     {
-        $checkins = $repo->findBy([], ['entryDate' => 'DESC']);
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $checkins = $repo->findBy(['user' => $user], ['entryDate' => 'DESC']);
         $stats = $this->calculateStats($checkins);
 
         $options = new Options();

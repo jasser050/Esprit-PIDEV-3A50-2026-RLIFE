@@ -34,6 +34,7 @@ export default class extends Controller {
     this.remaining = 0;
 
     this.audio = null;
+    this.usingGlobalAudio = false;
 
     this._onKeyDown = (e) => {
       if (e.key === "Escape") this.closeModal();
@@ -44,7 +45,9 @@ export default class extends Controller {
   disconnect() {
     window.removeEventListener("keydown", this._onKeyDown);
     this._stopTimer();
-    this._stopAudio();
+    if (!this.usingGlobalAudio) {
+      this._stopAudio();
+    }
   }
 
   startRecommended() {
@@ -235,6 +238,12 @@ export default class extends Controller {
   }
 
   _playAudio(src) {
+    if (window.RLifeAudio && typeof window.RLifeAudio.play === "function") {
+      this.usingGlobalAudio = true;
+      window.RLifeAudio.play(src, { volume: 0.6, loop: true });
+      return;
+    }
+    this.usingGlobalAudio = false;
     this._stopAudio();
     this.audio = new Audio(src);
     this.audio.loop = true;
@@ -243,6 +252,10 @@ export default class extends Controller {
   }
 
   _stopAudio() {
+    if (this.usingGlobalAudio && window.RLifeAudio && typeof window.RLifeAudio.stop === "function") {
+      window.RLifeAudio.stop();
+      return;
+    }
     if (this.audio) {
       try {
         this.audio.pause();

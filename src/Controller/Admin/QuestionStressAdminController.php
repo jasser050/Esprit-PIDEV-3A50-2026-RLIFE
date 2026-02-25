@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\QuestionStress;
 use App\Form\QuestionStressType;
 use App\Repository\QuestionStressRepository;
+use App\Repository\QuizStressRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,20 +18,35 @@ class QuestionStressAdminController extends AbstractController
     #[Route('', name: 'index', methods: ['GET'])]
     public function index(QuestionStressRepository $repo): Response
     {
-        $questions = $repo->findBy([], ['orderIndex' => 'ASC']);
+        $questions = $repo->findBy([], ['position' => 'ASC']);
         return $this->render('admin/question_stress/index.html.twig', [
-            'question_stresses' => $questions,
+            'questionStresses' => $questions,
+            'stats' => [
+                'total' => count($questions),
+                'active' => count(array_filter($questions, fn (QuestionStress $q) => (bool) $q->isIsActive())),
+                'inactive' => count(array_filter($questions, fn (QuestionStress $q) => !(bool) $q->isIsActive())),
+            ],
+            'search' => '',
+            'sort' => 'position',
+            'order' => 'ASC',
         ]);
     }
 
     #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, QuestionStressRepository $repo): Response
     {
         $question = new QuestionStress();
+        $maxPosition = $repo->createQueryBuilder('q')
+            ->select('MAX(q.position)')
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
+        $question->setPosition((int) $maxPosition + 1);
+
         $form = $this->createForm(QuestionStressType::class, $question);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $question->setCreatedAt(new \DateTime());
             $em->persist($question);
             $em->flush();
             $this->addFlash('success', 'Question ajoutée.');
@@ -38,6 +54,7 @@ class QuestionStressAdminController extends AbstractController
         }
 
         return $this->render('admin/question_stress/new.html.twig', [
+            'question_stress' => $question,
             'form' => $form->createView(),
         ]);
     }
@@ -55,7 +72,7 @@ class QuestionStressAdminController extends AbstractController
         }
 
         return $this->render('admin/question_stress/edit.html.twig', [
-            'question' => $question,
+            'question_stress' => $question,
             'form' => $form->createView(),
         ]);
     }

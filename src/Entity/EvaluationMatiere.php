@@ -132,6 +132,28 @@ class EvaluationMatiere
         return $this;
     }
 
+    // Compatibility alias used by forms/services expecting prioriteE
+    public function getPrioriteE(): ?string
+    {
+        return $this->getPriorite();
+    }
+
+    // Compatibility alias used by forms/services expecting prioriteE
+    public function setPrioriteE(?string $priorite): static
+    {
+        return $this->setPriorite($priorite);
+    }
+
+    // Helper used by streak/stat logic
+    public function getPercentage(): float
+    {
+        if (($this->noteMaximaleEval ?? 0.0) <= 0.0) {
+            return 0.0;
+        }
+
+        return ($this->scoreEval ?? 0.0) * 100.0 / $this->noteMaximaleEval;
+    }
+
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;

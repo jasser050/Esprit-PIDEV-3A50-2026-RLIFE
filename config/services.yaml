@@ -44,6 +44,10 @@ services:
         tags:
             - { name: monolog.logger, channel: translation }
 
+    App\Service\OpenRouterService:
+        bind:
+            $openRouterApiKey: '%openrouter_api_key%'
+
     # PusherService — explicit constructor arguments
     App\Service\PusherService:
         arguments:

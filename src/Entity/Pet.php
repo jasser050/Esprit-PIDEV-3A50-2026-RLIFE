@@ -119,8 +119,8 @@ class Pet
     // Helper: pet mood label
     public function getMood(): string
     {
-        if ($this->hunger > 70) return 'Hungry ??';
-        if ($this->hunger > 30) return 'A little hungry ??';
-        return 'Happy ??';
+        if ($this->hunger > 70) return 'Hungry';
+        if ($this->hunger > 30) return 'A little hungry';
+        return 'Happy';
     }
 }
