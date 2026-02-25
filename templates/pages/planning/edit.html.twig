@@ -1,20 +1,49 @@
+<<<<<<< HEAD
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Edit Event{% endblock %}
+
+{% block body %}
+<div class="space-y-6 max-w-2xl mx-auto animate-fade-in">
+=======
 {% extends 'base.html.twig' %}
 
 {% block title %}Edit: {{ event.title }}{% endblock %}
 
 {% block body %}
 <div class="space-y-6 max-w-2xl mx-auto">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
             { label: 'Planning', href: path('app_planning') },
+<<<<<<< HEAD
+            { label: 'Edit Event' }
+=======
             { label: event.title },
             { label: 'Edit' }
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         ]
     } %}
 
     {% include 'components/page_header.html.twig' with {
         title: 'Edit Event',
+<<<<<<< HEAD
+        subtitle: 'Update your event'
+    } %}
+
+    <div class="card p-6 space-y-6">
+        {# EDIT FORM #}
+        <form action="{{ path('app_planning_edit', {id: planning.id}) }}" method="POST" class="space-y-6">
+            {% include 'components/select.html.twig' with {
+                name: 'seance_id',
+                label: 'Session',
+                required: true,
+                value: planning.seance ? planning.seance.id : '',
+                options: seances|default([])|map(s => { value: s.id, label: s.titre ?? ('Seance #' ~ s.id) })
+            } %}
+
+=======
         subtitle: 'Update event details'
     } %}
 
@@ -54,39 +83,65 @@
             } %}
 
             <!-- Date -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             {% include 'components/input.html.twig' with {
                 name: 'date',
                 label: 'Date',
                 type: 'date',
+<<<<<<< HEAD
+                value: planning.dateDebut ? planning.dateDebut|date('Y-m-d') : '',
+=======
                 value: event.date|date('Y-m-d'),
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 required: true
             } %}
 
             <div class="grid grid-cols-2 gap-4">
+<<<<<<< HEAD
+=======
                 <!-- Start Time -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 {% include 'components/input.html.twig' with {
                     name: 'start_time',
                     label: 'Start Time',
                     type: 'time',
+<<<<<<< HEAD
+                    value: planning.dateDebut ? planning.dateDebut|date('H:i') : '',
+                    required: true
+                } %}
+
+=======
                     value: event.start_time,
                     required: true
                 } %}
 
                 <!-- End Time -->
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 {% include 'components/input.html.twig' with {
                     name: 'end_time',
                     label: 'End Time',
                     type: 'time',
+<<<<<<< HEAD
+                    value: planning.dateFin ? planning.dateFin|date('H:i') : '',
+=======
                     value: event.end_time,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                     required: true
                 } %}
             </div>
 
+<<<<<<< HEAD
+            {% include 'components/select.html.twig' with {
+                name: 'color',
+                label: 'Color',
+                value: planning.color|default('indigo'),
+=======
             <!-- Color -->
             {% include 'components/select.html.twig' with {
                 name: 'color',
                 label: 'Color',
                 value: event.color,
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
                 options: [
                     { value: 'indigo', label: 'Indigo (Primary)' },
                     { value: 'teal', label: 'Teal (Secondary)' },
@@ -99,6 +154,78 @@
                 ]
             } %}
 
+<<<<<<< HEAD
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-light-text dark:text-dark-text">
+                    Feedback (Optional)
+                </label>
+
+                <div class="flex items-center gap-4">
+                    {% set fb = planning.feedback %}
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="1" class="accent-indigo-600" {{ fb == 1 ? 'checked' : '' }}>
+                        <span class="text-xl">ðŸ˜¡</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="2" class="accent-indigo-600" {{ fb == 2 ? 'checked' : '' }}>
+                        <span class="text-xl">ðŸ˜•</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="3" class="accent-indigo-600" {{ fb == 3 ? 'checked' : '' }}>
+                        <span class="text-xl">ðŸ˜</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="4" class="accent-indigo-600" {{ fb == 4 ? 'checked' : '' }}>
+                        <span class="text-xl">ðŸ™‚</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="5" class="accent-indigo-600" {{ fb == 5 ? 'checked' : '' }}>
+                        <span class="text-xl">ðŸ¤©</span>
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="feedback" value="" class="accent-indigo-600" {{ fb is null ? 'checked' : '' }}>
+                        <span class="text-sm text-secondary-500 dark:text-secondary-400">None</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
+                <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+
+        {# DELETE SECTION (enhanced design) #}
+        <div class="pt-6 border-t border-secondary-200 dark:border-secondary-800">
+            <div class="rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-900/20 p-4">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="trash-2" class="w-5 h-5 text-red-600 dark:text-red-300"></i>
+                    </div>
+
+                    <div class="flex-1">
+                        <p class="font-semibold text-secondary-900 dark:text-white">Danger zone</p>
+                        <p class="text-sm text-secondary-600 dark:text-secondary-300 mt-1">
+                            Deleting this event is permanent and cannot be undone.
+                        </p>
+
+                        <form action="{{ path('app_planning_delete', {id: planning.id}) }}"
+                              method="POST"
+                              data-confirm="Do you really want to delete this event?"
+                              class="mt-4 flex items-center justify-end">
+                            <button type="submit" class="btn btn-secondary">
+                                <i data-lucide="trash" class="w-4 h-4 mr-2"></i>
+                                Delete Event
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+=======
             <!-- Location -->
             {% include 'components/input.html.twig' with {
                 name: 'location',
@@ -168,4 +295,5 @@ function confirmDelete() {
     document.getElementById('delete-modal').classList.remove('hidden');
 }
 </script>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 {% endblock %}

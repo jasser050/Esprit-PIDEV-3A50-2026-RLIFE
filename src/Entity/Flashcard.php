@@ -5,6 +5,11 @@ namespace App\Entity;
 use App\Repository\FlashcardRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+<<<<<<< HEAD
+use App\Entity\User;
+use Symfony\Component\Validator\Constraints as Assert;
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 
 #[ORM\Entity(repositoryClass: FlashcardRepository::class)]
 #[ORM\Table(name: 'flashcard')]
@@ -18,6 +23,71 @@ class Flashcard
 
     #[ORM\ManyToOne(targetEntity: Deck::class, inversedBy: 'flashcards')]
     #[ORM\JoinColumn(name: 'id_deck', referencedColumnName: 'id_deck', nullable: false, onDelete: 'CASCADE')]
+<<<<<<< HEAD
+    #[Assert\NotNull(message: 'Le deck est obligatoire')]
+    private ?Deck $deck = null;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: true)]
+    private ?User $createdBy = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Assert\NotBlank(message: 'Le titre est obligatoire')]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Le titre doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le titre ne peut pas dépasser {{ limit }} caractères'
+    )]
+    #[Assert\Regex(
+        pattern: '/^[^0-9]/',
+        message: 'Le titre ne doit pas commencer par un chiffre'
+    )]
+    private ?string $titre = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La question est obligatoire')]
+    #[Assert\Length(
+        min: 5,
+        max: 2000,
+        minMessage: 'La question doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'La question ne peut pas dépasser {{ limit }} caractères'
+    )]
+    private ?string $question = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'La réponse est obligatoire')]
+    #[Assert\Length(
+        min: 1,
+        max: 2000,
+        minMessage: 'La réponse doit contenir au moins {{ limit }} caractère',
+        maxMessage: 'La réponse ne peut pas dépasser {{ limit }} caractères'
+    )]
+    private ?string $reponse = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\Length(
+        max: 2000,
+        maxMessage: 'La description ne peut pas dépasser {{ limit }} caractères'
+    )]
+    private ?string $description = null;
+
+    #[ORM\Column(name: 'niveau_difficulte', type: Types::INTEGER, nullable: true)]
+    #[Assert\NotNull(message: 'Le niveau de difficulté est obligatoire')]
+    #[Assert\Range(
+        min: 1,
+        max: 5,
+        notInRangeMessage: 'Le niveau de difficulté doit être entre {{ min }} et {{ max }}'
+    )]
+    private ?int $niveauDifficulte = null;
+
+    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    #[Assert\NotBlank(message: 'L\'état est obligatoire')]
+    #[Assert\Choice(
+        choices: ['actif', 'brouillon', 'archive', 'inactif'],
+        message: 'L\'état doit être : actif, brouillon, archive ou inactif'
+    )]
+=======
     private ?Deck $deck = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]
@@ -36,6 +106,7 @@ class Flashcard
     private ?int $niveauDifficulte = null;
 
     #[ORM\Column(type: Types::STRING, length: 20)]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     private ?string $etat = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
@@ -53,6 +124,10 @@ class Flashcard
     public function __construct()
     {
         $this->dateCreation = new \DateTime();
+<<<<<<< HEAD
+        $this->etat = 'actif'; // Default value
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     }
 
     #[ORM\PreUpdate]
@@ -82,7 +157,11 @@ class Flashcard
         return $this->titre;
     }
 
+<<<<<<< HEAD
+    public function setTitre(?string $titre): static
+=======
     public function setTitre(string $titre): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->titre = $titre;
         return $this;
@@ -126,7 +205,11 @@ class Flashcard
         return $this->niveauDifficulte;
     }
 
+<<<<<<< HEAD
+    public function setNiveauDifficulte(?int $niveauDifficulte): static
+=======
     public function setNiveauDifficulte(int $niveauDifficulte): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->niveauDifficulte = $niveauDifficulte;
         return $this;
@@ -137,7 +220,11 @@ class Flashcard
         return $this->etat;
     }
 
+<<<<<<< HEAD
+    public function setEtat(?string $etat): static
+=======
     public function setEtat(string $etat): static
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {
         $this->etat = $etat;
         return $this;
@@ -186,4 +273,18 @@ class Flashcard
         $this->dateModification = $dateModification;
         return $this;
     }
+<<<<<<< HEAD
+
+    public function getCreatedBy(): ?User
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?User $createdBy): static
+    {
+        $this->createdBy = $createdBy;
+        return $this;
+    }
+=======
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 }

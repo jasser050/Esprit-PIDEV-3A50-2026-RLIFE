@@ -1,13 +1,25 @@
 {#
     Page Header Component
 
+<<<<<<< HEAD
+    Usage (simple):
+=======
     Usage (simple - HTML string):
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     {% include 'components/page_header.html.twig' with {
         title: 'Page Title',
         subtitle: 'Optional description',
         actions: '<a href="/new" class="btn btn-primary">Add New</a>'
     } %}
 
+<<<<<<< HEAD
+    Usage (with badge):
+    {% include 'components/page_header.html.twig' with {
+        title: 'Course Name',
+        subtitle: 'Instructor info',
+        badge: { text: 'CS201', variant: 'primary' },
+        backLink: { href: '/courses', label: 'Back to courses' }
+=======
     Usage (new - array actions):
     {% include 'components/page_header.html.twig' with {
         title: 'Stress & Wellbeing',
@@ -16,18 +28,45 @@
             { label: 'Coping Tools', url: path('app_wellbeing_tools'), variant: 'secondary', icon: '♥' },
             { label: 'Daily Check-in', url: path('app_wellbeing_checkin_new'), variant: 'primary', icon: '+' }
         ]
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
     } %}
 #}
 
 <div class="mb-8 {{ class|default('') }}">
     {% if backLink is defined and backLink %}
+<<<<<<< HEAD
+        <a href="{{ backLink.href }}" class="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 mb-4 transition-colors">
+=======
         <a href="{{ backLink.href }}"
            class="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 mb-4 transition-colors">
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
             {{ backLink.label|default('Back') }}
         </a>
     {% endif %}
 
+<<<<<<< HEAD
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">{{ title }}</h1>
+                {% if badge is defined and badge %}
+                    {% include 'components/badge.html.twig' with {
+                        label: badge.text,
+                        variant: badge.variant|default('primary')
+                    } %}
+                {% endif %}
+            </div>
+            {% if subtitle is defined and subtitle %}
+                <p class="text-slate-500 dark:text-slate-400 mt-1">{{ subtitle }}</p>
+            {% endif %}
+        </div>
+
+        {% if actions is defined and actions %}
+            <div class="flex items-center gap-3">
+                {{ actions|raw }}
+            </div>
+=======
     <div class="flex items-start justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold">{{ title|default('') }}</h1>
@@ -62,6 +101,7 @@
                     {{ actions|raw }}
                 </div>
             {% endif %}
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
         {% endif %}
     </div>
 </div>

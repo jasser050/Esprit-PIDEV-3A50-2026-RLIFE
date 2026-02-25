@@ -1,0 +1,569 @@
+{% extends 'layouts/public.html.twig' %}
+
+{% block title %}Your semester, organised{% endblock %}
+
+{% block body %}
+<div class="min-h-screen" data-controller="theme accordion">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{{ path('app_landing') }}" class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl overflow-hidden shadow-lg">
+                        <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-full h-full object-cover">
+                    </div>
+                    <span class="text-lg font-semibold tracking-tight text-slate-900 dark:text-white">RLIFE</span>
+                </a>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="#features" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Features</a>
+                    <a href="#modules" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">Modules</a>
+                    <a href="#how-it-works" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">How it works</a>
+                    <a href="#faq" class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">FAQ</a>
+                </div>
+
+                <!-- Right side -->
+                <div class="flex items-center gap-3">
+                    <button type="button"
+                            class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            data-action="click->theme#toggle"
+                            aria-label="Toggle theme">
+                        <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    <a href="{{ path('app_login') }}" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                        Sign in
+                    </a>
+                    <a href="{{ path('app_dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all hover:-translate-y-0.5">
+                        Open App
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        <!-- Background -->
+        <div class="absolute inset-0 -z-10">
+            <!-- Grid pattern -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+            <!-- Radial gradient -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-radial from-primary-100/40 via-transparent to-transparent dark:from-primary-900/20"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <!-- Left: Text content -->
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 rounded-full mb-6">
+                        <span class="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
+                        <span class="text-sm font-medium text-primary-700 dark:text-primary-300">Now with AI study suggestions</span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-slate-900 dark:text-white leading-[1.1]">
+                        Your semester,
+                        <span class="bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">organised.</span>
+                    </h1>
+
+                    <p class="mt-6 text-lg sm:text-xl text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                        Courses, deadlines, revision, and wellbeing&mdash;kept in one calm dashboard. Study smarter, stress less.
+                    </p>
+
+                    <div class="mt-8 flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                        <a href="{{ path('app_register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all hover:-translate-y-0.5">
+                            Get started free
+                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </a>
+                        <a href="{{ path('app_dashboard') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border border-slate-200 dark:border-slate-700 transition-all">
+                            <i data-lucide="play" class="w-5 h-5"></i>
+                            View demo
+                        </a>
+                    </div>
+
+                    <p class="mt-6 text-sm text-slate-500 dark:text-slate-400">
+                        No credit card required. Free for students.
+                    </p>
+                </div>
+
+                <!-- Right: Product Preview Frame (built in HTML) -->
+                <div class="relative">
+                    <div class="relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl shadow-slate-900/10 dark:shadow-black/30 overflow-hidden">
+                        <!-- Window controls -->
+                        <div class="flex items-center gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
+                            <div class="flex gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-danger-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-warning-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-success-400"></div>
+                            </div>
+                            <div class="flex-1 text-center">
+                                <span class="text-xs text-slate-400 dark:text-slate-500">RLIFE Dashboard</span>
+                            </div>
+                        </div>
+
+                        <!-- Dashboard preview -->
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900">
+                            <!-- Mini stat cards -->
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                                            <i data-lucide="calendar" class="w-4 h-4 text-primary-600 dark:text-primary-400"></i>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Next event</span>
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-900 dark:text-white truncate">Data Structures</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Today, 2:00 PM</p>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center">
+                                            <i data-lucide="clock" class="w-4 h-4 text-warning-600 dark:text-warning-400"></i>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Due soon</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-slate-900 dark:text-white">3</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">This week</p>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                                            <i data-lucide="brain" class="w-4 h-4 text-success-600 dark:text-success-400"></i>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Revision</span>
+                                    </div>
+                                    <p class="text-2xl font-bold text-slate-900 dark:text-white">24</p>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Cards to review</p>
+                                </div>
+                                <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center">
+                                            <i data-lucide="heart" class="w-4 h-4 text-secondary-600 dark:text-secondary-400"></i>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Stress</span>
+                                    </div>
+                                    <p class="text-sm font-semibold text-slate-900 dark:text-white">Moderate</p>
+                                    <div class="mt-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700">
+                                        <div class="h-full w-1/2 rounded-full bg-secondary-500"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mini chart placeholder -->
+                            <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 mb-4">
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3">Study time this week</p>
+                                <div class="flex items-end gap-1 h-12">
+                                    <div class="flex-1 bg-primary-200 dark:bg-primary-800 rounded-t" style="height: 40%"></div>
+                                    <div class="flex-1 bg-primary-300 dark:bg-primary-700 rounded-t" style="height: 60%"></div>
+                                    <div class="flex-1 bg-primary-400 dark:bg-primary-600 rounded-t" style="height: 80%"></div>
+                                    <div class="flex-1 bg-primary-500 rounded-t" style="height: 50%"></div>
+                                    <div class="flex-1 bg-primary-400 dark:bg-primary-600 rounded-t" style="height: 70%"></div>
+                                    <div class="flex-1 bg-primary-300 dark:bg-primary-700 rounded-t" style="height: 90%"></div>
+                                    <div class="flex-1 bg-primary-600 rounded-t" style="height: 100%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming list -->
+                            <div class="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Upcoming</p>
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+                                        <div class="w-1 h-8 rounded-full bg-primary-500"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium text-slate-900 dark:text-white truncate">Algorithm Quiz</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">Tomorrow</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-slate-700/50">
+                                        <div class="w-1 h-8 rounded-full bg-warning-500"></div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium text-slate-900 dark:text-white truncate">Project Report</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">In 3 days</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating elements -->
+                    <div class="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl opacity-20 blur-2xl"></div>
+                    <div class="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-secondary-400 to-secondary-600 rounded-2xl opacity-20 blur-2xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="py-8 border-y border-slate-200/50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8">
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Used by students from</p>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <span class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">MIT</span>
+                    <span class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">Stanford</span>
+                    <span class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">Oxford</span>
+                    <span class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">Cambridge</span>
+                    <span class="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700">ETH Zurich</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 lg:py-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">Features</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Everything you need to succeed</h2>
+                <p class="mt-4 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                    RLIFE brings together all the tools you need to manage your academic life in one beautifully designed dashboard.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Course Management -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-primary-300 dark:hover:border-primary-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="book-open" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Course Management</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Organise all your courses, lectures, and resources in one place. Track progress and never miss important materials.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Assignment Tracking -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-warning-300 dark:hover:border-warning-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-warning-100 dark:bg-warning-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="clipboard-check" class="w-6 h-6 text-warning-600 dark:text-warning-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Assignment Tracking</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Keep track of all your deadlines with smart reminders. Prioritise tasks and watch your progress soar.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Smart Planning -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-accent-300 dark:hover:border-accent-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="calendar-days" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Smart Planning</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Plan your week with an intuitive calendar. See conflicts at a glance and balance study with life.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Spaced Repetition -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-success-300 dark:hover:border-success-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-success-100 dark:bg-success-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="brain" class="w-6 h-6 text-success-600 dark:text-success-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Spaced Repetition</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Master any subject with smart flashcards. Our algorithm schedules reviews for maximum retention.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Group Projects -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-info-300 dark:hover:border-info-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-info-100 dark:bg-info-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="users" class="w-6 h-6 text-info-600 dark:text-info-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Group Projects</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Collaborate with classmates on group assignments. Track tasks, share files, and communicate seamlessly.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <!-- Wellbeing -->
+                <div class="group p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 hover:border-secondary-300 dark:hover:border-secondary-700 hover:shadow-lg hover:-translate-y-1 transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-secondary-100 dark:bg-secondary-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i data-lucide="heart-pulse" class="w-6 h-6 text-secondary-600 dark:text-secondary-400"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Wellbeing Check</h3>
+                    <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                        Track your stress and mood patterns. Get gentle reminders to take breaks and maintain balance.
+                    </p>
+                    <a href="#modules" class="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary-600 dark:text-primary-400 hover:gap-2 transition-all">
+                        Learn more <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works -->
+    <section id="how-it-works" class="py-20 lg:py-32 bg-slate-50 dark:bg-slate-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">How it works</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Start in three simple steps</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+                <!-- Step 1 -->
+                <div class="relative text-center">
+                    <div class="w-16 h-16 mx-auto bg-primary-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 shadow-lg shadow-primary-500/30">
+                        1
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">Add your courses</h3>
+                    <p class="text-slate-600 dark:text-slate-300">
+                        Import your class schedule or add courses manually. Set up your semester in minutes.
+                    </p>
+                    <!-- Connector line -->
+                    <div class="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary-300 to-primary-100 dark:from-primary-700 dark:to-primary-900"></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative text-center">
+                    <div class="w-16 h-16 mx-auto bg-primary-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 shadow-lg shadow-primary-500/30">
+                        2
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">Plan your week</h3>
+                    <p class="text-slate-600 dark:text-slate-300">
+                        Add assignments, schedule study sessions, and let RLIFE help you stay on track.
+                    </p>
+                    <!-- Connector line -->
+                    <div class="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary-300 to-primary-100 dark:from-primary-700 dark:to-primary-900"></div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto bg-primary-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-6 shadow-lg shadow-primary-500/30">
+                        3
+                    </div>
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">Track progress & breathe</h3>
+                    <p class="text-slate-600 dark:text-slate-300">
+                        Watch your productivity grow while maintaining a healthy balance. Celebrate your wins.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 lg:py-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">Testimonials</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Loved by students</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex gap-1 mb-4">
+                        {% for i in 1..5 %}
+                        <i data-lucide="star" class="w-5 h-5 fill-warning-400 text-warning-400"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                        "RLIFE completely changed how I manage my coursework. The wellbeing feature is a game-changer for staying balanced during exam season."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm">
+                            SM
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900 dark:text-white text-sm">Sarah Mitchell</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Computer Science, MIT</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex gap-1 mb-4">
+                        {% for i in 1..5 %}
+                        <i data-lucide="star" class="w-5 h-5 fill-warning-400 text-warning-400"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                        "The flashcard system with spaced repetition helped me ace my medical exams. I've recommended it to all my classmates."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-400 to-secondary-600 flex items-center justify-center text-white font-semibold text-sm">
+                            JC
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900 dark:text-white text-sm">James Chen</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Medicine, Stanford</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex gap-1 mb-4">
+                        {% for i in 1..5 %}
+                        <i data-lucide="star" class="w-5 h-5 fill-warning-400 text-warning-400"></i>
+                        {% endfor %}
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 mb-6 leading-relaxed">
+                        "Finally, an app that understands student life. Clean, focused, and actually helps me be productive without feeling overwhelmed."
+                    </p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white font-semibold text-sm">
+                            EP
+                        </div>
+                        <div>
+                            <p class="font-semibold text-slate-900 dark:text-white text-sm">Emma Peters</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Engineering, Cambridge</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 lg:py-32 bg-slate-50 dark:bg-slate-900/50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-wider">FAQ</span>
+                <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white">Common questions</h2>
+            </div>
+
+            <div class="space-y-4" data-accordion-target="container">
+                <!-- FAQ Item 1 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">Is my data private and secure?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            Absolutely. Your data is encrypted and stored securely. We never share or sell your information to third parties. You can export or delete your data at any time.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">How do the study reminders work?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            RLIFE sends gentle reminders based on your schedule and preferences. You control when and how often you receive notifications. We respect your focus time.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">What does the wellbeing check-in track?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            Our wellbeing feature lets you log your mood and stress levels. It tracks patterns over time and offers personalised suggestions like breathing exercises or break reminders when stress is high.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">Can I use RLIFE offline?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            Yes, RLIFE works offline for viewing your schedule and flashcards. Changes sync automatically when you're back online.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">Is there a mobile app?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            RLIFE is a responsive web app that works beautifully on mobile browsers. Native iOS and Android apps are coming soon.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" data-accordion-target="item">
+                    <button type="button" class="w-full flex items-center justify-between p-5 text-left" data-action="click->accordion#toggle">
+                        <span class="font-semibold text-slate-900 dark:text-white">How much does it cost?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 transition-transform duration-200" data-accordion-target="icon"></i>
+                    </button>
+                    <div class="px-5 overflow-hidden transition-all duration-200" style="max-height: 0; opacity: 0;" data-accordion-target="content">
+                        <p class="pb-5 text-slate-600 dark:text-slate-300">
+                            RLIFE is free for all students with an .edu email address. We also offer affordable premium plans for additional features like AI study suggestions and unlimited storage.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 lg:py-32">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white leading-tight">
+                Ready to take control of your semester?
+            </h2>
+            <p class="mt-6 text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+                Join thousands of students who are studying smarter, not harder. Get started for free today.
+            </p>
+            <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="{{ path('app_register') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl shadow-lg shadow-primary-500/25 hover:shadow-primary-500/40 transition-all hover:-translate-y-0.5 text-lg">
+                    Get started free
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-2.5">
+                    <img src="{{ asset('image/logo0.png') }}" alt="RLIFE Logo" class="w-8 h-8 rounded-lg object-cover">
+                    <span class="font-semibold text-slate-900 dark:text-white">RLIFE</span>
+                </div>
+
+                <div class="flex items-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+                    <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors">Contact</a>
+                </div>
+
+                <p class="text-sm text-slate-400 dark:text-slate-500">
+                    UI-only demo. &copy; 2024 RLIFE.
+                </p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}

@@ -15,7 +15,10 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+<<<<<<< HEAD
+=======
 
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd

@@ -1,5 +1,60 @@
 {% extends 'base.html.twig' %}
 
+<<<<<<< HEAD
+{% block title %}Modifier l’évaluation{% endblock %}
+
+{% block body %}
+<div class="container mx-auto p-6 max-w-3xl">
+
+    <h1 class="text-3xl font-bold mb-6 text-primary">
+        ✏️ Modifier l’évaluation
+    </h1>
+
+    {{ form_start(form) }}
+
+    <div class="grid grid-cols-1 gap-4">
+
+        {# Matière affichée seulement #}
+        <div>
+            <label class="block font-semibold mb-2">Matière</label>
+
+            <input type="text"
+                   class="input input-bordered w-full bg-gray-100 cursor-not-allowed"
+                   readonly
+                   value="
+                   {% for evalMat in evaluation.evalMats %}
+                       {{ evalMat.matiere.nomMatiere }}
+                   {% else %}
+                       Aucune matière
+                   {% endfor %}
+                   ">
+        </div>
+
+        {{ form_row(form.scoreEval) }}
+
+        {{ form_row(form.noteMaximaleEval) }}
+
+        {{ form_row(form.dateEvaluation) }}
+
+        {{ form_row(form.dureeEvaluation) }}
+
+        {{ form_row(form.prioriteE) }}
+
+    </div>
+
+    <div class="flex justify-between mt-8">
+        <a href="{{ path('app_courses') }}" class="btn btn-outline">
+            ⬅️ Retour
+        </a>
+
+        <button class="btn btn-primary">
+            💾 Enregistrer
+        </button>
+    </div>
+
+    {{ form_end(form) }}
+
+=======
 {% block title %}Edit {{ course.name }}{% endblock %}
 
 {% block body %}
@@ -113,5 +168,6 @@
             </div>
         </div>
     </form>
+>>>>>>> 58c374d892597ea6754943c1c6b23fdbb8e095cd
 </div>
 {% endblock %}
