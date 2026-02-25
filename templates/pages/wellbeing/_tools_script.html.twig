@@ -1,0 +1,846 @@
+<script>
+(function () {
+    const journalFocus = document.getElementById('journal-focus');
+    const yogaFocus = document.getElementById('yoga-focus');
+    const aiChatFocus = document.getElementById('ai-chat-focus');
+    const toolsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3.gap-6');
+    const tipsSection = document.querySelector('h2.text-lg.font-semibold.mb-4')?.closest('.card');
+    const resourcesSection = Array.from(document.querySelectorAll('.card h2.text-lg.font-semibold.mb-4'))
+        .find((x) => x.textContent.trim() === 'Additional Resources')?.closest('.card');
+
+    const journalInput = document.getElementById('journal-input');
+    const journalList = document.getElementById('journal-list');
+    const journalStatus = document.getElementById('journal-status');
+    const saveBtn = document.getElementById('save-journal-entry');
+    const newBtn = document.getElementById('new-journal-entry');
+    const backBtn = document.getElementById('back-to-tools');
+    const startVoiceBtn = document.getElementById('start-voice-journal');
+    const stopVoiceBtn = document.getElementById('stop-voice-journal');
+    const langSelect = document.getElementById('journal-lang');
+    const yogaExerciseTitle = document.getElementById('yoga-exercise-title');
+    const yogaExerciseDesc = document.getElementById('yoga-exercise-desc');
+    const yogaDemoShape = document.getElementById('yoga-demo-shape');
+    const yogaTimer = document.getElementById('yoga-timer');
+    const yogaStepCount = document.getElementById('yoga-step-count');
+    const yogaStartBtn = document.getElementById('yoga-start-btn');
+    const yogaNextBtn = document.getElementById('yoga-next-btn');
+    const yogaBackBtn = document.getElementById('yoga-back-btn');
+    const yogaStatus = document.getElementById('yoga-status');
+    const aiChatMessages = document.getElementById('ai-chat-messages');
+    const aiChatInput = document.getElementById('ai-chat-input');
+    const aiChatSendBtn = document.getElementById('ai-chat-send-btn');
+    const aiChatClearBtn = document.getElementById('ai-chat-clear-btn');
+    const aiChatBackBtn = document.getElementById('ai-chat-back-btn');
+    const aiChatStatus = document.getElementById('ai-chat-status');
+    const quoteTypeSelect = document.getElementById('quote-type-select');
+    const breathingQuickCta = document.getElementById('breathing-quick-cta');
+    const breathingOrb = document.getElementById('breathing-orb');
+    const breathingAura = document.getElementById('breathing-aura');
+    const breathingPhase = document.getElementById('breathing-phase');
+    const breathingStatus = document.getElementById('breathing-status');
+    const breathingVoiceStartBtn = document.getElementById('breathing-voice-start');
+    const breathingVoiceStopBtn = document.getElementById('breathing-voice-stop');
+    const breathingManualStartBtn = document.getElementById('breathing-manual-start');
+    const breathingCloseBtn = document.getElementById('breathing-close-btn');
+    const breathingModal = document.getElementById('breathing-modal');
+
+    const journalListUrl = '{{ path('app_wellbeing_tools_journal_list') }}';
+    const journalCreateUrl = '{{ path('app_wellbeing_tools_journal_create') }}';
+    const detectLanguageUrl = '{{ path('app_wellbeing_tools_journal_detect_language') }}';
+    const journalUpdateBase = '/wellbeing/tools/journal/';
+    const journalDeleteBase = '/wellbeing/tools/journal/';
+    const aiChatUrl = '{{ path('app_wellbeing_tools_ai_chat') }}';
+
+    let editId = null;
+    let entries = [];
+    let recognitionRunning = false;
+    let autoDetectTimer = null;
+    let autoSwitchLock = false;
+    let lastDetectedCode = '';
+    let yogaTimerInterval = null;
+    let yogaSecondsLeft = 20;
+    let yogaStepIndex = 0;
+    let yogaCompleted = false;
+    let breathingTimerHandles = [];
+    let breathingRunning = false;
+    let breathingAccessGranted = false;
+    const breathingBgMusic = new Audio('{{ asset('audio/meditation.mp3') }}');
+    breathingBgMusic.loop = true;
+    breathingBgMusic.volume = 0.18;
+    const voiceSupported = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
+    let selectedBreathingVoice = null;
+    let aiChatHistory = [];
+
+    const yogaExercises = [
+        { title: 'Neck Release', description: 'Tilt head gently left and right. Keep shoulders relaxed.', demo: 'neck', gifKey: 'gif1' },
+        { title: 'Shoulder Rolls', description: 'Roll shoulders forward then backward with slow breaths.', demo: 'shoulders', gifKey: 'gif2' },
+        { title: 'Seated Twist', description: 'Sit tall, twist softly to each side, no force.', demo: 'twist', gifKey: 'gif3' },
+        { title: 'Cat-Cow Stretch', description: 'Alternate arching and rounding your back with your breath.', demo: 'catcow', gifKey: 'gif4' },
+        { title: 'Child Pose', description: 'Kneel, stretch your arms forward, and breathe deeply.', demo: 'child', gifKey: 'gif5' },
+        { title: 'Standing Side Stretch', description: 'Raise one arm and stretch side body, then switch.', demo: 'side', gifKey: 'gif1' },
+        { title: 'Wrist Release', description: 'Circle wrists slowly and extend fingers to reduce tension.', demo: 'wrist', gifKey: 'gif2' },
+        { title: 'Ankle Circles', description: 'Lift one foot slightly and make gentle ankle circles.', demo: 'ankle', gifKey: 'gif3' },
+        { title: 'Seated Breath Reset', description: 'Sit comfortably and breathe in 4 counts, out 6 counts.', demo: 'breath', gifKey: 'gif5' }
+    ];
+
+    const yogaHumanMedia = {
+        child: '{{ asset('images/yoga/child.jpg') }}',
+        catcow: '{{ asset('images/yoga/catcow.jpg') }}',
+        downward: '{{ asset('images/yoga/downward.jpg') }}',
+        fold: '{{ asset('images/yoga/fold.jpg') }}'
+    };
+
+    const yogaFrames = {
+        neck: [yogaHumanMedia.fold, yogaHumanMedia.child],
+        shoulders: [yogaHumanMedia.catcow, yogaHumanMedia.fold],
+        twist: [yogaHumanMedia.fold, yogaHumanMedia.downward],
+        catcow: [yogaHumanMedia.catcow, yogaHumanMedia.downward],
+        child: [yogaHumanMedia.child, yogaHumanMedia.fold],
+        side: [yogaHumanMedia.downward, yogaHumanMedia.child],
+        wrist: [yogaHumanMedia.catcow, yogaHumanMedia.child],
+        ankle: [yogaHumanMedia.downward, yogaHumanMedia.fold],
+        breath: [yogaHumanMedia.child, yogaHumanMedia.catcow]
+    };
+
+    const yogaGifMap = {
+        gif1: '{{ asset('images/yoga_gif/gif1.gif') }}',
+        gif2: '{{ asset('images/yoga_gif/gif2.gif') }}',
+        gif3: '{{ asset('images/yoga_gif/gif3.gif') }}',
+        gif4: '{{ asset('images/yoga_gif/gif4.gif') }}',
+        gif5: '{{ asset('images/yoga_gif/gif5.gif') }}'
+    };
+
+    function renderYogaLocalDemo(kind, gifKey = '') {
+        if (!yogaDemoShape) return;
+        const frames = yogaFrames[kind] || [yogaHumanMedia.child, yogaHumanMedia.fold];
+        const gifSrc = yogaGifMap[gifKey] || '';
+        yogaDemoShape.innerHTML = `
+            <style>
+                @keyframes yogaFrameA {0%,48%{opacity:1}52%,100%{opacity:0}}
+                @keyframes yogaFrameB {0%,48%{opacity:0}52%,100%{opacity:1}}
+                @keyframes yogaStudioFloat {0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+            </style>
+            <div class="relative w-full h-full rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600/40 bg-[#0b173a] p-4" style="height:300px;">
+                <div class="w-full h-full rounded-xl bg-gradient-to-b from-slate-100 to-white dark:from-slate-200 dark:to-slate-100 flex items-center justify-center">
+                    <div class="relative rounded-lg overflow-hidden shadow-lg border border-slate-300 bg-white" style="width:min(420px,100%);height:240px;animation:yogaStudioFloat 2.6s ease-in-out infinite;">
+                        ${gifSrc ? `<img id="yoga-demo-gif" src="${gifSrc}" alt="Yoga GIF demo" class="absolute inset-0 w-full h-full object-contain bg-white">` : ''}
+                        <div id="yoga-demo-fallback" class="absolute inset-0 ${gifSrc ? 'hidden' : ''}">
+                            <img src="${frames[0]}" alt="Yoga frame A" class="absolute inset-0 w-full h-full object-contain bg-white" style="animation:yogaFrameA 2.4s ease-in-out infinite;">
+                            <img src="${frames[1]}" alt="Yoga frame B" class="absolute inset-0 w-full h-full object-contain bg-white" style="animation:yogaFrameB 2.4s ease-in-out infinite;">
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute left-7 bottom-7 px-3 py-1 rounded-lg bg-slate-900/60 text-white text-sm font-semibold">Guided Human Demo</div>
+            </div>
+        `;
+
+        const gifEl = document.getElementById('yoga-demo-gif');
+        const fallbackEl = document.getElementById('yoga-demo-fallback');
+        if (gifEl && fallbackEl) {
+            gifEl.addEventListener('error', () => {
+                gifEl.classList.add('hidden');
+                fallbackEl.classList.remove('hidden');
+            }, { once: true });
+        }
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function showJournalMode() {
+        stopYogaTimer();
+        journalFocus?.classList.remove('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        journalFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function showToolsMode() {
+        stopYogaTimer();
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.remove('hidden');
+        resourcesSection?.classList.remove('hidden');
+        toolsGrid?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function stopYogaTimer() {
+        if (yogaTimerInterval) {
+            clearInterval(yogaTimerInterval);
+            yogaTimerInterval = null;
+        }
+    }
+
+    function renderYogaStep() {
+        const exercise = yogaExercises[yogaStepIndex];
+        if (!exercise) return;
+        if (yogaExerciseTitle) yogaExerciseTitle.textContent = exercise.title;
+        if (yogaExerciseDesc) yogaExerciseDesc.textContent = exercise.description;
+        renderYogaLocalDemo(exercise.demo, exercise.gifKey || '');
+        if (yogaStepCount) yogaStepCount.textContent = `${yogaStepIndex + 1}/${yogaExercises.length}`;
+        if (yogaTimer) yogaTimer.textContent = `${yogaSecondsLeft}s`;
+        if (yogaStatus && !yogaCompleted) {
+            yogaStatus.textContent = `Exercise ${yogaStepIndex + 1} of ${yogaExercises.length}`;
+        }
+    }
+
+    function nextYogaStep(autoStart = true) {
+        stopYogaTimer();
+        if (yogaStepIndex >= yogaExercises.length - 1) {
+            finishYogaSession();
+            return;
+        }
+        yogaStepIndex += 1;
+        yogaSecondsLeft = 20;
+        renderYogaStep();
+        if (autoStart) startYogaTimer();
+    }
+
+    function finishYogaSession() {
+        yogaCompleted = true;
+        if (yogaExerciseTitle) yogaExerciseTitle.textContent = 'Session Complete';
+        if (yogaExerciseDesc) yogaExerciseDesc.textContent = 'Great job. You completed all yoga exercises.';
+        if (yogaTimer) yogaTimer.textContent = '0s';
+        if (yogaStepCount) yogaStepCount.textContent = `${yogaExercises.length}/${yogaExercises.length}`;
+        if (yogaStatus) yogaStatus.textContent = 'Yoga Coach: all exercises completed.';
+        if (yogaNextBtn) yogaNextBtn.disabled = true;
+
+        if ('speechSynthesis' in window) {
+            try {
+                const utterance = new SpeechSynthesisUtterance('Great job. You completed all yoga exercises.');
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                utterance.lang = 'en-US';
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            } catch (e) {}
+        }
+    }
+
+    function startYogaTimer() {
+        stopYogaTimer();
+        if (yogaCompleted) return;
+        yogaSecondsLeft = 20;
+        if (yogaTimer) yogaTimer.textContent = `${yogaSecondsLeft}s`;
+        yogaTimerInterval = setInterval(() => {
+            yogaSecondsLeft -= 1;
+            if (yogaTimer) yogaTimer.textContent = `${Math.max(0, yogaSecondsLeft)}s`;
+            if (yogaSecondsLeft <= 0) {
+                nextYogaStep(true);
+            }
+        }, 1000);
+    }
+
+    function showYogaMode() {
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.remove('hidden');
+        aiChatFocus?.classList.add('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        yogaStepIndex = 0;
+        yogaSecondsLeft = 20;
+        yogaCompleted = false;
+        if (yogaNextBtn) yogaNextBtn.disabled = false;
+        if (yogaStatus) yogaStatus.textContent = 'Click Start Yoga to begin.';
+        renderYogaStep();
+        yogaFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function appendAiChatMessage(role, content) {
+        if (!aiChatMessages) return;
+        const line = document.createElement('div');
+        const base = 'max-w-[90%] px-4 py-3 rounded-xl text-sm whitespace-pre-wrap';
+        const roleClass = role === 'user'
+            ? 'ml-auto bg-primary-600 text-white'
+            : 'mr-auto bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700';
+        line.className = `${base} ${roleClass}`;
+        line.textContent = content;
+        aiChatMessages.appendChild(line);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    function showAiChatMode() {
+        stopYogaTimer();
+        journalFocus?.classList.add('hidden');
+        yogaFocus?.classList.add('hidden');
+        aiChatFocus?.classList.remove('hidden');
+        tipsSection?.classList.add('hidden');
+        resourcesSection?.classList.add('hidden');
+        aiChatFocus?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        aiChatInput?.focus();
+    }
+
+    function resetAiChat() {
+        aiChatHistory = [];
+        if (aiChatMessages) {
+            aiChatMessages.innerHTML = '<div class="text-sm text-light-muted dark:text-dark-muted">AI Coach: Bonjour, je suis la pour vous aider. De quoi avez-vous besoin maintenant ?</div>';
+        }
+        if (aiChatInput) {
+            aiChatInput.value = '';
+        }
+        if (aiChatStatus) {
+            aiChatStatus.textContent = 'Ready';
+        }
+    }
+
+    async function sendAiChatMessage() {
+        const text = (aiChatInput?.value || '').trim();
+        if (!text) {
+            if (aiChatStatus) aiChatStatus.textContent = 'Write a message first.';
+            return;
+        }
+
+        appendAiChatMessage('user', text);
+        aiChatHistory.push({ role: 'user', content: text });
+        if (aiChatInput) aiChatInput.value = '';
+        if (aiChatStatus) aiChatStatus.textContent = 'AI is typing...';
+
+        if (aiChatSendBtn) aiChatSendBtn.disabled = true;
+
+        try {
+            const res = await fetch(aiChatUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                    message: text,
+                    history: aiChatHistory
+                })
+            });
+
+            if (res.status === 401) {
+                window.location.href = '{{ path('app_login') }}';
+                return;
+            }
+
+            const data = await res.json();
+            if (!data.ok || !data.reply) {
+                throw new Error(data.message || 'AI response failed');
+            }
+
+            const reply = String(data.reply).trim();
+            appendAiChatMessage('assistant', reply);
+            aiChatHistory.push({ role: 'assistant', content: reply });
+            aiChatHistory = aiChatHistory.slice(-20);
+            if (aiChatStatus) aiChatStatus.textContent = data.source === 'ai' ? 'Answered by AI' : 'Fallback response';
+        } catch (error) {
+            if (aiChatStatus) aiChatStatus.textContent = 'Error: ' + (error?.message || 'Unknown error');
+        } finally {
+            if (aiChatSendBtn) aiChatSendBtn.disabled = false;
+        }
+    }
+
+    function renderEntries() {
+        if (!journalList) return;
+        if (!entries.length) {
+            journalList.innerHTML = '<p class="text-sm text-light-muted dark:text-dark-muted">No journal entries yet.</p>';
+            return;
+        }
+        journalList.innerHTML = entries.map((entry) => `
+            <div class="p-4 rounded-xl border border-slate-300 dark:border-slate-700 bg-light-bg dark:bg-dark-bg">
+                <p class="text-sm font-medium">${escapeHtml(entry.createdAt || '')}</p>
+                <p class="mt-2 whitespace-pre-wrap">${escapeHtml(entry.content)}</p>
+                <div class="mt-3 flex gap-2">
+                    <button class="btn btn-sm btn-warning journal-edit" data-id="${entry.id}">Edit</button>
+                    <button class="btn btn-sm btn-danger journal-delete" data-id="${entry.id}">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function loadEntries() {
+        const res = await fetch(journalListUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin'
+        });
+        if (res.status === 401) {
+            window.location.href = '{{ path('app_login') }}';
+            return;
+        }
+        const data = await res.json();
+        entries = Array.isArray(data.entries) ? data.entries : [];
+        renderEntries();
+    }
+
+    function resetJournalForm() {
+        editId = null;
+        if (journalInput) journalInput.value = '';
+        if (journalStatus) journalStatus.textContent = 'Voice: idle';
+    }
+
+    function clearBreathingTimers() {
+        breathingTimerHandles.forEach((id) => clearTimeout(id));
+        breathingTimerHandles = [];
+        breathingRunning = false;
+    }
+
+    function stopBreathingVoice() {
+        clearBreathingTimers();
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        try {
+            breathingBgMusic.pause();
+            breathingBgMusic.currentTime = 0;
+        } catch (e) {}
+        if (breathingPhase) breathingPhase.textContent = 'Ready to breathe';
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: stopped';
+        if (breathingOrb) {
+            breathingOrb.style.transform = 'scale(1)';
+            breathingOrb.style.opacity = '0.9';
+        }
+        if (breathingAura) {
+            breathingAura.style.transform = 'scale(1)';
+            breathingAura.style.opacity = '0.45';
+        }
+    }
+
+    function animateBreathing(phase) {
+        if (!breathingOrb || !breathingAura || !breathingPhase) return;
+        if (phase === 'inhale') {
+            breathingPhase.textContent = 'Inhale slowly...';
+            breathingOrb.style.transform = 'scale(1.2)';
+            breathingOrb.style.opacity = '1';
+            breathingAura.style.transform = 'scale(1.35)';
+            breathingAura.style.opacity = '0.75';
+        } else if (phase === 'hold') {
+            breathingPhase.textContent = 'Hold gently...';
+            breathingOrb.style.transform = 'scale(1.2)';
+            breathingAura.style.transform = 'scale(1.35)';
+        } else {
+            breathingPhase.textContent = 'Exhale softly...';
+            breathingOrb.style.transform = 'scale(0.95)';
+            breathingOrb.style.opacity = '0.8';
+            breathingAura.style.transform = 'scale(1)';
+            breathingAura.style.opacity = '0.35';
+        }
+    }
+
+    function buildSoftUtterance(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.78;
+        utterance.pitch = 0.92;
+        utterance.volume = 0.95;
+        utterance.lang = 'en-US';
+        if (selectedBreathingVoice) {
+            utterance.voice = selectedBreathingVoice;
+            utterance.lang = selectedBreathingVoice.lang || utterance.lang;
+        }
+        return utterance;
+    }
+
+    function speakSoft(text) {
+        if (!voiceSupported) return;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(buildSoftUtterance(text));
+    }
+
+    function initBreathingVoices() {
+        if (!voiceSupported) return;
+        const pickVoice = () => {
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return;
+            selectedBreathingVoice =
+                voices.find((v) => /^en[-_]/i.test(v.lang) && /female|zira|samantha|aria|google|microsoft/i.test(v.name)) ||
+                voices.find((v) => /^en[-_]/i.test(v.lang)) ||
+                voices[0];
+        };
+        pickVoice();
+        if (!selectedBreathingVoice) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                pickVoice();
+            };
+        }
+    }
+
+    function startBreathingCycle(useVoice) {
+        if (!breathingAccessGranted) {
+            if (breathingStatus) breathingStatus.textContent = 'Open this assistant from Start Breathing Exercise tool.';
+            return;
+        }
+        clearBreathingTimers();
+        animateBreathing('inhale');
+        if (breathingStatus) {
+            breathingStatus.textContent = useVoice
+                ? 'Assistant status: speaking with soft voice'
+                : 'Assistant status: visual guidance only';
+        }
+        if (useVoice && !voiceSupported && breathingStatus) {
+            breathingStatus.textContent = 'Voice not supported by this browser. Visual guidance running.';
+        }
+        try {
+            breathingBgMusic.currentTime = 0;
+            breathingBgMusic.play().catch(() => {
+                if (breathingStatus) breathingStatus.textContent = 'Music blocked by browser. Click Start again.';
+            });
+        } catch (e) {}
+        breathingRunning = true;
+        let elapsed = 0;
+        const rounds = 3;
+
+        for (let round = 0; round < rounds; round++) {
+            const inhaleAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('inhale');
+                if (useVoice) speakSoft('Inhale slowly... 1, 2, 3, 4.');
+            }, inhaleAt * 1000));
+            elapsed += 4;
+
+            const holdAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('hold');
+                if (useVoice) speakSoft('Hold gently... 1, 2, 3, 4, 5, 6, 7.');
+            }, holdAt * 1000));
+            elapsed += 7;
+
+            const exhaleAt = elapsed;
+            breathingTimerHandles.push(setTimeout(() => {
+                animateBreathing('exhale');
+                if (useVoice) speakSoft('Exhale softly... 1, 2, 3, 4, 5, 6, 7, 8.');
+            }, exhaleAt * 1000));
+            elapsed += 8;
+        }
+
+        breathingTimerHandles.push(setTimeout(() => {
+            breathingRunning = false;
+            if (breathingPhase) breathingPhase.textContent = 'Session complete. You can start again.';
+            if (breathingStatus) breathingStatus.textContent = 'Assistant status: session complete';
+        }, elapsed * 1000));
+    }
+
+    breathingVoiceStartBtn?.addEventListener('click', () => {
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: starting...';
+        startBreathingCycle(true);
+    });
+
+    breathingManualStartBtn?.addEventListener('click', () => {
+        if (breathingStatus) breathingStatus.textContent = 'Assistant status: starting visual session...';
+        startBreathingCycle(false);
+    });
+
+    breathingVoiceStopBtn?.addEventListener('click', () => {
+        stopBreathingVoice();
+    });
+
+    breathingCloseBtn?.addEventListener('click', () => {
+        if (breathingRunning) {
+            stopBreathingVoice();
+        }
+        if (breathingModal) {
+            breathingModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    });
+
+    initBreathingVoices();
+
+    if (quoteTypeSelect) {
+        const allowedQuoteTypes = ['motivation', 'funny', 'calm', 'focus'];
+        let initialType = 'motivation';
+        try {
+            const saved = String(localStorage.getItem('rlife_quote_type') || 'motivation').trim().toLowerCase();
+            if (allowedQuoteTypes.includes(saved)) {
+                initialType = saved;
+            }
+        } catch (e) {}
+
+        quoteTypeSelect.value = initialType;
+        quoteTypeSelect.addEventListener('change', () => {
+            const nextType = String(quoteTypeSelect.value || 'motivation').trim().toLowerCase();
+            if (!allowedQuoteTypes.includes(nextType)) return;
+            try {
+                localStorage.setItem('rlife_quote_type', nextType);
+            } catch (e) {}
+            if (typeof loadGlobalQuote === 'function') {
+                loadGlobalQuote();
+            }
+        });
+    }
+
+    document.querySelectorAll('.tool-start-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+            const key = btn.getAttribute('data-tool-key') || '';
+            const name = (btn.getAttribute('data-tool-name') || '').toLowerCase();
+            if (key === 'breathing_exercise') {
+                breathingAccessGranted = true;
+                if (breathingStatus) breathingStatus.textContent = 'Assistant status: ready';
+                if (breathingModal) {
+                    breathingModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+                return;
+            }
+            if (key === 'gratitude_journal') {
+                showJournalMode();
+                await loadEntries().catch(() => {});
+                journalInput?.focus();
+                return;
+            }
+            if (key === 'yoga_coach' || name.includes('yoga')) {
+                showYogaMode();
+                return;
+            }
+            if (key === 'ai_chat_coach' || (name.includes('ai') && name.includes('chat'))) {
+                showAiChatMode();
+                return;
+            }
+            if (key === 'nature_sounds') {
+                window.dispatchEvent(new CustomEvent('rlife-spotify-start', {
+                    detail: {
+                        preset: 'nature',
+                        url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8?utm_source=generator'
+                    }
+                }));
+            }
+        });
+    });
+
+    breathingQuickCta?.addEventListener('click', () => {
+        if (toolsGrid) {
+            toolsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (breathingStatus) {
+            breathingStatus.textContent = 'Click Start on Breathing Exercise card to activate assistant.';
+        }
+    });
+
+    backBtn?.addEventListener('click', () => {
+        resetJournalForm();
+        showToolsMode();
+    });
+
+    yogaBackBtn?.addEventListener('click', () => {
+        stopYogaTimer();
+        showToolsMode();
+    });
+
+    yogaStartBtn?.addEventListener('click', () => {
+        if (yogaFocus?.classList.contains('hidden')) {
+            showYogaMode();
+        }
+        if (yogaCompleted) {
+            showYogaMode();
+        }
+        renderYogaStep();
+        startYogaTimer();
+    });
+
+    yogaNextBtn?.addEventListener('click', () => {
+        if (yogaCompleted) return;
+        nextYogaStep(true);
+    });
+
+    aiChatBackBtn?.addEventListener('click', () => {
+        showToolsMode();
+    });
+
+    aiChatClearBtn?.addEventListener('click', () => {
+        resetAiChat();
+    });
+
+    aiChatSendBtn?.addEventListener('click', async () => {
+        await sendAiChatMessage();
+    });
+
+    aiChatInput?.addEventListener('keydown', async (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            await sendAiChatMessage();
+        }
+    });
+
+    newBtn?.addEventListener('click', () => {
+        resetJournalForm();
+        journalInput?.focus();
+    });
+
+    saveBtn?.addEventListener('click', async () => {
+        const content = (journalInput?.value || '').trim();
+        if (!content) {
+            journalStatus.textContent = 'Write or speak something first.';
+            return;
+        }
+        const payload = {
+            content,
+            languageCode: (langSelect?.value || '') || lastDetectedCode || null,
+            inputMode: recognitionRunning ? 'voice' : 'text'
+        };
+        try {
+            const res = await fetch(editId ? (journalUpdateBase + editId) : journalCreateUrl, {
+                method: editId ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify(payload)
+            });
+            if (res.status === 401) {
+                window.location.href = '{{ path('app_login') }}';
+                return;
+            }
+            const data = await res.json();
+            if (!data.ok) throw new Error(data.message || 'Save failed');
+            resetJournalForm();
+            await loadEntries();
+            showToolsMode();
+        } catch (error) {
+            journalStatus.textContent = 'Save error: ' + error.message;
+        }
+    });
+
+    journalList?.addEventListener('click', async (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) return;
+        const id = Number(target.getAttribute('data-id') || 0);
+        if (!id) return;
+
+        if (target.classList.contains('journal-edit')) {
+            const entry = entries.find((x) => Number(x.id) === id);
+            if (!entry || !journalInput) return;
+            editId = id;
+            journalInput.value = entry.content || '';
+            showJournalMode();
+            journalInput.focus();
+            return;
+        }
+
+        if (target.classList.contains('journal-delete')) {
+            try {
+                const res = await fetch(journalDeleteBase + id, {
+                    method: 'DELETE',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (res.status === 401) {
+                    window.location.href = '{{ path('app_login') }}';
+                    return;
+                }
+                const data = await res.json();
+                if (!data.ok) throw new Error(data.message || 'Delete failed');
+                if (editId === id) editId = null;
+                await loadEntries();
+            } catch (error) {
+                journalStatus.textContent = 'Delete error: ' + error.message;
+            }
+        }
+    });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+
+    async function detectLanguageForAutoMode(sampleText) {
+        if ((langSelect?.value || '').trim() !== '') return null;
+        const text = (sampleText || '').trim();
+        if (text.length < 8) return null;
+
+        const res = await fetch(detectLanguageUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ text })
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (!data.ok || !data.languageCode) return null;
+        return data;
+    }
+
+    function maybeAutoDetectAndSwitch(sampleText) {
+        if ((langSelect?.value || '').trim() !== '') return;
+        if (!recognition) return;
+        if (autoDetectTimer) {
+            clearTimeout(autoDetectTimer);
+            autoDetectTimer = null;
+        }
+        autoDetectTimer = setTimeout(async () => {
+            try {
+                const result = await detectLanguageForAutoMode(sampleText);
+                if (!result) return;
+
+                const detectedCode = String(result.languageCode || '').trim();
+                if (!detectedCode) return;
+
+                if (detectedCode === lastDetectedCode && recognition.lang === detectedCode) return;
+                lastDetectedCode = detectedCode;
+                if (journalStatus) {
+                    journalStatus.textContent = `Voice: auto-detected ${result.label || detectedCode}`;
+                }
+
+                if (recognitionRunning && recognition.lang !== detectedCode) {
+                    autoSwitchLock = true;
+                    try {
+                        recognition.stop();
+                    } catch (e) {}
+                    setTimeout(() => {
+                        try {
+                            recognition.lang = detectedCode;
+                            recognition.start();
+                        } catch (e) {}
+                        autoSwitchLock = false;
+                    }, 180);
+                } else {
+                    recognition.lang = detectedCode;
+                }
+            } catch (e) {
+                // Silent fallback to browser default
+            }
+        }, 320);
+    }
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.onstart = () => {
+            recognitionRunning = true;
+            journalStatus.textContent = 'Voice: listening...';
+        };
+        recognition.onend = () => {
+            if (autoSwitchLock) return;
+            recognitionRunning = false;
+            journalStatus.textContent = 'Voice: idle';
+        };
+        recognition.onerror = (event) => {
+            recognitionRunning = false;
+            journalStatus.textContent = 'Voice error: ' + event.error;
+        };
+        recognition.onresult = (event) => {
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const text = event.results[i][0].transcript;
+                if (event.results[i].isFinal) transcript += text + ' ';
+            }
+            if (transcript && journalInput) {
+                journalInput.value = (journalInput.value ? journalInput.value + ' ' : '') + transcript.trim();
+                maybeAutoDetectAndSwitch(transcript.trim());
+            }
+        };
+    }
+
+    startVoiceBtn?.addEventListener('click', () => {
+        if (!recognition) {
+            journalStatus.textContent = 'Voice not supported in this browser.';
+            return;
+        }
+        const selected = (langSelect?.value || '').trim();
+        lastDetectedCode = '';
+        recognition.lang = selected || (navigator.language || 'en-US');
+        recognition.start();
+    });
+
+    stopVoiceBtn?.addEventListener('click', () => {
+        if (recognitionRunning && recognition) recognition.stop();
+    });
+})();
+</script>

@@ -222,4 +222,162 @@ class WellbeingAiService
             'message' => 'Your stress levels have been stable. Continue monitoring and practicing self-care.',
         ];
     }
+
+    /**
+     * Generate one short quote by type.
+     * Supported: motivation, funny, calm, focus
+     */
+    public function generateMotivationQuote(string $type = 'motivation'): array
+    {
+        $normalizedType = strtolower(trim($type));
+        $aliases = [
+            'fanny' => 'funny',
+            'fun' => 'funny',
+            'motivational' => 'motivation',
+            'relax' => 'calm',
+            'calme' => 'calm',
+            'study' => 'focus',
+        ];
+        if (isset($aliases[$normalizedType])) {
+            $normalizedType = $aliases[$normalizedType];
+        }
+        if (!in_array($normalizedType, ['motivation', 'funny', 'calm', 'focus'], true)) {
+            $normalizedType = 'motivation';
+        }
+
+        $fallbackByType = [
+            'motivation' => [
+                'Small progress every day beats perfect plans.',
+                'Breathe. Focus on the next step, not the whole mountain.',
+                'You do not need to finish everything today. Keep moving.',
+                'Rest is part of performance, not the opposite of it.',
+                'Your effort today is building tomorrow\'s confidence.',
+            ],
+            'funny' => [
+                'If stress had homework, we would both ignore it tonight.',
+                'Deep breath. You are not a robot, even on deadline mode.',
+                'Your brain is buffering. Hydrate and press refresh.',
+                'Study plan: tea, tiny steps, dramatic success later.',
+                'Even Wi-Fi drops. You can pause and reconnect too.',
+            ],
+            'calm' => [
+                'Slow breath in, slower breath out. You are safe now.',
+                'Soft shoulders, relaxed jaw, one quiet moment at a time.',
+                'Let today be gentle. Peace grows in small pauses.',
+                'Calm is a skill. Practice one breath at a time.',
+                'Be kind to yourself. Recovery is productive too.',
+            ],
+            'focus' => [
+                'One task. One timer. One win. Repeat.',
+                'Start small, stay steady, finish strong.',
+                'Close distractions. Open your next step.',
+                'Progress loves consistency more than intensity.',
+                'Done is built from focused minutes, not perfect hours.',
+            ],
+        ];
+        $fallback = $fallbackByType[$normalizedType];
+
+        if (empty($this->apiKey)) {
+            return [
+                'quote' => $fallback[array_rand($fallback)],
+                'source' => 'fallback',
+                'type' => $normalizedType,
+            ];
+        }
+
+        try {
+            $styleByType = [
+                'motivation' => 'motivational',
+                'funny' => 'lightly funny',
+                'calm' => 'calming',
+                'focus' => 'focus-oriented',
+            ];
+            $style = $styleByType[$normalizedType] ?? 'motivational';
+
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'Return one short '.$style.' quote for stressed students. 8 to 18 words.'],
+                        ['role' => 'user', 'content' => 'Type: '.$normalizedType.'. Give one quote only, no hashtags, no emojis.'],
+                    ],
+                    'temperature' => 0.9,
+                    'max_tokens' => 60,
+                ],
+            ]);
+
+            $data = $response->toArray(false);
+            $quote = trim((string)($data['choices'][0]['message']['content'] ?? ''));
+            if ($quote === '') {
+                throw new \RuntimeException('Empty quote');
+            }
+
+            return [
+                'quote' => $quote,
+                'source' => 'ai',
+                'type' => $normalizedType,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'quote' => $fallback[array_rand($fallback)],
+                'source' => 'fallback',
+                'type' => $normalizedType,
+            ];
+        }
+    }
+
+    /**
+     * Detect likely speech language for journal dictation.
+     * Returns one of: en-US, fr-FR, ar-SA, ar-TN
+     */
+    public function detectSpeechLanguage(string $text): array
+    {
+        $sample = trim(function_exists('mb_substr') ? mb_substr($text, 0, 400) : substr($text, 0, 400));
+        if ($sample === '') {
+            return ['languageCode' => 'en-US', 'label' => 'English', 'source' => 'fallback'];
+        }
+
+        // Fast fallback first: Arabic script check
+        if (preg_match('/[\x{0600}-\x{06FF}]/u', $sample)) {
+            $tnHints = ['barsha', '3lech', 'chnowa', 'brabi', 'yesser', 'tawa', 'behi', 'mouch', 'famma', 'ya3ni'];
+            $lower = function_exists('mb_strtolower') ? mb_strtolower($sample) : strtolower($sample);
+            foreach ($tnHints as $hint) {
+                if (str_contains($lower, $hint)) {
+                    return ['languageCode' => 'ar-TN', 'label' => 'Tunisian Arabic', 'source' => 'fallback'];
+                }
+            }
+            return ['languageCode' => 'ar-SA', 'label' => 'Arabic', 'source' => 'fallback'];
+        }
+
+        // Latin-script heuristic fallback
+        $lower = function_exists('mb_strtolower') ? mb_strtolower($sample) : strtolower($sample);
+        $frTokens = ['bonjour', 'merci', 'je ', 'suis', 'avec', 'pour', 'cest', 'ça', 'pas', 'oui'];
+        $enTokens = ['hello', 'thanks', 'i ', 'am', 'with', 'for', 'this', 'not', 'yes'];
+
+        $frScore = 0;
+        $enScore = 0;
+        foreach ($frTokens as $token) {
+            if (str_contains($lower, $token)) {
+                $frScore++;
+            }
+        }
+        foreach ($enTokens as $token) {
+            if (str_contains($lower, $token)) {
+                $enScore++;
+            }
+        }
+
+        if ($frScore > $enScore) {
+            return ['languageCode' => 'fr-FR', 'label' => 'Francais', 'source' => 'fallback'];
+        }
+        if ($enScore > 0) {
+            return ['languageCode' => 'en-US', 'label' => 'English', 'source' => 'fallback'];
+        }
+
+        return ['languageCode' => 'en-US', 'label' => 'English', 'source' => 'fallback'];
+    }
 }
