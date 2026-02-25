@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Project;
+use App\Entity\ProjectShare;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -48,7 +49,14 @@ class ProjectRepository extends ServiceEntityRepository
         $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
 
         $qb = $this->createQueryBuilder('p')
-            ->andWhere('p.user = :user')
+            ->select('DISTINCT p')
+            ->leftJoin(
+                ProjectShare::class,
+                'ps',
+                'WITH',
+                'ps.project = p AND ps.sharedWithUser = :user'
+            )
+            ->andWhere('p.user = :user OR ps.id IS NOT NULL')
             ->setParameter('user', $user);
 
         if ($statut !== '') {
@@ -64,65 +72,6 @@ class ProjectRepository extends ServiceEntityRepository
         return $qb->orderBy('p.' . $sort, $direction)
             ->getQuery()
             ->getResult();
-    }
-
-    /**
-     * Admin listing with filters, sorting and pagination.
-     *
-     * @return array{projects: Project[], total: int}
-     */
-    public function findAllWithFilters(
-        string $sort = 'createdAt',
-        string $direction = 'DESC',
-        string $statut = '',
-        string $userEmail = '',
-        string $search = '',
-        int $limit = 20,
-        int $offset = 0
-    ): array {
-        $allowedSortFields = ['titre', 'createdAt', 'dateDebut', 'dateFin', 'statut'];
-        if (!in_array($sort, $allowedSortFields, true)) {
-            $sort = 'createdAt';
-        }
-
-        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
-        $limit = max(1, $limit);
-        $offset = max(0, $offset);
-
-        $qb = $this->createQueryBuilder('p')
-            ->leftJoin('p.user', 'u')
-            ->addSelect('u');
-
-        if ($statut !== '') {
-            $qb->andWhere('p.statut = :statut')
-                ->setParameter('statut', $statut);
-        }
-
-        if ($userEmail !== '') {
-            $qb->andWhere('LOWER(u.email) LIKE :userEmail')
-                ->setParameter('userEmail', '%' . mb_strtolower($userEmail) . '%');
-        }
-
-        if ($search !== '') {
-            $qb->andWhere('(LOWER(p.titre) LIKE :search OR LOWER(COALESCE(p.description, \'\')) LIKE :search)')
-                ->setParameter('search', '%' . mb_strtolower($search) . '%');
-        }
-
-        $countQb = clone $qb;
-        $total = (int) $countQb->select('COUNT(DISTINCT p.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        $projects = $qb->orderBy('p.' . $sort, $direction)
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-
-        return [
-            'projects' => $projects,
-            'total' => $total,
-        ];
     }
 
     /**
@@ -256,5 +205,64 @@ class ProjectRepository extends ServiceEntityRepository
         }
 
         return $result;
+    }
+
+    /**
+     * @return array{projects: Project[], total: int}
+     */
+    public function findAllWithFilters(
+        string $sort = 'createdAt',
+        string $direction = 'DESC',
+        string $statut = '',
+        string $userEmail = '',
+        string $search = '',
+        int $limit = 20,
+        int $offset = 0
+    ): array {
+        $allowedSortFields = ['titre', 'createdAt', 'dateFin', 'statut'];
+        if (!in_array($sort, $allowedSortFields, true)) {
+            $sort = 'createdAt';
+        }
+
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+        $limit = max(1, $limit);
+        $offset = max(0, $offset);
+
+        $qb = $this->createQueryBuilder('p')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('u');
+
+        if ($statut !== '') {
+            $qb->andWhere('p.statut = :statut')
+                ->setParameter('statut', $statut);
+        }
+
+        if ($userEmail !== '') {
+            $qb->andWhere('LOWER(u.email) LIKE :userEmail')
+                ->setParameter('userEmail', '%' . mb_strtolower(trim($userEmail)) . '%');
+        }
+
+        if ($search !== '') {
+            $qb->andWhere('LOWER(p.titre) LIKE :search OR LOWER(p.description) LIKE :search')
+                ->setParameter('search', '%' . mb_strtolower(trim($search)) . '%');
+        }
+
+        $countQb = clone $qb;
+        $total = (int) $countQb
+            ->select('COUNT(DISTINCT p.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $projects = $qb
+            ->orderBy('p.' . $sort, $direction)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+
+        return [
+            'projects' => $projects,
+            'total' => $total,
+        ];
     }
 }

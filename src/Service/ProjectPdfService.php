@@ -90,6 +90,41 @@ class ProjectPdfService
     }
 
     /**
+     * @param array<string,mixed> $report
+     * @param array $assignments
+     */
+    public function generateAiCompletionReportPdf(Project $project, array $assignments, array $report): Response
+    {
+        $html = $this->twig->render('pages/projects/pdf/ai_completion_report.html.twig', [
+            'project'      => $project,
+            'assignments'  => $assignments,
+            'report'       => $report,
+            'generatedAt'  => new \DateTime(),
+        ]);
+
+        $options = new Options();
+        $options->set('defaultFont', 'DejaVu Sans');
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $filename = 'project_ai_report_' . $this->sanitizeFilename($project->getTitre()) . '_' . date('Y-m-d_His') . '.pdf';
+
+        return new Response(
+            $dompdf->output(),
+            Response::HTTP_OK,
+            [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]
+        );
+    }
+
+    /**
      * Nettoie le nom de fichier
      *
      * @param string $filename

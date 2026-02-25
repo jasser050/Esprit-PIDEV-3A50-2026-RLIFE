@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
@@ -58,6 +58,22 @@
         <!-- Pet Management Scripts -->
     <script>
         window.RLife3D = window.RLife3D || {};
+        window.RLife3D.assets = window.RLife3D.assets || {
+            catObj: '{{ asset('pets/cat-design/base.obj') }}',
+            catDiffuse: '{{ asset('pets/cat-design/texture_diffuse.png') }}',
+            catNormal: '{{ asset('pets/cat-design/texture_normal.png') }}',
+            catFallback: '{{ asset('pets/cat-design/cat-avatar.jpg') }}?v=20260225-cat',
+            dogObj: '{{ asset('pets/dog-design/base.obj') }}',
+            dogDiffuse: '{{ asset('pets/dog-design/texture_diffuse.png') }}',
+            dogNormal: '{{ asset('pets/dog-design/texture_normal.png') }}',
+            dogFallback: '{{ asset('pets/dog-design/dog-avatar.jpg') }}',
+            foxFallback: '{{ asset('pets/fox-avatar.jpg') }}?v=20260225-fox',
+            dragonFallback: '{{ asset('pets/dragon-design/dragon-avatar.jpg') }}',
+            birdFallback: '{{ asset('pets/bird-avatar.jpg') }}?v=20260225-bird3',
+            hamsterFallback: '{{ asset('pets/hamster-avatar.jpg') }}',
+            pandaFallback: '{{ asset('pets/panda-design/panda-avatar.jpg') }}',
+            rabbitFallback: '{{ asset('pets/rabbit-avatar.jpg') }}'
+        };
 
         window.RLife3D.ensureThree = function(callback) {
             if (typeof THREE !== 'undefined') {
@@ -78,6 +94,32 @@
             script.onerror = function() {
                 const fallback = document.createElement('script');
                 fallback.src = 'https://unpkg.com/three@0.168.0/build/three.min.js';
+                fallback.onload = callback;
+                fallback.onerror = callback;
+                document.head.appendChild(fallback);
+            };
+            document.head.appendChild(script);
+        };
+
+        window.RLife3D.ensureOBJLoader = function(callback) {
+            if (typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined') {
+                callback();
+                return;
+            }
+
+            const existing = document.getElementById('rlife-obj-loader');
+            if (existing) {
+                existing.addEventListener('load', callback, { once: true });
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.id = 'rlife-obj-loader';
+            script.src = 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/js/loaders/OBJLoader.js';
+            script.onload = callback;
+            script.onerror = function() {
+                const fallback = document.createElement('script');
+                fallback.src = 'https://unpkg.com/three@0.168.0/examples/js/loaders/OBJLoader.js';
                 fallback.onload = callback;
                 fallback.onerror = callback;
                 document.head.appendChild(fallback);
@@ -114,27 +156,603 @@
         window.RLife3D.renderFallback = function(container, options) {
             window.RLife3D.dispose(container);
             const type = window.RLife3D.inferType(container, options || {});
-            const emojiByType = {
-                cat: '🐱', dog: '🐶', dragon: '🐉', fox: '🦊', bird: '🐦', hamster: '🐹'
+            const catAvatar = window.RLife3D.assets?.catFallback || "";
+            const dogAvatar = window.RLife3D.assets?.dogFallback || "";
+            const foxAvatar = window.RLife3D.assets?.foxFallback || "";
+            const dragonAvatar = window.RLife3D.assets?.dragonFallback || "";
+            const birdAvatar = window.RLife3D.assets?.birdFallback || "";
+            const hamsterAvatar = window.RLife3D.assets?.hamsterFallback || "";
+            const pandaAvatar = window.RLife3D.assets?.pandaFallback || "";
+            const rabbitAvatar = window.RLife3D.assets?.rabbitFallback || "";
+            const paletteByType = {
+                cat: { fur: "#f59e0b", bg1: "#fde68a", bg2: "#fca5a5", nose: "#b91c1c" },
+                dog: { fur: "#c2410c", bg1: "#bfdbfe", bg2: "#60a5fa", nose: "#1e293b" },
+                dragon: { fur: "#7c3aed", bg1: "#c4b5fd", bg2: "#8b5cf6", nose: "#1e1b4b" },
+                fox: { fur: "#ea580c", bg1: "#fdba74", bg2: "#fb7185", nose: "#7c2d12" },
+                bird: { fur: "#16a34a", bg1: "#86efac", bg2: "#22d3ee", nose: "#ca8a04" },
+                hamster: { fur: "#d97706", bg1: "#fde68a", bg2: "#fdba74", nose: "#7c2d12" },
+                panda: { fur: "#334155", bg1: "#e2e8f0", bg2: "#94a3b8", nose: "#0f172a" },
+                rabbit: { fur: "#f472b6", bg1: "#fbcfe8", bg2: "#c084fc", nose: "#9d174d" }
             };
-            const emoji = emojiByType[type] || '🐾';
+            const palette = paletteByType[type] || { fur: "#0f172a", bg1: "#cbd5e1", bg2: "#64748b", nose: "#020617" };
+            const safeType = (type || "pet").toUpperCase();
 
-            if (!document.getElementById('rlife-pet-fallback-style')) {
-                const st = document.createElement('style');
-                st.id = 'rlife-pet-fallback-style';
-                st.textContent = '@keyframes rlifePetFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}';
-                document.head.appendChild(st);
+            if (type === "cat" && catAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${catAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
             }
 
-            container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div style="font-size:56px; animation: rlifePetFloat 1.7s ease-in-out infinite;">' + emoji + '</div></div>';
+            if (type === "dog" && dogAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${dogAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "dragon" && dragonAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${dragonAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "fox" && foxAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${foxAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "bird" && birdAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${birdAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "hamster" && hamsterAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${hamsterAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "panda" && pandaAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${pandaAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            if (type === "rabbit" && rabbitAvatar) {
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${rabbitAvatar}');background-size:cover;background-position:center;"></div>
+                            <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                        </div>
+                    </div>
+                `;
+                container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+                return;
+            }
+
+            let ears = "";
+            let extras = "";
+            let muzzleColor = palette.fur;
+
+            switch (type) {
+                case "cat":
+                    ears = `
+                        <div style="position:absolute;top:17%;left:28%;width:16%;height:16%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);transform:rotate(-12deg);"></div>
+                        <div style="position:absolute;top:17%;right:28%;width:16%;height:16%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);transform:rotate(12deg);"></div>
+                    `;
+                    extras = `
+                        <div style="position:absolute;top:52%;left:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                        <div style="position:absolute;top:58%;left:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                        <div style="position:absolute;top:52%;right:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                        <div style="position:absolute;top:58%;right:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                    `;
+                    break;
+                case "dog":
+                    ears = `
+                        <div style="position:absolute;top:22%;left:23%;width:14%;height:22%;background:${palette.fur};border-radius:12px;transform:rotate(14deg);"></div>
+                        <div style="position:absolute;top:22%;right:23%;width:14%;height:22%;background:${palette.fur};border-radius:12px;transform:rotate(-14deg);"></div>
+                    `;
+                    extras = `<div style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);width:12%;height:8%;background:#f43f5e;border-radius:0 0 10px 10px;"></div>`;
+                    muzzleColor = "#fde68a";
+                    break;
+                case "dragon":
+                    ears = `
+                        <div style="position:absolute;top:14%;left:30%;width:8%;height:18%;background:#fde047;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                        <div style="position:absolute;top:14%;right:30%;width:8%;height:18%;background:#fde047;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                    `;
+                    extras = `
+                        <div style="position:absolute;top:4%;left:50%;transform:translateX(-50%);width:10%;height:12%;background:#fef08a;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                        <div style="position:absolute;bottom:20%;left:50%;transform:translateX(-50%);width:30%;height:8%;background:rgba(255,255,255,0.25);border-radius:999px;"></div>
+                    `;
+                    break;
+                case "fox":
+                    ears = `
+                        <div style="position:absolute;top:16%;left:27%;width:17%;height:18%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                        <div style="position:absolute;top:16%;right:27%;width:17%;height:18%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                    `;
+                    extras = `<div style="position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:26%;height:14%;background:#fff7ed;border-radius:12px;"></div>`;
+                    break;
+                case "bird":
+                    ears = `<div style="position:absolute;top:14%;left:50%;transform:translateX(-50%);width:14%;height:16%;background:#facc15;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>`;
+                    extras = `
+                        <div style="position:absolute;top:34%;left:18%;width:14%;height:22%;background:rgba(255,255,255,0.28);border-radius:999px;"></div>
+                        <div style="position:absolute;top:34%;right:18%;width:14%;height:22%;background:rgba(255,255,255,0.28);border-radius:999px;"></div>
+                    `;
+                    muzzleColor = "#f59e0b";
+                    break;
+                case "hamster":
+                    ears = `
+                        <div style="position:absolute;top:19%;left:24%;width:15%;height:15%;background:${palette.fur};border-radius:999px;"></div>
+                        <div style="position:absolute;top:19%;right:24%;width:15%;height:15%;background:${palette.fur};border-radius:999px;"></div>
+                    `;
+                    extras = `
+                        <div style="position:absolute;bottom:24%;left:22%;width:16%;height:16%;background:#fdba74;border-radius:999px;opacity:0.95;"></div>
+                        <div style="position:absolute;bottom:24%;right:22%;width:16%;height:16%;background:#fdba74;border-radius:999px;opacity:0.95;"></div>
+                    `;
+                    break;
+                case "panda":
+                    ears = `
+                        <div style="position:absolute;top:17%;left:25%;width:16%;height:16%;background:#0f172a;border-radius:999px;"></div>
+                        <div style="position:absolute;top:17%;right:25%;width:16%;height:16%;background:#0f172a;border-radius:999px;"></div>
+                    `;
+                    extras = `
+                        <div style="position:absolute;top:33%;left:22%;width:20%;height:18%;background:#0f172a;border-radius:999px;opacity:0.9;"></div>
+                        <div style="position:absolute;top:33%;right:22%;width:20%;height:18%;background:#0f172a;border-radius:999px;opacity:0.9;"></div>
+                    `;
+                    muzzleColor = "#e2e8f0";
+                    break;
+                case "rabbit":
+                    ears = `
+                        <div style="position:absolute;top:4%;left:30%;width:12%;height:28%;background:${palette.fur};border-radius:999px;"></div>
+                        <div style="position:absolute;top:4%;right:30%;width:12%;height:28%;background:${palette.fur};border-radius:999px;"></div>
+                        <div style="position:absolute;top:9%;left:34%;width:4%;height:18%;background:#f9a8d4;border-radius:999px;"></div>
+                        <div style="position:absolute;top:9%;right:34%;width:4%;height:18%;background:#f9a8d4;border-radius:999px;"></div>
+                    `;
+                    extras = `<div style="position:absolute;bottom:16%;left:50%;transform:translateX(-50%);width:10%;height:8%;background:#fff;border-radius:2px;"></div>`;
+                    break;
+                default:
+                    ears = `
+                        <div style="position:absolute;top:20%;left:30%;width:18%;height:18%;background:${palette.fur};border-radius:8px 8px 2px 2px;transform:rotate(-20deg);"></div>
+                        <div style="position:absolute;top:20%;right:30%;width:18%;height:18%;background:${palette.fur};border-radius:8px 8px 2px 2px;transform:rotate(20deg);"></div>
+                    `;
+            }
+
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:76%;height:76%;border-radius:22px;background:radial-gradient(circle at 30% 20%, ${palette.bg1} 0%, ${palette.bg2} 65%, #0f172a 100%);box-shadow:0 16px 30px rgba(15,23,42,0.28), inset 0 1px 0 rgba(255,255,255,0.45);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                        ${ears}
+                        <div style="width:52%;height:52%;background:${palette.fur};border-radius:999px;position:relative;box-shadow:inset 0 -6px 12px rgba(0,0,0,0.2);">
+                            ${extras}
+                            <div style="position:absolute;top:36%;left:28%;width:9%;height:9%;background:#0f172a;border-radius:999px;"></div>
+                            <div style="position:absolute;top:36%;right:28%;width:9%;height:9%;background:#0f172a;border-radius:999px;"></div>
+                            <div style="position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:18%;height:12%;background:${muzzleColor};border-radius:10px 10px 14px 14px;"></div>
+                            <div style="position:absolute;bottom:16%;left:38%;width:8%;height:4%;border-bottom:2px solid #0f172a;border-radius:0 0 10px 10px;"></div>
+                            <div style="position:absolute;bottom:16%;right:38%;width:8%;height:4%;border-bottom:2px solid #0f172a;border-radius:0 0 10px 10px;"></div>
+                        </div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;">${safeType}</div>
+                    </div>
+                </div>
+            `;
             container._rlife3d = { isAlive: true, renderer: null, resizeObserver: null };
+        };
+
+        window.RLife3D.loadImportedCatModel = function(onReady, onError) {
+            const handleReady = typeof onReady === 'function' ? onReady : function() {};
+            const handleError = typeof onError === 'function' ? onError : function() {};
+
+            const parseObjToMesh = function(objText, material) {
+                const verts = [];
+                const uvs = [];
+                const norms = [];
+                const pos = [];
+                const tex = [];
+                const nrm = [];
+
+                const lines = objText.split(/\r?\n/);
+                for (let i = 0; i < lines.length; i += 1) {
+                    const line = lines[i].trim();
+                    if (!line || line.startsWith('#')) continue;
+
+                    const parts = line.split(/\s+/);
+                    const key = parts[0];
+
+                    if (key === 'v' && parts.length >= 4) {
+                        verts.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+                    } else if (key === 'vt' && parts.length >= 3) {
+                        uvs.push([parseFloat(parts[1]), parseFloat(parts[2])]);
+                    } else if (key === 'vn' && parts.length >= 4) {
+                        norms.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+                    } else if (key === 'f' && parts.length >= 4) {
+                        const face = parts.slice(1);
+                        for (let t = 1; t < face.length - 1; t += 1) {
+                            const tri = [face[0], face[t], face[t + 1]];
+                            tri.forEach(function(token) {
+                                const idx = token.split('/');
+                                const vi = parseInt(idx[0], 10);
+                                const ti = idx[1] ? parseInt(idx[1], 10) : 0;
+                                const ni = idx[2] ? parseInt(idx[2], 10) : 0;
+
+                                const v = verts[(vi < 0 ? verts.length + vi : vi - 1)] || [0, 0, 0];
+                                pos.push(v[0], v[1], v[2]);
+
+                                const uv = ti ? (uvs[(ti < 0 ? uvs.length + ti : ti - 1)] || [0, 0]) : [0, 0];
+                                tex.push(uv[0], 1 - uv[1]);
+
+                                const nn = ni ? (norms[(ni < 0 ? norms.length + ni : ni - 1)] || [0, 1, 0]) : [0, 1, 0];
+                                nrm.push(nn[0], nn[1], nn[2]);
+                            });
+                        }
+                    }
+                }
+
+                const geom = new THREE.BufferGeometry();
+                geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                if (tex.length === (pos.length / 3) * 2) geom.setAttribute('uv', new THREE.Float32BufferAttribute(tex, 2));
+                if (nrm.length === pos.length) geom.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
+                else geom.computeVertexNormals();
+                geom.computeBoundingBox();
+                geom.computeBoundingSphere();
+
+                const mesh = new THREE.Mesh(geom, material);
+                const group = new THREE.Group();
+                group.add(mesh);
+                return group;
+            };
+
+            const buildCat = function() {
+                try {
+                    const source = window.RLife3D._catModelSource;
+                    if (!source) {
+                        handleError();
+                        return;
+                    }
+                    const cat = source.clone(true);
+                    const box = new THREE.Box3().setFromObject(cat);
+                    const size = new THREE.Vector3();
+                    const center = new THREE.Vector3();
+                    box.getSize(size);
+                    box.getCenter(center);
+                    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+                    const normalizedScale = 1.8 / maxDim;
+                    cat.scale.setScalar(normalizedScale);
+                    cat.position.sub(center.multiplyScalar(normalizedScale));
+                    const floorFix = new THREE.Box3().setFromObject(cat);
+                    cat.position.y += -0.78 - floorFix.min.y;
+                    handleReady(cat);
+                } catch (e) {
+                    handleError(e);
+                }
+            };
+
+            if (window.RLife3D._catModelSource) {
+                buildCat();
+                return;
+            }
+
+            if (window.RLife3D._catModelLoading) {
+                window.RLife3D._catModelQueue = window.RLife3D._catModelQueue || [];
+                window.RLife3D._catModelQueue.push({ ok: handleReady, ko: handleError });
+                return;
+            }
+
+            window.RLife3D._catModelLoading = true;
+            window.RLife3D._catModelQueue = window.RLife3D._catModelQueue || [];
+            window.RLife3D._catModelQueue.push({ ok: handleReady, ko: handleError });
+
+            try {
+                const texLoader = new THREE.TextureLoader();
+                const diffuse = texLoader.load(window.RLife3D.assets.catDiffuse);
+                const normal = texLoader.load(window.RLife3D.assets.catNormal);
+                if (diffuse.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
+                    diffuse.colorSpace = THREE.SRGBColorSpace;
+                }
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: diffuse,
+                    normalMap: normal,
+                    side: THREE.DoubleSide,
+                    metalness: 0.08,
+                    roughness: 0.82
+                });
+
+                fetch(window.RLife3D.assets.catObj)
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Failed to fetch base.obj');
+                        return res.text();
+                    })
+                    .then(function(objText) {
+                        return import('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/OBJLoader.js')
+                            .then(function(mod) {
+                                const loader = new mod.OBJLoader();
+                                const object = loader.parse(objText);
+                                object.traverse(function(node) {
+                                    if (node.isMesh) {
+                                        node.material = material;
+                                        node.castShadow = false;
+                                        node.receiveShadow = false;
+                                    }
+                                });
+                                return object;
+                            })
+                            .catch(function() {
+                                return parseObjToMesh(objText, material);
+                            });
+                    })
+                    .then(function(object) {
+                        window.RLife3D._catModelSource = object;
+                        window.RLife3D._catModelLoading = false;
+
+                        const queue = window.RLife3D._catModelQueue || [];
+                        window.RLife3D._catModelQueue = [];
+                        queue.forEach(function(item) {
+                            try {
+                                window.RLife3D.loadImportedCatModel(item.ok, item.ko);
+                            } catch (e) {
+                                item.ko(e);
+                            }
+                        });
+                    })
+                    .catch(function(err) {
+                        window.RLife3D._catModelLoading = false;
+                        const queue = window.RLife3D._catModelQueue || [];
+                        window.RLife3D._catModelQueue = [];
+                        queue.forEach(function(item) { item.ko(err); });
+                    });
+            } catch (err) {
+                window.RLife3D._catModelLoading = false;
+                const queue = window.RLife3D._catModelQueue || [];
+                window.RLife3D._catModelQueue = [];
+                queue.forEach(function(item) { item.ko(err); });
+            }
+        };
+
+        window.RLife3D.loadImportedDogModel = function(onReady, onError) {
+            const handleReady = typeof onReady === 'function' ? onReady : function() {};
+            const handleError = typeof onError === 'function' ? onError : function() {};
+
+            const parseObjToMesh = function(objText, material) {
+                const verts = [];
+                const uvs = [];
+                const norms = [];
+                const pos = [];
+                const tex = [];
+                const nrm = [];
+
+                const lines = objText.split(/\r?\n/);
+                for (let i = 0; i < lines.length; i += 1) {
+                    const line = lines[i].trim();
+                    if (!line || line.startsWith('#')) continue;
+
+                    const parts = line.split(/\s+/);
+                    const key = parts[0];
+
+                    if (key === 'v' && parts.length >= 4) {
+                        verts.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+                    } else if (key === 'vt' && parts.length >= 3) {
+                        uvs.push([parseFloat(parts[1]), parseFloat(parts[2])]);
+                    } else if (key === 'vn' && parts.length >= 4) {
+                        norms.push([parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])]);
+                    } else if (key === 'f' && parts.length >= 4) {
+                        const face = parts.slice(1);
+                        for (let t = 1; t < face.length - 1; t += 1) {
+                            const tri = [face[0], face[t], face[t + 1]];
+                            tri.forEach(function(token) {
+                                const idx = token.split('/');
+                                const vi = parseInt(idx[0], 10);
+                                const ti = idx[1] ? parseInt(idx[1], 10) : 0;
+                                const ni = idx[2] ? parseInt(idx[2], 10) : 0;
+
+                                const v = verts[(vi < 0 ? verts.length + vi : vi - 1)] || [0, 0, 0];
+                                pos.push(v[0], v[1], v[2]);
+
+                                const uv = ti ? (uvs[(ti < 0 ? uvs.length + ti : ti - 1)] || [0, 0]) : [0, 0];
+                                tex.push(uv[0], 1 - uv[1]);
+
+                                const nn = ni ? (norms[(ni < 0 ? norms.length + ni : ni - 1)] || [0, 1, 0]) : [0, 1, 0];
+                                nrm.push(nn[0], nn[1], nn[2]);
+                            });
+                        }
+                    }
+                }
+
+                const geom = new THREE.BufferGeometry();
+                geom.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                if (tex.length === (pos.length / 3) * 2) geom.setAttribute('uv', new THREE.Float32BufferAttribute(tex, 2));
+                if (nrm.length === pos.length) geom.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3));
+                else geom.computeVertexNormals();
+                geom.computeBoundingBox();
+                geom.computeBoundingSphere();
+
+                const mesh = new THREE.Mesh(geom, material);
+                const group = new THREE.Group();
+                group.add(mesh);
+                return group;
+            };
+
+            const buildDog = function() {
+                try {
+                    const source = window.RLife3D._dogModelSource;
+                    if (!source) {
+                        handleError();
+                        return;
+                    }
+                    const dog = source.clone(true);
+                    const box = new THREE.Box3().setFromObject(dog);
+                    const size = new THREE.Vector3();
+                    const center = new THREE.Vector3();
+                    box.getSize(size);
+                    box.getCenter(center);
+                    const maxDim = Math.max(size.x, size.y, size.z) || 1;
+                    const normalizedScale = 1.8 / maxDim;
+                    dog.scale.setScalar(normalizedScale);
+                    dog.position.sub(center.multiplyScalar(normalizedScale));
+                    const floorFix = new THREE.Box3().setFromObject(dog);
+                    dog.position.y += -0.78 - floorFix.min.y;
+                    handleReady(dog);
+                } catch (e) {
+                    handleError(e);
+                }
+            };
+
+            if (window.RLife3D._dogModelSource) {
+                buildDog();
+                return;
+            }
+
+            if (window.RLife3D._dogModelLoading) {
+                window.RLife3D._dogModelQueue = window.RLife3D._dogModelQueue || [];
+                window.RLife3D._dogModelQueue.push({ ok: handleReady, ko: handleError });
+                return;
+            }
+
+            window.RLife3D._dogModelLoading = true;
+            window.RLife3D._dogModelQueue = window.RLife3D._dogModelQueue || [];
+            window.RLife3D._dogModelQueue.push({ ok: handleReady, ko: handleError });
+
+            try {
+                const texLoader = new THREE.TextureLoader();
+                const diffuse = texLoader.load(window.RLife3D.assets.dogDiffuse);
+                const normal = texLoader.load(window.RLife3D.assets.dogNormal);
+                if (diffuse.colorSpace !== undefined && THREE.SRGBColorSpace !== undefined) {
+                    diffuse.colorSpace = THREE.SRGBColorSpace;
+                }
+
+                const material = new THREE.MeshStandardMaterial({
+                    map: diffuse,
+                    normalMap: normal,
+                    side: THREE.DoubleSide,
+                    metalness: 0.08,
+                    roughness: 0.82
+                });
+
+                fetch(window.RLife3D.assets.dogObj)
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Failed to fetch base.obj');
+                        return res.text();
+                    })
+                    .then(function(objText) {
+                        return import('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/OBJLoader.js')
+                            .then(function(mod) {
+                                const loader = new mod.OBJLoader();
+                                const object = loader.parse(objText);
+                                object.traverse(function(node) {
+                                    if (node.isMesh) {
+                                        node.material = material;
+                                        node.castShadow = false;
+                                        node.receiveShadow = false;
+                                    }
+                                });
+                                return object;
+                            })
+                            .catch(function() {
+                                return parseObjToMesh(objText, material);
+                            });
+                    })
+                    .then(function(object) {
+                        window.RLife3D._dogModelSource = object;
+                        window.RLife3D._dogModelLoading = false;
+
+                        const queue = window.RLife3D._dogModelQueue || [];
+                        window.RLife3D._dogModelQueue = [];
+                        queue.forEach(function(item) {
+                            try {
+                                window.RLife3D.loadImportedDogModel(item.ok, item.ko);
+                            } catch (e) {
+                                item.ko(e);
+                            }
+                        });
+                    })
+                    .catch(function(err) {
+                        window.RLife3D._dogModelLoading = false;
+                        const queue = window.RLife3D._dogModelQueue || [];
+                        window.RLife3D._dogModelQueue = [];
+                        queue.forEach(function(item) { item.ko(err); });
+                    });
+            } catch (err) {
+                window.RLife3D._dogModelLoading = false;
+                const queue = window.RLife3D._dogModelQueue || [];
+                window.RLife3D._dogModelQueue = [];
+                queue.forEach(function(item) { item.ko(err); });
+            }
         };
 
         window.RLife3D.createPetModel = function(type, color) {
             const group = new THREE.Group();
             const baseMat = new THREE.MeshStandardMaterial({ color: color, metalness: 0.18, roughness: 0.42 });
             const accentMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, metalness: 0.05, roughness: 0.6 });
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x0b1020, metalness: 0.15, roughness: 0.35 });
             const parts = {};
+            parts.legs = [];
+
+            const addLeg = function(x, y, z, len, radius) {
+                const leg = new THREE.Mesh(new THREE.CapsuleGeometry(radius, len, 3, 8), baseMat);
+                leg.position.set(x, y, z);
+                group.add(leg);
+                parts.legs.push(leg);
+                return leg;
+            };
+
+            const addEyes = function(leftPos, rightPos, scale = 1) {
+                const eyeGeom = new THREE.SphereGeometry(0.065 * scale, 12, 12);
+                const eyeL = new THREE.Mesh(eyeGeom, eyeMat);
+                const eyeR = new THREE.Mesh(eyeGeom, eyeMat);
+                eyeL.position.copy(leftPos);
+                eyeR.position.copy(rightPos);
+                group.add(eyeL, eyeR);
+                parts.eyeL = eyeL;
+                parts.eyeR = eyeR;
+            };
 
             if (type === 'cat') {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.75, 28, 28), baseMat);
@@ -142,11 +760,19 @@
                 head.position.set(0, 0.9, 0.15);
                 const earL = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.28, 16), baseMat);
                 const earR = earL.clone();
-                earL.position.set(-0.25, 1.35, 0.1); earR.position.set(0.25, 1.35, 0.1);
+                earL.position.set(-0.25, 1.35, 0.1);
+                earR.position.set(0.25, 1.35, 0.1);
                 const tail = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.07, 10, 24, Math.PI), baseMat);
-                tail.position.set(-0.78, 0.08, 0); tail.rotation.z = 1.2;
+                tail.position.set(-0.78, 0.08, 0);
+                tail.rotation.z = 1.2;
                 group.add(body, head, earL, earR, tail);
-                parts.tail = tail; parts.head = head;
+                addLeg(-0.35, -0.42, 0.33, 0.36, 0.06);
+                addLeg(0.35, -0.42, 0.33, 0.36, 0.06);
+                addLeg(-0.35, -0.42, -0.33, 0.36, 0.06);
+                addLeg(0.35, -0.42, -0.33, 0.36, 0.06);
+                addEyes(new THREE.Vector3(-0.15, 0.95, 0.61), new THREE.Vector3(0.15, 0.95, 0.61));
+                parts.tail = tail;
+                parts.head = head;
             } else if (type === 'dog') {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 28, 28), baseMat); body.scale.set(1.1, 0.9, 1.0);
                 const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 24), baseMat); head.position.set(0.1, 0.82, 0.35);
@@ -155,6 +781,11 @@
                 const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 16), accentMat); muzzle.position.set(0.2, 0.72, 0.72);
                 const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.6, 12), baseMat); tail.position.set(-0.9, 0.2, 0); tail.rotation.z = 1.0;
                 group.add(body, head, earL, earR, muzzle, tail); parts.tail = tail;
+                addLeg(-0.38, -0.42, 0.32, 0.4, 0.065);
+                addLeg(0.38, -0.42, 0.32, 0.4, 0.065);
+                addLeg(-0.38, -0.42, -0.32, 0.4, 0.065);
+                addLeg(0.38, -0.42, -0.32, 0.4, 0.065);
+                addEyes(new THREE.Vector3(-0.02, 0.86, 0.72), new THREE.Vector3(0.27, 0.86, 0.72), 1.05);
             } else if (type === 'dragon') {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.72, 28, 28), baseMat);
                 const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 22, 22), baseMat); head.position.set(0.12, 0.78, 0.35);
@@ -163,11 +794,19 @@
                 wingL.rotation.z = -1.3; wingR.rotation.z = 1.3;
                 const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 10), accentMat); spike.position.set(0, 1.28, 0.15);
                 group.add(body, head, wingL, wingR, spike); parts.wingL = wingL; parts.wingR = wingR;
+                addLeg(-0.25, -0.35, 0.26, 0.3, 0.055);
+                addLeg(0.25, -0.35, 0.26, 0.3, 0.055);
+                addEyes(new THREE.Vector3(-0.03, 0.86, 0.69), new THREE.Vector3(0.21, 0.86, 0.69), 0.95);
             } else if (type === 'fox') {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.74, 28, 28), baseMat); body.scale.set(1.12, 0.9, 0.95);
                 const head = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.85, 20), baseMat); head.position.set(0.28, 0.78, 0.4); head.rotation.z = -1.45;
                 const tail = new THREE.Mesh(new THREE.ConeGeometry(0.24, 1.1, 16), baseMat); tail.position.set(-0.88, 0.15, 0); tail.rotation.z = 1.35;
                 group.add(body, head, tail); parts.tail = tail;
+                addLeg(-0.34, -0.42, 0.3, 0.37, 0.06);
+                addLeg(0.34, -0.42, 0.3, 0.37, 0.06);
+                addLeg(-0.34, -0.42, -0.3, 0.37, 0.06);
+                addLeg(0.34, -0.42, -0.3, 0.37, 0.06);
+                addEyes(new THREE.Vector3(0.15, 0.9, 0.66), new THREE.Vector3(0.35, 0.9, 0.66), 0.95);
             } else if (type === 'bird') {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.68, 28, 28), baseMat);
                 const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 20), baseMat); head.position.set(0, 0.85, 0.28);
@@ -176,27 +815,50 @@
                 const wingL = new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 16), baseMat); const wingR = wingL.clone();
                 wingL.position.set(-0.7, 0.2, 0); wingR.position.set(0.7, 0.2, 0);
                 group.add(body, head, beak, wingL, wingR); parts.wingL = wingL; parts.wingR = wingR;
+                addEyes(new THREE.Vector3(-0.1, 0.95, 0.62), new THREE.Vector3(0.1, 0.95, 0.62), 0.85);
             } else {
                 const body = new THREE.Mesh(new THREE.SphereGeometry(0.78, 28, 28), baseMat);
                 const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 24, 24), baseMat); head.position.set(0, 0.8, 0.25);
                 const cheekL = new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), accentMat); const cheekR = cheekL.clone();
                 cheekL.position.set(-0.24, 0.63, 0.62); cheekR.position.set(0.24, 0.63, 0.62);
                 group.add(body, head, cheekL, cheekR); parts.cheekL = cheekL; parts.cheekR = cheekR;
+                addLeg(-0.32, -0.44, 0.3, 0.34, 0.06);
+                addLeg(0.32, -0.44, 0.3, 0.34, 0.06);
+                addLeg(-0.32, -0.44, -0.3, 0.34, 0.06);
+                addLeg(0.32, -0.44, -0.3, 0.34, 0.06);
+                addEyes(new THREE.Vector3(-0.12, 0.85, 0.66), new THREE.Vector3(0.12, 0.85, 0.66), 0.95);
             }
 
             return {
                 group,
-                animate: function(t) {
-                    group.position.y = Math.sin(t * 1.8) * 0.05;
-                    if (parts.tail) parts.tail.rotation.y = Math.sin(t * 4.5) * 0.35;
-                    if (parts.head) parts.head.rotation.y = Math.sin(t * 2.1) * 0.12;
+                animate: function(t, motion) {
+                    const m = motion || {};
+                    const stride = Number(m.stride || 0);
+                    const activity = Number(m.activity || 0.2);
+                    const blink = Math.max(0, Math.min(1, Number(m.blink || 0)));
+
+                    if (parts.tail) parts.tail.rotation.y = Math.sin(t * (4.0 + activity * 2.8)) * (0.25 + activity * 0.28);
+                    if (parts.head) parts.head.rotation.y = Math.sin(t * 1.7) * (0.06 + activity * 0.09);
                     if (parts.wingL && parts.wingR) {
-                        const flap = Math.sin(t * 7.0) * 0.45;
+                        const flap = Math.sin(t * (5.6 + activity * 4.2)) * (0.28 + activity * 0.34);
                         parts.wingL.rotation.y = flap; parts.wingR.rotation.y = -flap;
                     }
                     if (parts.cheekL && parts.cheekR) {
                         const puff = 1 + Math.sin(t * 5.5) * 0.05;
                         parts.cheekL.scale.setScalar(puff); parts.cheekR.scale.setScalar(puff);
+                    }
+                    if (parts.legs.length >= 2) {
+                        const gait = Math.sin(t * 7.2) * stride;
+                        parts.legs.forEach(function(leg, idx) {
+                            const dir = idx % 2 === 0 ? 1 : -1;
+                            leg.rotation.x = gait * dir;
+                            leg.position.y = -0.42 + Math.abs(gait) * 0.04;
+                        });
+                    }
+                    if (parts.eyeL && parts.eyeR) {
+                        const eyeOpen = Math.max(0.15, 1 - blink);
+                        parts.eyeL.scale.y = eyeOpen;
+                        parts.eyeR.scale.y = eyeOpen;
                     }
                 }
             };
@@ -226,6 +888,23 @@
             const spin = opts.spin || (0.004 + ((hunger / 100) * 0.012));
             const type = window.RLife3D.inferType(container, opts);
             const color = opts.color || (hunger > 70 ? 0xfb7185 : (hunger > 35 ? 0x60a5fa : 0x34d399));
+            const behavior = {
+                bobAmp: Math.max(0, Number(opts.bobAmp ?? 0.05)),
+                bobSpeed: Math.max(0.2, Number(opts.bobSpeed ?? 1.7)),
+                tiltAmp: Math.max(0, Number(opts.tiltAmp ?? 0.03)),
+                driftAmp: Math.max(0, Number(opts.driftAmp ?? 0)),
+                driftSpeed: Math.max(0, Number(opts.driftSpeed ?? 0.8)),
+                hoverAmp: Math.max(0, Number(opts.hoverAmp ?? 0)),
+                hoverSpeed: Math.max(0.2, Number(opts.hoverSpeed ?? 1.4)),
+                burstMultiplier: Math.max(1, Number(opts.burstMultiplier ?? 2.2)),
+                burstDurationMs: Math.max(0, Number(opts.burstDurationMs ?? 750)),
+                burstEveryMinMs: Math.max(1000, Number(opts.burstEveryMinMs ?? 4200)),
+                burstEveryMaxMs: Math.max(1200, Number(opts.burstEveryMaxMs ?? 8600)),
+                wander: Boolean(opts.wander ?? false),
+                arenaRadius: Math.max(0.16, Number(opts.arenaRadius ?? 0.68)),
+                baseMoveSpeed: Math.max(0.04, Number(opts.baseMoveSpeed ?? 0.33)),
+                turnEase: Math.max(0.03, Number(opts.turnEase ?? 0.11))
+            };
             const w = container.clientWidth > 0 ? container.clientWidth : 220;
             const h = container.clientHeight > 0 ? container.clientHeight : 220;
 
@@ -234,8 +913,18 @@
                 const camera = new THREE.PerspectiveCamera(58, w / h, 0.1, 1000);
                 camera.position.z = 4.2;
 
-                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                let renderer = null;
+                try {
+                    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+                } catch (e1) {
+                    try {
+                        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'low-power' });
+                    } catch (e2) {
+                        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+                    }
+                }
+                const maxPixelRatio = opts.lowQuality ? 1.1 : 1.5;
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxPixelRatio));
                 renderer.setSize(w, h);
                 renderer.setClearColor(0x000000, 0);
                 if (renderer.outputColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -246,8 +935,8 @@
                 container.innerHTML = '';
                 container.appendChild(renderer.domElement);
 
-                const model = window.RLife3D.createPetModel(type, color);
-                scene.add(model.group);
+                let activeModel = window.RLife3D.createPetModel(type, color);
+                scene.add(activeModel.group);
 
                 const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.95);
                 const key = new THREE.DirectionalLight(0xffffff, 1.25);
@@ -256,30 +945,112 @@
                 rim.position.set(-4, -2, 4);
                 scene.add(hemi, key, rim);
 
-                const state = { isAlive: true, renderer, resizeObserver: null };
+                const nextBurstDelay = function() {
+                    const minMs = Math.min(behavior.burstEveryMinMs, behavior.burstEveryMaxMs);
+                    const maxMs = Math.max(behavior.burstEveryMinMs, behavior.burstEveryMaxMs);
+                    return minMs + Math.random() * (maxMs - minMs);
+                };
+
+                const now = performance.now();
+                const state = {
+                    isAlive: true,
+                    renderer,
+                    resizeObserver: null,
+                    burstUntil: 0,
+                    nextBurstAt: now + nextBurstDelay(),
+                    lastTick: now,
+                    moveTarget: new THREE.Vector2((Math.random() - 0.5) * behavior.arenaRadius, (Math.random() - 0.5) * behavior.arenaRadius),
+                    blinkUntil: 0,
+                    nextBlinkAt: now + 1000 + (Math.random() * 2300)
+                };
+                container._rlife3d = state;
 
                 const animate = function() {
                     if (!state.isAlive) return;
                     requestAnimationFrame(animate);
-                    const t = performance.now() / 1000;
-                    model.group.rotation.y += spin;
-                    model.group.rotation.x = Math.sin(t * 1.7) * 0.05;
-                    if (typeof model.animate === 'function') model.animate(t);
+                    const currentMs = performance.now();
+                    const t = currentMs / 1000;
+                    const dt = Math.max(0.001, Math.min(0.05, (currentMs - state.lastTick) / 1000));
+                    state.lastTick = currentMs;
+                    if (behavior.burstDurationMs > 0 && currentMs >= state.nextBurstAt) {
+                        state.burstUntil = currentMs + behavior.burstDurationMs;
+                        state.nextBurstAt = currentMs + nextBurstDelay();
+                    }
+                    if (currentMs >= state.nextBlinkAt) {
+                        state.blinkUntil = currentMs + 130;
+                        state.nextBlinkAt = currentMs + 1800 + Math.random() * 4200;
+                    }
+
+                    const isBursting = currentMs < state.burstUntil;
+                    const spinSpeed = isBursting ? spin * behavior.burstMultiplier : spin;
+                    let moveSpeed = 0;
+
+                    if (behavior.wander) {
+                        const position2D = new THREE.Vector2(activeModel.group.position.x, activeModel.group.position.z);
+                        const toTarget = state.moveTarget.clone().sub(position2D);
+                        const distance = toTarget.length();
+                        if (distance < 0.08) {
+                            state.moveTarget.set(
+                                (Math.random() - 0.5) * behavior.arenaRadius,
+                                (Math.random() - 0.5) * behavior.arenaRadius
+                            );
+                        } else {
+                            const desired = toTarget.normalize();
+                            const speedScale = isBursting ? 1.65 : 1;
+                            const frameSpeed = behavior.baseMoveSpeed * speedScale * dt;
+                            activeModel.group.position.x += desired.x * frameSpeed;
+                            activeModel.group.position.z += desired.y * frameSpeed;
+                            moveSpeed = frameSpeed / dt;
+
+                            const targetYaw = Math.atan2(desired.x, desired.y);
+                            const yawDiff = Math.atan2(Math.sin(targetYaw - activeModel.group.rotation.y), Math.cos(targetYaw - activeModel.group.rotation.y));
+                            activeModel.group.rotation.y += yawDiff * behavior.turnEase;
+                        }
+                    } else {
+                        activeModel.group.rotation.y += spinSpeed;
+                        if (behavior.driftAmp > 0) {
+                            activeModel.group.position.x = Math.sin(t * behavior.driftSpeed) * behavior.driftAmp;
+                            activeModel.group.position.z = Math.cos(t * (behavior.driftSpeed * 0.72)) * behavior.driftAmp * 0.42;
+                        }
+                    }
+
+                    activeModel.group.rotation.x = (Math.sin(t * behavior.bobSpeed) * behavior.bobAmp) + (Math.sin(t * 0.95) * behavior.tiltAmp);
+                    activeModel.group.position.y = Math.sin(t * behavior.bobSpeed * 1.02) * (behavior.bobAmp * 0.9);
+                    if (behavior.hoverAmp > 0) activeModel.group.position.y += Math.sin(t * behavior.hoverSpeed) * behavior.hoverAmp;
+
+                    const stride = Math.max(0.05, Math.min(0.45, moveSpeed * 0.7));
+                    const activity = Math.max(0.12, Math.min(1, stride * 2 + (isBursting ? 0.28 : 0)));
+                    const blink = currentMs < state.blinkUntil ? 1 : 0;
+                    if (typeof activeModel.animate === 'function') activeModel.animate(t, { stride, activity, blink });
                     renderer.render(scene, camera);
                 };
                 animate();
 
-                const resizeObserver = new ResizeObserver(function() {
-                    if (!state.isAlive) return;
-                    const rw = container.clientWidth > 0 ? container.clientWidth : 220;
-                    const rh = container.clientHeight > 0 ? container.clientHeight : 220;
-                    camera.aspect = rw / rh;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(rw, rh);
-                });
-                resizeObserver.observe(container);
-                state.resizeObserver = resizeObserver;
-                container._rlife3d = state;
+                if ((type === 'cat' || type === 'dog') && !opts.disableImportedModel) {
+                    const loadFn = type === 'cat' ? window.RLife3D.loadImportedCatModel : window.RLife3D.loadImportedDogModel;
+                    loadFn(function(importedGroup) {
+                        if (!state.isAlive || !importedGroup) return;
+                        scene.remove(activeModel.group);
+                        activeModel = { group: importedGroup };
+                        scene.add(activeModel.group);
+                    }, function() {
+                        // Keep the procedural 3D model when imported assets fail to avoid emoji/flicker fallback.
+                        if (!state.isAlive) return;
+                    });
+                }
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    const resizeObserver = new ResizeObserver(function() {
+                        if (!state.isAlive) return;
+                        const rw = container.clientWidth > 0 ? container.clientWidth : 220;
+                        const rh = container.clientHeight > 0 ? container.clientHeight : 220;
+                        camera.aspect = rw / rh;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(rw, rh);
+                    });
+                    resizeObserver.observe(container);
+                    state.resizeObserver = resizeObserver;
+                }
             } catch (e) {
                 window.RLife3D.renderFallback(container, opts);
             }
@@ -312,6 +1083,9 @@
         function goToPetPage() {
             window.location.href = "{{ path('app_pet_manage') }}";
         }
+        function goToPetMetaverse() {
+            window.location.href = "{{ path('app_pet_metaverse') }}";
+        }
 
         function initPet3D() {
             const container = document.getElementById('pet3DModal');
@@ -332,7 +1106,9 @@
                 dragon: 0xa855f7,
                 fox: 0xfb923c,
                 bird: 0x4ade80,
-                hamster: 0xfbbf24
+                hamster: 0xfbbf24,
+                panda: 0x94a3b8,
+                rabbit: 0xfda4af
             };
 
             const dashboard = document.getElementById('pet-3d-container');
@@ -355,23 +1131,25 @@
 
             const previews = document.querySelectorAll('[id^="pet3d-"]');
             previews.forEach(function(container) {
+                if (container.dataset.staticPreview === 'true') return;
+                if (container.dataset.noAutoInit === 'true') return;
                 if (container._rlife3d) return;
-                const type = container.id.replace('pet3d-', '');
+                const inferredType = container.dataset.petType || container.id.replace('pet3d-', '');
                 window.RLife3D.renderPet(container, {
                     spin: 0.01,
-                    type: type,
-                    color: colorByType[type] || 0x8b5cf6
+                    type: inferredType,
+                    color: colorByType[inferredType] || 0x8b5cf6
                 });
             });
         };
     </script>
 </head>
 
-<body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+<body class="h-full font-sans antialiased app-shell text-slate-900 dark:text-slate-100">
 <div class="min-h-screen" data-controller="sidebar">
 
     <!-- ==================== SIDEBAR ==================== -->
-    <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"
+    <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 app-sidebar transition-transform duration-300 ease-in-out"
            data-sidebar-target="sidebar"
            id="sidebar">
 
@@ -414,7 +1192,9 @@
                           {{ app.request.attributes.get('_route') starts with 'app_assignments' and app.request.attributes.get('_route') != 'app_collaboration_assigned_tasks' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                     <i data-lucide="clipboard-check" class="w-5 h-5 flex-shrink-0"></i>
                     <span data-sidebar-target="navText">Assignments</span>
-                    <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">3</span>
+                    {% if is_granted('ROLE_USER') %}
+                    <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-400 rounded-full" data-sidebar-target="badge">{{ assignment_count() }}</span>
+                    {% endif %}
                 </a>
                 <a href="{{ path('app_collaboration_assigned_tasks') }}"
                    class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all
@@ -447,6 +1227,9 @@
                           {{ app.request.attributes.get('_route') starts with 'app_project' ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white' }}">
                     <i data-lucide="users" class="w-5 h-5 flex-shrink-0"></i>
                     <span data-sidebar-target="navText">Projects</span>
+                    {% if is_granted('ROLE_USER') %}
+                    <span class="ml-auto px-2 py-0.5 text-xs font-semibold bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400 rounded-full" data-sidebar-target="badge">{{ project_count() }}</span>
+                    {% endif %}
                 </a>
             </div>
 
@@ -466,14 +1249,19 @@
             <div class="mx-0 mt-2 mb-4">
                 <div onclick="openPetManagementModal()"
                      class="flex items-center gap-3 px-4 py-3.5 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-rose-50 dark:from-violet-900/25 dark:via-fuchsia-900/20 dark:to-rose-900/20 rounded-2xl border border-violet-200/80 dark:border-violet-700/60 cursor-pointer hover:shadow-lg hover:shadow-violet-500/15 dark:hover:shadow-violet-900/30 transition-all group">
-                    <div class="w-11 h-11 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-white dark:border-slate-700 shadow-inner flex items-center justify-center text-2xl flex-shrink-0">
+                    <div class="w-11 h-11 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-white dark:border-slate-700 shadow-inner overflow-hidden flex-shrink-0">
                         {% if app.user.mainPet %}
-                            {% if app.user.mainPet.type == 'cat' %}🐱
-                            {% elseif app.user.mainPet.type == 'dog' %}🐶
-                            {% elseif app.user.mainPet.type == 'dragon' %}🐉
-                            {% elseif app.user.mainPet.type == 'fox' %}🦊
-                            {% else %}🐾{% endif %}
-                        {% else %}🐾{% endif %}
+                            <div id="pet3d-sidebar-card"
+                                 data-pet-type="{{ app.user.mainPet.type }}"
+                                 class="w-full h-full"></div>
+                        {% else %}
+                            <div class="w-full h-full grid place-items-center bg-gradient-to-br from-violet-100 to-fuchsia-100 dark:from-violet-900/40 dark:to-fuchsia-900/40">
+                                <i data-lucide="paw-print" class="w-5 h-5 text-violet-500 dark:text-violet-300"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="hidden w-11 h-11 rounded-2xl bg-white/90 dark:bg-slate-800/90 border border-white dark:border-slate-700 shadow-inner flex items-center justify-center text-2xl flex-shrink-0">
+                        <i data-lucide="paw-print" class="w-5 h-5 text-violet-500 dark:text-violet-300"></i>
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="font-semibold text-purple-700 dark:text-purple-300 text-sm group-hover:text-purple-600 transition-colors truncate">
@@ -481,14 +1269,14 @@
                         </p>
                         <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                             {% if app.user.mainPet %}
-                                Lv. {{ app.user.mainPet.level }} • {{ app.user.mainPet.getMood() }}
+                                Lv. {{ app.user.mainPet.level }} &bull; {{ app.user.mainPet.getMood() }}
                             {% else %}
                                 No companion yet
                             {% endif %}
                         </p>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</p>
+                        <p class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</p>
                     </div>
                 </div>
             </div>
@@ -531,7 +1319,7 @@
     <div class="lg:ml-64 min-h-screen flex flex-col">
 
         <!-- Top Bar -->
-        <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-800/50">
+        <header class="sticky top-0 z-20 h-16 px-4 lg:px-6 app-topbar">
             <div class="flex items-center justify-between gap-4 h-full">
 
                 <!-- Left: mobile menu + search -->
@@ -632,12 +1420,12 @@
                                                        notif.type == 'project_shared' or notif.type == 'task_assigned' ? 'bg-blue-100 dark:bg-blue-900/40' :
                                                        notif.type == 'new_comment' ? 'bg-green-100 dark:bg-green-900/40' :
                                                        'bg-slate-100 dark:bg-slate-800' }}">
-                                                    {% if notif.type == 'coins' %}🪙
-                                                    {% elseif notif.type starts with 'deadline' %}⏰
-                                                    {% elseif notif.type == 'project_shared' %}🔗
-                                                    {% elseif notif.type == 'task_assigned' %}📋
-                                                    {% elseif notif.type == 'new_comment' %}💬
-                                                    {% else %}🔔{% endif %}
+                                                    {% if notif.type == 'coins' %}<i data-lucide="coins" class="w-4 h-4 text-amber-600 dark:text-amber-300"></i>
+                                                    {% elseif notif.type starts with 'deadline' %}<i data-lucide="alarm-clock" class="w-4 h-4 text-red-600 dark:text-red-300"></i>
+                                                    {% elseif notif.type == 'project_shared' %}<i data-lucide="link" class="w-4 h-4 text-blue-600 dark:text-blue-300"></i>
+                                                    {% elseif notif.type == 'task_assigned' %}<i data-lucide="clipboard-list" class="w-4 h-4 text-blue-600 dark:text-blue-300"></i>
+                                                    {% elseif notif.type == 'new_comment' %}<i data-lucide="message-circle" class="w-4 h-4 text-green-600 dark:text-green-300"></i>
+                                                    {% else %}<i data-lucide="bell" class="w-4 h-4 text-slate-600 dark:text-slate-300"></i>{% endif %}
                                                 </div>
                                                 <!-- Text -->
                                                 <div class="flex-1 min-w-0">
@@ -670,7 +1458,7 @@
                             <div class="px-4 py-3 border-t dark:border-slate-700 text-center sticky bottom-0 bg-white dark:bg-slate-900 z-10">
                                 <a href="{{ path('app_notifications_list') }}"
                                    class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                                    Voir toutes les notifications →
+                                    Voir toutes les notifications ->
                                 </a>
                             </div>
                         </div>
@@ -765,7 +1553,7 @@
                     {{ app.user.mainPet ? app.user.mainPet.name : 'My Companion' }}
                 </h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400">
-                    {% if app.user.mainPet %}Lv. {{ app.user.mainPet.level }} • {{ app.user.mainPet.getMood() }}
+                    {% if app.user.mainPet %}Lv. {{ app.user.mainPet.level }} &bull; {{ app.user.mainPet.getMood() }}
                     {% else %}No companion adopted{% endif %}
                 </p>
             </div>
@@ -796,7 +1584,7 @@
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Coins</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</p>
+                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</p>
                     </div>
                 </div>
 
@@ -804,19 +1592,23 @@
                 <div class="space-y-3">
                     <button onclick="openFeedModal()"
                             class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2.5">
-                        <span class="text-xl">🍎</span> Feed
+                        <i data-lucide="heart-pulse" class="w-5 h-5"></i> Feed
                     </button>
                     <button onclick="toggleRenameSection()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
-                        <span class="text-xl">✏️</span> Rename
+                        <i data-lucide="edit-3" class="w-5 h-5"></i> Rename
                     </button>
                     <button onclick="goToChangePetType()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
-                        <span class="text-xl">🔄</span> Change Companion Type
+                        <i data-lucide="repeat" class="w-5 h-5"></i> Change Companion Type
                     </button>
                     <button onclick="goToPetPage()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
-                        <span class="text-xl">🧭</span> Open Pet Page
+                        <i data-lucide="external-link" class="w-5 h-5"></i> Open Pet Page
+                    </button>
+                    <button onclick="goToPetMetaverse()"
+                            class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
+                        <i data-lucide="radar" class="w-5 h-5"></i> Open Pet Metaverse
                     </button>
                 </div>
 
@@ -834,7 +1626,12 @@
 
             {% else %}
                 <div class="text-center py-12">
-                    <div class="text-7xl mb-5">🐾</div>
+                    <div id="pet3d-empty-companion"
+                         data-pet-type="cat"
+                         class="w-40 h-40 mx-auto mb-5 rounded-3xl bg-gradient-to-br from-violet-100/50 to-pink-100/50 dark:from-violet-900/25 dark:to-pink-900/25 overflow-hidden shadow-inner"></div>
+                    <div class="hidden text-7xl mb-5">
+                        <i data-lucide="paw-print" class="w-12 h-12 mx-auto text-violet-500 dark:text-violet-300"></i>
+                    </div>
                     <h3 class="text-xl font-semibold mb-3 text-slate-800 dark:text-white">No companion for now</h3>
                     <p class="text-slate-500 dark:text-slate-400 mb-6">Adopt your first pet and start the adventure!</p>
                     <a href="{{ path('app_pet_choose') }}"
@@ -852,32 +1649,34 @@
 <div id="feedModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xl z-[110] flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden">
         <div class="px-6 py-5 border-b dark:border-slate-700 flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">🍽️ Feed {{ app.user.mainPet.name }}</h3>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Feed {{ app.user.mainPet.name }}</h3>
             <button onclick="closeFeedModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
         <div class="p-5">
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 text-center">
-                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} 🪙</span>
+                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</span>
             </p>
             <div class="space-y-3">
                 {% set foods = [
-                    {type: 'basic',   name: 'Kibble',      cost: 50,  reduce: 35,  emoji: '🥣'},
-                    {type: 'premium', name: 'Premium Meal',   cost: 120, reduce: 70,  emoji: '🍗'},
-                    {type: 'deluxe',  name: 'Magic Feast', cost: 200, reduce: 100, emoji: '✨🍱'}
+                    {type: 'basic',   name: 'Kibble',       cost: 50,  reduce: 35,  icon: 'apple'},
+                    {type: 'premium', name: 'Premium Meal', cost: 120, reduce: 70,  icon: 'beef'},
+                    {type: 'deluxe',  name: 'Magic Feast',  cost: 200, reduce: 100, icon: 'sparkles'}
                 ] %}
                 {% for food in foods %}
                 <form method="post" action="{{ path('app_pet_feed') }}">
                     <input type="hidden" name="food_type" value="{{ food.type }}">
                     <button type="submit"
                             class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 dark:bg-slate-800 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-200 dark:border-slate-700 hover:border-green-300 dark:hover:border-green-700 rounded-2xl transition-all group">
-                        <span class="text-3xl">{{ food.emoji }}</span>
+                        <span class="w-9 h-9 rounded-xl bg-white/90 dark:bg-slate-700/80 border border-slate-200 dark:border-slate-600 flex items-center justify-center">
+                            <i data-lucide="{{ food.icon }}" class="w-5 h-5 text-slate-700 dark:text-slate-200"></i>
+                        </span>
                         <div class="flex-1 text-left">
                             <p class="font-semibold text-slate-800 dark:text-white group-hover:text-green-700 dark:group-hover:text-green-400 transition-colors">{{ food.name }}</p>
                             <p class="text-xs text-slate-500 dark:text-slate-400">-{{ food.reduce }} hunger</p>
                         </div>
-                        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ food.cost }} 🪙</span>
+                        <span class="text-sm font-bold text-purple-600 dark:text-purple-400">{{ food.cost }} coins</span>
                     </button>
                 </form>
                 {% endfor %}
@@ -898,7 +1697,7 @@
             window.RLife3D.autoInitPetScenes();
             setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
         }
-        console.log('✅ Page initialized: Icons loaded');
+        console.log('Page initialized: Icons loaded');
     });
     document.addEventListener('turbo:load', function() {
         window.initIcons();
@@ -921,8 +1720,8 @@
 
         let searchTimeout, isSearching = false, lastQuery = '', cachedResults = null;
 
-        const typeLabels = { course:'📚 Courses', project:'📁 Projects', assignment:'📝 Assignments', deck:'🗂️ Flashcards', page:'📄 Pages', user:'👤 Users' };
-        const typeIcons  = { course:'📚', project:'📁', assignment:'📝', deck:'🗂️', page:'📄', user:'👤' };
+        const typeLabels = { course:'Courses', project:'Projects', assignment:'Assignments', deck:'Flashcards', page:'Pages', user:'Users' };
+        const typeIcons  = { course:'book-open', project:'folder', assignment:'clipboard-list', deck:'layers', page:'file-text', user:'user' };
 
         searchInput.addEventListener('input', function(e) {
             clearTimeout(searchTimeout);
@@ -934,8 +1733,9 @@
         });
 
         function showLoading() {
-            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500"><div class="inline-block animate-spin text-2xl">⏳</div><p class="text-xs mt-2">Searching...</p></div>`;
+            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500"><i data-lucide="loader-2" class="inline-block animate-spin w-6 h-6"></i><p class="text-xs mt-2">Searching...</p></div>`;
             searchResults.classList.remove('hidden');
+            window.initIcons();
         }
 
         function performSearch(query) {
@@ -953,8 +1753,9 @@
 
         function displayResults(results) {
             if (!results || results.length === 0) {
-                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500"><div class="text-4xl mb-2">🔍</div><p class="text-sm font-medium">No results found</p></div>`;
+                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2"></i><p class="text-sm font-medium">No results found</p></div>`;
                 searchResults.classList.remove('hidden');
+                window.initIcons();
                 return;
             }
             const grouped = {};
@@ -965,7 +1766,7 @@
                 html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 uppercase">${typeLabels[type]}</p>`;
                 grouped[type].forEach(result => {
                     html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-lg">${typeIcons[result.type] || '•'}</div>
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-lg"><i data-lucide="${typeIcons[result.type] || 'circle'}" class="w-4 h-4 text-slate-600"></i></div>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-slate-800 truncate">${result.title}</p>
                             <p class="text-xs text-slate-500">${result.subtitle}</p>
@@ -976,6 +1777,7 @@
             html += '</div>';
             searchResults.innerHTML = html;
             searchResults.classList.remove('hidden');
+            window.initIcons();
         }
 
         document.addEventListener('click', e => { if (globalSearch && !globalSearch.contains(e.target)) searchResults.classList.add('hidden'); });
@@ -1030,6 +1832,8 @@
 
 </body>
 </html>
+
+
 
 
 

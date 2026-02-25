@@ -22,7 +22,7 @@ class FlashcardTranslation
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Flashcard::class, inversedBy: 'translations')]
+    #[ORM\ManyToOne(targetEntity: Flashcard::class)]
     #[ORM\JoinColumn(name: 'flashcard_id', referencedColumnName: 'id_flashcard', nullable: false, onDelete: 'CASCADE')]
     private ?Flashcard $flashcard = null;
 

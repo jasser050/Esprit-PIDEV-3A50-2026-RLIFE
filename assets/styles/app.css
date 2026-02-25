@@ -12,6 +12,26 @@
    ============================================ */
 
 @layer base {
+    :root {
+        color-scheme: light;
+        --app-bg: #eef4ff;
+        --app-bg-soft: #fff7ed;
+        --app-sidebar-bg: rgb(255 255 255 / 0.82);
+        --app-sidebar-border: rgb(148 163 184 / 0.24);
+        --app-topbar-bg: rgb(255 255 255 / 0.68);
+        --app-topbar-border: rgb(148 163 184 / 0.28);
+    }
+
+    .dark {
+        color-scheme: dark;
+        --app-bg: #060c1d;
+        --app-bg-soft: #11142d;
+        --app-sidebar-bg: rgb(7 13 30 / 0.9);
+        --app-sidebar-border: rgb(99 102 241 / 0.25);
+        --app-topbar-bg: rgb(8 14 32 / 0.76);
+        --app-topbar-border: rgb(99 102 241 / 0.3);
+    }
+
     html {
         scroll-behavior: smooth;
     }
@@ -20,6 +40,39 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         letter-spacing: -0.011em;
+    }
+
+    body.app-shell {
+        background-color: var(--app-bg);
+        background-image:
+            radial-gradient(circle at 8% 10%, rgb(14 165 233 / 0.2) 0, transparent 36%),
+            radial-gradient(circle at 92% 14%, rgb(236 72 153 / 0.16) 0, transparent 42%),
+            linear-gradient(180deg, var(--app-bg) 0%, var(--app-bg-soft) 100%);
+        min-height: 100vh;
+        position: relative;
+    }
+
+    body.app-shell::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(circle at 20% 85%, rgb(99 102 241 / 0.12) 0, transparent 40%),
+            radial-gradient(circle at 78% 82%, rgb(16 185 129 / 0.1) 0, transparent 36%);
+    }
+
+    .app-sidebar {
+        background: var(--app-sidebar-bg);
+        border-right: 1px solid var(--app-sidebar-border);
+        backdrop-filter: blur(16px);
+    }
+
+    .app-topbar {
+        background: var(--app-topbar-bg);
+        border-bottom: 1px solid var(--app-topbar-border);
+        backdrop-filter: blur(18px);
     }
 
     /* Selection */
@@ -72,12 +125,12 @@
 @layer components {
     /* Card */
     .card {
-        @apply bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800;
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+        @apply bg-white/95 dark:bg-slate-900/95 rounded-2xl border border-slate-200 dark:border-indigo-900/70;
+        box-shadow: 0 8px 24px -16px rgb(79 70 229 / 0.35), 0 1px 3px 0 rgb(0 0 0 / 0.08);
     }
 
     .dark .card {
-        box-shadow: none;
+        box-shadow: 0 10px 28px -18px rgb(14 165 233 / 0.35), inset 0 1px 0 0 rgb(148 163 184 / 0.05);
     }
 
     .card-hover {
@@ -109,13 +162,15 @@
     }
 
     .btn-primary {
-        @apply bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500;
-        box-shadow: 0 1px 2px rgba(79, 70, 229, 0.3);
+        @apply text-white focus:ring-primary-500;
+        background-image: linear-gradient(120deg, rgb(79 70 229), rgb(14 165 233));
+        box-shadow: 0 8px 18px -10px rgb(79 70 229 / 0.7);
     }
 
     .btn-primary:hover {
         @apply -translate-y-0.5;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        background-image: linear-gradient(120deg, rgb(67 56 202), rgb(2 132 199));
+        box-shadow: 0 14px 24px -12px rgb(79 70 229 / 0.8);
     }
 
     .btn-secondary {

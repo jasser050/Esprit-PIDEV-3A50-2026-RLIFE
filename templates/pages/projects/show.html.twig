@@ -7,10 +7,10 @@
 <div class="space-y-6 max-w-4xl mx-auto">
     <!-- Breadcrumbs -->
     <nav class="flex text-sm" aria-label="breadcrumb">
-        <ol class="flex items-center gap-2 text-secondary-600 dark:text-secondary-400">
-            <li><a href="{{ path('app_project_index') }}" class="hover:text-secondary-900 dark:hover:text-secondary-200 transition-colors">Projects</a></li>
+        <ol class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+            <li><a href="{{ path('app_project_index') }}" class="hover:text-slate-900 dark:hover:text-slate-200 transition-colors">Projects</a></li>
             <li><i data-lucide="chevron-right" class="w-3 h-3"></i></li>
-            <li class="text-secondary-900 dark:text-white">{{ project.titre }}</li>
+            <li class="text-slate-900 dark:text-white">{{ project.titre }}</li>
         </ol>
     </nav>
 
@@ -29,20 +29,22 @@
                     </span>
                 {% endif %}
             </div>
-            <p class="text-secondary-500 dark:text-secondary-400">{{ project.description }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ project.description }}</p>
             {% if project.user.id != app.user.id %}
-                <p class="text-sm text-secondary-400 mt-2">
+                <p class="text-sm text-slate-400 mt-2">
                     <i data-lucide="user" class="w-4 h-4 inline mr-1"></i>
                     Shared by {{ project.user.fullName }}
                 </p>
             {% endif %}
         </div>
         <div class="flex gap-2">
-            {% if project.user.id == app.user.id %}
+            {% if can_edit_project|default(false) %}
                 <a href="{{ path('app_project_edit', {'id': project.id}) }}" class="btn btn-secondary">
                     <i data-lucide="edit-2" class="w-5 h-5"></i>
                     Edit
                 </a>
+            {% endif %}
+            {% if project.user.id == app.user.id %}
                 <button type="button" class="btn btn-danger" onclick="confirmDelete()">
                     <i data-lucide="trash-2" class="w-5 h-5"></i>
                     Delete
@@ -57,7 +59,7 @@
             <div class="flex items-center gap-3">
                 <i data-lucide="calendar-days" class="w-5 h-5 text-primary-600"></i>
                 <div>
-                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Total Duration</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Total Duration</p>
                     <p class="text-2xl font-bold">{{ projectStats.dureeTotale }} days</p>
                 </div>
             </div>
@@ -66,7 +68,7 @@
             <div class="flex items-center gap-3">
                 <i data-lucide="clock" class="w-5 h-5 text-warning-600"></i>
                 <div>
-                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Time Elapsed</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Time Elapsed</p>
                     <p class="text-2xl font-bold">{{ projectStats.tempsEcoule }} days</p>
                 </div>
             </div>
@@ -75,7 +77,7 @@
             <div class="flex items-center gap-3">
                 <i data-lucide="hourglass" class="w-5 h-5 text-info-600"></i>
                 <div>
-                    <p class="text-sm text-secondary-500 dark:text-secondary-400">Days Remaining</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Days Remaining</p>
                     <p class="text-2xl font-bold">{{ projectStats.joursRestants }} days</p>
                 </div>
             </div>
@@ -96,20 +98,20 @@
         <h2 class="text-lg font-semibold mb-4">Project Details</h2>
         <dl class="space-y-4">
             <div>
-                <dt class="text-sm text-secondary-500 dark:text-secondary-400">Start Date</dt>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Start Date</dt>
                 <dd class="font-medium">{{ project.dateDebut|date('d/m/Y') }}</dd>
             </div>
             <div>
-                <dt class="text-sm text-secondary-500 dark:text-secondary-400">End Date</dt>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">End Date</dt>
                 <dd class="font-medium">{{ project.dateFin|date('d/m/Y') }}</dd>
             </div>
             <div>
-                    <dt class="text-sm text-secondary-500 dark:text-secondary-400">Created On</dt>
+                    <dt class="text-sm text-slate-500 dark:text-slate-400">Created On</dt>
                 <dd class="font-medium">{{ project.createdAt|date('d/m/Y Ã  H:i') }}</dd>
             </div>
             {% if project.updatedAt %}
                 <div>
-                    <dt class="text-sm text-secondary-500 dark:text-secondary-400">Modified On</dt>
+                    <dt class="text-sm text-slate-500 dark:text-slate-400">Modified On</dt>
                     <dd class="font-medium">{{ project.updatedAt|date('d/m/Y Ã  H:i') }}</dd>
                 </div>
             {% endif %}
@@ -122,17 +124,34 @@
         <div class="flex items-center justify-between mb-4">
             <div>
                 <h2 class="text-lg font-semibold">Project Sharing</h2>
-                <p class="text-sm text-secondary-500 dark:text-secondary-400">Share this project with other users</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Share this project with other users</p>
             </div>
-            <span class="badge badge-primary">{{ shares|default([])|length }} shared</span>
+            <div class="flex items-center gap-2">
+                {% if project.user.id == app.user.id and last_meet_url %}
+                    <a href="{{ last_meet_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+                        <i data-lucide="video" class="w-4 h-4"></i>
+                        Join Last Google Meet
+                    </a>
+                {% endif %}
+                {% if shares|default([])|length > 0 %}
+                    <form method="post" action="{{ path('app_project_create_meet', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('create_project_meet_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-secondary btn-sm">
+                            <i data-lucide="video" class="w-4 h-4"></i>
+                            Create Google Meet
+                        </button>
+                    </form>
+                {% endif %}
+                <span class="badge badge-primary">{{ shares|default([])|length }} shared</span>
+            </div>
         </div>
 
         <!-- Share Form -->
         <form method="post" action="{{ path('app_project_share', {'id': project.id}) }}" class="mb-6">
             <div class="flex gap-3">
                 <input type="email" name="email" placeholder="Enter user email..." required
-                    class="flex-1 px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input">
-                <select name="role" class="px-4 py-2 border border-light-border dark:border-dark-border rounded-lg bg-white dark:bg-dark-input">
+                    class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
+                <select name="role" class="px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                     <option value="viewer">Viewer</option>
                     <option value="editor">Editor</option>
                 </select>
@@ -147,14 +166,14 @@
         {% if shares|default([])|length > 0 %}
             <div class="space-y-3">
                 {% for share in shares %}
-                    <div class="flex items-center justify-between p-3 bg-light-background dark:bg-dark-background rounded-lg">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-medium">
                                 {{ share.sharedWithUser.fullName|first|upper }}
                             </div>
                             <div>
                                 <p class="font-medium">{{ share.sharedWithUser.fullName }}</p>
-                                <p class="text-sm text-secondary-500">Shared by {{ share.sharedByUser.fullName }} â€¢ {{ share.role|capitalize }}</p>
+                                <p class="text-sm text-slate-500">Shared by {{ share.sharedByUser.fullName }} â€¢ {{ share.role|capitalize }}</p>
                             </div>
                         </div>
                         <form method="post" action="{{ path('app_project_remove_share', {'projectId': project.id, 'shareId': share.id}) }}" data-confirm="Remove this share?">
@@ -167,8 +186,193 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-center text-secondary-500 py-4">This project is not shared with anyone yet.</p>
+            <p class="text-center text-slate-500 py-4">This project is not shared with anyone yet.</p>
         {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- AI Project Assistant -->
+    {% if project.user.id == app.user.id %}
+    <div class="relative overflow-hidden rounded-3xl border border-slate-300/70 dark:border-slate-700/70 bg-slate-100 dark:bg-slate-900 p-6 shadow-sm">
+        <div class="relative space-y-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center shadow-sm">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-slate-700 dark:text-slate-300"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">AI Project Planner</h2>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">Generate tasks from this project and add selected ones instantly.</p>
+                    </div>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <form method="post" action="{{ path('app_project_ai_suggestions_generate', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('generate_project_ai_suggestions_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i data-lucide="bot" class="w-4 h-4"></i>
+                            Regenerate AI Tasks
+                        </button>
+                    </form>
+                    <form method="post" action="{{ path('app_project_ai_toolkit_generate', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('generate_project_ai_toolkit_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-secondary btn-sm">
+                            <i data-lucide="radar" class="w-4 h-4"></i>
+                            Generate AI Toolkit
+                        </button>
+                    </form>
+                    <a href="{{ path('app_ai_productivity_how_to_use') }}" class="btn btn-secondary btn-sm">
+                        <i data-lucide="circle-help" class="w-4 h-4"></i>
+                        How To Use
+                    </a>
+                </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-200 dark:bg-slate-800 px-4 py-3 shadow-sm">
+                <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">How to use AI Project Planner</p>
+                <p class="text-xs text-slate-700 dark:text-slate-300 mt-1">1) Regenerate AI Tasks 2) Keep only useful suggestions 3) Create Selected Tasks 4) Use AI Toolkit actions (risk/balance/quality/sprint) to execute faster.</p>
+            </div>
+
+            {% if ai_suggestions is defined and ai_suggestions|length > 0 %}
+                <form method="post" action="{{ path('app_project_ai_suggestions_apply', {'id': project.id}) }}" class="space-y-4">
+                    <input type="hidden" name="_token" value="{{ csrf_token('apply_project_ai_suggestions_' ~ project.id) }}">
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        {% for suggestion in ai_suggestions %}
+                            {% set suggestionStatus = suggestion.status is defined and suggestion.status in ['A faire', 'À faire'] ? 'To Do' : suggestion.status %}
+                            <label class="rounded-2xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-2 cursor-pointer hover:border-slate-400 dark:hover:border-slate-600 transition-colors">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-start gap-2">
+                                        <input type="checkbox" name="selected[]" value="{{ loop.index0 }}" class="mt-0.5" checked>
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ suggestion.title }}</p>
+                                            <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">{{ suggestion.description }}</p>
+                                        </div>
+                                    </div>
+                                    <span class="badge badge-{{ suggestion.priority == 'Haute' ? 'danger' : (suggestion.priority == 'Moyenne' ? 'warning' : 'info') }} badge-pill">{{ suggestion.priority }}</span>
+                                </div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap gap-3">
+                                    <span><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>{{ suggestion.start_date }} -> {{ suggestion.due_date }}</span>
+                                    <span class="badge badge-secondary badge-pill">{{ suggestionStatus }}</span>
+                                </div>
+                                <div class="rounded-lg border border-amber-200/80 dark:border-amber-800/70 bg-amber-50/70 dark:bg-amber-900/20 px-2.5 py-2">
+                                    <p class="text-xs text-amber-700 dark:text-amber-200">{{ suggestion.reason|default('Task suggested to reduce delivery risk.') }}</p>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Uncheck any suggestion you do not want to create.</p>
+                        <button type="submit" class="btn btn-success">
+                            <i data-lucide="list-plus" class="w-4 h-4"></i>
+                            Create Selected Tasks
+                        </button>
+                    </div>
+                </form>
+            {% else %}
+                <div class="rounded-xl border border-dashed border-slate-400 dark:border-slate-700 bg-slate-200/70 dark:bg-slate-900/50 p-4 text-sm text-slate-700 dark:text-slate-200">
+                    No AI suggestions yet. Click "Regenerate AI Tasks" to build a task plan for this project.
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white">1. Risk Radar</p>
+                        {% if ai_risk.score is defined %}
+                            <span class="badge badge-{{ ai_risk.level == 'High' ? 'danger' : (ai_risk.level == 'Medium' ? 'warning' : 'success') }} badge-pill">{{ ai_risk.score }}/100</span>
+                        {% endif %}
+                    </div>
+                    {% if ai_risk.factors is defined and ai_risk.factors|length > 0 %}
+                        {% for factor in ai_risk.factors|slice(0, 3) %}
+                            <p class="text-xs text-slate-600 dark:text-slate-300">• {{ factor }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Generate toolkit to analyze risk.</p>
+                    {% endif %}
+                    <form method="post" action="{{ path('app_project_ai_risk_apply', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('apply_project_ai_risk_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm w-full">Apply Mitigation Tasks</button>
+                    </form>
+                </div>
+
+                <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-3">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">2. Workload Balancer</p>
+                    {% if ai_balance.summary is defined %}
+                        <p class="text-xs text-slate-600 dark:text-slate-300">{{ ai_balance.summary }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Adjustments: {{ ai_balance.adjustments|default([])|length }}</p>
+                    {% else %}
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Generate toolkit to rebalance task dates.</p>
+                    {% endif %}
+                    <form method="post" action="{{ path('app_project_ai_balance_apply', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('apply_project_ai_balance_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-primary btn-sm w-full">Apply Date Rebalance</button>
+                    </form>
+                </div>
+
+                <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-3">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">4. Quality Gate</p>
+                    {% if ai_quality.checklist is defined and ai_quality.checklist|length > 0 %}
+                        {% for row in ai_quality.checklist|slice(0, 3) %}
+                            <p class="text-xs text-slate-600 dark:text-slate-300">• {{ row.item }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Generate toolkit to build QA checklist.</p>
+                    {% endif %}
+                    <form method="post" action="{{ path('app_project_ai_quality_apply', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('apply_project_ai_quality_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-success btn-sm w-full">Create QA Tasks</button>
+                    </form>
+                </div>
+
+                <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-3">
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">5. Weekly Sprint Planner</p>
+                    {% if ai_sprint.week_label is defined %}
+                        <p class="text-xs text-slate-600 dark:text-slate-300">{{ ai_sprint.week_label }}: {{ ai_sprint.focus|default('') }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Sprint tasks: {{ ai_sprint.sprint_tasks|default([])|length }}</p>
+                    {% else %}
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Generate toolkit to plan this week.</p>
+                    {% endif %}
+                    <form method="post" action="{{ path('app_project_ai_sprint_apply', {'id': project.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('apply_project_ai_sprint_' ~ project.id) }}">
+                        <button type="submit" class="btn btn-warning btn-sm w-full">Create Sprint Tasks</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/55 p-4 space-y-3">
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">AI Final Report (Completed Projects)</p>
+                {% set projectStatus = project.statut|default('')|lower %}
+                {% set isCompleted = projectStatus == 'terminé' or projectStatus == 'termine' or projectStatus == 'completed' %}
+                {% if isCompleted %}
+                    <p class="text-xs text-slate-600 dark:text-slate-300">
+                        Generate a final AI report (summary, achievements, lessons, next steps) and export as PDF.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <form method="post" action="{{ path('app_project_ai_report_generate', {'id': project.id}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('generate_project_ai_report_' ~ project.id) }}">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                Generate AI Report
+                            </button>
+                        </form>
+                        <a href="{{ path('app_project_ai_report_pdf', {'id': project.id}) }}" class="btn btn-secondary btn-sm">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Download PDF
+                        </a>
+                    </div>
+                    {% if ai_report.executive_summary is defined %}
+                        <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 p-3">
+                            <p class="text-xs text-slate-700 dark:text-slate-300"><strong>Preview:</strong> {{ ai_report.executive_summary }}</p>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        This feature unlocks when project status is set to completed.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
     </div>
     {% endif %}
 
@@ -187,9 +391,9 @@
                     <div class="p-4 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-primary-500 transition-colors">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex-1">
-                                <h6 class="font-semibold text-secondary-900 dark:text-white mb-1">{{ assignment.titre }}</h6>
-                                <p class="text-sm text-secondary-600 dark:text-secondary-400 mb-2">{{ assignment.description }}</p>
-                                <div class="text-xs text-secondary-500 dark:text-secondary-400 flex gap-4">
+                                <h6 class="font-semibold text-slate-900 dark:text-white mb-1">{{ assignment.titre }}</h6>
+                                <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">{{ assignment.description }}</p>
+                                <div class="text-xs text-slate-500 dark:text-slate-400 flex gap-4">
                                     <span><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>{{ assignment.dateFin|date('d/m/Y') }}</span>
                                     <span class="badge badge-{{ assignment.statut == 'TerminÃ©' ? 'success' : (assignment.statut == 'En cours' ? 'primary' : 'warning') }}">
                                         {{ assignment.statut }}
@@ -220,8 +424,8 @@
                 <div class="flex items-center justify-center w-12 h-12 mx-auto bg-danger-100 dark:bg-danger-900/30 rounded-full mb-4">
                     <i data-lucide="alert-triangle" class="w-6 h-6 text-danger-600 dark:text-danger-400"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-secondary-900 dark:text-white text-center mb-2">Delete project?</h3>
-                <p class="text-sm text-light-muted dark:text-dark-muted text-center mb-6">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white text-center mb-2">Delete project?</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 text-center mb-6">
                     Are you sure you want to delete <strong>{{ project.titre }}</strong>? This action cannot be undone.
                 </p>
                 <div class="flex flex-col-reverse sm:flex-row gap-3">
@@ -258,3 +462,5 @@
   });
 </script>
 {% endblock %}
+
+

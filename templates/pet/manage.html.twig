@@ -1,32 +1,35 @@
-{% extends 'base.html.twig' %}
+﻿{% extends 'base.html.twig' %}
 
 {% block title %}My Companion{% endblock %}
 
 {% block body %}
 {% set pet = app.user.mainPet %}
-<div class="max-w-5xl mx-auto py-8 space-y-6">
+<div class="max-w-5xl mx-auto py-8 space-y-6 text-slate-900 dark:text-slate-100">
     <div class="flex items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold">{{ pet.name }}</h1>
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white">{{ pet.name }}</h1>
             <p class="text-slate-500 dark:text-slate-400">Level {{ pet.level }} - {{ pet.mood }}</p>
         </div>
-        <a href="{{ path('app_pet_change_type') }}" class="btn btn-secondary">Change Type</a>
+        <div class="flex gap-2">
+            <a href="{{ path('app_pet_metaverse') }}" class="btn btn-primary">Pet Metaverse</a>
+            <a href="{{ path('app_pet_change_type') }}" class="btn bg-gradient-to-r from-fuchsia-500 to-violet-600 hover:from-fuchsia-400 hover:to-violet-500 text-white shadow-md shadow-fuchsia-500/30">Change Type</a>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card p-6">
+        <div class="card p-6 bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-100 dark:from-indigo-950/80 dark:via-blue-950/70 dark:to-cyan-950/70 border-cyan-200/80 dark:border-cyan-500/35">
             <h2 class="text-lg font-semibold mb-4">3D Companion</h2>
             <div id="petScene"
                  data-pet-hunger="{{ pet.hunger }}"
                  data-pet-type="{{ pet.type }}"
-                 class="w-full aspect-square rounded-2xl bg-gradient-to-br from-teal-50 via-blue-50 to-sky-100 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800"></div>
+                 class="w-full aspect-square rounded-2xl bg-gradient-to-br from-cyan-100 via-sky-100 to-indigo-200 dark:from-blue-900/40 dark:via-indigo-900/40 dark:to-violet-900/35 border border-cyan-300/60 dark:border-cyan-500/35"></div>
         </div>
 
-        <div class="card p-6 space-y-5">
+        <div class="card p-6 space-y-5 bg-gradient-to-br from-violet-50 via-fuchsia-50 to-blue-100 dark:from-indigo-950/80 dark:via-violet-950/70 dark:to-blue-950/70 border-fuchsia-200/80 dark:border-fuchsia-500/35">
             <div>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Hunger</p>
                 <p class="text-xl font-semibold"><span id="hungerValue">{{ pet.hunger }}</span>/100</p>
-                <div class="mt-2 w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                <div class="mt-2 w-full h-3 rounded-full bg-gradient-to-r from-cyan-200 via-blue-200 to-fuchsia-200 dark:from-cyan-900/45 dark:via-blue-900/45 dark:to-fuchsia-900/45 overflow-hidden">
                     <div id="hungerBar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-rose-500" style="width: {{ pet.hunger }}%"></div>
                 </div>
             </div>
@@ -37,8 +40,8 @@
             </div>
 
             <form method="post" action="{{ path('app_pet_rename') }}" class="flex gap-3">
-                <input type="text" name="name" value="{{ pet.name }}" minlength="2" maxlength="25" required class="input w-full" />
-                <button class="btn btn-secondary" type="submit">Rename</button>
+                <input type="text" name="name" value="{{ pet.name }}" minlength="2" maxlength="25" required class="input w-full !bg-white/90 dark:!bg-indigo-900/45 !border-cyan-300 dark:!border-cyan-500/45 !text-slate-900 dark:!text-cyan-50 placeholder:!text-cyan-500/80 dark:placeholder:!text-cyan-300/65" />
+                <button class="btn bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-md shadow-cyan-500/30" type="submit">Rename</button>
             </form>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -65,22 +68,226 @@
 <script>
 (function() {
     const localFallback = (container, type) => {
-        const emojiByType = {
-            cat: '🐱',
-            dog: '🐶',
-            dragon: '🐉',
-            fox: '🦊',
-            bird: '🐦',
-            hamster: '🐹'
+        const catFallback = '{{ asset('pets/cat-design/cat-avatar.jpg') }}?v=20260225-cat';
+        const dogFallback = '{{ asset('pets/dog-design/dog-avatar.jpg') }}';
+        const foxFallback = '{{ asset('pets/fox-avatar.jpg') }}?v=20260225-fox';
+        const dragonFallback = '{{ asset('pets/dragon-design/dragon-avatar.jpg') }}';
+        const birdFallback = '{{ asset('pets/bird-avatar.jpg') }}?v=20260225-bird3';
+        const hamsterFallback = '{{ asset('pets/hamster-avatar.jpg') }}';
+        const pandaFallback = '{{ asset('pets/panda-design/panda-avatar.jpg') }}';
+        const rabbitFallback = '{{ asset('pets/rabbit-avatar.jpg') }}';
+        const paletteByType = {
+            cat: { fur: '#f59e0b', bg1: '#fde68a', bg2: '#fca5a5', nose: '#b91c1c' },
+            dog: { fur: '#c2410c', bg1: '#bfdbfe', bg2: '#60a5fa', nose: '#1e293b' },
+            dragon: { fur: '#7c3aed', bg1: '#c4b5fd', bg2: '#8b5cf6', nose: '#1e1b4b' },
+            fox: { fur: '#ea580c', bg1: '#fdba74', bg2: '#fb7185', nose: '#7c2d12' },
+            bird: { fur: '#16a34a', bg1: '#86efac', bg2: '#22d3ee', nose: '#ca8a04' },
+            hamster: { fur: '#d97706', bg1: '#fde68a', bg2: '#fdba74', nose: '#7c2d12' },
+            panda: { fur: '#334155', bg1: '#e2e8f0', bg2: '#94a3b8', nose: '#0f172a' },
+            rabbit: { fur: '#f472b6', bg1: '#fbcfe8', bg2: '#c084fc', nose: '#9d174d' }
         };
-        const emoji = emojiByType[type] || '🐾';
-        if (!document.getElementById('pet-manage-fallback-style')) {
-            const st = document.createElement('style');
-            st.id = 'pet-manage-fallback-style';
-            st.textContent = '@keyframes petManageFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}';
-            document.head.appendChild(st);
+        const palette = paletteByType[type] || { fur: '#0f172a', bg1: '#cbd5e1', bg2: '#64748b', nose: '#020617' };
+        const safeType = (type || 'pet').toUpperCase();
+
+        if (type === 'cat' && catFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${catFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
         }
-        container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div style="font-size:64px; animation: petManageFloat 1.6s ease-in-out infinite;">' + emoji + '</div></div>';
+
+        if (type === 'dog' && dogFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${dogFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'dragon' && dragonFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${dragonFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'fox' && foxFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${foxFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'bird' && birdFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${birdFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'hamster' && hamsterFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${hamsterFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'panda' && pandaFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${pandaFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        if (type === 'rabbit' && rabbitFallback) {
+            container.innerHTML = `
+                <div class="w-full h-full flex items-center justify-center">
+                    <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                        <div style="position:absolute;inset:0;background-image:url('${rabbitFallback}');background-size:cover;background-position:center;"></div>
+                        <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;text-shadow:0 1px 2px rgba(0,0,0,0.55);">${safeType}</div>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let ears = '';
+        let extras = '';
+        let muzzleColor = palette.fur;
+
+        switch (type) {
+            case 'cat':
+                ears = `
+                    <div style="position:absolute;top:17%;left:28%;width:16%;height:16%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);transform:rotate(-12deg);"></div>
+                    <div style="position:absolute;top:17%;right:28%;width:16%;height:16%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);transform:rotate(12deg);"></div>
+                `;
+                extras = `
+                    <div style="position:absolute;top:52%;left:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                    <div style="position:absolute;top:58%;left:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                    <div style="position:absolute;top:52%;right:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                    <div style="position:absolute;top:58%;right:8%;width:20%;height:2px;background:#0f172a;border-radius:2px;"></div>
+                `;
+                break;
+            case 'dog':
+                ears = `
+                    <div style="position:absolute;top:22%;left:23%;width:14%;height:22%;background:${palette.fur};border-radius:12px;transform:rotate(14deg);"></div>
+                    <div style="position:absolute;top:22%;right:23%;width:14%;height:22%;background:${palette.fur};border-radius:12px;transform:rotate(-14deg);"></div>
+                `;
+                extras = `<div style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);width:12%;height:8%;background:#f43f5e;border-radius:0 0 10px 10px;"></div>`;
+                muzzleColor = '#fde68a';
+                break;
+            case 'dragon':
+                ears = `
+                    <div style="position:absolute;top:14%;left:30%;width:8%;height:18%;background:#fde047;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                    <div style="position:absolute;top:14%;right:30%;width:8%;height:18%;background:#fde047;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                `;
+                extras = `
+                    <div style="position:absolute;top:4%;left:50%;transform:translateX(-50%);width:10%;height:12%;background:#fef08a;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                    <div style="position:absolute;bottom:20%;left:50%;transform:translateX(-50%);width:30%;height:8%;background:rgba(255,255,255,0.25);border-radius:999px;"></div>
+                `;
+                break;
+            case 'fox':
+                ears = `
+                    <div style="position:absolute;top:16%;left:27%;width:17%;height:18%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                    <div style="position:absolute;top:16%;right:27%;width:17%;height:18%;background:${palette.fur};clip-path:polygon(50% 0,100% 100%,0 100%);"></div>
+                `;
+                extras = `<div style="position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:26%;height:14%;background:#fff7ed;border-radius:12px;"></div>`;
+                break;
+            case 'bird':
+                ears = `<div style="position:absolute;top:14%;left:50%;transform:translateX(-50%);width:14%;height:16%;background:#facc15;clip-path:polygon(50% 0,100% 100%,0 100%);"></div>`;
+                extras = `
+                    <div style="position:absolute;top:34%;left:18%;width:14%;height:22%;background:rgba(255,255,255,0.28);border-radius:999px;"></div>
+                    <div style="position:absolute;top:34%;right:18%;width:14%;height:22%;background:rgba(255,255,255,0.28);border-radius:999px;"></div>
+                `;
+                muzzleColor = '#f59e0b';
+                break;
+            case 'hamster':
+                ears = `
+                    <div style="position:absolute;top:19%;left:24%;width:15%;height:15%;background:${palette.fur};border-radius:999px;"></div>
+                    <div style="position:absolute;top:19%;right:24%;width:15%;height:15%;background:${palette.fur};border-radius:999px;"></div>
+                `;
+                extras = `
+                    <div style="position:absolute;bottom:24%;left:22%;width:16%;height:16%;background:#fdba74;border-radius:999px;opacity:0.95;"></div>
+                    <div style="position:absolute;bottom:24%;right:22%;width:16%;height:16%;background:#fdba74;border-radius:999px;opacity:0.95;"></div>
+                `;
+                break;
+            case 'panda':
+                ears = `
+                    <div style="position:absolute;top:17%;left:25%;width:16%;height:16%;background:#0f172a;border-radius:999px;"></div>
+                    <div style="position:absolute;top:17%;right:25%;width:16%;height:16%;background:#0f172a;border-radius:999px;"></div>
+                `;
+                extras = `
+                    <div style="position:absolute;top:33%;left:22%;width:20%;height:18%;background:#0f172a;border-radius:999px;opacity:0.9;"></div>
+                    <div style="position:absolute;top:33%;right:22%;width:20%;height:18%;background:#0f172a;border-radius:999px;opacity:0.9;"></div>
+                `;
+                muzzleColor = '#e2e8f0';
+                break;
+            case 'rabbit':
+                ears = `
+                    <div style="position:absolute;top:4%;left:30%;width:12%;height:28%;background:${palette.fur};border-radius:999px;"></div>
+                    <div style="position:absolute;top:4%;right:30%;width:12%;height:28%;background:${palette.fur};border-radius:999px;"></div>
+                    <div style="position:absolute;top:9%;left:34%;width:4%;height:18%;background:#f9a8d4;border-radius:999px;"></div>
+                    <div style="position:absolute;top:9%;right:34%;width:4%;height:18%;background:#f9a8d4;border-radius:999px;"></div>
+                `;
+                extras = `<div style="position:absolute;bottom:16%;left:50%;transform:translateX(-50%);width:10%;height:8%;background:#fff;border-radius:2px;"></div>`;
+                break;
+            default:
+                ears = `
+                    <div style="position:absolute;top:20%;left:30%;width:18%;height:18%;background:${palette.fur};border-radius:8px 8px 2px 2px;transform:rotate(-20deg);"></div>
+                    <div style="position:absolute;top:20%;right:30%;width:18%;height:18%;background:${palette.fur};border-radius:8px 8px 2px 2px;transform:rotate(20deg);"></div>
+                `;
+        }
+
+        container.innerHTML = `
+            <div class="w-full h-full flex items-center justify-center">
+                <div style="width:76%;height:76%;border-radius:22px;background:radial-gradient(circle at 30% 20%, ${palette.bg1} 0%, ${palette.bg2} 65%, #0f172a 100%);box-shadow:0 16px 30px rgba(15,23,42,0.28), inset 0 1px 0 rgba(255,255,255,0.45);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+                    ${ears}
+                    <div style="width:52%;height:52%;background:${palette.fur};border-radius:999px;position:relative;box-shadow:inset 0 -6px 12px rgba(0,0,0,0.2);">
+                        ${extras}
+                        <div style="position:absolute;top:36%;left:28%;width:9%;height:9%;background:#0f172a;border-radius:999px;"></div>
+                        <div style="position:absolute;top:36%;right:28%;width:9%;height:9%;background:#0f172a;border-radius:999px;"></div>
+                        <div style="position:absolute;bottom:23%;left:50%;transform:translateX(-50%);width:18%;height:12%;background:${muzzleColor};border-radius:10px 10px 14px 14px;"></div>
+                        <div style="position:absolute;bottom:16%;left:38%;width:8%;height:4%;border-bottom:2px solid #0f172a;border-radius:0 0 10px 10px;"></div>
+                        <div style="position:absolute;bottom:16%;right:38%;width:8%;height:4%;border-bottom:2px solid #0f172a;border-radius:0 0 10px 10px;"></div>
+                    </div>
+                    <div style="position:absolute;inset:auto 0 8px 0;text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;color:white;opacity:0.95;">${safeType}</div>
+                </div>
+            </div>
+        `;
     };
 
     const initScene = () => {
@@ -130,3 +337,7 @@
 })();
 </script>
 {% endblock %}
+
+
+
+

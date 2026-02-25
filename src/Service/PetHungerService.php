@@ -9,6 +9,8 @@ use Psr\Log\LoggerInterface;
 
 class PetHungerService
 {
+    private const HUNGER_TICK_SECONDS = 1800; // every 30 minutes
+
     public function __construct(
         private readonly PetRepository $petRepository,
         private readonly EntityManagerInterface $entityManager,
@@ -16,92 +18,69 @@ class PetHungerService
     ) {
     }
 
-    /**
-     * Augmente la faim de tous les pets de façon progressive et réaliste
-     * 
-     * - Plus le pet est de haut niveau → il a plus faim (besoins énergétiques plus élevés)
-     * - Petite variation aléatoire pour éviter que tous les pets aient exactement la même faim
-     * - Limite à 100
-     * - Log les mises à jour importantes
-     */
+    public function syncPetHunger(Pet $pet, ?\DateTimeImmutable $now = null): bool
+    {
+        $now ??= new \DateTimeImmutable();
+        $last = $pet->getLastHungerAt();
+        $elapsed = $now->getTimestamp() - $last->getTimestamp();
+
+        if ($elapsed < self::HUNGER_TICK_SECONDS) {
+            return false;
+        }
+
+        $ticks = intdiv($elapsed, self::HUNGER_TICK_SECONDS);
+        $ratePerTick = 1 + intdiv(max(1, $pet->getLevel()) - 1, 10);
+        $increase = $ticks * $ratePerTick;
+
+        $oldHunger = $pet->getHunger();
+        $newHunger = min(100, $oldHunger + $increase);
+
+        $pet->setHunger($newHunger);
+        $pet->setLastHungerAt(
+            $last->modify(sprintf('+%d seconds', $ticks * self::HUNGER_TICK_SECONDS))
+        );
+
+        if ($newHunger !== $oldHunger) {
+            $this->logger->debug(sprintf(
+                'Pet #%d hunger updated: %d -> %d (%d ticks).',
+                (int) $pet->getId(),
+                $oldHunger,
+                $newHunger,
+                $ticks
+            ));
+        }
+
+        return true;
+    }
+
     public function increaseHungerForAll(): int
     {
+        return $this->syncHungerForAll();
+    }
+
+    public function syncHungerForAll(?\DateTimeImmutable $now = null): int
+    {
+        $now ??= new \DateTimeImmutable();
         $pets = $this->petRepository->findAll();
-        
+
         if (empty($pets)) {
-            $this->logger->info('Aucun pet trouvé pour mise à jour de la faim.');
+            $this->logger->info('No pets found for hunger sync.');
             return 0;
         }
 
         $updatedCount = 0;
-
         foreach ($pets as $pet) {
-            // Base : 5 à 12 points selon le niveau
-            $baseIncrease = 5 + min($pet->getLevel(), 10); // max +15 pour niveaux élevés
-            
-            // Variation aléatoire ±30% pour plus de réalisme
-            $variation = random_int(-3, 3);
-            $increase = $baseIncrease + $variation;
-
-            $currentHunger = $pet->getHunger();
-            $newHunger = min(100, $currentHunger + $increase);
-
-            if ($newHunger > $currentHunger) {
-                $pet->setHunger($newHunger);
+            if ($this->syncPetHunger($pet, $now)) {
                 $updatedCount++;
-
-                // Log seulement si la faim augmente significativement ou atteint max
-                if ($increase >= 10 || $newHunger >= 95) {
-                    $this->logger->info(
-                        "Faim augmentée pour pet #{$pet->getId()} ({$pet->getName()}) : " .
-                        "{$currentHunger} → {$newHunger} (+{$increase}) - niveau {$pet->getLevel()}"
-                    );
-                }
             }
         }
 
         if ($updatedCount > 0) {
             $this->entityManager->flush();
-            $this->logger->info("{$updatedCount} pets ont eu leur faim augmentée.");
+            $this->logger->info(sprintf('%d pet(s) hunger synced.', $updatedCount));
         }
 
         return $updatedCount;
     }
-
-    /**
-     * Version alternative : calcul à la volée basé sur le temps écoulé depuis la dernière nourriture
-     * (plus précis, mais plus coûteux si appelé souvent)
-     */
-    public function updateHungerBasedOnTime(Pet $pet): void
-    {
-        // À implémenter seulement si tu ajoutes un champ lastFedAt dans l'entité Pet
-        /*
-        if (!$pet->getLastFedAt()) {
-            return;
-        }
-
-        $minutesSinceLastFed = (new \DateTime())->getTimestamp() - $pet->getLastFedAt()->getTimestamp();
-        $hoursSinceLastFed = $minutesSinceLastFed / 3600;
-
-        // Exemple : +1.5 faim par heure, + bonus par niveau
-        $increase = (int) ($hoursSinceLastFed * (1.5 + ($pet->getLevel() * 0.15)));
-        $newHunger = min(100, $pet->getHunger() + $increase);
-
-        if ($newHunger > $pet->getHunger()) {
-            $pet->setHunger($newHunger);
-            $this->entityManager->flush();
-        }
-        */
-    }
-
-    /**
-     * Méthode pour mettre à jour TOUS les pets en une seule passe (cron)
-     * Alternative à increaseHungerForAll() si tu veux la version "temps écoulé"
-     */
-    public function updateAllHungerBasedOnTime(): int
-    {
-        // À utiliser seulement si tu ajoutes lastFedAt
-        // ...
-        return 0;
-    }
 }
+

@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Assignment;
 use App\Entity\Project;
+use App\Entity\ProjectShare;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -136,8 +137,16 @@ class AssignmentType extends AbstractType
                 ],
                 'query_builder' => function ($projectRepository) use ($options) {
                     return $projectRepository->createQueryBuilder('p')
-                        ->andWhere('p.user = :user')
+                        ->select('DISTINCT p')
+                        ->leftJoin(
+                            ProjectShare::class,
+                            'ps',
+                            'WITH',
+                            'ps.project = p AND ps.sharedWithUser = :user AND ps.role = :editorRole'
+                        )
+                        ->andWhere('p.user = :user OR ps.id IS NOT NULL')
                         ->setParameter('user', $options['user'])
+                        ->setParameter('editorRole', 'editor')
                         ->orderBy('p.titre', 'ASC');
                 },
             ]);
