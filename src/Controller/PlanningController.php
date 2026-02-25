@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use App\Entity\Notification;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 
 #[Route('/planning')]
@@ -383,30 +384,116 @@ public function new(
            EMAIL
         ========================== */
 
-        if ($user->getEmail()) {
+        // Remplace le bloc if ($user->getEmail()) { ... } par ce code dans ta méthode new()
+// (nécessite que $request et $mailer soient disponibles dans la méthode)
 
-            $email = (new Email())
-                ->from('yassine.mlaouah@cme.tn')
-                ->to($user->getEmail())
-                ->subject('New schedule added')
-                ->html(sprintf(
-                    '<p>Hello %s,</p>
-                     <p>Your session <strong>%s</strong> It was well planned :</p>
-                     <ul>
-                        <li>Date : %s</li>
-                        <li>Start time : %s</li>
-                        <li>End time : %s</li>
-                     </ul>
-                     <p>Sincerely,<br>The RLIFE team</p>',
-                    htmlspecialchars($user->getUsername()),
-                    htmlspecialchars($seanceLabel),
-                    $planning->getDateDebut()->format('d/m/Y'),
-                    $planning->getDateDebut()->format('H:i'),
-                    $planning->getDateFin() ? $planning->getDateFin()->format('H:i') : '-'
-                ));
+// ... dans ta méthode new(), remplace l'ancien bloc d'envoi par ceci :
 
-            $mailer->send($email);
+// Controller — envoi d'email avec logo forcé en inline via data URI
+
+if ($user->getEmail()) {
+    $projectDir = $this->getParameter('kernel.project_dir');
+    $candidates = [
+        $projectDir . '/public/image/logo.jpg',
+        $projectDir . '/public/images/logo.jpg',
+        $projectDir . '/public/image logo.jpg',
+        $projectDir . '/public/logo.jpg',
+        $projectDir . '/image/logo.png',
+    ];
+
+    $logoPath = null;
+    foreach ($candidates as $p) {
+        if (file_exists($p) && is_readable($p)) { $logoPath = $p; break; }
+    }
+
+    $fromAddress = 'yassine.mlaouah@cme.tn';
+    $message = (new Email())
+        ->from($fromAddress)
+        ->to($user->getEmail())
+        ->subject('Your schedule has been added — RLIFE');
+
+    // fallback public URL for link
+    $planningUrl = $this->generateUrl('app_planning', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+    // Construct data URI for logo (preferred)
+    $imgSrc = null;
+    if ($logoPath) {
+        try {
+            $data = file_get_contents($logoPath);
+            if ($data !== false) {
+                $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+                $mime = $finfo ? @finfo_buffer($finfo, $data) : null;
+                if ($finfo) @finfo_close($finfo);
+                if (!$mime) {
+                    $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+                    $map = ['png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','gif'=>'image/gif'];
+                    $mime = $map[$ext] ?? 'application/octet-stream';
+                }
+                $b64 = base64_encode($data);
+                $imgSrc = 'data:' . $mime . ';base64,' . $b64;
+            }
+        } catch (\Throwable $e) {
+            $imgSrc = null;
         }
+    }
+
+    // Final fallback: public URL (if data URI not possible)
+    if (!$imgSrc) {
+        $host = rtrim($request->getSchemeAndHttpHost(), '/');
+        $imgSrc = $host . '/image/logo.jpg'; // adapte si ton chemin diffère
+    }
+
+    // Sanitize fields
+    $username = htmlspecialchars((string)$user->getUsername(), ENT_QUOTES, 'UTF-8');
+    $seanceLabelSafe = htmlspecialchars((string)$seanceLabel, ENT_QUOTES, 'UTF-8');
+    $date = $planning->getDateDebut() ? $planning->getDateDebut()->format('d/m/Y') : '-';
+    $start = $planning->getDateDebut() ? $planning->getDateDebut()->format('H:i') : '-';
+    $end = $planning->getDateFin() ? $planning->getDateFin()->format('H:i') : '-';
+
+    // Build HTML with logo at top
+    $imgSrcSafe = htmlspecialchars((string)$imgSrc, ENT_QUOTES, 'UTF-8');
+    $htmlBody = <<<HTML
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0;background:#f7f8fb">
+  <div style="max-width:680px;margin:24px auto;background:#fff;padding:20px;border-radius:10px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <img src="{$imgSrcSafe}" alt="RLIFE" style="height:56px;border-radius:6px;display:block" />
+      <div>
+        <div style="font-weight:700;font-size:18px">RLIFE — Scheduling</div>
+        <div style="color:#6b7280;font-size:13px">Professional schedule notifications</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:6px">Your session has been scheduled</h2>
+    <p style="color:#475569">Hello {$username},</p>
+
+    <p>We successfully added the following session to your calendar:</p>
+    <div style="background:#f8fafc;border:1px solid #eef2ff;padding:12px;border-radius:8px">
+      <ul style="margin:0;padding-left:18px">
+        <li><strong>Session:</strong> {$seanceLabelSafe}</li>
+        <li><strong>Date:</strong> {$date}</li>
+        <li><strong>Start time:</strong> {$start}</li>
+        <li><strong>End time:</strong> {$end}</li>
+      </ul>
+    </div>
+
+
+    <p style="margin-top:18px">Thanks,<br><strong>The RLIFE Team</strong></p>
+  </div>
+</body></html>
+HTML;
+
+    $textBody = "Hello {$user->getUsername()},\n\nYour session \"{$seanceLabel}\" has been scheduled on {$date} from {$start} to {$end}.\n\nOpen your schedule: {$planningUrl}\n\nSincerely,\nThe RLIFE Team\n";
+
+    $message->html($htmlBody)->text($textBody);
+
+    try {
+        $mailer->send($message);
+    } catch (\Throwable $e) {
+        // optional: logger
+    }
+}
 
         $this->addFlash('success', 'Event created successfully!');
 
@@ -714,7 +801,7 @@ public function feedbackForm(int $id, Request $request, EntityManagerInterface $
         throw $this->createNotFoundException('Planning not found');
     }
     if ($planning->getDateFin() > new \DateTime()) {
-        $this->addFlash('error', "Vous ne pouvez donner un avis qu'après la fin de la séance.");
+        $this->addFlash('error', "You can only give feedback after the session has ended.");
         return $this->redirectToRoute('app_planning');
     }
     if ($planning->getUser() && $this->getUser() && $planning->getUser()->getId() !== $this->getUser()->getId()) {
@@ -740,7 +827,7 @@ public function feedbackForm(int $id, Request $request, EntityManagerInterface $
 
     if ($form->isSubmitted() && $form->isValid()) {
         $em->flush();
-        $this->addFlash('success', 'Merci pour votre feedback !');
+        $this->addFlash('success', 'Thank you for your feedback !');
         return $this->redirectToRoute('app_planning');
     }
 

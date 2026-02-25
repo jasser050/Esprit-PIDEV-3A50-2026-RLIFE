@@ -1,5 +1,5 @@
 {% extends 'base.html.twig' %}
-{% block title %}AI Smart Planning{% endblock %}
+{% block title %}Smart Planning{% endblock %}
 
 {% block stylesheets %}
 {{ parent() }}
@@ -410,6 +410,13 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
 {% endblock %}
 
 {% block body %}
+{% include 'components/breadcrumbs.html.twig' with {
+        items: [
+            { label: 'Dashboard', href: path('app_dashboard') },
+            { label: 'Schedule', href: path('app_planning') },
+            { label: 'SMART PLAN' }
+        ]
+    } %}
 
 <!-- AI ENGINE OVERLAY -->
 <div id="ai-engine-overlay">
@@ -434,7 +441,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
         <div class="ai-sub">// intelligent schedule generator</div>
       </div>
     </div>
-    <div class="ai-status"><span class="ai-sdot"></span>AI Engine Ready</div>
+    <div class="ai-status"><span class="ai-sdot"></span>Ready to generate</div>
   </div>
 
   <!-- PERIOD -->

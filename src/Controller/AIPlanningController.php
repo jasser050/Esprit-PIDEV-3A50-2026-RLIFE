@@ -29,6 +29,7 @@ class AIPlanningController extends AbstractController
     }
 
     #[Route('/ai/planning', name: 'app_ai_planning')]
+    #[Route('/ai/planning', name: 'app_ai_planning_index')]
     public function index(Request $request): Response
     {
         if (!$this->getUser()) {
