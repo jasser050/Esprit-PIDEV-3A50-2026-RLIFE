@@ -78,10 +78,7 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            if ($this->isBrowserPageTargetPath($targetPath)) {
-                return new RedirectResponse($targetPath);
-            }
-            $this->removeTargetPath($request->getSession(), $firewallName);
+            return new RedirectResponse($targetPath);
         }
 
         // Redirect based on role
@@ -96,46 +93,5 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
     protected function getLoginUrl(Request $request): string
     {
         return $this->router->generate(self::LOGIN_ROUTE);
-    }
-
-    private function isBrowserPageTargetPath(string $targetPath): bool
-    {
-        $candidate = trim($targetPath);
-        if ($candidate == '') {
-            return false;
-        }
-
-        $parts = parse_url($candidate);
-        if ($parts === false) {
-            return false;
-        }
-
-        $path = (string) ($parts['path'] ?? '/');
-        $query = (string) ($parts['query'] ?? '');
-        $normalizedPath = '/' . ltrim($path, '/');
-        $lowerPath = strtolower($normalizedPath);
-        $lowerQuery = strtolower($query);
-
-        $blockedPrefixes = [
-            '/api',
-            '/_profiler',
-            '/_wdt',
-            '/pet/metaverse/communications',
-            '/pet/metaverse/communicate',
-            '/pet/metaverse/reward',
-            '/pet/action',
-        ];
-
-        foreach ($blockedPrefixes as $prefix) {
-            if (str_starts_with($lowerPath, $prefix)) {
-                return false;
-            }
-        }
-
-        if (str_contains($lowerQuery, 'json=1') || str_contains($lowerQuery, 'format=json') || str_contains($lowerQuery, 'xhr=1')) {
-            return false;
-        }
-
-        return true;
     }
 }
