@@ -253,6 +253,15 @@
                                 <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap gap-3">
                                     <span><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>{{ suggestion.start_date }} -> {{ suggestion.due_date }}</span>
                                     <span class="badge badge-secondary badge-pill">{{ suggestionStatus }}</span>
+                                    {% if suggestion.assignee_name is defined and suggestion.assignee_name %}
+                                        <span class="badge badge-info badge-pill">
+                                            {{ suggestion.assignee_role|default('member')|capitalize }}: {{ suggestion.assignee_name }}
+                                        </span>
+                                    {% elseif suggestion.assignee_email is defined and suggestion.assignee_email %}
+                                        <span class="badge badge-info badge-pill">
+                                            {{ suggestion.assignee_role|default('member')|capitalize }}: {{ suggestion.assignee_email }}
+                                        </span>
+                                    {% endif %}
                                 </div>
                                 <div class="rounded-lg border border-amber-200/80 dark:border-amber-800/70 bg-amber-50/70 dark:bg-amber-900/20 px-2.5 py-2">
                                     <p class="text-xs text-amber-700 dark:text-amber-200">{{ suggestion.reason|default('Task suggested to reduce delivery risk.') }}</p>

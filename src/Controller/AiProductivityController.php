@@ -256,9 +256,31 @@ class AiProductivityController extends AbstractController
 
     private function isDoneStatus(?string $status): bool
     {
-        $normalized = mb_strtolower(trim((string) $status));
-        $normalized = str_replace(['Ã©', 'Ã¨', 'Ãª'], 'e', $normalized);
-        return in_array($normalized, ['termine', 'completed', 'done'], true);
+        $raw = mb_strtolower(trim((string) $status));
+        if ($raw === '') {
+            return false;
+        }
+
+        $raw = str_replace(
+            ['terminÃ©', 'terminã©', 'terminÃƒÂ©', 'terminé', 'terminè', 'terminê'],
+            'termine',
+            $raw
+        );
+
+        $ascii = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $raw);
+        if ($ascii === false) {
+            $ascii = $raw;
+        }
+
+        $normalized = preg_replace('/[^a-z]/', '', $ascii) ?? '';
+        if ($normalized === '') {
+            return false;
+        }
+
+        return in_array($normalized, ['termine', 'completed', 'done', 'finished'], true)
+            || str_contains($normalized, 'termin')
+            || str_contains($normalized, 'complet')
+            || str_contains($normalized, 'finish');
     }
 }
 

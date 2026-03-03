@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Assignment;
 use App\Entity\AssignmentCollaborator;
 use App\Entity\Project;
+use App\Repository\AssignmentRepository;
 use App\Repository\AssignmentCollaboratorRepository;
 use App\Repository\ProjectShareRepository;
 use App\Repository\UserRepository;
@@ -26,14 +27,20 @@ class CollaborationController extends AbstractController
 
     #[Route('/assignment/{id}/assign', name: 'app_collaboration_assign_task', methods: ['POST'])]
     public function assignTask(
-        Assignment $assignment,
+        int $id,
         Request $request,
+        AssignmentRepository $assignmentRepository,
         EntityManagerInterface $entityManager,
         UserRepository $userRepository,
         AssignmentCollaboratorRepository $collaboratorRepository,
         ProjectShareRepository $shareRepository,
         NotificationManager $notificationManager
     ): Response {
+        $assignment = $assignmentRepository->find($id);
+        if (!$assignment instanceof Assignment) {
+            throw $this->createNotFoundException('Assignment not found.');
+        }
+
         // Security check - only assignment owner can assign
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();

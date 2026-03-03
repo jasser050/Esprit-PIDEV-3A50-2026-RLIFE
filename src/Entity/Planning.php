@@ -15,7 +15,7 @@ class Planning
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Seance::class)]
+    #[ORM\ManyToOne(targetEntity: Seance::class, inversedBy: 'plannings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: 'Session selection is required.')]
     private ?Seance $seance = null;
@@ -29,7 +29,8 @@ class Planning
     private ?\DateTimeInterface $dateFin = null;
 
     // Ajoute d’autres propriétés selon ton modèle :
-    #[ORM\Column(type: "string", length: 20, nullable: true)]
+    #[ORM\Column(type: "string", length: 20)]
+    #[Assert\NotNull(message: 'Color selection is required.')]
     private ?string $color = null;
 
     #[ORM\Column(type: "smallint", nullable: true)]
@@ -38,7 +39,6 @@ class Planning
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
-
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {

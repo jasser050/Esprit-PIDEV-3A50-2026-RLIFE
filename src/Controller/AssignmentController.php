@@ -144,8 +144,9 @@ class AssignmentController extends AbstractController
 
     #[Route('/{id}', name: 'app_assignments_show', methods: ['GET', 'POST'])]
     public function show(
-        Assignment $assignment,
+        int $id,
         Request $request,
+        AssignmentRepository $assignmentRepository,
         AssignmentStatsService $statsService,
         CommentRepository $commentRepository,
         EntityManagerInterface $entityManager,
@@ -153,6 +154,11 @@ class AssignmentController extends AbstractController
         ProjectShareRepository $shareRepository,
         NotificationManager $notificationManager
     ): Response {
+        $assignment = $assignmentRepository->find($id);
+        if (!$assignment instanceof Assignment) {
+            throw $this->createNotFoundException('Assignment not found.');
+        }
+
         // Check if user is owner, collaborator, or has project access
         $isOwner = $assignment->getUser() === $this->getUser();
         $isCollaborator = $collaboratorRepository->findOneByAssignmentAndUser($assignment, $this->getUser()) !== null;
@@ -211,10 +217,16 @@ class AssignmentController extends AbstractController
     #[Route('/{id}/edit', name: 'app_assignments_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
-        Assignment $assignment,
+        int $id,
+        AssignmentRepository $assignmentRepository,
         ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
+        $assignment = $assignmentRepository->find($id);
+        if (!$assignment instanceof Assignment) {
+            throw $this->createNotFoundException('Assignment not found.');
+        }
+
         $currentUser = $this->getUser();
         $isOwner = $assignment->getUser() === $currentUser;
 
@@ -264,10 +276,16 @@ class AssignmentController extends AbstractController
     #[Route('/{id}/delete', name: 'app_assignments_delete', methods: ['POST'])]
     public function delete(
         Request $request,
-        Assignment $assignment,
+        int $id,
+        AssignmentRepository $assignmentRepository,
         ProjectShareRepository $shareRepository,
         EntityManagerInterface $entityManager
     ): Response {
+        $assignment = $assignmentRepository->find($id);
+        if (!$assignment instanceof Assignment) {
+            throw $this->createNotFoundException('Assignment not found.');
+        }
+
         $currentUser = $this->getUser();
         $isOwner = $assignment->getUser() === $currentUser;
 
@@ -313,9 +331,15 @@ class AssignmentController extends AbstractController
 
     #[Route('/{id}/export/pdf', name: 'app_assignments_export_single_pdf', methods: ['GET'])]
     public function exportSinglePdf(
-        Assignment $assignment,
+        int $id,
+        AssignmentRepository $assignmentRepository,
         AssignmentPdfService $pdfService
     ): Response {
+        $assignment = $assignmentRepository->find($id);
+        if (!$assignment instanceof Assignment) {
+            throw $this->createNotFoundException('Assignment not found.');
+        }
+
         if ($assignment->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
         }

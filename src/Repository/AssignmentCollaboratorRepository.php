@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Assignment;
 use App\Entity\AssignmentCollaborator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,6 +22,10 @@ class AssignmentCollaboratorRepository extends ServiceEntityRepository
      */
     public function findByAssignment($assignment): array
     {
+        if ($assignment instanceof Assignment && $assignment->getId() === null) {
+            return [];
+        }
+
         return $this->createQueryBuilder('ac')
             ->andWhere('ac.assignment = :assignment')
             ->setParameter('assignment', $assignment)
@@ -47,6 +52,10 @@ class AssignmentCollaboratorRepository extends ServiceEntityRepository
      */
     public function findOneByAssignmentAndUser($assignment, $user): ?AssignmentCollaborator
     {
+        if ($assignment instanceof Assignment && $assignment->getId() === null) {
+            return null;
+        }
+
         return $this->createQueryBuilder('ac')
             ->andWhere('ac.assignment = :assignment')
             ->andWhere('ac.user = :user')

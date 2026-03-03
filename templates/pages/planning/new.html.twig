@@ -3,8 +3,7 @@
 {% block title %}New Event{% endblock %}
 
 {% block body %}
-<div class="space-y-6 max-w-2xl mx-auto">
-
+<div class="max-w-xl mx-auto space-y-8 animate-fade-in">
     {% include 'components/breadcrumbs.html.twig' with {
         items: [
             { label: 'Dashboard', href: path('app_dashboard') },
@@ -12,34 +11,173 @@
             { label: 'New Event' }
         ]
     } %}
-
     {% include 'components/page_header.html.twig' with {
         title: 'New Event',
         subtitle: 'Add a new event to your calendar'
     } %}
 
-    {# Affichage global des erreurs (racine) #}
-    {{ form_errors(form) }}
+    <div class="card shadow-xl rounded-xl p-8 space-y-6">
 
-    {{ form_start(form) }}
-        <div class="space-y-6">
-            {{ form_row(form.seance) }}    {# Champ + erreurs #}
-            {{ form_row(form.date) }}
-            {{ form_row(form.start_time) }}
-            {{ form_row(form.end_time) }}
-            {{ form_row(form.color) }}
-            {# {{ form_row(form.feedback) }} #}
-
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-light-border dark:border-dark-border">
-                <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-primary">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                    Create Event
-                </button>
+        {% if form.vars.errors|length > 0 %}
+            <div class="alert alert-danger mb-6 flex items-center gap-2 animate-fade-in">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-danger-500"></i>
+                <div>
+                    {{ form_errors(form) }}
+                </div>
             </div>
+        {% endif %}
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate', 'class': 'space-y-8'}}) }}
+
+        {# SESSION / SEANCE #}
+        <div>
+            {{ form_label(form.seance, "Session", {'label_attr': {'class': 'font-semibold text-sm'}}) }}
+            {{ form_widget(form.seance, {
+                'attr': {
+                    'id': form.seance.vars.id,
+                    'class': 'w-full rounded-md border ' ~ 
+                        (form.seance.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 focus:ring-primary-500') 
+                        ~ ' px-3 py-2 text-sm focus:outline-none focus:ring-2'
+                }
+            }) }}
+            <div class="mt-1 text-xs text-secondary-500">
+                Choose which session you want to schedule.
+            </div>
+            {% if form.seance.vars.errors|length > 0 %}
+                <div class="text-sm text-red-600 mt-1">{{ form_errors(form.seance) }}</div>
+            {% endif %}
         </div>
-    {{ form_end(form) }}
+        {# DATE #}
+        <div>
+            {{ form_label(form.date, "Date", {'label_attr': {'class': 'font-semibold text-sm'}}) }}
+            {{ form_widget(form.date, {
+                'attr': {
+                    'id': form.date.vars.id,
+                    'class': 'w-full rounded-md border ' ~ 
+                        (form.date.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 focus:ring-primary-500')
+                        ~ ' px-3 py-2 text-sm focus:outline-none focus:ring-2'
+                }
+            }) }}
+            <div class="mt-1 text-xs text-secondary-500">
+                Select the event day.
+            </div>
+            {% if form.date.vars.errors|length > 0 %}
+                <div class="text-sm text-red-600 mt-1">{{ form_errors(form.date) }}</div>
+            {% endif %}
+        </div>
+        {# START TIME #}
+        <div>
+            {{ form_label(form.start_time, "Start Time", {'label_attr': {'class': 'font-semibold text-sm'}}) }}
+            {{ form_widget(form.start_time, {
+                'attr': {
+                    'id': form.start_time.vars.id,
+                    'class': 'w-full rounded-md border ' ~ 
+                        (form.start_time.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 focus:ring-primary-500')
+                        ~ ' px-3 py-2 text-sm focus:outline-none focus:ring-2'
+                }
+            }) }}
+            <div class="mt-1 text-xs text-secondary-500">
+                Enter when the session begins.
+            </div>
+            {% if form.start_time.vars.errors|length > 0 %}
+                <div class="text-sm text-red-600 mt-1">{{ form_errors(form.start_time) }}</div>
+            {% endif %}
+        </div>
+        {# END TIME #}
+        <div>
+            {{ form_label(form.end_time, "End Time", {'label_attr': {'class': 'font-semibold text-sm'}}) }}
+            {{ form_widget(form.end_time, {
+                'attr': {
+                    'id': form.end_time.vars.id,
+                    'class': 'w-full rounded-md border ' ~ 
+                        (form.end_time.vars.errors|length > 0 ? 'border-red-500 focus:ring-red-500' : 'border-secondary-200 focus:ring-primary-500')
+                        ~ ' px-3 py-2 text-sm focus:outline-none focus:ring-2'
+                }
+            }) }}
+            <div class="mt-1 text-xs text-secondary-500">
+                End time must be after start time.
+            </div>
+            {% if form.end_time.vars.errors|length > 0 %}
+                <div class="text-sm text-red-600 mt-1">{{ form_errors(form.end_time) }}</div>
+            {% endif %}
+        </div>
+        {# COLOR - menu select avec choix clairs #}
+        <div id="colorDiv">
+            {{ form_label(form.color, "Color", {'label_attr': {'class': 'font-semibold text-sm'}}) }}
+            {{ form_widget(form.color, {
+                'attr': {
+                    'id': form.color.vars.id,
+                    'class': 'w-full rounded-md border border-secondary-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500'
+                }
+            }) }}
+            <div class="mt-1 text-xs text-secondary-500">
+                Choose a color to identify this event.
+            </div>
+            {% if form.color.vars.errors|length > 0 %}
+                <div class="text-sm text-red-600 mt-1">{{ form_errors(form.color) }}</div>
+            {% endif %}
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-5 border-t border-secondary-100 dark:border-secondary-800">
+            <a href="{{ path('app_planning') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary flex items-center gap-2">
+                <i data-lucide="calendar-plus" class="w-5 h-5"></i>
+                Create Event
+            </button>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prends les IDs générés dynamiquement par twig/form
+    const seanceSelect = document.getElementById('{{ form.seance.vars.id }}');
+    const colorSelect = document.getElementById('{{ form.color.vars.id }}');
+    const st = document.getElementById('{{ form.start_time.vars.id }}');
+    const et = document.getElementById('{{ form.end_time.vars.id }}');
+    const DAY_OFF_TEXT = 'day off';
+
+    function forceColorGreen() {
+        if (!colorSelect) return;
+        let found = false;
+        for (let i = 0; i < colorSelect.options.length; i++) {
+            // On matche sur la value, ce qui est soumis en base !
+            if (colorSelect.options[i].value === 'green') {
+                colorSelect.selectedIndex = i;
+                found = true;
+                // Trigger event pour que Symfony mette à jour la valeur submit
+                colorSelect.dispatchEvent(new Event('change', {bubbles:true}));
+                break;
+            }
+        }
+        if (!found) {
+            // Fallback, set first option
+            colorSelect.selectedIndex = 0;
+        }
+    }
+
+    function handleDayOff() {
+        let selectedText = seanceSelect.options[seanceSelect.selectedIndex]?.text.trim().toLowerCase() ?? '';
+        if (selectedText === DAY_OFF_TEXT) {
+            st.value = '00:00';
+            et.value = '23:59';
+            st.readOnly = true; st.style.pointerEvents = 'none';
+            et.readOnly = true; et.style.pointerEvents = 'none';
+            forceColorGreen();
+            colorSelect.disabled = true;
+        } else {
+            st.readOnly = false; st.style.pointerEvents = '';
+            et.readOnly = false; et.style.pointerEvents = '';
+            colorSelect.disabled = false;
+        }
+    }
+
+    if (seanceSelect && colorSelect) {
+        seanceSelect.addEventListener('change', handleDayOff);
+        // Pour édition/init
+        handleDayOff();
+    }
+});
+</script>
 {% endblock %}

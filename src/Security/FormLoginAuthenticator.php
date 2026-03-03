@@ -78,7 +78,12 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
+            if ($this->isBrowserPageTargetPath($targetPath)) {
+                return new RedirectResponse($targetPath);
+            }
+
+            // Prevent post-login redirects to JSON/AJAX endpoints.
+            $this->removeTargetPath($request->getSession(), $firewallName);
         }
 
         // Redirect based on role
@@ -93,5 +98,37 @@ class FormLoginAuthenticator extends AbstractLoginFormAuthenticator
     protected function getLoginUrl(Request $request): string
     {
         return $this->router->generate(self::LOGIN_ROUTE);
+    }
+
+    private function isBrowserPageTargetPath(string $targetPath): bool
+    {
+        $path = (string) (parse_url($targetPath, PHP_URL_PATH) ?? '');
+        if ($path === '') {
+            return false;
+        }
+
+        $blockedPrefixes = [
+            '/pet/metaverse/communications',
+            '/pet/metaverse/communicate',
+            '/pet/metaverse/reward',
+            '/pet/status',
+            '/pet/action',
+            '/pet/leaderboard',
+            '/pet/opponents',
+            '/pet/battle',
+            '/pet/feed',
+            '/pet/rename',
+            '/api/',
+            '/_wdt/',
+            '/_profiler/',
+        ];
+
+        foreach ($blockedPrefixes as $prefix) {
+            if (str_starts_with($path, $prefix)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

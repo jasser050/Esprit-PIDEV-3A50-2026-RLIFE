@@ -249,9 +249,10 @@
 
         <!-- Indicateur filtres actifs -->
         {% if search or statut %}
+            {% set activeStatusLabel = (statut in ['En cours']) ? 'In Progress' : ((statut in ['Terminé', 'TerminÃ©', 'Termine']) ? 'Completed' : ((statut in ['En attente']) ? 'Pending' : statut)) %}
             <div class="text-sm bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
                 {% if search %}Results for: <strong>{{ search }}</strong>{% endif %}
-                {% if statut %} â€¢ Status: <strong>{{ statut }}</strong>{% endif %}
+                {% if statut %} â€¢ Status: <strong>{{ activeStatusLabel }}</strong>{% endif %}
             </div>
         {% endif %}
     </div>
@@ -279,12 +280,14 @@
                                 </p>
                             {% endif %}
                         </div>
+                        {% set statusRaw = project.statut|default('') %}
+                        {% set statusLabel = (statusRaw in ['En cours']) ? 'In Progress' : ((statusRaw in ['Terminé', 'TerminÃ©', 'Termine']) ? 'Completed' : ((statusRaw in ['En attente']) ? 'Pending' : statusRaw)) %}
                         <span class="badge badge-pill
                             {% if project.statut == 'En cours' %}badge-primary
                             {% elseif project.statut == 'TerminÃ©' %}badge-success
                             {% elseif project.statut == 'En attente' %}badge-warning
                             {% else %}badge-danger{% endif %}">
-                            {{ project.statut }}
+                            {{ statusLabel }}
                         </span>
                     </div>
 

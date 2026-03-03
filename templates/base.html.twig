@@ -22,8 +22,11 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Three.js pour le rendu 3D du pet -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js"></script>
+    <!-- Three.js module preload for local/offline-safe pet 3D rendering -->
+    <script type="module">
+        import * as THREE from '{{ asset('vendor/three/build/three.module.min.js') }}';
+        window.THREE = window.THREE || THREE;
+    </script>
 
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
@@ -58,7 +61,10 @@
         <!-- Pet Management Scripts -->
     <script>
         window.RLife3D = window.RLife3D || {};
+        window.RLife3D.enable3D = false;
         window.RLife3D.assets = window.RLife3D.assets || {
+            threeModule: '{{ asset('vendor/three/build/three.module.min.js') }}',
+            objLoaderModule: '{{ asset('vendor/three/examples/jsm/loaders/OBJLoader.js') }}',
             catObj: '{{ asset('pets/cat-design/base.obj') }}',
             catDiffuse: '{{ asset('pets/cat-design/texture_diffuse.png') }}',
             catNormal: '{{ asset('pets/cat-design/texture_normal.png') }}',
@@ -76,63 +82,78 @@
         };
 
         window.RLife3D.ensureThree = function(callback) {
+            if (window.RLife3D.enable3D !== true) {
+                callback();
+                return;
+            }
             if (typeof THREE !== 'undefined') {
                 callback();
                 return;
             }
 
-            const existing = document.getElementById('rlife-three-loader');
-            if (existing) {
-                existing.addEventListener('load', callback, { once: true });
-                return;
+            if (!window.RLife3D._threePromise) {
+                const localModule = window.RLife3D.assets?.threeModule || '/vendor/three/build/three.module.min.js';
+                window.RLife3D._threePromise = import(localModule)
+                    .then(function(mod) {
+                        if (mod) window.THREE = mod;
+                        return mod;
+                    })
+                    .catch(function(err) {
+                        console.error('[RLife3D] Failed to load local Three.js module:', err);
+                        return null;
+                    });
             }
 
-            const script = document.createElement('script');
-            script.id = 'rlife-three-loader';
-            script.src = 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.min.js';
-            script.onload = callback;
-            script.onerror = function() {
-                const fallback = document.createElement('script');
-                fallback.src = 'https://unpkg.com/three@0.168.0/build/three.min.js';
-                fallback.onload = callback;
-                fallback.onerror = callback;
-                document.head.appendChild(fallback);
-            };
-            document.head.appendChild(script);
+            window.RLife3D._threePromise.then(function() {
+                callback();
+            }).catch(function() {
+                callback();
+            });
         };
 
         window.RLife3D.ensureOBJLoader = function(callback) {
-            if (typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined') {
-                callback();
-                return;
-            }
+            window.RLife3D.ensureThree(function() {
+                if (typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined') {
+                    callback();
+                    return;
+                }
 
-            const existing = document.getElementById('rlife-obj-loader');
-            if (existing) {
-                existing.addEventListener('load', callback, { once: true });
-                return;
-            }
+                if (!window.RLife3D._objLoaderPromise) {
+                    const localObjLoader = window.RLife3D.assets?.objLoaderModule || '/vendor/three/examples/jsm/loaders/OBJLoader.js';
+                    window.RLife3D._objLoaderPromise = import(localObjLoader)
+                        .then(function(mod) {
+                            if (typeof THREE !== 'undefined' && mod && mod.OBJLoader) {
+                                window.THREE.OBJLoader = mod.OBJLoader;
+                            }
+                            return mod;
+                        })
+                        .catch(function(err) {
+                            console.error('[RLife3D] Failed to load local OBJLoader module:', err);
+                            return null;
+                        });
+                }
 
-            const script = document.createElement('script');
-            script.id = 'rlife-obj-loader';
-            script.src = 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/js/loaders/OBJLoader.js';
-            script.onload = callback;
-            script.onerror = function() {
-                const fallback = document.createElement('script');
-                fallback.src = 'https://unpkg.com/three@0.168.0/examples/js/loaders/OBJLoader.js';
-                fallback.onload = callback;
-                fallback.onerror = callback;
-                document.head.appendChild(fallback);
-            };
-            document.head.appendChild(script);
+                window.RLife3D._objLoaderPromise.then(function() {
+                    callback();
+                }).catch(function() {
+                    callback();
+                });
+            });
         };
 
         window.RLife3D.dispose = function(container) {
+            const pending = container?._rlife3dPending;
+            if (pending) {
+                if (pending.timer) window.clearTimeout(pending.timer);
+                delete container._rlife3dPending;
+            }
+
             const state = container?._rlife3d;
             if (!state) return;
 
             state.isAlive = false;
             if (state.resizeObserver) state.resizeObserver.disconnect();
+            if (typeof state.cleanup === 'function') state.cleanup();
 
             if (state.renderer) {
                 state.renderer.dispose();
@@ -512,7 +533,7 @@
                         return res.text();
                     })
                     .then(function(objText) {
-                        return import('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/OBJLoader.js')
+                        return import(window.RLife3D.assets.objLoaderModule)
                             .then(function(mod) {
                                 const loader = new mod.OBJLoader();
                                 const object = loader.parse(objText);
@@ -682,7 +703,7 @@
                         return res.text();
                     })
                     .then(function(objText) {
-                        return import('https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/OBJLoader.js')
+                        return import(window.RLife3D.assets.objLoaderModule)
                             .then(function(mod) {
                                 const loader = new mod.OBJLoader();
                                 const object = loader.parse(objText);
@@ -864,17 +885,171 @@
             };
         };
 
+        window.RLife3D.queueRenderWhenVisible = function(container, options) {
+            if (!container) return;
+            if (container._rlife3dPending) return;
+
+            const opts = options || {};
+            const pending = { tries: 0, timer: null };
+            container._rlife3dPending = pending;
+
+            const cleanup = function() {
+                if (pending.timer) window.clearTimeout(pending.timer);
+                if (container._rlife3dPending === pending) delete container._rlife3dPending;
+            };
+
+            const tick = function() {
+                if (!document.body.contains(container)) {
+                    cleanup();
+                    return;
+                }
+
+                const rect = container.getBoundingClientRect();
+                if (rect.width >= 8 && rect.height >= 8) {
+                    cleanup();
+                    window.RLife3D.renderPet(container, { ...opts, __retry: 0, __waitedVisible: true });
+                    return;
+                }
+
+                pending.tries += 1;
+                if (pending.tries > 240) {
+                    cleanup();
+                    window.RLife3D.renderFallback(container, opts);
+                    return;
+                }
+
+                pending.timer = window.setTimeout(tick, 100);
+            };
+
+            tick();
+        };
+
+        window.RLife3D.createCityEnvironment = function(scene, options) {
+            const opts = options || {};
+            const density = Math.max(0.4, Math.min(1.4, Number(opts.cityBlockDensity ?? 1)));
+            const cityTime = String(opts.cityTime || 'day').toLowerCase();
+            const trafficLevel = Math.max(0.05, Math.min(1, Number(opts.cityTraffic ?? 0.38)));
+            const tint = Number(opts.cityTint ?? 0x22d3ee);
+
+            const palettes = {
+                day: { ground: 0x8b9fb3, road: 0x2c3440, lane: 0xf8fafc, buildingA: 0xc8d4e4, buildingB: 0xa7bbd2, glow: 0xdbeafe },
+                dawn: { ground: 0x7c8ea2, road: 0x222831, lane: 0xe2e8f0, buildingA: 0xb3bfd0, buildingB: 0x8da2bd, glow: 0xf1f5f9 },
+                sunset: { ground: 0x8b7a6d, road: 0x31261f, lane: 0xffedd5, buildingA: 0xd0a78f, buildingB: 0xb1836f, glow: 0xfdba74 },
+                night: { ground: 0x1f2937, road: 0x0f172a, lane: 0xe2e8f0, buildingA: 0x334155, buildingB: 0x475569, glow: 0xbfdbfe }
+            };
+            const palette = palettes[cityTime] || palettes.day;
+
+            const group = new THREE.Group();
+            const dynamic = [];
+            scene.add(group);
+
+            const ground = new THREE.Mesh(
+                new THREE.CircleGeometry(6.8, 48),
+                new THREE.MeshStandardMaterial({ color: palette.ground, roughness: 0.96, metalness: 0.05 })
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -0.82;
+            group.add(ground);
+
+            const road = new THREE.Mesh(
+                new THREE.RingGeometry(2.2, 3.35, 44),
+                new THREE.MeshStandardMaterial({ color: palette.road, roughness: 0.78, metalness: 0.12 })
+            );
+            road.rotation.x = -Math.PI / 2;
+            road.position.y = -0.79;
+            group.add(road);
+
+            for (let i = 0; i < 12; i++) {
+                const angle = (Math.PI * 2 * i) / 12;
+                const laneMark = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.18, 0.01, 0.06),
+                    new THREE.MeshStandardMaterial({ color: palette.lane, roughness: 0.46, metalness: 0.1 })
+                );
+                laneMark.position.set(Math.cos(angle) * 2.75, -0.775, Math.sin(angle) * 2.75);
+                laneMark.rotation.y = -angle;
+                group.add(laneMark);
+            }
+
+            const buildingCount = Math.max(8, Math.round(14 * density));
+            for (let i = 0; i < buildingCount; i++) {
+                const angle = (Math.PI * 2 * i) / buildingCount;
+                const radius = 4.1 + ((i % 3) * 0.42);
+                const h = 0.75 + ((i % 5) * 0.36) + (Math.random() * 0.22);
+                const w = 0.36 + ((i % 4) * 0.08);
+                const d = 0.34 + ((i % 3) * 0.07);
+                const color = (i % 2 === 0) ? palette.buildingA : palette.buildingB;
+                const tower = new THREE.Mesh(
+                    new THREE.BoxGeometry(w, h, d),
+                    new THREE.MeshStandardMaterial({ color: color, roughness: 0.82, metalness: 0.08 })
+                );
+                tower.position.set(Math.cos(angle) * radius, -0.82 + (h / 2), Math.sin(angle) * radius);
+                tower.lookAt(0, tower.position.y, 0);
+                group.add(tower);
+            }
+
+            const lampCount = Math.max(6, Math.round(10 * density));
+            for (let i = 0; i < lampCount; i++) {
+                const angle = (Math.PI * 2 * i) / lampCount;
+                const pole = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.015, 0.02, 0.45, 8),
+                    new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.55, metalness: 0.38 })
+                );
+                pole.position.set(Math.cos(angle) * 3.5, -0.58, Math.sin(angle) * 3.5);
+                group.add(pole);
+
+                const lamp = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.045, 10, 10),
+                    new THREE.MeshStandardMaterial({ color: palette.glow, emissive: tint, emissiveIntensity: 0.45, roughness: 0.2, metalness: 0.12 })
+                );
+                lamp.position.set(pole.position.x, -0.34, pole.position.z);
+                group.add(lamp);
+            }
+
+            const carCount = Math.max(2, Math.round((cityTime === 'night' ? 4 : 6) * trafficLevel));
+            for (let i = 0; i < carCount; i++) {
+                const car = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.14, 0.09, 0.24),
+                    new THREE.MeshStandardMaterial({ color: (i % 2 ? 0xf59e0b : tint), roughness: 0.4, metalness: 0.2 })
+                );
+                car.userData.angle = (Math.PI * 2 * i) / carCount;
+                car.userData.speed = 0.22 + (0.14 * trafficLevel) + (i % 3) * 0.04;
+                car.userData.radius = 2.75 + (i % 2) * 0.22;
+                car.position.y = -0.72;
+                group.add(car);
+                dynamic.push(car);
+            }
+
+            return {
+                group: group,
+                update: function(t, dt) {
+                    const elapsed = Number(t || 0);
+                    const frame = Number(dt || 0.016);
+                    dynamic.forEach(function(car, idx) {
+                        car.userData.angle += car.userData.speed * frame;
+                        const a = car.userData.angle;
+                        const r = car.userData.radius;
+                        car.position.x = Math.cos(a) * r;
+                        car.position.z = Math.sin(a) * r;
+                        car.rotation.y = -a + Math.PI / 2;
+                        car.position.y = -0.72 + Math.sin((elapsed * 5.2) + idx) * 0.005;
+                    });
+                },
+                dispose: function() {
+                    scene.remove(group);
+                }
+            };
+        };
+
         window.RLife3D.renderPet = function(container, options) {
             if (!container) return;
             const opts = options || {};
+            if (window.RLife3D.enable3D !== true) {
+                window.RLife3D.renderFallback(container, opts);
+                return;
+            }
             const rect = container.getBoundingClientRect();
             if (rect.width < 8 || rect.height < 8) {
-                const retry = Number(opts.__retry || 0);
-                if (retry < 20) {
-                    window.setTimeout(function() {
-                        window.RLife3D.renderPet(container, { ...opts, __retry: retry + 1 });
-                    }, 120);
-                }
+                window.RLife3D.queueRenderWhenVisible(container, opts);
                 return;
             }
 
@@ -887,6 +1062,7 @@
             const hunger = Math.max(0, Math.min(100, Number(opts.hunger ?? container.dataset.hunger ?? 50)));
             const spin = opts.spin || (0.004 + ((hunger / 100) * 0.012));
             const type = window.RLife3D.inferType(container, opts);
+            const environment = String(opts.environment || 'none').toLowerCase();
             const color = opts.color || (hunger > 70 ? 0xfb7185 : (hunger > 35 ? 0x60a5fa : 0x34d399));
             const behavior = {
                 bobAmp: Math.max(0, Number(opts.bobAmp ?? 0.05)),
@@ -911,7 +1087,11 @@
             try {
                 const scene = new THREE.Scene();
                 const camera = new THREE.PerspectiveCamera(58, w / h, 0.1, 1000);
-                camera.position.z = 4.2;
+                const cameraDistance = Math.max(2.8, Number(opts.cameraDistance ?? (environment === 'city' ? 5.6 : 4.2)));
+                const cameraHeight = Number(opts.cameraHeight ?? (environment === 'city' ? 1.8 : 0));
+                const cameraLookY = Number(opts.cameraLookY ?? (environment === 'city' ? 0.15 : 0));
+                camera.position.set(0, cameraHeight, cameraDistance);
+                camera.lookAt(0, cameraLookY, 0);
 
                 let renderer = null;
                 try {
@@ -930,20 +1110,48 @@
                 if (renderer.outputColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
                 if (renderer.toneMapping !== undefined) {
                     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                    renderer.toneMappingExposure = 1.25;
+                    renderer.toneMappingExposure = environment === 'city' ? 1.12 : 1.25;
                 }
+                renderer.shadowMap.enabled = environment === 'city' && !opts.lowQuality;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 container.innerHTML = '';
                 container.appendChild(renderer.domElement);
 
                 let activeModel = window.RLife3D.createPetModel(type, color);
                 scene.add(activeModel.group);
 
-                const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.95);
-                const key = new THREE.DirectionalLight(0xffffff, 1.25);
-                key.position.set(5, 8, 6);
-                const rim = new THREE.PointLight(0xa78bfa, 0.9, 20);
-                rim.position.set(-4, -2, 4);
-                scene.add(hemi, key, rim);
+                const lightPack = [];
+                if (environment === 'city') {
+                    const sky = String(opts.cityTime || 'day').toLowerCase();
+                    const skyColor = sky === 'night' ? 0x1e293b : (sky === 'sunset' ? 0xffedd5 : 0xe0f2fe);
+                    const groundColor = sky === 'night' ? 0x0b1120 : 0x1f2937;
+                    const hemi = new THREE.HemisphereLight(skyColor, groundColor, 0.82);
+                    const sun = new THREE.DirectionalLight(0xfff7ed, sky === 'night' ? 0.5 : 0.95);
+                    sun.position.set(3.6, 6.2, 3.8);
+                    sun.castShadow = renderer.shadowMap.enabled;
+                    if (sun.castShadow) {
+                        sun.shadow.mapSize.width = 512;
+                        sun.shadow.mapSize.height = 512;
+                    }
+                    const rim = new THREE.PointLight(Number(opts.cityTint ?? 0x38bdf8), sky === 'night' ? 0.9 : 0.45, 18);
+                    rim.position.set(-2.4, 1.25, 2.2);
+                    const fill = new THREE.PointLight(0xf8fafc, 0.35, 12);
+                    fill.position.set(0.2, 0.9, 3.2);
+                    lightPack.push(hemi, sun, rim, fill);
+                    scene.add(hemi, sun, rim, fill);
+                } else {
+                    const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.95);
+                    const key = new THREE.DirectionalLight(0xffffff, 1.25);
+                    key.position.set(5, 8, 6);
+                    const rim = new THREE.PointLight(0xa78bfa, 0.9, 20);
+                    rim.position.set(-4, -2, 4);
+                    lightPack.push(hemi, key, rim);
+                    scene.add(hemi, key, rim);
+                }
+
+                const cityEnvironment = environment === 'city' && typeof window.RLife3D.createCityEnvironment === 'function'
+                    ? window.RLife3D.createCityEnvironment(scene, opts)
+                    : null;
 
                 const nextBurstDelay = function() {
                     const minMs = Math.min(behavior.burstEveryMinMs, behavior.burstEveryMaxMs);
@@ -956,6 +1164,10 @@
                     isAlive: true,
                     renderer,
                     resizeObserver: null,
+                    hasFrame: false,
+                    cleanup: function() {
+                        if (cityEnvironment && typeof cityEnvironment.dispose === 'function') cityEnvironment.dispose();
+                    },
                     burstUntil: 0,
                     nextBurstAt: now + nextBurstDelay(),
                     lastTick: now,
@@ -1022,7 +1234,9 @@
                     const activity = Math.max(0.12, Math.min(1, stride * 2 + (isBursting ? 0.28 : 0)));
                     const blink = currentMs < state.blinkUntil ? 1 : 0;
                     if (typeof activeModel.animate === 'function') activeModel.animate(t, { stride, activity, blink });
+                    if (cityEnvironment && typeof cityEnvironment.update === 'function') cityEnvironment.update(t, dt);
                     renderer.render(scene, camera);
+                    state.hasFrame = true;
                 };
                 animate();
 
@@ -1061,6 +1275,9 @@
             if (modal) {
                 modal.classList.remove('hidden');
                 initPet3D();
+                refreshPetStatus({ rerender3d: true });
+                window.setTimeout(initPet3D, 120);
+                window.setTimeout(initPet3D, 320);
             }
         }
         function closePetManagementModal() {
@@ -1090,14 +1307,307 @@
         function initPet3D() {
             const container = document.getElementById('pet3DModal');
             if (!container) return;
+            const petType = (container.dataset.petType || 'cat').toLowerCase();
+            const fallbackByType = {
+                cat: window.RLife3D?.assets?.catFallback || '{{ asset('pets/cat-design/cat-avatar.jpg') }}',
+                dog: window.RLife3D?.assets?.dogFallback || '{{ asset('pets/dog-design/dog-avatar.jpg') }}',
+                fox: window.RLife3D?.assets?.foxFallback || '{{ asset('pets/fox-avatar.jpg') }}',
+                dragon: window.RLife3D?.assets?.dragonFallback || '{{ asset('pets/dragon-design/dragon-avatar.jpg') }}',
+                bird: window.RLife3D?.assets?.birdFallback || '{{ asset('pets/bird-avatar.jpg') }}',
+                hamster: window.RLife3D?.assets?.hamsterFallback || '{{ asset('pets/hamster-avatar.jpg') }}',
+                panda: window.RLife3D?.assets?.pandaFallback || '{{ asset('pets/panda-design/panda-avatar.jpg') }}',
+                rabbit: window.RLife3D?.assets?.rabbitFallback || '{{ asset('pets/rabbit-avatar.jpg') }}'
+            };
+            const localFallback = function() {
+                const avatar = fallbackByType[petType] || fallbackByType.cat || '';
+                if (!avatar) return;
+                container.innerHTML = `
+                    <div class="w-full h-full flex items-center justify-center">
+                        <div style="width:84%;height:84%;border-radius:22px;position:relative;overflow:hidden;box-shadow:0 16px 30px rgba(15,23,42,0.32);">
+                            <div style="position:absolute;inset:0;background-image:url('${avatar}');background-size:cover;background-position:center;"></div>
+                        </div>
+                    </div>
+                `;
+            };
+
+            if (!window.RLife3D || typeof window.RLife3D.ensureThree !== 'function' || typeof window.RLife3D.renderPet !== 'function') {
+                localFallback();
+                return;
+            }
+
+            // Always show immediate visual content, then upgrade to 3D.
+            localFallback();
 
             window.RLife3D.ensureThree(function() {
-                window.RLife3D.renderPet(container, {
-                    type: container.dataset.petType || 'cat',
+                const opts = {
+                    type: petType,
                     hunger: parseInt(container.dataset.hunger || '50', 10)
-                });
+                };
+                let attempts = 0;
+                const tryRender = function() {
+                    attempts += 1;
+                    window.RLife3D.renderPet(container, opts);
+                    if (container._rlife3d) return;
+                    if (attempts >= 25) {
+                        if (window.RLife3D && typeof window.RLife3D.renderFallback === 'function') {
+                            window.RLife3D.renderFallback(container, opts);
+                        } else {
+                            localFallback();
+                        }
+                        return;
+                    }
+                    window.setTimeout(tryRender, 120);
+                };
+                tryRender();
+
+                // If no real frame is rendered quickly, force fallback to avoid blank canvas.
+                window.setTimeout(function() {
+                    const state = container._rlife3d;
+                    if (!state || state.hasFrame) return;
+                    if (window.RLife3D && typeof window.RLife3D.dispose === 'function') window.RLife3D.dispose(container);
+                    localFallback();
+                }, 1600);
             });
         }
+
+        async function refreshPetStatus(options = {}) {
+            const rerender3d = Boolean(options.rerender3d);
+            try {
+                const response = await fetch('{{ path('app_pet_status') }}', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    cache: 'no-store'
+                });
+                const data = await response.json();
+                if (!data || !data.hasPet) return;
+
+                const nameNode = document.getElementById('petModalName');
+                if (nameNode && data.name) nameNode.textContent = data.name;
+
+                const mood = String(data.mood || '').trim();
+                const moodLabel = mood ? mood.charAt(0).toUpperCase() + mood.slice(1) : 'Calm';
+                const metaNode = document.getElementById('petModalMeta');
+                if (metaNode) metaNode.textContent = `Lv. ${data.level} • ${moodLabel}`;
+
+                const hunger = Number(data.hunger ?? 0);
+                const hungerBar = document.getElementById('petModalHungerBar');
+                if (hungerBar) hungerBar.style.width = `${Math.max(0, Math.min(100, 100 - hunger))}%`;
+                const hungerValue = document.getElementById('petModalHungerValue');
+                if (hungerValue) hungerValue.textContent = `${hunger}/100`;
+
+                const coinText = `${Number(data.coins ?? 0)} coins`;
+                const coinsNodes = ['petModalCoins', 'feedModalCoins'];
+                coinsNodes.forEach(function(id) {
+                    const node = document.getElementById(id);
+                    if (node) node.textContent = coinText;
+                });
+
+                const renameInput = document.getElementById('petRenameInput');
+                if (renameInput && data.name && renameInput.value !== data.name) {
+                    renameInput.value = data.name;
+                }
+
+                const stage = document.getElementById('pet3DModal');
+                if (stage) {
+                    const currentType = String(data.type || stage.dataset.petType || 'cat').toLowerCase();
+                    stage.dataset.petType = currentType;
+                    stage.dataset.hunger = String(hunger);
+                    if (rerender3d) {
+                        if (window.RLife3D && typeof window.RLife3D.dispose === 'function') {
+                            window.RLife3D.dispose(stage);
+                        }
+                        initPet3D();
+                    }
+                }
+            } catch (e) {
+                // Keep current UI values when network status refresh fails.
+            }
+        }
+
+        async function submitPetFormAjax(form) {
+            const body = new FormData(form);
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body
+            });
+            const data = await response.json().catch(function() { return null; });
+            if (!response.ok || !data || data.success === false) {
+                throw new Error((data && (data.error || data.message)) || 'Pet action failed.');
+            }
+            return data;
+        }
+
+        async function runPetAction(action, trigger) {
+            const normalized = String(action || '').trim().toLowerCase();
+            if (!['play', 'sleep', 'heal', 'feed'].includes(normalized)) return;
+            const feedback = document.getElementById('petActionFeedback');
+            if (feedback) feedback.textContent = 'Running ' + normalized + '...';
+
+            const stage = document.getElementById('pet3DModal');
+            const hungerBar = document.getElementById('petModalHungerBar');
+            const clearStageAnim = function() {
+                if (!stage) return;
+                stage.classList.remove('pet-stage-anim-play', 'pet-stage-anim-sleep', 'pet-stage-anim-heal', 'pet-stage-anim-feed');
+            };
+            const playActionBurst = function(target, actionName) {
+                if (!target) return;
+                const rect = target.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const colorByAction = {
+                    play: '#60a5fa',
+                    sleep: '#818cf8',
+                    heal: '#34d399',
+                    feed: '#2dd4bf'
+                };
+                for (let i = 0; i < 8; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'pet-action-burst';
+                    dot.style.left = cx + 'px';
+                    dot.style.top = cy + 'px';
+                    dot.style.background = colorByAction[actionName] || '#60a5fa';
+                    dot.style.setProperty('--dx', ((Math.random() * 80) - 40).toFixed(1) + 'px');
+                    dot.style.setProperty('--dy', ((Math.random() * -70) - 16).toFixed(1) + 'px');
+                    document.body.appendChild(dot);
+                    window.setTimeout(function() { dot.remove(); }, 760);
+                }
+            };
+            const applyActionAnim = function(actionName) {
+                if (trigger) {
+                    trigger.classList.remove('pet-action-btn-pop');
+                    void trigger.offsetWidth;
+                    trigger.classList.add('pet-action-btn-pop');
+                    window.setTimeout(function() { trigger.classList.remove('pet-action-btn-pop'); }, 450);
+                }
+
+                clearStageAnim();
+                if (stage) {
+                    const classByAction = {
+                        play: 'pet-stage-anim-play',
+                        sleep: 'pet-stage-anim-sleep',
+                        heal: 'pet-stage-anim-heal',
+                        feed: 'pet-stage-anim-feed'
+                    };
+                    const stageAnimClass = classByAction[actionName];
+                    if (stageAnimClass) {
+                        void stage.offsetWidth;
+                        stage.classList.add(stageAnimClass);
+                        window.setTimeout(clearStageAnim, 1300);
+                    }
+                }
+
+                if ((actionName === 'feed' || actionName === 'heal') && hungerBar) {
+                    hungerBar.classList.remove('pet-hunger-boost');
+                    void hungerBar.offsetWidth;
+                    hungerBar.classList.add('pet-hunger-boost');
+                    window.setTimeout(function() { hungerBar.classList.remove('pet-hunger-boost'); }, 980);
+                }
+
+                playActionBurst(trigger, actionName);
+            };
+
+            if (trigger) {
+                trigger.disabled = true;
+                trigger.classList.add('pet-action-btn-running');
+            }
+            try {
+                const response = await fetch('{{ path('app_pet_action') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ action: normalized })
+                });
+                const data = await response.json().catch(function() { return null; });
+                if (!response.ok || !data || data.success === false) {
+                    const msg = (data && (data.error || data.message)) || 'Action failed.';
+                    if (feedback) feedback.textContent = msg;
+                    return;
+                }
+
+                let msg = normalized.charAt(0).toUpperCase() + normalized.slice(1) + ' complete.';
+                if (data.levelUp) msg += ' Level up!';
+                if (feedback) feedback.textContent = msg;
+                applyActionAnim(normalized);
+                await refreshPetStatus({ rerender3d: false });
+            } catch (error) {
+                if (feedback) feedback.textContent = 'Network error. Try again.';
+            } finally {
+                if (trigger) {
+                    trigger.disabled = false;
+                    trigger.classList.remove('pet-action-btn-running');
+                }
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            const button = event.target instanceof Element ? event.target.closest('[data-pet-action]') : null;
+            if (!button) return;
+            event.preventDefault();
+            const action = button.getAttribute('data-pet-action');
+            runPetAction(action, button);
+        });
+
+        document.addEventListener('submit', async function(event) {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            const action = String(form.getAttribute('action') || '');
+            const isPetFeed = action.includes('/pet/feed');
+            const isPetRename = action.includes('/pet/rename');
+            if (!isPetFeed && !isPetRename) return;
+
+            event.preventDefault();
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) submitButton.disabled = true;
+            try {
+                await submitPetFormAjax(form);
+                if (isPetFeed) {
+                    const feedBtn = document.getElementById('petFeedPrimaryBtn');
+                    if (feedBtn) {
+                        feedBtn.classList.remove('pet-action-btn-pop');
+                        void feedBtn.offsetWidth;
+                        feedBtn.classList.add('pet-action-btn-pop');
+                        window.setTimeout(function() { feedBtn.classList.remove('pet-action-btn-pop'); }, 450);
+                    }
+
+                    const stage = document.getElementById('pet3DModal');
+                    if (stage) {
+                        stage.classList.remove('pet-stage-anim-feed');
+                        void stage.offsetWidth;
+                        stage.classList.add('pet-stage-anim-feed');
+                    }
+
+                    const hungerBar = document.getElementById('petModalHungerBar');
+                    if (hungerBar) {
+                        hungerBar.classList.remove('pet-hunger-boost');
+                        void hungerBar.offsetWidth;
+                        hungerBar.classList.add('pet-hunger-boost');
+                        window.setTimeout(function() { hungerBar.classList.remove('pet-hunger-boost'); }, 980);
+                    }
+                }
+
+                if (isPetFeed) closeFeedModal();
+                await refreshPetStatus({ rerender3d: isPetFeed });
+            } catch (error) {
+                console.error(error);
+            } finally {
+                if (submitButton) submitButton.disabled = false;
+            }
+        });
+
+        (function() {
+            const modal = document.getElementById('petManagementModal');
+            if (!modal || typeof MutationObserver === 'undefined') return;
+            const observer = new MutationObserver(function() {
+                if (!modal.classList.contains('hidden')) {
+                    initPet3D();
+                }
+            });
+            observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+        })();
 
         window.RLife3D.autoInitPetScenes = function() {
             const colorByType = {
@@ -1397,7 +1907,7 @@
                                 <h3 class="font-semibold text-slate-900 dark:text-white">Notifications</h3>
                                 {% if unreadCount > 0 %}
                                 <span class="text-xs font-semibold bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded-full">
-                                    {{ unreadCount }} non lue{{ unreadCount > 1 ? 's' : '' }}
+                                    {{ unreadCount }} unread
                                 </span>
                                 {% endif %}
                             </div>
@@ -1443,13 +1953,13 @@
                                     {% else %}
                                         <div class="py-10 text-center text-slate-400 dark:text-slate-500">
                                             <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
-                                            <p class="text-sm">Aucune nouvelle notification</p>
+                                            <p class="text-sm">No new notifications</p>
                                         </div>
                                     {% endif %}
                                 {% else %}
                                     <div class="py-10 text-center text-slate-400 dark:text-slate-500">
                                         <i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-3 opacity-40"></i>
-                                        <p class="text-sm">Aucune nouvelle notification</p>
+                                        <p class="text-sm">No new notifications</p>
                                     </div>
                                 {% endif %}
                             </div>
@@ -1458,7 +1968,7 @@
                             <div class="px-4 py-3 border-t dark:border-slate-700 text-center sticky bottom-0 bg-white dark:bg-slate-900 z-10">
                                 <a href="{{ path('app_notifications_list') }}"
                                    class="text-sm text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                                    Voir toutes les notifications ->
+                                    View all notifications ->
                                 </a>
                             </div>
                         </div>
@@ -1586,7 +2096,7 @@
                 <div class="sp-drag-dot"></div><div class="sp-drag-dot"></div>
             </div>
             <span id="spotify-current-title" class="sp-topbar-label">Nature Sounds</span>
-            <div class="sp-topbar-actions">
+        <div class="sp-topbar-actions">
                 <button class="sp-size-btn" data-size="sm">S</button>
                 <button class="sp-size-btn active" data-size="md">M</button>
                 <button class="sp-size-btn" data-size="lg">L</button>
@@ -2104,8 +2614,30 @@
     let globalQuoteCloseBound = false;
     let nextQuoteTimeout = null;
 
-    const spotifyStateKey = 'rlife_spotify_state';
+    const spotifyStateVersion = 3;
+    let spotifyState = { enabled: false, open: false, url: '', size: 360, x: null, y: null, preset: 'nature', v: spotifyStateVersion };
+    let spotifyFabDragging = false;
+    let spotifyFabPointerId = null;
+    let spotifyFabStartX = 0;
+    let spotifyFabStartY = 0;
+    let spotifyFabOriginX = 0;
+    let spotifyFabOriginY = 0;
+    let spotifyIframeSrc = '';
+    let soundcloudIframeSrc = '';
+    let forceSoundcloudOpen = false;
+    let scFallbackTimer = null;
+    let spotifyLastTrackClick = 0;
+    let spotifyCurrentTrackId = '';
+    let spotifyRenderQueued = false;
+    let spotifyLastPreset = '';
+    let spotifyLastUrl = '';
+    let spotifyLastReciter = '';
+    let spotifyLastOpen = false;
+    const spotifyPinnedKey = 'rlife_spotify_pinned';
     const spotifyStartedKey = 'rlife_spotify_started';
+    const spotifyListHiddenKey = 'rlife_spotify_list_hidden';
+    let spotifyLastPresetClick = 0;
+
     const spotifyPresets = {
         nature: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX4PP3DA4J0N8?utm_source=generator',
         quran: 'https://open.spotify.com/embed/playlist/6DucBXrk2M11buAXRbVzRx?utm_source=generator',
@@ -2118,6 +2650,31 @@
         relax: 'Relax Sounds',
         motivation: 'Motivation Music'
     };
+    const quranPlaylistUrl = 'https://open.spotify.com/playlist/6DucBXrk2M11buAXRbVzRx';
+    const quranDossariSoundcloud = 'https://soundcloud.com/quranwave/sets/yasser-al-dosari';
+    const quranReciters = {
+        luhaidan: {
+            label: 'Muhammad Al-Luhaidan',
+            tracks: [
+                { title: 'Surah At-Tawbah', url: 'https://open.spotify.com/track/4KSk2uAFzNa90Uvnj3sweo' },
+                { title: 'Surah Al-Baqarah', url: 'https://open.spotify.com/track/65fc0t2ut7Sju9Ef3E8Khf' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/0EGs2U8bVryjjktDXJG2SH' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/6DyzeneZfza2ckznN8bJD4' },
+                { title: 'Surah', url: 'https://open.spotify.com/track/4WlmtBnVE2EE0mTwnRvAik' }
+            ]
+        },
+        dossari: {
+            label: 'Yasser Al-Dossari',
+            tracks: [
+                { title: 'Episode 1', url: 'https://open.spotify.com/episode/5EYgakgHOig1MQDfZN4Z59' },
+                { title: 'Episode 2', url: 'https://open.spotify.com/episode/0FBYljzeo7fFpHRsoUi1RP' },
+                { title: 'Episode 3', url: 'https://open.spotify.com/episode/7hlUDp80nw89MUQiXto2m9' },
+                { title: 'Episode 4', url: 'https://open.spotify.com/episode/3o5Qaw3TmROgNWBb92htED' },
+                { title: 'Track 1', url: 'https://open.spotify.com/track/1V8vesJJ2fVieSz9SnMgK4' }
+            ]
+        }
+    };
+    const quranReciterStorageKey = 'rlife_quran_reciter';
 
     function normalizeSpotifyUrl(url) {
         if (!url) return '';
@@ -2125,6 +2682,7 @@
         clean = clean.replace('https://open.spotify.com/intl-fr/', 'https://open.spotify.com/');
         clean = clean.replace('https://open.spotify.com/intl-en/', 'https://open.spotify.com/');
         clean = clean.replace('https://open.spotify.com/intl/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/', 'https://open.spotify.com/');
         clean = clean.split('?')[0];
         if (clean.includes('/embed/')) return clean + '?utm_source=generator';
         if (clean.includes('open.spotify.com/')) {
@@ -2142,151 +2700,960 @@
         return clean;
     }
 
-    function readSpotifyState() {
+    function isSpotifyPinned() {
         try {
-            const raw = localStorage.getItem(spotifyStateKey);
-            if (!raw) return { enabled: false, open: false, url: '', size: 360, preset: 'nature' };
-            const parsed = JSON.parse(raw);
-            return {
-                enabled: !!parsed.enabled,
-                open: !!parsed.open,
-                url: String(parsed.url || ''),
-                size: Number(parsed.size || 360),
-                preset: String(parsed.preset || 'nature')
-            };
+            return String(localStorage.getItem(spotifyPinnedKey) || '0') === '1';
         } catch (e) {
-            return { enabled: false, open: false, url: '', size: 360, preset: 'nature' };
+            return false;
         }
     }
 
-    function writeSpotifyState(state) {
+    function setSpotifyPinned(value) {
         try {
-            localStorage.setItem(spotifyStateKey, JSON.stringify(state));
+            localStorage.setItem(spotifyPinnedKey, value ? '1' : '0');
         } catch (e) {}
     }
 
-    function applySpotifySize(sizeValue) {
-        const root = document.getElementById('global-spotify-widget');
+    function getSpotifyTrackId(url) {
+        if (!url) return '';
+        const clean = String(url).split('?')[0];
+        const match = clean.match(/(?:track|episode)\/([A-Za-z0-9]+)/);
+        return match ? match[1] : '';
+    }
+
+    function toTrackEmbed(url) {
+        if (!url) return '';
+        let clean = String(url).trim();
+        clean = clean.replace('https://open.spotify.com/intl-fr/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl-en/', 'https://open.spotify.com/');
+        clean = clean.replace('https://open.spotify.com/intl/', 'https://open.spotify.com/');
+        clean = clean.split('?')[0];
+        if (clean.includes('/embed/')) return clean + '?utm_source=generator';
+        if (clean.includes('open.spotify.com/track/')) {
+            clean = clean.replace('open.spotify.com/track/', 'open.spotify.com/embed/track/');
+            return clean + '?utm_source=generator';
+        }
+        if (clean.includes('open.spotify.com/episode/')) {
+            clean = clean.replace('open.spotify.com/episode/', 'open.spotify.com/embed/episode/');
+            return clean + '?utm_source=generator';
+        }
+        return normalizeSpotifyUrl(url);
+    }
+
+    function getSelectedReciter() {
+        try {
+            const saved = String(localStorage.getItem(quranReciterStorageKey) || 'luhaidan').trim();
+            return quranReciters[saved] ? saved : 'luhaidan';
+        } catch (e) {
+            return 'luhaidan';
+        }
+    }
+
+    function setSelectedReciter(key) {
+        try {
+            localStorage.setItem(quranReciterStorageKey, key);
+        } catch (e) {}
+    }
+
+
+    if (!window.RLifeAudio) {
+        (function() {
+            const stateKey = 'rlife_global_audio_state';
+            let audio = null;
+            let state = { playing: false, src: '', volume: 0.6, loop: true };
+
+            function readState() {
+                try {
+                    const raw = localStorage.getItem(stateKey);
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    state = {
+                        playing: !!parsed.playing,
+                        src: String(parsed.src || ''),
+                        volume: Number(parsed.volume || 0.6),
+                        loop: parsed.loop !== false
+                    };
+                } catch (e) {}
+            }
+
+            function writeState() {
+                try {
+                    localStorage.setItem(stateKey, JSON.stringify(state));
+                } catch (e) {}
+            }
+
+            function ensureAudio() {
+                if (audio) return;
+                audio = new Audio();
+                audio.loop = true;
+                audio.volume = state.volume || 0.6;
+            }
+
+            function play(src, opts) {
+                ensureAudio();
+                const options = opts || {};
+                if (src) {
+                    audio.src = src;
+                    state.src = src;
+                }
+                if (typeof options.volume === 'number') {
+                    audio.volume = Math.min(1, Math.max(0, options.volume));
+                    state.volume = audio.volume;
+                }
+                audio.loop = options.loop !== false;
+                state.loop = audio.loop;
+                state.playing = true;
+                writeState();
+                audio.play().catch(() => {});
+            }
+
+            function stop() {
+                if (!audio) {
+                    state.playing = false;
+                    writeState();
+                    return;
+                }
+                try {
+                    audio.pause();
+                    audio.currentTime = 0;
+                } catch (e) {}
+                state.playing = false;
+                writeState();
+            }
+
+            let needsUnlock = false;
+
+            function tryPlay() {
+                if (!audio) return;
+                const p = audio.play();
+                if (p && typeof p.catch === 'function') {
+                    p.catch(() => {
+                        needsUnlock = true;
+                    });
+                }
+            }
+
+            function resume() {
+                readState();
+                if (!state.playing || !state.src) return;
+                ensureAudio();
+                if (audio.src !== state.src) {
+                    audio.src = state.src;
+                }
+                audio.loop = state.loop !== false;
+                audio.volume = typeof state.volume === 'number' ? state.volume : 0.6;
+                if (audio.paused) {
+                    tryPlay();
+                }
+            }
+
+            readState();
+
+            function unlockIfNeeded() {
+                if (!needsUnlock) return;
+                needsUnlock = false;
+                resume();
+            }
+
+            function bindUnlock() {
+                const opts = { once: true, passive: true };
+                window.addEventListener('pointerdown', unlockIfNeeded, opts);
+                window.addEventListener('keydown', unlockIfNeeded, opts);
+                window.addEventListener('touchstart', unlockIfNeeded, opts);
+            }
+
+            bindUnlock();
+
+            window.RLifeAudio = { play, stop, resume, getState: () => ({ ...state }) };
+
+            window.addEventListener('rlife-audio-play', function(event) {
+                const detail = event.detail || {};
+                play(String(detail.src || ''), detail);
+            });
+
+            window.addEventListener('rlife-audio-stop', function() {
+                stop();
+            });
+        })();
+    }
+
+    function readSpotifyState() {
+        try {
+            const raw = localStorage.getItem('rlife_spotify_state');
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            const parsedVersion = Number(parsed.v || 0);
+            spotifyState = {
+                enabled: !!parsed.enabled,
+                open: !!parsed.open,
+                url: normalizeSpotifyUrl(String(parsed.url || '')),
+                size: Number(parsed.size || 360),
+                x: Number.isFinite(Number(parsed.x)) ? Number(parsed.x) : null,
+                y: Number.isFinite(Number(parsed.y)) ? Number(parsed.y) : null,
+                preset: String(parsed.preset || 'nature'),
+                v: spotifyStateVersion,
+            };
+            if (spotifyState.preset === 'quran' && !spotifyState.url) {
+                spotifyState.url = spotifyPresets.quran;
+            }
+            // Reset old saved positions from previous UI versions
+            if (parsedVersion < spotifyStateVersion) {
+                spotifyState.x = null;
+                spotifyState.y = null;
+                if (!Number.isFinite(spotifyState.size) || spotifyState.size < 200) {
+                    spotifyState.size = 360;
+                }
+            }
+        } catch (e) {}
+    }
+
+    function writeSpotifyState() {
+        try {
+            spotifyState.v = spotifyStateVersion;
+            localStorage.setItem('rlife_spotify_state', JSON.stringify(spotifyState));
+        } catch (e) {}
+    }
+
+    function getSpotifyDefaultPosition() {
+        const margin = 16;
+        const size = Number(spotifyState.size || 360);
+        const x = Math.max(8, window.innerWidth - size - margin);
+        const y = Math.max(8, window.innerHeight - 240 - margin);
+        return { x, y };
+    }
+
+    function applySpotifySize(sizeValue, isQuran = false) {
         const iframe = document.getElementById('global-spotify-iframe');
+        const scIframe = document.getElementById('global-soundcloud-iframe');
         const wrap = document.getElementById('global-spotify-embed-wrap');
-        if (!root || !iframe) return;
+        const quranList = document.getElementById('spotify-quran-list');
+        const quranItems = document.getElementById('spotify-quran-items');
+        if (!iframe || !scIframe) return;
+
         const sizeKey = sizeValue >= 540 ? 'xl' : sizeValue >= 440 ? 'lg' : sizeValue >= 340 ? 'md' : 'sm';
         const heightMap = { sm: 152, md: 200, lg: 240, xl: 280 };
+        const listMap = { sm: 0, md: 56, lg: 80, xl: 110 };
         const h = heightMap[sizeKey] || 200;
         iframe.style.height = h + 'px';
         iframe.setAttribute('height', String(h));
-        if (wrap) wrap.style.height = h + 'px';
+        scIframe.style.height = h + 'px';
+        scIframe.setAttribute('height', String(h));
+        scIframe.style.minHeight = h + 'px';
+        if (wrap) {
+            wrap.style.height = h + 'px';
+        }
+
+        if (quranList && quranItems) {
+            const listHeight = listMap[sizeKey] || 0;
+            if (!isQuran || listHeight === 0) {
+                quranList.classList.add('hidden');
+            } else {
+                quranList.classList.remove('hidden');
+                quranItems.style.maxHeight = listHeight + 'px';
+            }
+        }
+    }
+
+    function updateSpotifyLayout() {
+        const root = document.getElementById('global-spotify-widget');
+        const sizeInput = document.getElementById('spotify-size');
+        const listRow = document.querySelector('.sp-playlist-row');
+        if (!root || !sizeInput) return;
+        if (!spotifyState.enabled) {
+            root.classList.add('hidden');
+            return;
+        }
+        root.classList.remove('hidden');
+        root.classList.add('sp-visible');
+        const sizeValue = Number(spotifyState.size || 360);
+        sizeInput.value = String(sizeValue);
         root.classList.remove('sp-sm', 'sp-md', 'sp-lg', 'sp-xl');
         if (sizeValue >= 540) root.classList.add('sp-xl');
         else if (sizeValue >= 440) root.classList.add('sp-lg');
         else if (sizeValue >= 340) root.classList.add('sp-md');
         else root.classList.add('sp-sm');
+        applySpotifySize(sizeValue, spotifyState.preset === 'quran');
+        const pinBtn = document.getElementById('spotify-pin');
+        if (pinBtn) {
+            pinBtn.classList.toggle('sp-pin-active', isSpotifyPinned());
+        }
+        document.querySelectorAll('.sp-size-btn').forEach((btn) => {
+            const key = String(btn.getAttribute('data-size') || 'sm');
+            const active = (key === 'xl' && sizeValue >= 540)
+                || (key === 'lg' && sizeValue >= 440 && sizeValue < 540)
+                || (key === 'md' && sizeValue >= 340 && sizeValue < 440)
+                || (key === 'sm' && sizeValue < 340);
+            btn.classList.toggle('active', active);
+        });
+        if (listRow) {
+            const hideList = String(localStorage.getItem(spotifyListHiddenKey) || '0') === '1';
+            listRow.classList.toggle('sp-list-hidden', hideList);
+        }
+        const maxX = Math.max(8, window.innerWidth - root.offsetWidth - 8);
+        const maxY = Math.max(8, window.innerHeight - root.offsetHeight - 8);
+        if (spotifyState.x !== null && spotifyState.y !== null) {
+            let safeX = Math.max(8, Math.min(maxX, Number(spotifyState.x)));
+            let safeY = Math.max(8, Math.min(maxY, Number(spotifyState.y)));
+            if (safeY < 70) {
+                const def = getSpotifyDefaultPosition();
+                safeX = def.x;
+                safeY = def.y;
+                spotifyState.x = safeX;
+                spotifyState.y = safeY;
+                writeSpotifyState();
+            }
+            root.style.left = safeX + 'px';
+            root.style.top = safeY + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        } else {
+            const def = getSpotifyDefaultPosition();
+            root.style.left = def.x + 'px';
+            root.style.top = def.y + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        }
     }
 
-    function renderSpotifyWidget(state) {
+    function renderSpotifyWidget() {
         const root = document.getElementById('global-spotify-widget');
+        const fab = document.getElementById('global-spotify-fab');
         const panel = document.getElementById('global-spotify-panel');
         const iframe = document.getElementById('global-spotify-iframe');
+        const scIframe = document.getElementById('global-soundcloud-iframe');
         const bubble = document.getElementById('sp-bubble');
+        const ring = document.getElementById('sp-ring');
+        const eq = document.getElementById('sp-eq');
+        const logo = document.getElementById('sp-logo');
+        const size = document.getElementById('spotify-size');
+        const sizeButtons = document.querySelectorAll('.sp-size-btn');
         const title = document.getElementById('spotify-current-title');
-        if (!root || !panel || !iframe) return;
+        const loading = document.getElementById('spotify-loading');
+        const quranList = document.getElementById('spotify-quran-list');
+        const quranItems = document.getElementById('spotify-quran-items');
+        const quranPlaylistBtn = document.getElementById('spotify-quran-playlist');
+        const reciterLuhaidanBtn = document.getElementById('quran-reciter-luhaidan');
+        const reciterDossariBtn = document.getElementById('quran-reciter-dossari');
+        const scFallback = document.getElementById('spotify-soundcloud-fallback');
+        const scFallbackOpen = document.getElementById('spotify-soundcloud-open');
+        if (!root || !fab || !panel || !iframe || !scIframe || !size) return;
 
-        if (!state.enabled) {
+        if (!spotifyState.enabled) {
             root.classList.add('hidden');
             if (bubble) bubble.classList.add('hidden');
             return;
         }
+        const started = String(localStorage.getItem(spotifyStartedKey) || '0') === '1';
 
-        const rawUrl = state.url || spotifyPresets[state.preset] || spotifyPresets.nature;
-        const normalizedUrl = (state.preset === 'nature' || state.preset === 'relax' || state.preset === 'motivation')
+        updateSpotifyLayout();
+        const rawUrl = spotifyState.url || spotifyPresets[spotifyState.preset] || spotifyPresets.nature;
+        const normalizedUrl = (spotifyState.preset === 'nature' || spotifyState.preset === 'relax' || spotifyState.preset === 'motivation')
             ? normalizeSpotifyListUrl(rawUrl)
             : normalizeSpotifyUrl(rawUrl);
+        if (title) {
+            title.textContent = spotifyPresetLabels[spotifyState.preset] || 'Nature Sounds';
+        }
+        document.querySelectorAll('.spotify-preset').forEach((btn) => {
+            const isActive = String(btn.getAttribute('data-preset') || '') === spotifyState.preset;
+            btn.classList.toggle('active', isActive);
+        });
+        let activeReciterKey = spotifyState.preset === 'quran' ? getSelectedReciter() : '';
+        const presetChanged = spotifyLastPreset !== spotifyState.preset;
+        const urlChanged = spotifyLastUrl !== normalizedUrl;
+        const reciterChanged = spotifyLastReciter !== activeReciterKey;
+        const openChanged = spotifyLastOpen !== spotifyState.open;
+        if (!presetChanged && !urlChanged && !reciterChanged && !openChanged) {
+            if (spotifyState.open) panel.classList.remove('hidden');
+            else panel.classList.add('hidden');
+            return;
+        }
+        spotifyLastPreset = spotifyState.preset;
+        spotifyLastUrl = normalizedUrl;
+        spotifyLastReciter = activeReciterKey;
+        spotifyLastOpen = spotifyState.open;
+        if (spotifyState.preset === 'quran') {
+            if (!activeReciterKey) {
+                activeReciterKey = 'luhaidan';
+                setSelectedReciter('luhaidan');
+            }
+            const activeReciter = quranReciters[activeReciterKey] || quranReciters.luhaidan;
+            const tracks = Array.isArray(activeReciter?.tracks) ? activeReciter.tracks : [];
+            const useSoundCloud = activeReciterKey === 'dossari' && tracks.length === 0;
+            const defaultTrack = tracks[0] ? toTrackEmbed(tracks[0].url) : normalizedUrl;
+            applySpotifySize(Number(spotifyState.size || 360), true);
+            if (useSoundCloud) {
+                if (spotifyIframeSrc !== '') {
+                    iframe.src = '';
+                    spotifyIframeSrc = '';
+                    spotifyCurrentTrackId = '';
+                }
+                iframe.classList.add('hidden');
+                scIframe.classList.remove('hidden');
+                scIframe.style.display = 'block';
+                scIframe.style.background = '#111';
+                scIframe.style.visibility = 'visible';
+                scIframe.style.opacity = '1';
+                if (scFallback) scFallback.classList.add('sp-hidden');
+                const desiredSc = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(quranDossariSoundcloud) +
+                    '&color=%230a4b6b&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false';
+                if (loading) loading.classList.remove('sp-hidden');
+                if (forceSoundcloudOpen || soundcloudIframeSrc !== desiredSc) {
+                    scIframe.src = desiredSc;
+                    soundcloudIframeSrc = desiredSc;
+                    forceSoundcloudOpen = false;
+                }
+                if (scFallbackTimer) {
+                    window.clearTimeout(scFallbackTimer);
+                    scFallbackTimer = null;
+                }
+                scIframe.onload = () => {
+                    if (loading) loading.classList.add('sp-hidden');
+                    if (scFallback) scFallback.classList.add('sp-hidden');
+                };
+                scFallbackTimer = window.setTimeout(() => {
+                    if (loading) loading.classList.add('sp-hidden');
+                    if (scFallback) scFallback.classList.remove('sp-hidden');
+                }, 1800);
+            } else {
+                scIframe.classList.add('hidden');
+                if (soundcloudIframeSrc !== '') {
+                    scIframe.src = '';
+                    soundcloudIframeSrc = '';
+                }
+                if (scFallback) scFallback.classList.add('sp-hidden');
+                if (scFallbackTimer) {
+                    window.clearTimeout(scFallbackTimer);
+                    scFallbackTimer = null;
+                }
+                iframe.classList.remove('hidden');
+            const desiredSpotify = (normalizedUrl.includes('/track/') || normalizedUrl.includes('/embed/track/')
+                || normalizedUrl.includes('/episode/') || normalizedUrl.includes('/embed/episode/')
+                    ? normalizedUrl
+                    : defaultTrack);
+                const desiredTrackId = getSpotifyTrackId(desiredSpotify);
+                if (spotifyIframeSrc !== desiredSpotify && desiredTrackId !== spotifyCurrentTrackId) {
+                    if (loading) loading.classList.remove('sp-hidden');
+                    iframe.src = desiredSpotify;
+                    spotifyIframeSrc = desiredSpotify;
+                    spotifyCurrentTrackId = desiredTrackId;
+                    iframe.onload = () => { if (loading) loading.classList.add('sp-hidden'); };
+                }
+            }
+            if (quranList && quranItems) {
+                if (tracks.length) {
+                    quranItems.innerHTML = tracks.map((track, idx) => `
+                        <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                data-quran-track="${idx}">
+                            ${activeReciter.label} — ${track.title}
+                        </button>
+                    `).join('');
+                } else {
+                    quranItems.innerHTML = useSoundCloud
+                        ? `
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Playlist</button>
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Recitation</button>
+                            <button class="w-full text-left text-[11px] px-2 py-1.5 rounded-md bg-slate-800/60 hover:bg-slate-700/70 transition"
+                                    data-soundcloud="1">Yasser Al-Dossari — Quran</button>
+                          `
+                        : '<p class="text-[11px] text-slate-300/80">Add Spotify links for this reciter.</p>';
+                }
+                applySpotifySize(Number(spotifyState.size || 360), true);
+            }
+            if (quranPlaylistBtn) {
+                quranPlaylistBtn.onclick = function() {
+                    if (activeReciterKey === 'dossari') {
+                        spotifyState.open = true;
+                        renderSpotifyWidget();
+                        return;
+                    }
+                    window.open(quranPlaylistUrl, '_blank');
+                };
+            }
+            if (scFallbackOpen) {
+                scFallbackOpen.onclick = function() {
+                    spotifyState.open = true;
+                    renderSpotifyWidget();
+                };
+            }
+            if (reciterLuhaidanBtn && reciterDossariBtn) {
+                const setActive = (key) => {
+                    setSelectedReciter(key);
+                    reciterLuhaidanBtn.className = key === 'luhaidan'
+                        ? 'text-[11px] px-2 py-1 rounded-md bg-slate-700/80 hover:bg-slate-600 transition'
+                        : 'text-[11px] px-2 py-1 rounded-md bg-slate-700/50 hover:bg-slate-600 transition';
+                    reciterDossariBtn.className = key === 'dossari'
+                        ? 'text-[11px] px-2 py-1 rounded-md bg-slate-700/80 hover:bg-slate-600 transition'
+                        : 'text-[11px] px-2 py-1 rounded-md bg-slate-700/50 hover:bg-slate-600 transition';
+                };
+                setActive(activeReciterKey);
+                reciterLuhaidanBtn.onclick = () => {
+                    if (getSelectedReciter() === 'luhaidan') return;
+                    setActive('luhaidan');
+                    spotifyState.open = true;
+                    spotifyState.preset = 'quran';
+                    spotifyState.url = '';
+                    spotifyLastPreset = '';
+                    spotifyLastUrl = '';
+                    spotifyLastReciter = '';
+                    renderSpotifyWidget();
+                };
+                reciterDossariBtn.onclick = () => {
+                    if (getSelectedReciter() === 'dossari') return;
+                    setActive('dossari');
+                    spotifyState.open = true;
+                    spotifyState.preset = 'quran';
+                    spotifyState.url = '';
+                    spotifyLastPreset = '';
+                    spotifyLastUrl = '';
+                    spotifyLastReciter = '';
+                    renderSpotifyWidget();
+                };
+            }
+        } else {
+            applySpotifySize(Number(spotifyState.size || 360), false);
+            const desiredTrackId = getSpotifyTrackId(normalizedUrl);
+            if (spotifyIframeSrc !== normalizedUrl && (desiredTrackId === '' || desiredTrackId !== spotifyCurrentTrackId)) {
+                if (loading) loading.classList.remove('sp-hidden');
+                iframe.src = normalizedUrl;
+                spotifyIframeSrc = normalizedUrl;
+                spotifyCurrentTrackId = desiredTrackId;
+                iframe.onload = () => { if (loading) loading.classList.add('sp-hidden'); };
+            }
+            scIframe.classList.add('hidden');
+            if (soundcloudIframeSrc !== '') {
+                scIframe.src = '';
+                soundcloudIframeSrc = '';
+            }
+            if (scFallback) scFallback.classList.add('sp-hidden');
+            if (scFallbackTimer) {
+                window.clearTimeout(scFallbackTimer);
+                scFallbackTimer = null;
+            }
+            if (quranList) quranList.classList.add('hidden');
+        }
+        const maxX = Math.max(8, window.innerWidth - spotifyState.size - 8);
+        const maxY = Math.max(8, window.innerHeight - spotifyState.size - 8);
+        if (spotifyState.x !== null && spotifyState.y !== null) {
+            let safeX = Math.max(8, Math.min(maxX, Number(spotifyState.x)));
+            let safeY = Math.max(8, Math.min(maxY, Number(spotifyState.y)));
+            // Avoid top bar overlap on old saves
+            if (safeY < 70) {
+                const def = getSpotifyDefaultPosition();
+                safeX = def.x;
+                safeY = def.y;
+                spotifyState.x = safeX;
+                spotifyState.y = safeY;
+                writeSpotifyState();
+            }
+            root.style.left = safeX + 'px';
+            root.style.top = safeY + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        } else {
+            const def = getSpotifyDefaultPosition();
+            root.style.left = def.x + 'px';
+            root.style.top = def.y + 'px';
+            root.style.right = 'auto';
+            root.style.bottom = 'auto';
+        }
 
-        if (title) title.textContent = spotifyPresetLabels[state.preset] || 'Nature Sounds';
-        if (iframe.src !== normalizedUrl) iframe.src = normalizedUrl;
+        if (!spotifyState.open) {
+            panel.classList.add('hidden');
+            if (bubble) {
+                bubble.classList.toggle('hidden', !started);
+                bubble.classList.remove('sp-bubble-active');
+                if (ring) ring.classList.add('playing');
+                if (eq) eq.classList.remove('sp-eq-paused');
+                if (logo) logo.style.display = 'none';
+                if (eq) eq.style.display = 'flex';
+            }
+            return;
+        }
+        if (bubble) {
+            bubble.classList.toggle('hidden', !started);
+            bubble.classList.add('sp-bubble-active');
+            if (ring) ring.classList.add('playing');
+            if (eq) eq.classList.remove('sp-eq-paused');
+            if (logo) logo.style.display = 'none';
+            if (eq) eq.style.display = 'flex';
+        }
+        panel.classList.remove('hidden');
+        bindSpotifyBubble();
+    }
 
-        applySpotifySize(state.size || 360);
+    function scheduleRenderSpotifyWidget() {
+        if (spotifyRenderQueued) return;
+        spotifyRenderQueued = true;
+        window.setTimeout(() => {
+            spotifyRenderQueued = false;
+            renderSpotifyWidget();
+        }, 150);
+    }
+
+    function toggleSpotifyPanelDirect() {
+        const panel = document.getElementById('global-spotify-panel');
+        const root = document.getElementById('global-spotify-widget');
+        if (!panel || !root) return;
+        const isHidden = panel.classList.contains('hidden') || panel.style.display === 'none';
+        panel.classList.toggle('hidden', !isHidden);
+        panel.style.display = isHidden ? 'block' : 'none';
         root.classList.remove('hidden');
         root.classList.add('sp-visible');
+        spotifyState.open = isHidden;
+        spotifyState.enabled = true;
+        localStorage.setItem(spotifyStartedKey, '1');
+        writeSpotifyState();
+    }
 
-        if (state.open) {
-            panel.classList.remove('hidden');
-            panel.style.display = 'block';
-            if (bubble) bubble.classList.add('hidden');
-        } else {
-            panel.classList.add('hidden');
-            panel.style.display = 'none';
-            if (bubble && String(localStorage.getItem(spotifyStartedKey) || '0') === '1') {
-                bubble.classList.remove('hidden');
-            }
-        }
+    function bindSpotifyBubble() {
+        const bubble = document.getElementById('sp-bubble');
+        if (!bubble || bubble.dataset.bound === '1') return;
+        bubble.dataset.bound = '1';
+        bubble.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleSpotifyPanelDirect();
+        });
+        bubble.addEventListener('pointerdown', (event) => {
+            event.stopPropagation();
+        });
     }
 
     function initSpotifyWidget() {
-        let state = readSpotifyState();
-        renderSpotifyWidget(state);
+        readSpotifyState();
+        if (isSpotifyPinned()) {
+            spotifyState.enabled = true;
+            spotifyState.open = true;
+        }
+        renderSpotifyWidget();
+        bindSpotifyBubble();
 
+        const root = document.getElementById('global-spotify-widget');
+        const fab = document.getElementById('global-spotify-fab');
+        const panel = document.getElementById('global-spotify-panel');
+        const iframe = document.getElementById('global-spotify-iframe');
+        const deleteBtn = document.getElementById('spotify-delete');
+        const toggleListBtn = document.getElementById('spotify-toggle-list');
+        const minimizeBtn = document.getElementById('spotify-minimize');
+        const bubble = document.getElementById('sp-bubble');
+        const size = document.getElementById('spotify-size');
+        const pinBtn = document.getElementById('spotify-pin');
         const sizeButtons = document.querySelectorAll('.sp-size-btn');
         const presetButtons = document.querySelectorAll('.spotify-preset');
-        const deleteBtn = document.getElementById('spotify-delete');
-        const bubble = document.getElementById('sp-bubble');
-        const panel = document.getElementById('global-spotify-panel');
-        const root = document.getElementById('global-spotify-widget');
+        if (!root || !fab || !panel || !iframe || !deleteBtn || !size) return;
+
+        fab.addEventListener('pointerdown', function(event) {
+            const target = event.target;
+            if (target instanceof HTMLElement) {
+                if (target.closest('.sp-topbar-actions')) return;
+            }
+            spotifyFabDragging = false;
+            spotifyFabPointerId = event.pointerId;
+            spotifyFabStartX = event.clientX;
+            spotifyFabStartY = event.clientY;
+            const rect = root.getBoundingClientRect();
+            spotifyFabOriginX = rect.left;
+            spotifyFabOriginY = rect.top;
+            fab.setPointerCapture(event.pointerId);
+            event.preventDefault();
+        });
+
+        fab.addEventListener('pointermove', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            const dx = event.clientX - spotifyFabStartX;
+            const dy = event.clientY - spotifyFabStartY;
+            if (!spotifyFabDragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                spotifyFabDragging = true;
+            }
+            if (!spotifyFabDragging) return;
+            let nextX = spotifyFabOriginX + dx;
+            let nextY = spotifyFabOriginY + dy;
+            const maxX = Math.max(8, window.innerWidth - 80);
+            const maxY = Math.max(8, window.innerHeight - 90);
+            nextX = Math.max(8, Math.min(maxX, nextX));
+            nextY = Math.max(8, Math.min(maxY, nextY));
+            spotifyState.x = Math.round(nextX);
+            spotifyState.y = Math.round(nextY);
+            writeSpotifyState();
+            updateSpotifyLayout();
+        });
+
+        fab.addEventListener('pointerup', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            fab.releasePointerCapture(event.pointerId);
+            if (!spotifyFabDragging) {
+                spotifyState.open = !spotifyState.open;
+                writeSpotifyState();
+                renderSpotifyWidget();
+            }
+            spotifyFabPointerId = null;
+            spotifyFabDragging = false;
+        });
+
+        fab.addEventListener('pointercancel', function(event) {
+            if (spotifyFabPointerId !== event.pointerId) return;
+            spotifyFabPointerId = null;
+            spotifyFabDragging = false;
+        });
+
+        pinBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const next = !isSpotifyPinned();
+            setSpotifyPinned(next);
+            if (next) {
+                spotifyState.enabled = true;
+                spotifyState.open = true;
+                writeSpotifyState();
+            }
+            updateSpotifyLayout();
+        });
+
+        toggleListBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            const current = String(localStorage.getItem(spotifyListHiddenKey) || '0') === '1';
+            localStorage.setItem(spotifyListHiddenKey, current ? '0' : '1');
+            updateSpotifyLayout();
+        });
+
+        minimizeBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            if (window.RLifeToggleSpotifyPanel) window.RLifeToggleSpotifyPanel();
+        });
+
+        window.RLifeToggleSpotifyPanel = () => {
+            toggleSpotifyPanelDirect();
+            renderSpotifyWidget();
+        };
+        let bubbleDragging = false;
+        let bubblePointerId = null;
+        let bubbleStartX = 0;
+        let bubbleStartY = 0;
+        let bubbleOriginX = 0;
+        let bubbleOriginY = 0;
+        let bubbleIgnoreClickUntil = 0;
+
+        bubble?.addEventListener('pointerdown', (event) => {
+            bubbleDragging = false;
+            bubblePointerId = event.pointerId;
+            bubbleStartX = event.clientX;
+            bubbleStartY = event.clientY;
+            const rect = bubble.getBoundingClientRect();
+            bubbleOriginX = rect.left;
+            bubbleOriginY = rect.top;
+            bubble.dataset.dragging = '0';
+            bubble.setPointerCapture(event.pointerId);
+        });
+
+        bubble?.addEventListener('pointermove', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            const dx = event.clientX - bubbleStartX;
+            const dy = event.clientY - bubbleStartY;
+            if (!bubbleDragging && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                bubbleDragging = true;
+                bubble.dataset.dragging = '1';
+            }
+            if (!bubbleDragging) return;
+            let nextX = bubbleOriginX + dx;
+            let nextY = bubbleOriginY + dy;
+            const maxX = Math.max(8, window.innerWidth - bubble.offsetWidth - 8);
+            const maxY = Math.max(8, window.innerHeight - bubble.offsetHeight - 8);
+            nextX = Math.max(8, Math.min(maxX, nextX));
+            nextY = Math.max(8, Math.min(maxY, nextY));
+            bubble.style.left = nextX + 'px';
+            bubble.style.top = nextY + 'px';
+            bubble.style.right = 'auto';
+            bubble.style.bottom = 'auto';
+        });
+
+        bubble?.addEventListener('pointerup', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            bubble.releasePointerCapture(event.pointerId);
+            if (bubbleDragging) {
+                bubbleIgnoreClickUntil = Date.now() + 300;
+            }
+            bubblePointerId = null;
+            bubbleDragging = false;
+            bubble.dataset.dragging = '0';
+        });
+
+        bubble?.addEventListener('pointercancel', (event) => {
+            if (bubblePointerId !== event.pointerId) return;
+            bubblePointerId = null;
+            bubbleDragging = false;
+            bubble.dataset.dragging = '0';
+        });
+
+        // click handler handled in bindSpotifyBubble()
+
+        if (!window.RLifeBubbleGlobalBound) {
+            window.RLifeBubbleGlobalBound = true;
+            document.addEventListener('click', (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLElement)) return;
+                const bubbleTarget = target.closest('#sp-bubble');
+                if (!bubbleTarget) return;
+                if (bubbleTarget.dataset.dragging === '1') return;
+                if (Date.now() < bubbleIgnoreClickUntil) return;
+                event.preventDefault();
+                toggleSpotifyPanelDirect();
+            }, true);
+        }
+
+        deleteBtn.onclick = function() {
+            spotifyState.enabled = false;
+            spotifyState.open = false;
+            spotifyState.url = '';
+            spotifyState.preset = 'nature';
+            localStorage.setItem(spotifyStartedKey, '0');
+            writeSpotifyState();
+            if (window.RLifeAudio && typeof window.RLifeAudio.stop === 'function') {
+                window.RLifeAudio.stop();
+            }
+            const iframe = document.getElementById('global-spotify-iframe');
+            const scIframe = document.getElementById('global-soundcloud-iframe');
+            if (iframe) {
+                iframe.src = '';
+                spotifyIframeSrc = '';
+                spotifyCurrentTrackId = '';
+            }
+            if (scIframe) {
+                scIframe.src = '';
+                soundcloudIframeSrc = '';
+            }
+            const scFallback = document.getElementById('spotify-soundcloud-fallback');
+            if (scFallback) scFallback.classList.add('sp-hidden');
+            if (scFallbackTimer) {
+                window.clearTimeout(scFallbackTimer);
+                scFallbackTimer = null;
+            }
+            const root = document.getElementById('global-spotify-widget');
+            const panel = document.getElementById('global-spotify-panel');
+            if (panel) {
+                panel.classList.add('hidden');
+                panel.style.display = 'none';
+            }
+            if (root) {
+                root.classList.add('hidden');
+                root.classList.remove('sp-visible');
+                root.style.display = 'none';
+            }
+            if (bubble) bubble.classList.add('hidden');
+        };
+
+        size.oninput = function() {
+            spotifyState.size = Number(size.value || 360);
+            writeSpotifyState();
+            updateSpotifyLayout();
+        };
 
         sizeButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const key = String(btn.getAttribute('data-size') || 'md');
+            btn.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
+            });
+            btn.addEventListener('click', (event) => {
+                event.stopPropagation();
+                const key = String(btn.getAttribute('data-size') || 'sm');
                 const nextSize = key === 'xl' ? 580 : key === 'lg' ? 460 : key === 'md' ? 360 : 280;
-                state.size = nextSize;
-                writeSpotifyState(state);
-                renderSpotifyWidget(state);
+                if (spotifyState.size === nextSize) return;
+                spotifyState.size = nextSize;
+                writeSpotifyState();
+                updateSpotifyLayout();
+            });
+        });
+
+        document.querySelectorAll('.sp-topbar-actions button').forEach((btn) => {
+            btn.addEventListener('pointerdown', (event) => {
+                event.stopPropagation();
+                event.preventDefault();
             });
         });
 
         presetButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', function() {
                 const preset = String(btn.getAttribute('data-preset') || 'nature');
-                state.enabled = true;
-                state.open = true;
-                state.preset = preset;
-                state.url = spotifyPresets[preset] || spotifyPresets.nature;
-                localStorage.setItem(spotifyStartedKey, '1');
-                writeSpotifyState(state);
-                renderSpotifyWidget(state);
+                if (spotifyState.preset === preset) return;
+                const url = spotifyPresets[preset] || spotifyPresets.nature;
+                spotifyState.enabled = true;
+                spotifyState.open = true;
+                spotifyState.preset = preset;
+                spotifyState.url = url;
+                writeSpotifyState();
+                renderSpotifyWidget();
             });
         });
 
-        bubble?.addEventListener('click', (event) => {
-            event.stopPropagation();
-            state.open = true;
-            state.enabled = true;
-            localStorage.setItem(spotifyStartedKey, '1');
-            writeSpotifyState(state);
-            renderSpotifyWidget(state);
+        panel.addEventListener('click', function(event) {
+            const target = event.target;
+            if (!(target instanceof HTMLElement)) return;
+            if (target.getAttribute('data-soundcloud') === '1') {
+                const scIframe = document.getElementById('global-soundcloud-iframe');
+                if (scIframe) {
+                    const desiredSc = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(quranDossariSoundcloud) +
+                        '&color=%230a4b6b&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&visual=false';
+                    scIframe.src = desiredSc;
+                    soundcloudIframeSrc = desiredSc;
+                }
+                forceSoundcloudOpen = true;
+                spotifyState.preset = 'quran';
+                setSelectedReciter('dossari');
+                spotifyLastPreset = '';
+                spotifyLastReciter = '';
+                spotifyState.url = '';
+                spotifyState.open = true;
+                renderSpotifyWidget();
+                return;
+            }
+            const idx = target.getAttribute('data-quran-track');
+            if (idx === null) return;
+            const activeReciterKey = getSelectedReciter();
+            const activeReciter = quranReciters[activeReciterKey] || quranReciters.luhaidan;
+            const tracks = Array.isArray(activeReciter?.tracks) ? activeReciter.tracks : [];
+            const track = tracks[Number(idx)];
+            if (!track) return;
+            const nextEmbed = toTrackEmbed(track.url);
+            const nextTrackId = getSpotifyTrackId(nextEmbed);
+            if (nextTrackId && nextTrackId === spotifyCurrentTrackId) return;
+            spotifyState.enabled = true;
+            spotifyState.open = true;
+            spotifyState.preset = 'quran';
+            spotifyState.url = nextEmbed;
+            writeSpotifyState();
+            scheduleRenderSpotifyWidget();
         });
 
-        deleteBtn?.addEventListener('click', () => {
-            state.enabled = false;
-            state.open = false;
-            state.url = '';
-            state.preset = 'nature';
-            localStorage.setItem(spotifyStartedKey, '0');
-            writeSpotifyState(state);
-            if (panel) panel.classList.add('hidden');
-            if (root) root.classList.add('hidden');
-            if (bubble) bubble.classList.add('hidden');
-        });
 
         window.addEventListener('rlife-spotify-start', function(event) {
             const detail = event.detail || {};
+            spotifyState.enabled = true;
+            spotifyState.open = true;
             const preset = String(detail.preset || 'nature');
-            state.enabled = true;
-            state.open = true;
-            state.preset = preset;
-            state.url = String(detail.url || spotifyPresets[preset] || spotifyPresets.nature);
+            spotifyState.preset = preset;
+            spotifyState.url = String(detail.url || spotifyPresets[preset] || spotifyPresets.nature);
             localStorage.setItem(spotifyStartedKey, '1');
-            writeSpotifyState(state);
-            renderSpotifyWidget(state);
+            spotifyState.x = null;
+            spotifyState.y = null;
+            spotifyLastPreset = '';
+            spotifyLastUrl = '';
+            spotifyLastReciter = '';
+            spotifyLastOpen = false;
+            writeSpotifyState();
+            const root = document.getElementById('global-spotify-widget');
+            const panel = document.getElementById('global-spotify-panel');
+            if (root) {
+                root.classList.remove('hidden');
+                root.classList.add('sp-visible');
+                root.style.display = 'block';
+            }
+            if (panel) {
+                panel.classList.remove('hidden');
+                panel.style.display = 'block';
+            }
+            const bubble = document.getElementById('sp-bubble');
+            if (bubble) bubble.classList.add('hidden');
+            updateSpotifyLayout();
+            renderSpotifyWidget();
         });
     }
 
@@ -2517,16 +3884,107 @@
 
 <!-- ==================== PET MANAGEMENT MODAL ==================== -->
 {% if app.user %}
+<style>
+    .pet-action-btn-running {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.86;
+        animation: petBtnRunningPulse 0.9s ease-in-out infinite;
+    }
+
+    .pet-action-btn-pop {
+        animation: petBtnPop 360ms cubic-bezier(.2, .9, .28, 1.2);
+    }
+
+    .pet-stage-anim-play {
+        animation: petStagePlay 650ms cubic-bezier(.22, .8, .25, 1);
+    }
+
+    .pet-stage-anim-sleep {
+        animation: petStageSleep 1200ms ease-in-out;
+    }
+
+    .pet-stage-anim-heal {
+        animation: petStageHeal 900ms ease-out;
+    }
+
+    .pet-stage-anim-feed {
+        animation: petStageFeed 800ms cubic-bezier(.2, .82, .2, 1);
+    }
+
+    .pet-hunger-boost {
+        animation: petHungerBoost 850ms cubic-bezier(.21, .93, .26, 1);
+    }
+
+    .pet-action-burst {
+        position: fixed;
+        z-index: 130;
+        pointer-events: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 9999px;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.2);
+        animation: petBurst 700ms ease-out forwards;
+    }
+
+    @keyframes petBtnRunningPulse {
+        0%, 100% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.12); }
+        50% { transform: translateY(-1px); box-shadow: 0 0 0 5px rgba(94, 234, 212, 0); }
+    }
+
+    @keyframes petBtnPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.94); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes petStagePlay {
+        0% { transform: translateY(0) scale(1) rotate(0deg); }
+        25% { transform: translateY(-3px) scale(1.01) rotate(-1deg); }
+        50% { transform: translateY(0) scale(1.015) rotate(1deg); }
+        100% { transform: translateY(0) scale(1) rotate(0deg); }
+    }
+
+    @keyframes petStageSleep {
+        0% { filter: saturate(1) brightness(1); }
+        35% { filter: saturate(0.82) brightness(0.94); }
+        100% { filter: saturate(1) brightness(1); }
+    }
+
+    @keyframes petStageHeal {
+        0% { box-shadow: inset 0 0 0 rgba(16, 185, 129, 0), 0 0 0 rgba(16, 185, 129, 0); }
+        45% { box-shadow: inset 0 0 42px rgba(16, 185, 129, 0.22), 0 0 28px rgba(16, 185, 129, 0.28); }
+        100% { box-shadow: inset 0 0 0 rgba(16, 185, 129, 0), 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    @keyframes petStageFeed {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes petHungerBoost {
+        0% { filter: brightness(1); transform: scaleX(1); }
+        45% { filter: brightness(1.28); transform: scaleX(1.02); }
+        100% { filter: brightness(1); transform: scaleX(1); }
+    }
+
+    @keyframes petBurst {
+        0% { opacity: .95; transform: translate(-50%, -50%) scale(0.2); }
+        100% { opacity: 0; transform: translate(-50%, -50%) translate(var(--dx, 0px), var(--dy, -30px)) scale(1.2); }
+    }
+</style>
 <div id="petManagementModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-purple-200/30 dark:border-purple-800/30">
 
         <!-- Header -->
         <div class="px-6 py-5 border-b dark:border-slate-700 bg-gradient-to-r from-purple-50/80 to-pink-50/80 dark:from-purple-950/40 dark:to-pink-950/40 flex items-center justify-between">
             <div>
-                <h2 class="text-xl font-bold text-purple-700 dark:text-purple-300">
+                <h2 id="petModalName" class="text-xl font-bold text-purple-700 dark:text-purple-300">
                     {{ app.user.mainPet ? app.user.mainPet.name : 'My Companion' }}
                 </h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">
+                <p id="petModalMeta" class="text-sm text-slate-500 dark:text-slate-400">
                     {% if app.user.mainPet %}Lv. {{ app.user.mainPet.level }} &bull; {{ app.user.mainPet.getMood() }}
                     {% else %}No companion adopted{% endif %}
                 </p>
@@ -2551,20 +4009,38 @@
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Hunger</p>
                         <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-2">
-                            <div class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 h-2.5 rounded-full transition-all duration-700"
+                            <div id="petModalHungerBar" class="bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 h-2.5 rounded-full transition-all duration-700"
                                  style="width: {{ 100 - app.user.mainPet.hunger }}%"></div>
                         </div>
-                        <p class="text-lg font-bold text-slate-800 dark:text-white">{{ app.user.mainPet.hunger }}/100</p>
+                        <p id="petModalHungerValue" class="text-lg font-bold text-slate-800 dark:text-white">{{ app.user.mainPet.hunger }}/100</p>
                     </div>
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl text-center">
                         <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Coins</p>
-                        <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</p>
+                        <p id="petModalCoins" class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</p>
                     </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="space-y-3">
-                    <button onclick="openFeedModal()"
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button"
+                                data-pet-action="play"
+                                class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
+                            <i data-lucide="gamepad-2" class="w-4 h-4"></i> Play
+                        </button>
+                        <button type="button"
+                                data-pet-action="sleep"
+                                class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
+                            <i data-lucide="moon-star" class="w-4 h-4"></i> Sleep
+                        </button>
+                        <button type="button"
+                                data-pet-action="heal"
+                                class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Heal
+                        </button>
+                    </div>
+                    <p id="petActionFeedback" class="text-xs text-slate-500 dark:text-slate-400 px-1"></p>
+                    <button id="petFeedPrimaryBtn" onclick="openFeedModal()"
                             class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2.5">
                         <i data-lucide="heart-pulse" class="w-5 h-5"></i> Feed
                     </button>
@@ -2588,8 +4064,8 @@
 
                 <!-- Rename section (hidden by default) -->
                 <div id="renameSection" class="hidden mt-5 pt-5 border-t dark:border-slate-700">
-                    <form method="post" action="{{ path('app_pet_rename') }}" class="flex gap-3">
-                        <input type="text" name="name" value="{{ app.user.mainPet.name }}" required minlength="2" maxlength="25"
+                    <form id="petRenameForm" method="post" action="{{ path('app_pet_rename') }}" class="flex gap-3">
+                        <input id="petRenameInput" type="text" name="name" value="{{ app.user.mainPet.name }}" required minlength="2" maxlength="25"
                                class="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 text-slate-900 dark:text-white">
                         <button type="submit"
                                 class="px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition">
@@ -2630,7 +4106,7 @@
         </div>
         <div class="p-5">
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 text-center">
-                Available coins: <span class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</span>
+                Available coins: <span id="feedModalCoins" class="font-bold text-purple-600 dark:text-purple-400">{{ app.user.coins }} coins</span>
             </p>
             <div class="space-y-3">
                 {% set foods = [
@@ -2639,7 +4115,7 @@
                     {type: 'deluxe',  name: 'Magic Feast',  cost: 200, reduce: 100, icon: 'sparkles'}
                 ] %}
                 {% for food in foods %}
-                <form method="post" action="{{ path('app_pet_feed') }}">
+                <form method="post" action="{{ path('app_pet_feed') }}" class="js-pet-feed-form">
                     <input type="hidden" name="food_type" value="{{ food.type }}">
                     <button type="submit"
                             class="w-full flex items-center gap-4 px-4 py-3.5 bg-slate-50 dark:bg-slate-800 hover:bg-green-50 dark:hover:bg-green-900/20 border border-slate-200 dark:border-slate-700 hover:border-green-300 dark:hover:border-green-700 rounded-2xl transition-all group">
@@ -2665,7 +4141,7 @@
 
 <!-- Global init -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    function rlifeRunGlobalInit() {
         window.initIcons();
         if (window.RLife3D) {
             window.RLife3D.autoInitPetScenes();
@@ -2680,25 +4156,26 @@
         if (typeof window.initSpotifyWidget === 'function') {
             window.initSpotifyWidget();
         }
+    }
+
+    function rlifeDispatchCompatibilityReady() {
+        document.dispatchEvent(new CustomEvent('rlife:ready'));
+        // Compatibility shim: many project scripts only listen to DOMContentLoaded.
+        document.dispatchEvent(new Event('DOMContentLoaded'));
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        rlifeRunGlobalInit();
         console.log('Page initialized: Icons loaded');
     });
     document.addEventListener('turbo:load', function() {
-        window.initIcons();
-        if (window.RLife3D) {
-            window.RLife3D.autoInitPetScenes();
-            setTimeout(() => window.RLife3D.autoInitPetScenes(), 250);
-        }
-        if (window.RLifeAudio && typeof window.RLifeAudio.resume === 'function') {
-            window.RLifeAudio.resume();
-        }
-        if (typeof window.initGlobalQuoteTicker === 'function') {
-            window.initGlobalQuoteTicker();
-        }
-        if (typeof window.initSpotifyWidget === 'function') {
-            window.initSpotifyWidget();
-        }
+        rlifeRunGlobalInit();
+        rlifeDispatchCompatibilityReady();
     });
-    document.addEventListener('turbo:frame-load', function() { window.initIcons(); });
+    document.addEventListener('turbo:frame-load', function() {
+        rlifeRunGlobalInit();
+        rlifeDispatchCompatibilityReady();
+    });
 </script>
 
 <!-- Global Search -->
@@ -2725,7 +4202,7 @@
         });
 
         function showLoading() {
-            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500"><i data-lucide="loader-2" class="inline-block animate-spin w-6 h-6"></i><p class="text-xs mt-2">Searching...</p></div>`;
+            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500 dark:text-slate-300"><i data-lucide="loader-2" class="inline-block animate-spin w-6 h-6"></i><p class="text-xs mt-2">Searching...</p></div>`;
             searchResults.classList.remove('hidden');
             window.initIcons();
         }
@@ -2737,7 +4214,7 @@
                 .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
                 .then(data => { lastQuery = query; cachedResults = data.results; displayResults(data.results); })
                 .catch(err => {
-                    searchResults.innerHTML = `<div class="p-4 text-center text-red-500"><p class="text-sm">Search failed</p><p class="text-xs">${err.message}</p></div>`;
+                    searchResults.innerHTML = `<div class="p-4 text-center text-red-500 dark:text-red-300"><p class="text-sm">Search failed</p><p class="text-xs">${err.message}</p></div>`;
                     searchResults.classList.remove('hidden');
                 })
                 .finally(() => { isSearching = false; });
@@ -2745,7 +4222,7 @@
 
         function displayResults(results) {
             if (!results || results.length === 0) {
-                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2"></i><p class="text-sm font-medium">No results found</p></div>`;
+                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500 dark:text-slate-300"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2"></i><p class="text-sm font-medium">No results found</p></div>`;
                 searchResults.classList.remove('hidden');
                 window.initIcons();
                 return;
@@ -2755,13 +4232,13 @@
             let html = '<div class="p-2">';
             Object.keys(grouped).forEach((type, i) => {
                 if (i > 0) html += '<div class="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>';
-                html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 uppercase">${typeLabels[type]}</p>`;
+                html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">${typeLabels[type]}</p>`;
                 grouped[type].forEach(result => {
-                    html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-lg"><i data-lucide="${typeIcons[result.type] || 'circle'}" class="w-4 h-4 text-slate-600"></i></div>
+                    html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors">
+                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg"><i data-lucide="${typeIcons[result.type] || 'circle'}" class="w-4 h-4 text-slate-600 dark:text-slate-200"></i></div>
                         <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 truncate">${result.title}</p>
-                            <p class="text-xs text-slate-500">${result.subtitle}</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">${result.title}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">${result.subtitle}</p>
                         </div></a>`;
                 });
                 html += '</div>';
@@ -2793,7 +4270,7 @@
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
-            if (!response.ok) throw new Error('Erreur lors du marquage');
+            if (!response.ok) throw new Error('Failed to mark notification as read');
             const data = await response.json();
             if (data.success) {
                 // Remove unread highlight
@@ -2817,7 +4294,7 @@
                 }
             }
         } catch (error) {
-            console.error('Erreur marquage notification:', error);
+            console.error('Notification mark-as-read error:', error);
         }
     }
 </script>

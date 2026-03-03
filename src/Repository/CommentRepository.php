@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Assignment;
 use App\Entity\Comment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -21,6 +22,10 @@ class CommentRepository extends ServiceEntityRepository
      */
     public function findByAssignment($assignment): array
     {
+        if ($assignment instanceof Assignment && $assignment->getId() === null) {
+            return [];
+        }
+
         return $this->createQueryBuilder('c')
             ->andWhere('c.assignment = :assignment')
             ->setParameter('assignment', $assignment)

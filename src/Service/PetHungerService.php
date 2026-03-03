@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Pet;
+use App\Pet\Behavior\PetBehaviorFactory;
 use App\Repository\PetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -14,6 +15,7 @@ class PetHungerService
     public function __construct(
         private readonly PetRepository $petRepository,
         private readonly EntityManagerInterface $entityManager,
+        private readonly PetBehaviorFactory $behaviorFactory,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -30,12 +32,21 @@ class PetHungerService
 
         $ticks = intdiv($elapsed, self::HUNGER_TICK_SECONDS);
         $ratePerTick = 1 + intdiv(max(1, $pet->getLevel()) - 1, 10);
-        $increase = $ticks * $ratePerTick;
+        $behavior = $this->behaviorFactory->forPet($pet)->profile($pet);
+        $hungerTickFactor = max(0.5, (float) ($behavior['hungerTickFactor'] ?? 1.0));
+        $increase = (int) round($ticks * $ratePerTick * $hungerTickFactor);
 
         $oldHunger = $pet->getHunger();
         $newHunger = min(100, $oldHunger + $increase);
 
         $pet->setHunger($newHunger);
+        $pet->setHappiness($pet->getHappiness() + ((int) ($behavior['passiveHappinessDelta'] ?? -1) * $ticks));
+        $pet->setEnergy($pet->getEnergy() + ((int) ($behavior['passiveEnergyDelta'] ?? -1) * $ticks));
+        $pet->setHealth($pet->getHealth() + ((int) ($behavior['passiveHealthDelta'] ?? 0) * $ticks));
+        if ($newHunger >= 90) {
+            $pet->setHealth($pet->getHealth() - 1);
+            $pet->setHappiness($pet->getHappiness() - 2);
+        }
         $pet->setLastHungerAt(
             $last->modify(sprintf('+%d seconds', $ticks * self::HUNGER_TICK_SECONDS))
         );

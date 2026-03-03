@@ -35,6 +35,10 @@ services:
         tags:
             - { name: monolog.logger, channel: translation }
 
+    App\Service\OpenRouterService:
+        bind:
+            $openRouterApiKey: '%openrouter_api_key%'
+
     App\Service\ProductivityAiService:
         bind:
             $geminiApiKey: '%gemini_api_key%'

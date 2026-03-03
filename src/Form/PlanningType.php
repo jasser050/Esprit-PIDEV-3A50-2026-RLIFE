@@ -13,7 +13,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PlanningType extends AbstractType
 {
@@ -25,10 +25,6 @@ class PlanningType extends AbstractType
                 'choice_label' => 'titre',
                 'label' => 'Session',
                 'placeholder' => 'Choose a session',
-                'constraints' => [
-        new \Symfony\Component\Validator\Constraints\NotNull(['message' => 'Choose a session']),
-    ],
-                // 'required' => true, // facultatif car NotNull
             ])
 
             // Un seul champ "date", obligatoire
@@ -36,33 +32,27 @@ class PlanningType extends AbstractType
                 'label' => 'Date',
                 'mapped' => false,
                 'widget' => 'single_text',
-                'constraints' => [
-                    new Assert\NotNull(['message' => 'A date is required.']),
-                ],
+                
             ])
 
             ->add('start_time', TimeType::class, [
                 'label' => 'Start Time',
                 'mapped' => false,
                 'widget' => 'single_text',
-                'constraints' => [
-                    new Assert\NotNull(['message' => 'A start time is required.']),
-                ],
+                
             ])
 
             ->add('end_time', TimeType::class, [
                 'label' => 'End Time',
                 'mapped' => false,
                 'widget' => 'single_text',
-                'constraints' => [
-                    new Assert\NotNull(['message' => 'An end time is required.']),
-                ],
+                
             ])
 
             // Couleurs
             ->add('color', ChoiceType::class, [
                 'label' => 'Color',
-                'required' => false,
+                'placeholder' => 'Choose a color',
                 'choices' => [
                     'Indigo' => 'indigo',
                     'Teal' => 'teal',
@@ -73,23 +63,14 @@ class PlanningType extends AbstractType
                     'Purple' => 'purple',
                     'Pink' => 'pink',
                 ],
-            ])
+                'required' => true,
+        'attr' => ['id' => 'color_event']
+            ]);
 
-            // Feedback emojis (1..5)
-            // ->add('feedback', ChoiceType::class, [
-            //     'label' => 'Feedback',
-            //     'required' => false,
-            //     'expanded' => true,
-            //     'multiple' => false,
-            //     'choices' => [
-            //         '😡' => 1,
-            //         '😕' => 2,
-            //         '😐' => 3,
-            //         '🙂' => 4,
-            //         '🤩' => 5,
-            //     ],
-            // ])
-            ;
+    //        ->add('allDay', CheckboxType::class, [
+    //     'label' => 'Toute la journée',
+    //     'required' => false,
+    // ]);
 
         // Option: on garantit le mapping dateDebut/dateFin à partir des 3 champs si besoin
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {

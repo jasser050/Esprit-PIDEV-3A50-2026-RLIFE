@@ -19,9 +19,9 @@
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex dark" data-controller="theme password">
+<div class="min-h-screen flex bg-white text-slate-900 dark:bg-slate-900 dark:text-white" data-controller="theme password">
     <!-- Left Panel - Form -->
-    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900">
+    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-white dark:bg-slate-900">
         <div class="w-full max-w-[440px] mx-auto">
             <!-- Logo and back link -->
             <div class="mb-8">
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Login Form -->
-            {{ form_start(form, {'attr': {'class': 'space-y-5'}}) }}
+            {{ form_start(form, {'attr': {'class': 'space-y-5', 'data-turbo': 'false'}}) }}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 
                 <!-- Email -->
@@ -144,7 +144,7 @@
                     <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-slate-900 text-slate-400">or continue with</span>
+                    <span class="px-4 bg-white text-slate-500 dark:bg-slate-900 dark:text-slate-400">or continue with</span>
                 </div>
             </div>
 
@@ -167,7 +167,7 @@
                     <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-slate-900 text-slate-400">or use Face ID</span>
+                    <span class="px-4 bg-white text-slate-500 dark:bg-slate-900 dark:text-slate-400">or use Face ID</span>
                 </div>
             </div>
 
@@ -283,7 +283,7 @@
         ></spline-viewer>
 
         <!-- Left-edge seamless blend with the form panel -->
-        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10"></div>
+        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-white dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
 
         <!-- ══ TOP BAND ══ -->
         <div class="absolute top-0 inset-x-0 z-20 px-10 pt-10 pb-32

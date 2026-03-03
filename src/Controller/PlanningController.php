@@ -8,10 +8,15 @@ use App\Entity\User;
 use App\Service\GoogleCalendarClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
+use App\Entity\Notification;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use App\Service\NotificationManager;
+
 
 #[Route('/planning')]
 class PlanningController extends AbstractController
@@ -261,109 +266,372 @@ usort($upcomingFiltered, static function (array $a, array $b) use ($up_sort): in
         ]);
     }
 #[Route('/new', name: 'app_planning_new', methods: ['GET', 'POST'])]
-public function new(Request $request, EntityManagerInterface $em): Response
-{
+public function new(
+    Request $request,
+    EntityManagerInterface $em,
+    MailerInterface $mailer,
+    NotificationManager $notificationManager
+): Response {
     $planning = new Planning();
     $form = $this->createForm(\App\Form\PlanningType::class, $planning);
     $form->handleRequest($request);
-    
 
-    // Validation manuelle "Choose a session"
-    if ($form->isSubmitted() && $form->isValid()) {
-    $date      = $form->get('date')->getData();
-    $startTime = $form->get('start_time')->getData();
-    $endTime   = $form->get('end_time')->getData();
-
-    // PATCH pour DateTimeImmutable -> DateTime
-    if ($date && $startTime && $endTime) {
-        $dateDebut = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date->format('Y-m-d') . ' ' . $startTime->format('H:i:s'));
-        $dateFin   = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $date->format('Y-m-d') . ' ' . $endTime->format('H:i:s'));
-        $planning->setDateDebut(\DateTime::createFromImmutable($dateDebut));
-        $planning->setDateFin(\DateTime::createFromImmutable($dateFin));
-    }
-    
-
-    // PATCH pour l'utilisateur
     $user = $this->getUser();
     if (!$user instanceof User) {
         throw $this->createAccessDeniedException('You must be logged in.');
     }
-    $planning->setUser($user);
 
-    $em->persist($planning);
-    $em->flush();
-    $this->addFlash('success', 'Event created!');
-    return $this->redirectToRoute('app_planning');
+    /* ==========================
+       CALENDRIER DU MOIS
+    ========================== */
+
+    $today = new \DateTimeImmutable();
+    $month = $request->query->getInt('month', (int) $today->format('n'));
+    $year  = $request->query->getInt('year', (int) $today->format('Y'));
+
+    $startOfMonth = new \DateTimeImmutable(sprintf('%04d-%02d-01', $year, $month));
+    $endOfMonth = $startOfMonth->modify('last day of this month')->setTime(23, 59, 59);
+
+    $daysInMonth = (int) $startOfMonth->format('t');
+    $firstDayOfWeek = (int) $startOfMonth->format('N');
+
+    $plannings = $em->getRepository(Planning::class)
+        ->createQueryBuilder('p')
+        ->leftJoin('p.seance', 's')
+        ->addSelect('s')
+        ->andWhere('p.dateDebut BETWEEN :start AND :end')
+        ->setParameter('start', $startOfMonth)
+        ->setParameter('end', $endOfMonth)
+        ->orderBy('p.dateDebut', 'ASC')
+        ->getQuery()
+        ->getResult();
+
+    $eventsByDate = [];
+
+    foreach ($plannings as $p) {
+        $dateKey = $p->getDateDebut()->format('Y-m-d');
+        $eventsByDate[$dateKey] ??= [];
+
+        $seance = $p->getSeance();
+        $label = $seance ? $seance->getTypeSeance() : '';
+
+        $eventsByDate[$dateKey][] = [
+            'id' => $p->getId(),
+            'title' => $label,
+            'is_day_off' => strtolower(trim($label)) === 'day off',
+            'start_time' => $p->getDateDebut()->format('H:i'),
+            'end_time' => $p->getDateFin() ? $p->getDateFin()->format('H:i') : null,
+            'feedback' => $p->getFeedback(),
+            'is_google' => false,
+        ];
+    }
+
+    /* ==========================
+       TRAITEMENT FORMULAIRE
+    ========================== */
+
+    if ($form->isSubmitted() && $form->isValid()) {
+
+        $date      = $form->get('date')->getData();
+        $startTime = $form->get('start_time')->getData();
+        $endTime   = $form->get('end_time')->getData();
+
+        $seance = $planning->getSeance();
+
+        if ($seance && strtolower(trim($seance->getTypeSeance())) === 'day off') {
+
+            $planning->setDateDebut((clone $date)->setTime(0, 0, 0));
+            $planning->setDateFin((clone $date)->setTime(23, 59, 59));
+            $planning->setColor('green');
+
+        } else {
+
+            $dateDebut = new \DateTime(
+                $date->format('Y-m-d') . ' ' . $startTime->format('H:i:s')
+            );
+
+            $dateFin = new \DateTime(
+                $date->format('Y-m-d') . ' ' . $endTime->format('H:i:s')
+            );
+
+            $planning->setDateDebut($dateDebut);
+            $planning->setDateFin($dateFin);
+        }
+
+        $planning->setUser($user);
+
+        $em->persist($planning);
+        $em->flush();
+
+        /* ==========================
+           NOTIFICATION
+        ========================== */
+
+        $seanceLabel = $seance ? $seance->getTypeSeance() : "Session";
+
+        $notificationManager->createNotification(
+            $user,
+            'New session added',
+            sprintf(
+                'Session "%s" scheduled in %s to %s',
+                $seanceLabel,
+                $planning->getDateDebut()->format('d/m/Y'),
+                $planning->getDateDebut()->format('H:i')
+            ),
+            'planning',
+            $this->generateUrl('app_planning')
+        );
+
+        /* ==========================
+           EMAIL
+        ========================== */
+
+        // Remplace le bloc if ($user->getEmail()) { ... } par ce code dans ta méthode new()
+// (nécessite que $request et $mailer soient disponibles dans la méthode)
+
+// ... dans ta méthode new(), remplace l'ancien bloc d'envoi par ceci :
+
+// Controller — envoi d'email avec logo forcé en inline via data URI
+
+if ($user->getEmail()) {
+    $projectDir = $this->getParameter('kernel.project_dir');
+    $candidates = [
+        $projectDir . '/public/image/logo.jpg',
+        $projectDir . '/public/images/logo.jpg',
+        $projectDir . '/public/image logo.jpg',
+        $projectDir . '/public/logo.jpg',
+        $projectDir . '/image/logo.png',
+    ];
+
+    $logoPath = null;
+    foreach ($candidates as $p) {
+        if (file_exists($p) && is_readable($p)) { $logoPath = $p; break; }
+    }
+
+    $fromAddress = 'yassine.mlaouah@cme.tn';
+    $message = (new Email())
+        ->from($fromAddress)
+        ->to($user->getEmail())
+        ->subject('Your schedule has been added — RLIFE');
+
+    // fallback public URL for link
+    $planningUrl = $this->generateUrl('app_planning', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+    // Construct data URI for logo (preferred)
+    $imgSrc = null;
+    if ($logoPath) {
+        try {
+            $data = file_get_contents($logoPath);
+            if ($data !== false) {
+                $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+                $mime = $finfo ? @finfo_buffer($finfo, $data) : null;
+                if ($finfo) @finfo_close($finfo);
+                if (!$mime) {
+                    $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+                    $map = ['png'=>'image/png','jpg'=>'image/jpeg','jpeg'=>'image/jpeg','gif'=>'image/gif'];
+                    $mime = $map[$ext] ?? 'application/octet-stream';
+                }
+                $b64 = base64_encode($data);
+                $imgSrc = 'data:' . $mime . ';base64,' . $b64;
+            }
+        } catch (\Throwable $e) {
+            $imgSrc = null;
+        }
+    }
+
+    // Final fallback: public URL (if data URI not possible)
+    if (!$imgSrc) {
+        $host = rtrim($request->getSchemeAndHttpHost(), '/');
+        $imgSrc = $host . '/image/logo.jpg'; // adapte si ton chemin diffère
+    }
+
+    // Sanitize fields
+    $username = htmlspecialchars((string)$user->getUsername(), ENT_QUOTES, 'UTF-8');
+    $seanceLabelSafe = htmlspecialchars((string)$seanceLabel, ENT_QUOTES, 'UTF-8');
+    $date = $planning->getDateDebut() ? $planning->getDateDebut()->format('d/m/Y') : '-';
+    $start = $planning->getDateDebut() ? $planning->getDateDebut()->format('H:i') : '-';
+    $end = $planning->getDateFin() ? $planning->getDateFin()->format('H:i') : '-';
+
+    // Build HTML with logo at top
+    $imgSrcSafe = htmlspecialchars((string)$imgSrc, ENT_QUOTES, 'UTF-8');
+    $htmlBody = <<<HTML
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body style="font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;padding:0;background:#f7f8fb">
+  <div style="max-width:680px;margin:24px auto;background:#fff;padding:20px;border-radius:10px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <img src="{$imgSrcSafe}" alt="RLIFE" style="height:56px;border-radius:6px;display:block" />
+      <div>
+        <div style="font-weight:700;font-size:18px">RLIFE — Scheduling</div>
+        <div style="color:#6b7280;font-size:13px">Professional schedule notifications</div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:6px">Your session has been scheduled</h2>
+    <p style="color:#475569">Hello {$username},</p>
+
+    <p>We successfully added the following session to your calendar:</p>
+    <div style="background:#f8fafc;border:1px solid #eef2ff;padding:12px;border-radius:8px">
+      <ul style="margin:0;padding-left:18px">
+        <li><strong>Session:</strong> {$seanceLabelSafe}</li>
+        <li><strong>Date:</strong> {$date}</li>
+        <li><strong>Start time:</strong> {$start}</li>
+        <li><strong>End time:</strong> {$end}</li>
+      </ul>
+    </div>
+
+
+    <p style="margin-top:18px">Thanks,<br><strong>The RLIFE Team</strong></p>
+  </div>
+</body></html>
+HTML;
+
+    $textBody = "Hello {$user->getUsername()},\n\nYour session \"{$seanceLabel}\" has been scheduled on {$date} from {$start} to {$end}.\n\nOpen your schedule: {$planningUrl}\n\nSincerely,\nThe RLIFE Team\n";
+
+    $message->html($htmlBody)->text($textBody);
+
+    try {
+        $mailer->send($message);
+    } catch (\Throwable $e) {
+        // optional: logger
+    }
 }
-    $seances = $em->getRepository(Seance::class)->findBy([], ['id' => 'DESC']);
+
+        $this->addFlash('success', 'Event created successfully!');
+
+        return $this->redirectToRoute('app_planning');
+    }
+
+    /* ==========================
+       NOTIFICATIONS HEADER
+    ========================== */
+
+    $user = $this->getUser();
+if (!$user instanceof User) {
+    throw $this->createAccessDeniedException('You must be logged in.');
+}
+
+$notifications = $em->getRepository(Notification::class)
+    ->findBy(
+        ['user' => $user, 'isRead' => false],
+        ['createdAt' => 'DESC'],
+        5
+    );
+
+
     return $this->render('pages/planning/new.html.twig', [
-        'seances' => $seances,
         'form' => $form->createView(),
+        'current_month' => $month,
+        'current_year' => $year,
+        'days_in_month' => $daysInMonth,
+        'first_day_of_week' => $firstDayOfWeek,
+        'today' => $today->format('Y-m-d'),
+        'events_by_date' => $eventsByDate,
+        'notifications' => $notifications,
     ]);
 }
 
-    #[Route('/{id}/edit', name: 'app_planning_edit', methods: ['GET', 'POST'])]
-    public function edit(int $id, Request $request, EntityManagerInterface $em): Response
-    {
-        $planning = $em->getRepository(Planning::class)->find($id);
-        if (!$planning) {
-            throw $this->createNotFoundException('Event not found');
+
+    #[Route('/planning/{id}/edit', name: 'app_planning_edit', methods: ['GET', 'POST'])]
+public function edit(int $id, Request $request, EntityManagerInterface $em): Response
+{
+    $planning = $em->getRepository(Planning::class)->find($id);
+    if (!$planning) {
+        throw $this->createNotFoundException('Event not found');
+    }
+
+    $seances = $em->getRepository(Seance::class)->findBy([], ['id' => 'DESC']);
+    $errors = [];
+
+    if ($request->isMethod('POST')) {
+        // 1. Lecture des champs
+        $seanceId = (int) $request->request->get('seance_id', 0);
+        $date = trim((string) $request->request->get('date', ''));
+        $startTime = trim((string) $request->request->get('start_time', ''));
+        $endTime   = trim((string) $request->request->get('end_time', ''));
+        $color     = trim((string) $request->request->get('color', 'indigo'));
+        $feedbackRaw = $request->request->get('feedback', '');
+
+        // 2. Validation champs requis
+        $seance = $em->getRepository(Seance::class)->find($seanceId);
+        if (!$seance) {
+            $errors['seance_id'] = 'Please select a valid session.';
+        }
+        if ($date === '') {
+            $errors['date'] = 'Date is required.';
+        }
+        if ($startTime === '' || $endTime === '') {
+            $errors['time'] = 'Start and end time are required.';
+        }
+        if ($color === '') {
+            $errors['color'] = 'Please select a color.';
         }
 
-        if ($request->isMethod('POST')) {
-            $seanceId = (int) $request->request->get('seance_id', 0);
-            $date = (string) $request->request->get('date', '');
-            $startTime = (string) $request->request->get('start_time', '');
-            $endTime = (string) $request->request->get('end_time', '');
-            $color = (string) $request->request->get('color', 'indigo');
-
-            $feedbackRaw = $request->request->get('feedback');
-            $feedback = ($feedbackRaw === null || $feedbackRaw === '') ? null : (int) $feedbackRaw;
-
-            $seance = $em->getRepository(Seance::class)->find($seanceId);
-            if (!$seance) {
-                $this->addFlash('error', 'Séance introuvable.');
-                return $this->redirectToRoute('app_planning_edit', ['id' => $id]);
-            }
-
-            if ($date === '' || $startTime === '' || $endTime === '') {
-                $this->addFlash('error', 'Veuillez remplir la date et les heures.');
-                return $this->redirectToRoute('app_planning_edit', ['id' => $id]);
-            }
-
+        // 3. Validation de la cohérence date/heure
+        $dateDebut = $dateFin = null;
+        if ($date && $startTime && $endTime) {
             try {
-                $dateDebut = new \DateTimeImmutable(trim($date . ' ' . $startTime));
-                $dateFin = new \DateTimeImmutable(trim($date . ' ' . $endTime));
+                $dateDebut = new \DateTimeImmutable($date . ' ' . $startTime);
+                $dateFin   = new \DateTimeImmutable($date . ' ' . $endTime);
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Date/heure invalide.');
-                return $this->redirectToRoute('app_planning_edit', ['id' => $id]);
+                $errors['date'] = 'Invalid date or time format.';
             }
-
-            if ($dateFin <= $dateDebut) {
-                $this->addFlash('error', 'La date/heure de fin doit être après le début.');
-                return $this->redirectToRoute('app_planning_edit', ['id' => $id]);
+            if ($dateDebut && $dateFin && $dateFin <= $dateDebut) {
+                $errors['date'] = 'End time must be after start time.';
             }
+        }
 
+        // 4. Collision horaire (hors feedback)
+        if ($dateDebut && $dateFin && $seance && empty($errors)) {
+            $conflict = $em->getRepository(Planning::class)->createQueryBuilder('p')
+                ->where('p.seance = :seance')
+                ->andWhere('p.dateDebut < :fin')
+                ->andWhere('p.dateFin > :debut')
+                ->andWhere('p.id != :id')
+                ->setParameter('seance', $seance)
+                ->setParameter('debut', $dateDebut)
+                ->setParameter('fin', $dateFin)
+                ->setParameter('id', $planning->getId())
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            if ($conflict !== null) {
+                $errors['collision'] = 'Another event for this session already exists in this time slot.';
+            }
+        }
+
+        // 5. Stocker les valeurs si tout va bien
+        if (empty($errors)) {
             $planning->setSeance($seance);
             $planning->setDateDebut(\DateTime::createFromImmutable($dateDebut));
             $planning->setDateFin(\DateTime::createFromImmutable($dateFin));
             $planning->setColor($color);
-            $planning->setFeedback($feedback);
 
+            // 6. Feedback: autorisé SEULEMENT si séance finie
+            $feedback = ($feedbackRaw === '' ? null : (int) $feedbackRaw);
+            if ($feedback !== null && $dateFin > new \DateTimeImmutable()) {
+                // La séance n'est pas terminée, feedback interdit
+                $errors['feedback'] = 'Feedback can only be updated after the event is finished.';
+            } else {
+                $planning->setFeedback($feedback);
+            }
+        }
+
+        // 7. Si pas d’erreurs, flush !
+        if (empty($errors)) {
             $em->flush();
-
             $this->addFlash('success', 'Event updated successfully!');
             return $this->redirectToRoute('app_planning');
         }
-
-        $seances = $em->getRepository(Seance::class)->findBy([], ['id' => 'DESC']);
-
-        return $this->render('pages/planning/edit.html.twig', [
-            'planning' => $planning,
-            'seances' => $seances,
-        ]);
     }
 
+    // Renvoyer view avec erreurs et valeurs
+    return $this->render('pages/planning/edit.html.twig', [
+        'planning' => $planning,
+        'seances'  => $seances,
+        'errors'   => $errors,
+    ]);
+}
     #[Route('/{id}/delete', name: 'app_planning_delete', methods: ['POST'])]
     public function delete(int $id, Request $request, EntityManagerInterface $em): Response
     {
@@ -525,34 +793,50 @@ public function week(
         'google_load_error' => $google_load_error,
     ]);
 }
-#[Route('/planning/{id}/feedback', name: 'app_planning_feedback', methods: ['POST'])]
-public function feedback(int $id, Request $request, EntityManagerInterface $em): Response
+#[Route('/planning/{id}/feedback/form', name: 'app_planning_feedback_form', methods: ['GET', 'POST'])]
+public function feedbackForm(int $id, Request $request, EntityManagerInterface $em): Response
 {
     $planning = $em->getRepository(Planning::class)->find($id);
-    
+
+    // Vérifie les droits, la fin de séance, etc.
     if (!$planning) {
-        return new JsonResponse(['error' => 'Planning not found'], 404);
+        throw $this->createNotFoundException('Planning not found');
     }
-
-    // Vérifie que la séance est terminée
     if ($planning->getDateFin() > new \DateTime()) {
-        return new JsonResponse(['error' => 'Session not finished yet'], 400);
+        $this->addFlash('error', "You can only give feedback after the session has ended.");
+        return $this->redirectToRoute('app_planning');
+    }
+    if ($planning->getUser() && $this->getUser() && $planning->getUser()->getId() !== $this->getUser()->getId()) {
+        throw $this->createAccessDeniedException();
     }
 
-    // Vérifie que c'est bien la séance de l'utilisateur
-    if ($planning->getUser() !== $this->getUser()) {
-        return new JsonResponse(['error' => 'Unauthorized'], 403);
+    $form = $this->createFormBuilder($planning)
+        ->add('feedback', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+            'label' => 'Votre feedback',
+            'choices' => [
+                '😡 Très mauvais' => 1,
+                '😕 Mauvais'      => 2,
+                '😐 Moyen'        => 3,
+                '🙂 Bien'         => 4,
+                '🤩 Excellent'    => 5,
+            ],
+            'expanded' => true,
+            'required' => true,
+        ])
+        ->getForm();
+
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->flush();
+        $this->addFlash('success', 'Thank you for your feedback !');
+        return $this->redirectToRoute('app_planning');
     }
 
-    $feedback = (int) $request->request->get('feedback');
-
-    if ($feedback < 1 || $feedback > 5) {
-        return new JsonResponse(['error' => 'Invalid feedback value'], 400);
-    }
-
-    $planning->setFeedback($feedback);
-    $em->flush();
-
-    return new JsonResponse(['success' => true]);
+    return $this->render('pages/planning/feedback.html.twig', [
+        'planning' => $planning,
+        'form' => $form->createView(),
+    ]);
 }
+
 }

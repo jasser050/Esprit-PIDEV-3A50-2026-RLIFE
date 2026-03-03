@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Assignment;
+use App\Entity\AssignmentCollaborator;
 use App\Entity\Project;
 use App\Entity\ProjectShare;
 use App\Entity\User;
@@ -11,6 +12,7 @@ use App\Form\ProjectFilterType;
 use App\Repository\ProjectRepository;
 use App\Repository\ProjectShareRepository;
 use App\Repository\AssignmentRepository;
+use App\Repository\AssignmentCollaboratorRepository;
 use App\Repository\UserRepository;
 use App\Service\ProjectPdfService;
 use App\Service\ProjectStatsService;
@@ -108,7 +110,12 @@ class ProjectController extends AbstractController
             $entityManager->persist($project);
             $entityManager->flush();
 
-            $suggestions = $productivityAiService->generateAssignmentsForProject($this->getUser(), $project);
+            $teamProfiles = [[
+                'email' => (string) ($this->getUser()?->getEmail() ?? 'owner@local'),
+                'name' => (string) ($this->getUser()?->getFullName() ?: $this->getUser()?->getEmail() ?: 'Project Owner'),
+                'project_role' => 'owner',
+            ]];
+            $suggestions = $productivityAiService->generateAssignmentsForProject($this->getUser(), $project, 1, $teamProfiles);
             $request->getSession()->set(sprintf('project_ai_suggestions_%d', $project->getId()), $suggestions);
 
             $this->addFlash('success', sprintf('Project created successfully! AI prepared %d task suggestions.', count($suggestions)));
@@ -230,6 +237,7 @@ class ProjectController extends AbstractController
     public function generateAiSuggestions(
         Request $request,
         Project $project,
+        ProjectShareRepository $shareRepository,
         ProductivityAiService $productivityAiService
     ): RedirectResponse {
         if ($project->getUser() !== $this->getUser()) {
@@ -241,7 +249,9 @@ class ProjectController extends AbstractController
             return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
         }
 
-        $suggestions = $productivityAiService->generateAssignmentsForProject($this->getUser(), $project);
+        $teamSize = $this->resolveProjectTeamSize($project, $shareRepository);
+        $teamProfiles = $this->resolveProjectTeamProfiles($project, $shareRepository);
+        $suggestions = $productivityAiService->generateAssignmentsForProject($this->getUser(), $project, $teamSize, $teamProfiles);
         $request->getSession()->set(sprintf('project_ai_suggestions_%d', $project->getId()), $suggestions);
 
         $this->addFlash('success', sprintf('AI regenerated %d suggestions for this project.', count($suggestions)));
@@ -429,7 +439,10 @@ class ProjectController extends AbstractController
     public function applyAiSuggestions(
         Request $request,
         Project $project,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        AssignmentCollaboratorRepository $collaboratorRepository,
+        ProjectShareRepository $shareRepository
     ): RedirectResponse {
         if ($project->getUser() !== $this->getUser()) {
             throw $this->createAccessDeniedException();
@@ -460,6 +473,7 @@ class ProjectController extends AbstractController
         }
 
         $created = 0;
+        $autoAssigned = 0;
         foreach ($selectedIndexes as $index) {
             if (!isset($suggestions[$index]) || !is_array($suggestions[$index])) {
                 continue;
@@ -496,12 +510,28 @@ class ProjectController extends AbstractController
             $entityManager->persist($assignment);
             $existingTitles[] = $normalizedTitle;
             $created++;
-        }
+
+                $assigneeEmail = trim((string) ($item['assignee_email'] ?? ''));
+                if ($assigneeEmail !== '') {
+                    $assignee = $userRepository->findOneBy(['email' => $assigneeEmail]);
+                    if ($assignee instanceof User && $assignee->getId() !== null && $assignee->getId() !== $this->getUser()->getId()) {
+                        if ($shareRepository->hasAccess($project, $assignee)) {
+                            // Assignment is newly created and has no DB id yet: no need to query existing collaborators.
+                            $collaborator = new AssignmentCollaborator();
+                            $collaborator->setAssignment($assignment);
+                            $collaborator->setUser($assignee);
+                            $collaborator->setAssignedByUser($this->getUser());
+                            $entityManager->persist($collaborator);
+                            $autoAssigned++;
+                        }
+                    }
+                }
+            }
 
         $entityManager->flush();
 
         if ($created > 0) {
-            $this->addFlash('success', sprintf('%d AI task(s) were added to this project.', $created));
+            $this->addFlash('success', sprintf('%d AI task(s) were added to this project. %d task(s) were auto-assigned to team members.', $created, $autoAssigned));
         } else {
             $this->addFlash('info', 'No new tasks were created (possibly duplicates).');
         }
@@ -889,5 +919,62 @@ class ProjectController extends AbstractController
         }
 
         return trim($slug, '-');
+    }
+
+    private function resolveProjectTeamSize(Project $project, ProjectShareRepository $shareRepository): int
+    {
+        $userIds = [];
+        $owner = $project->getUser();
+        if ($owner instanceof User && $owner->getId() !== null) {
+            $userIds[(int) $owner->getId()] = true;
+        }
+
+        foreach ($shareRepository->findByProject($project) as $share) {
+            if (!$share instanceof ProjectShare) {
+                continue;
+            }
+            $sharedWith = $share->getSharedWithUser();
+            if ($sharedWith instanceof User && $sharedWith->getId() !== null) {
+                $userIds[(int) $sharedWith->getId()] = true;
+            }
+        }
+
+        return max(1, count($userIds));
+    }
+
+    /**
+     * @return array<int,array{email:string,name:string,project_role:string}>
+     */
+    private function resolveProjectTeamProfiles(Project $project, ProjectShareRepository $shareRepository): array
+    {
+        $profiles = [];
+        $owner = $project->getUser();
+        if ($owner instanceof User) {
+            $profiles[] = [
+                'email' => (string) ($owner->getEmail() ?? ''),
+                'name' => (string) ($owner->getFullName() ?: $owner->getEmail() ?: 'Project Owner'),
+                'project_role' => 'owner',
+            ];
+        }
+
+        $roleCycle = ['dev', 'designer', 'analyst', 'qa'];
+        $i = 0;
+        foreach ($shareRepository->findByProject($project) as $share) {
+            if (!$share instanceof ProjectShare) {
+                continue;
+            }
+            $member = $share->getSharedWithUser();
+            if (!$member instanceof User) {
+                continue;
+            }
+            $profiles[] = [
+                'email' => (string) ($member->getEmail() ?? ''),
+                'name' => (string) ($member->getFullName() ?: $member->getEmail() ?: ('Member ' . ($i + 1))),
+                'project_role' => $roleCycle[$i % count($roleCycle)],
+            ];
+            $i++;
+        }
+
+        return array_values(array_filter($profiles, static fn (array $p): bool => trim((string) ($p['email'] ?? '')) !== ''));
     }
 }

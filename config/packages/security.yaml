@@ -15,9 +15,13 @@ security:
         main:
             lazy: true
             provider: app
-            form_login:
-                login_path: app_login
-                check_path: app_login
+            custom_authenticator:
+                - App\Security\FormLoginAuthenticator
+            entry_point: App\Security\FormLoginAuthenticator
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800
+                path: /
             logout:
                 path: app_logout
 

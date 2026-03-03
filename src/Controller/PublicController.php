@@ -19,7 +19,10 @@ class PublicController extends AbstractController
     #[Route('/', name: 'app_landing')]
     public function landing(): Response
     {
-        // Just show the landing page - don't redirect
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
         return $this->render('pages/landing.html.twig');
     }
 

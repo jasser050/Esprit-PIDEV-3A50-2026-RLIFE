@@ -306,7 +306,7 @@
                                 <form method="post"
                                       action="{{ path('app_seance_delete', {id: s.id}) }}"
                                       class="inline"
-                                      onsubmit="return confirm('Supprimer cette séance ?');">
+                                      onsubmit="return confirm('Delete this session ?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete_seance_' ~ s.id) }}">
                                     <button class="btn btn-ghost btn-sm text-danger-600">
                                         <i data-lucide="trash" class="w-4 h-4"></i>

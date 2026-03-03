@@ -247,4 +247,58 @@ class SettingsController extends AbstractController
         $this->addFlash('success', 'Your account has been permanently deleted.');
         return $this->redirectToRoute('app_landing');
     }
+
+    #[Route('/accessibility/save', name: 'app_settings_accessibility_save', methods: ['POST'])]
+    public function saveAccessibility(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->json(['success' => false, 'error' => 'Not authenticated'], 401);
+        }
+        
+        $data = json_decode($request->getContent(), true);
+        
+        $settings = $user->getSettings();
+        if (!$settings) {
+            $settings = new \App\Entity\UserSettings();
+            $settings->setUser($user);
+            $entityManager->persist($settings);
+        }
+        
+        if (isset($data['font_size'])) {
+            $settings->setFontSize($data['font_size']);
+        }
+        if (isset($data['font_family'])) {
+            $settings->setFontFamily($data['font_family']);
+        }
+        if (isset($data['accent_color'])) {
+            $settings->setAccentColor($data['accent_color']);
+        }
+        if (isset($data['reduce_motion'])) {
+            $settings->setReduceMotion((bool) $data['reduce_motion']);
+        }
+        if (isset($data['high_contrast'])) {
+            $settings->setHighContrast((bool) $data['high_contrast']);
+        }
+        if (isset($data['line_height'])) {
+            $settings->setLineHeight($data['line_height']);
+        }
+        if (isset($data['letter_spacing'])) {
+            $settings->setLetterSpacing($data['letter_spacing']);
+        }
+        if (isset($data['zoom_level'])) {
+            $settings->setZoomLevel((int) $data['zoom_level']);
+        }
+        if (isset($data['language'])) {
+            $settings->setLanguage($data['language']);
+        }
+        if (isset($data['theme_preference'])) {
+            $settings->setThemePreference($data['theme_preference']);
+        }
+        
+        $entityManager->flush();
+        
+        return $this->json(['success' => true, 'message' => 'Accessibility settings saved']);
+    }
 }

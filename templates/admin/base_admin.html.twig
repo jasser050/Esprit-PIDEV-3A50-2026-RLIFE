@@ -358,9 +358,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', adminInitIcons);
-        document.addEventListener('turbo:load', adminInitIcons);
+        document.addEventListener('turbo:load', function() {
+            adminInitIcons();
+            document.dispatchEvent(new CustomEvent('rlife:ready'));
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+        });
         document.addEventListener('turbo:render', adminInitIcons);
-        document.addEventListener('turbo:frame-load', adminInitIcons);
+        document.addEventListener('turbo:frame-load', function() {
+            adminInitIcons();
+            document.dispatchEvent(new CustomEvent('rlife:ready'));
+            document.dispatchEvent(new Event('DOMContentLoaded'));
+        });
 
         (function() {
             let pendingForm = null;

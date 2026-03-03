@@ -58,6 +58,7 @@ class SearchController extends AbstractController
             ->andWhere('p.titre LIKE :query OR p.description LIKE :query')
             ->setParameter('user', $user)
             ->setParameter('query', '%' . $query . '%')
+            ->orderBy('p.updatedAt', 'DESC')
             ->setMaxResults(5)
             ->getQuery()
             ->getResult();
@@ -73,12 +74,13 @@ class SearchController extends AbstractController
             ];
         }
         
-        // Search Assignments
+        // Search Assignments (owned by current user)
         $assignments = $em->getRepository(Assignment::class)->createQueryBuilder('a')
             ->where('a.user = :user')
-            ->andWhere('a.titre LIKE :query')
+            ->andWhere('a.titre LIKE :query OR a.description LIKE :query')
             ->setParameter('user', $user)
             ->setParameter('query', '%' . $query . '%')
+            ->orderBy('a.updatedAt', 'DESC')
             ->setMaxResults(5)
             ->getQuery()
             ->getResult();
@@ -89,7 +91,7 @@ class SearchController extends AbstractController
                 'icon' => 'clipboard-check',
                 'title' => $assignment->getTitre(),
                 'subtitle' => 'Assignment',
-                'url' => $this->generateUrl('app_assignments'),
+                'url' => $this->generateUrl('app_assignments_show', ['id' => $assignment->getId()]),
                 'color' => 'green'
             ];
         }

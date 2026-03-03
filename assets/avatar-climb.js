@@ -16,6 +16,7 @@ export class AvatarClimbAnimation {
         this.avatar = null;
         this.mixer = null;
         this.clock = new THREE.Clock();
+        this.onResizeBound = () => this.onResize();
         
         if (this.container) {
             this.init();
@@ -47,6 +48,7 @@ export class AvatarClimbAnimation {
         this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         this.renderer.setSize(width, height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setClearColor(0x000000, 0);
         this.container.appendChild(this.renderer.domElement);
         
         // Lighting
@@ -62,7 +64,7 @@ export class AvatarClimbAnimation {
         this.scene.add(fill);
         
         // Handle resize
-        window.addEventListener('resize', () => this.onResize());
+        window.addEventListener('resize', this.onResizeBound);
     }
 
     async loadAvatar() {
@@ -182,13 +184,50 @@ export class AvatarClimbAnimation {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(w, h);
     }
+
+    destroy() {
+        window.removeEventListener('resize', this.onResizeBound);
+
+        if (this.mixer) {
+            this.mixer.stopAllAction();
+        }
+
+        if (this.scene) {
+            this.scene.traverse((obj) => {
+                if (obj.isMesh) {
+                    if (obj.geometry) obj.geometry.dispose();
+                    if (obj.material) {
+                        if (Array.isArray(obj.material)) {
+                            obj.material.forEach((m) => m.dispose && m.dispose());
+                        } else if (obj.material.dispose) {
+                            obj.material.dispose();
+                        }
+                    }
+                }
+            });
+        }
+
+        if (this.renderer) {
+            this.renderer.dispose();
+            if (this.renderer.domElement && this.renderer.domElement.parentNode) {
+                this.renderer.domElement.parentNode.removeChild(this.renderer.domElement);
+            }
+        }
+    }
 }
 
-// Auto-init
-document.addEventListener('DOMContentLoaded', () => {
+function initAvatarClimb() {
     const container = document.getElementById('avatar-climb-container');
     if (container) {
+        if (window.avatarClimb && typeof window.avatarClimb.destroy === 'function') {
+            window.avatarClimb.destroy();
+        }
+        container.innerHTML = '';
         const avatarType = container.dataset.avatarType || 'male-avatar.glb';
         window.avatarClimb = new AvatarClimbAnimation('avatar-climb-container', `/avatars/${avatarType}`);
     }
-});
+}
+
+// Auto-init on classic load + Turbo navigation
+document.addEventListener('DOMContentLoaded', initAvatarClimb);
+document.addEventListener('turbo:load', initAvatarClimb);
