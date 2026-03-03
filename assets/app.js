@@ -48,6 +48,8 @@ document.addEventListener('turbo:render', () => {
 // Handle turbo:before-render to ensure theme persists
 document.addEventListener('turbo:before-render', (event) => {
     // Ensure dark class is preserved on the new document
+    if (!event.detail?.newBody?.parentElement) return;
+    
     const theme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 

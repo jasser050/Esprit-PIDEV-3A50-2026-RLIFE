@@ -29,6 +29,19 @@ Encore
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
 
+    // Configure chunk splitting to ensure THREE.js is shared between entries
+    .configureSplitChunks((splitChunks) => {
+        splitChunks.cacheGroups = {
+            ...splitChunks.cacheGroups,
+            three: {
+                test: /[\\/]node_modules[\\/]three[\\/]/,
+                name: 'vendors-three',
+                chunks: 'all',
+                priority: 20,
+            },
+        };
+    })
+
     // enables the Symfony UX Stimulus bridge (used in assets/stimulus_bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')
 

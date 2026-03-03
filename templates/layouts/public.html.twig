@@ -24,6 +24,10 @@
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+
     <script>
         // Check for dark mode preference on page load
         if (localStorage.getItem('theme') === 'dark' ||
@@ -37,13 +41,15 @@
 <body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     {% block body %}{% endblock %}
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('app') }}
-        
-        <script>
-            // Initialize Lucide icons
-            lucide.createIcons();
-        </script>
+    {% block page_scripts %}
+        {# Page-specific scripts can be added here by child templates #}
     {% endblock %}
+    
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>

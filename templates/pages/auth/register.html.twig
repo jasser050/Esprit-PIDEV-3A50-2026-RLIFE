@@ -78,8 +78,7 @@
 </style>
 {% endblock %}
 
-{% block javascripts %}
-{{ parent() }}
+{% block page_scripts %}
 <!-- Spline 3D Viewer -->
 <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.57/build/spline-viewer.js"></script>
 <!-- face-api.js for Face ID -->
@@ -89,9 +88,9 @@
 {% endblock %}
 
 {% block body %}
-<div class="min-h-screen flex dark" data-controller="theme wizard password" data-wizard-total-value="4">
+<div class="min-h-screen flex" data-controller="theme wizard password" data-wizard-total-value="4">
     <!-- Left Panel - Form -->
-    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-900 pt-16 lg:pt-0">
+    <div class="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12 bg-slate-50 dark:bg-slate-900 pt-16 lg:pt-0">
         <div class="w-full max-w-[480px] mx-auto">
             <!-- Logo and back link -->
             <div class="mb-8">
@@ -908,7 +907,7 @@ window.addEventListener('pagehide', stopStream);
         ></spline-viewer>
 
         <!-- Left-edge seamless blend with the form panel -->
-        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-900 to-transparent pointer-events-none z-10"></div>
+        <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-50 dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
 
         <!-- ══ TOP BAND ══ -->
         <div class="absolute top-0 inset-x-0 z-20 px-10 pt-10 pb-32

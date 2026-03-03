@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -189,5 +190,106 @@ class AdminController extends AbstractController
             'gender_stats' => $genderStats,
             'university_stats' => $universityStats,
         ]);
+    }
+
+    #[Route('/statistics/export', name: 'app_admin_statistics_export')]
+    public function statisticsExport(EntityManagerInterface $entityManager): Response
+    {
+        $userRepository = $entityManager->getRepository(User::class);
+        
+        // Get user growth data
+        $userGrowth = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = new \DateTime("-$i days");
+            $date->setTime(0, 0, 0);
+            $nextDate = clone $date;
+            $nextDate->modify('+1 day');
+            
+            $count = $userRepository->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->where('u.createdAt >= :start')
+                ->andWhere('u.createdAt < :end')
+                ->setParameter('start', $date)
+                ->setParameter('end', $nextDate)
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $userGrowth[] = [
+                'date' => $date->format('Y-m-d'),
+                'count' => $count,
+            ];
+        }
+        
+        // Get gender statistics
+        $genderStats = $userRepository->createQueryBuilder('u')
+            ->select('u.gender, COUNT(u.id) as count')
+            ->groupBy('u.gender')
+            ->getQuery()
+            ->getResult();
+        
+        // Get university statistics
+        $universityStats = $userRepository->createQueryBuilder('u')
+            ->select('u.university, COUNT(u.id) as count')
+            ->where('u.university IS NOT NULL')
+            ->groupBy('u.university')
+            ->orderBy('count', 'DESC')
+            ->getQuery()
+            ->getResult();
+        
+        // Get total users
+        $totalUsers = $userRepository->count([]);
+        
+        // Create CSV content
+        $csv = [];
+        $csv[] = ['RLIFE Platform Statistics Report'];
+        $csv[] = ['Generated on: ' . (new \DateTime())->format('Y-m-d H:i:s')];
+        $csv[] = [];
+        
+        // Total users
+        $csv[] = ['Total Users', $totalUsers];
+        $csv[] = [];
+        
+        // User Growth
+        $csv[] = ['User Growth (Last 7 Days)'];
+        $csv[] = ['Date', 'New Users'];
+        foreach ($userGrowth as $data) {
+            $csv[] = [$data['date'], $data['count']];
+        }
+        $csv[] = [];
+        
+        // Gender Distribution
+        $csv[] = ['Gender Distribution'];
+        $csv[] = ['Gender', 'Count'];
+        foreach ($genderStats as $data) {
+            $csv[] = [$data['gender'] ?? 'Not Specified', $data['count']];
+        }
+        $csv[] = [];
+        
+        // University Distribution
+        $csv[] = ['Top Universities'];
+        $csv[] = ['University', 'Count'];
+        foreach ($universityStats as $data) {
+            $csv[] = [$data['university'], $data['count']];
+        }
+        
+        // Generate CSV string
+        $csvContent = '';
+        foreach ($csv as $row) {
+            $csvContent .= implode(',', array_map(function($field) {
+                return '"' . str_replace('"', '""', $field) . '"';
+            }, $row)) . "\n";
+        }
+        
+        // Create response
+        $response = new Response($csvContent);
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 
+            $response->headers->makeDisposition(
+                ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                'rlife_statistics_' . date('Y-m-d_His') . '.csv'
+            )
+        );
+        
+        return $response;
     }
 }

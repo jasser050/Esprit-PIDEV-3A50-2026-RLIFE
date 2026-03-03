@@ -3,8 +3,7 @@
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
-{% block javascripts %}
-{{ parent() }}
+{% block page_scripts %}
 {{ encore_entry_script_tags('galaxy-admin') }}
 {% endblock %}
 
@@ -415,8 +414,15 @@
 </style>
 
 <script>
+(function() {
+    // Prevent duplicate initialization
+    if (window.aiTerminalInitialized) return;
+    window.aiTerminalInitialized = true;
+    
     // Modal controls
     const aiTerminalBtn = document.getElementById('ai-terminal-btn');
+    if (!aiTerminalBtn) return;
+    
     const aiTerminalModal = document.getElementById('ai-terminal-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const aiModalBackdrop = document.getElementById('ai-modal-backdrop');
@@ -427,7 +433,9 @@
         aiTerminalModal.style.display = 'block';
         setTimeout(() => {
             document.getElementById('message-input').focus();
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }, 100);
     });
 
@@ -644,5 +652,6 @@
     function scrollToBottom() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+})();
 </script>
 {% endblock %}

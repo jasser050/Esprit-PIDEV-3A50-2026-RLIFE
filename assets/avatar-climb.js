@@ -184,11 +184,73 @@ export class AvatarClimbAnimation {
     }
 }
 
-// Auto-init
-document.addEventListener('DOMContentLoaded', () => {
+function initAvatarClimb() {
+    // Skip if already initializing
+    if (window.avatarClimbInitializing) {
+        return;
+    }
+    
     const container = document.getElementById('avatar-climb-container');
     if (container) {
+        console.log('Avatar climb: Initializing for settings page...');
+        
+        // Destroy previous instance if exists
+        if (window.avatarClimb && typeof window.avatarClimb.destroy === 'function') {
+            window.avatarClimb.destroy();
+            window.avatarClimb = null;
+        }
+        
+        window.avatarClimbInitializing = true;
+        
+        container.innerHTML = '';
         const avatarType = container.dataset.avatarType || 'male-avatar.glb';
         window.avatarClimb = new AvatarClimbAnimation('avatar-climb-container', `/avatars/${avatarType}`);
+        
+        // Mark as initialized after a short delay to prevent re-init
+        setTimeout(() => {
+            window.avatarClimbInitializing = false;
+            window.avatarClimbInitialized = true;
+        }, 1000);
+    } else {
+        console.log('Avatar climb: Container not found, skipping initialization');
     }
-});
+}
+
+// Initialize on all page loads and Turbo navigations
+function setupAvatarClimbInit() {
+    // Reset flags when leaving the page
+    document.addEventListener('turbo:before-cache', () => {
+        console.log('Avatar climb: Cleaning up on before-cache');
+        window.avatarClimbInitialized = false;
+        window.avatarClimbInitializing = false;
+        // Destroy the instance
+        if (window.avatarClimb && typeof window.avatarClimb.destroy === 'function') {
+            window.avatarClimb.destroy();
+            window.avatarClimb = null;
+        }
+    });
+    
+    // Classic page load (non-Turbo)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAvatarClimb);
+    } else {
+        initAvatarClimb();
+    }
+    
+    // Turbo Drive navigations - use timeout to ensure DOM is ready
+    if (typeof Turbo !== 'undefined' || typeof window.Turbo !== 'undefined') {
+        document.addEventListener('turbo:load', () => {
+            setTimeout(initAvatarClimb, 50);
+        });
+        document.addEventListener('turbo:frame-load', () => {
+            setTimeout(initAvatarClimb, 50);
+        });
+    }
+    
+    document.addEventListener('turbo:ready', () => {
+        setTimeout(initAvatarClimb, 50);
+    });
+}
+
+// Setup initialization
+setupAvatarClimbInit();

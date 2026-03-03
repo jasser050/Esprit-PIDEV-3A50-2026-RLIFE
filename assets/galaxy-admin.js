@@ -370,13 +370,152 @@ function injectCardStyles() {
     document.head.appendChild(s);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// Turbo navigation support - More aggressive initialization with MutationObserver
+function setupGalaxyAdmin() {
+    // Reset flag when leaving the page
+    document.addEventListener('turbo:before-cache', () => {
+        console.log('Galaxy admin: Cleaning up on before-cache');
+        window.galaxyAdminInitialized = false;
+        window.galaxyAdminInitializing = false;
+        // Destroy the instance
+        if (window._adminGalaxy && typeof window._adminGalaxy.destroy === 'function') {
+            window._adminGalaxy.destroy();
+            window._adminGalaxy = null;
+        }
+    });
+    
+    // Use MutationObserver to detect when galaxy container appears
+    function observeContainer() {
+        const container = document.getElementById('admin-galaxy-container');
+        if (container && !window.galaxyAdminInitialized && !window.galaxyAdminInitializing) {
+            console.log('Galaxy admin: Container found via MutationObserver');
+            initGalaxyAdmin();
+        }
+    }
+    
+    // Set up MutationObserver
+    const observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            for (const node of mutation.addedNodes) {
+                if (node.id === 'admin-galaxy-container' || 
+                    (node.querySelector && node.querySelector('#admin-galaxy-container'))) {
+                    console.log('Galaxy admin: Container added to DOM');
+                    setTimeout(initGalaxyAdmin, 100);
+                    setTimeout(initGalaxyAdmin, 300);
+                }
+            }
+        }
+    });
+    
+    // Start observing the body
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Also try on turbo events
+    if (typeof Turbo !== 'undefined' || typeof window.Turbo !== 'undefined') {
+        document.addEventListener('turbo:load', () => {
+            console.log('Turbo load event fired for admin - initializing galaxy');
+            initGalaxyAdmin();
+            setTimeout(initGalaxyAdmin, 100);
+            setTimeout(initGalaxyAdmin, 300);
+            setTimeout(initGalaxyAdmin, 500);
+        });
+        
+        document.addEventListener('turbo:render', () => {
+            console.log('Turbo render event fired for admin');
+            setTimeout(initGalaxyAdmin, 100);
+        });
+    }
+    
+    // Try on multiple events
+    document.addEventListener('turbo:ready', () => {
+        console.log('Turbo ready event fired for admin - initializing galaxy');
+        initGalaxyAdmin();
+        setTimeout(initGalaxyAdmin, 100);
+    });
+    
+    // Classic page load
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded fired, initializing galaxy admin');
+        initGalaxyAdmin();
+        setTimeout(initGalaxyAdmin, 100);
+    });
+    
+    // Also check periodically as backup
+    let checkInterval = setInterval(() => {
+        const container = document.getElementById('admin-galaxy-container');
+        if (container && !window.galaxyAdminInitialized && !window.galaxyAdminInitializing) {
+            console.log('Galaxy admin: Container found via interval check');
+            initGalaxyAdmin();
+        }
+    }, 1000);
+    
+    // Stop checking after 30 seconds
+    setTimeout(() => clearInterval(checkInterval), 30000);
+}
+
+setupGalaxyAdmin();
+
+function initGalaxyAdmin() {
+    // Skip if already initializing
+    if (window.galaxyAdminInitializing) {
+        return;
+    }
+    
     const container = document.getElementById('admin-galaxy-container');
-    if (!container) return;
+    
+    if (!container) {
+        // Container doesn't exist on this page
+        return;
+    }
+    
+    console.log('Galaxy admin: Found container, checking dimensions...');
+    
+    // Wait for container to have proper dimensions with multiple retries
+    const maxRetries = 15;
+    let retries = 0;
+    
+    const checkDimensions = () => {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        // If container has no dimensions, try again
+        if (!width || !height || width < 100 || height < 100) {
+            retries++;
+            if (retries < maxRetries) {
+                console.log(`Galaxy admin: Waiting for container dimensions... (${retries}/${maxRetries}) Width: ${width}, Height: ${height}`);
+                setTimeout(checkDimensions, 150);
+            } else {
+                console.warn('Galaxy admin: Max retries reached, initializing anyway with default dimensions');
+                window.galaxyAdminInitializing = true;
+                injectCardStyles();
+                const galaxy = new AdminGalaxy(container);
+                window._adminGalaxy = galaxy;
+                window.galaxyAdminInitializing = false;
+                loadGalaxyData(galaxy);
+            }
+            return;
+        }
+        
+        console.log(`Galaxy admin: Initializing with dimensions ${width}x${height}`);
+        window.galaxyAdminInitializing = true;
 
-    injectCardStyles();
-    const galaxy = new AdminGalaxy(container);
+        injectCardStyles();
+        const galaxy = new AdminGalaxy(container);
+        window._adminGalaxy = galaxy;
+        
+        // Mark as initialized after a short delay
+        setTimeout(() => {
+            window.galaxyAdminInitializing = false;
+            window.galaxyAdminInitialized = true;
+        }, 1000);
+        
+        loadGalaxyData(galaxy);
+    };
+    
+    checkDimensions();
+}
 
+function loadGalaxyData(galaxy) {
     fetch('/galaxy/users-data', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
         .then(r => r.json())
         .then(users => {
@@ -393,6 +532,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
             galaxy.loadUsers(placeholder);
         });
-
-    window._adminGalaxy = galaxy;
-});
+}

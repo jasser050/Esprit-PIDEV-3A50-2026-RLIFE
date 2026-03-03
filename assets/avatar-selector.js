@@ -335,12 +335,80 @@ class AvatarSelector {
     }
 }
 
-// Initialize on page load
-const selector = new AvatarSelector();
+// Only initialize if avatar containers exist on the page
+let selector = null;
+
+function initAvatarSelector() {
+    // Skip if already initializing
+    if (window.selectorInitializing) {
+        return;
+    }
+    
+    // Check if we're on a page that needs the avatar selector
+    const hasAvatarContainers = document.querySelectorAll('.avatar-canvas-container').length > 0;
+    const isWizardPage = document.querySelector('[data-controller*="wizard"]') !== null;
+    
+    if (hasAvatarContainers || isWizardPage) {
+        console.log('Avatar selector: Initializing for wizard page...');
+        
+        window.selectorInitializing = true;
+        
+        if (selector) {
+            selector.dispose();
+        }
+        selector = new AvatarSelector();
+        
+        // Mark as initialized after a short delay
+        setTimeout(() => {
+            window.selectorInitializing = false;
+            window.selectorInitialized = true;
+        }, 1000);
+    }
+}
+
+// Initialize on all page loads and Turbo navigations
+function setupAvatarSelectorInit() {
+    // Reset flag when leaving the page
+    document.addEventListener('turbo:before-cache', () => {
+        console.log('Avatar selector: Cleaning up on before-cache');
+        window.selectorInitialized = false;
+        window.selectorInitializing = false;
+        if (selector) {
+            selector.dispose();
+            selector = null;
+        }
+    });
+    
+    // Classic page load (non-Turbo)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAvatarSelector);
+    } else {
+        initAvatarSelector();
+    }
+    
+    // Turbo Drive navigations - use timeout to ensure DOM is ready
+    if (typeof Turbo !== 'undefined' || typeof window.Turbo !== 'undefined') {
+        document.addEventListener('turbo:load', () => {
+            setTimeout(initAvatarSelector, 50);
+        });
+        document.addEventListener('turbo:frame-load', () => {
+            setTimeout(initAvatarSelector, 50);
+        });
+    }
+    
+    document.addEventListener('turbo:ready', () => {
+        setTimeout(initAvatarSelector, 50);
+    });
+}
+
+// Setup initialization
+setupAvatarSelectorInit();
 
 // Cleanup on page unload
 window.addEventListener('beforeunload', () => {
-    selector.dispose();
+    if (selector) {
+        selector.dispose();
+    }
 });
 
 export default selector;

@@ -67,64 +67,121 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// User Growth Chart
-const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
-new Chart(userGrowthCtx, {
-    type: 'line',
-    data: {
-        labels: {{ user_growth|map(g => g.date)|json_encode|raw }},
-        datasets: [{
-            label: 'New Users',
-            data: {{ user_growth|map(g => g.count)|json_encode|raw }},
-            borderColor: 'rgb(99, 102, 241)',
-            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-            tension: 0.4,
-            fill: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+(function() {
+    // Reset flag when leaving the page (for Turbo navigation)
+    document.addEventListener('turbo:before-cache', function() {
+        window.statisticsChartsInitialized = false;
+        window.statisticsChartsInitializing = false;
+        console.log('Statistics: Resetting flag on before-cache');
+        
+        // Clean up chart instances
+        if (window.userGrowthChartInstance) {
+            window.userGrowthChartInstance.destroy();
+            window.userGrowthChartInstance = null;
+        }
+        if (window.genderChartInstance) {
+            window.genderChartInstance.destroy();
+            window.genderChartInstance = null;
+        }
+    });
+    
+    // Skip if already initializing
+    if (window.statisticsChartsInitializing) return;
+    
+    // Wait for Chart.js to load
+    function initCharts() {
+        if (typeof Chart === 'undefined') {
+            console.log('Waiting for Chart.js to load...');
+            setTimeout(initCharts, 100);
+            return;
+        }
+        
+        window.statisticsChartsInitializing = true;
+    
+        // User Growth Chart
+        const userGrowthEl = document.getElementById('userGrowthChart');
+        if (userGrowthEl) {
+            // Destroy previous instance if exists
+            if (window.userGrowthChartInstance) {
+                window.userGrowthChartInstance.destroy();
             }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
+            
+            const userGrowthCtx = userGrowthEl.getContext('2d');
+            window.userGrowthChartInstance = new Chart(userGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ user_growth|map(g => g.date)|json_encode|raw }},
+                    datasets: [{
+                        label: 'New Users',
+                        data: {{ user_growth|map(g => g.count)|json_encode|raw }},
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
                 }
-            }
+            });
         }
-    }
-});
 
-// Gender Distribution Chart
-const genderCtx = document.getElementById('genderChart').getContext('2d');
-new Chart(genderCtx, {
-    type: 'doughnut',
-    data: {
-        labels: {{ gender_stats|map(g => g.gender|capitalize)|json_encode|raw }},
-        datasets: [{
-            data: {{ gender_stats|map(g => g.count)|json_encode|raw }},
-            backgroundColor: [
-                'rgb(99, 102, 241)',
-                'rgb(236, 72, 153)',
-                'rgb(168, 85, 247)'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: 'bottom'
+        // Gender Distribution Chart
+        const genderEl = document.getElementById('genderChart');
+        if (genderEl) {
+            // Destroy previous instance if exists
+            if (window.genderChartInstance) {
+                window.genderChartInstance.destroy();
             }
+            
+            const genderCtx = genderEl.getContext('2d');
+            window.genderChartInstance = new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ gender_stats|map(g => g.gender|capitalize)|json_encode|raw }},
+                    datasets: [{
+                        data: {{ gender_stats|map(g => g.count)|json_encode|raw }},
+                        backgroundColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(236, 72, 153)',
+                            'rgb(168, 85, 247)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
         }
+        
+        // Mark as initialized after a short delay
+        setTimeout(() => {
+            window.statisticsChartsInitializing = false;
+            window.statisticsChartsInitialized = true;
+        }, 1000);
     }
-});
+    
+    initCharts();
+})();
 </script>
 {% endblock %}

@@ -23,6 +23,11 @@
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
 
+    {% block javascripts %}
+        {{ encore_entry_script_tags('global-accessibility') }}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+
     <script>
         // Theme initialization and toggle function
         (function() {
@@ -354,14 +359,15 @@
         {% endfor %}
     </div>
 
-    {% block javascripts %}
-        {{ encore_entry_script_tags('global-accessibility') }}
-        {{ encore_entry_script_tags('app') }}
-        
-        <script>
-            // Initialize Lucide icons
-            lucide.createIcons();
-        </script>
+    {% block page_scripts %}
+        {# Page-specific scripts can be added here by child templates #}
     {% endblock %}
+    
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>
