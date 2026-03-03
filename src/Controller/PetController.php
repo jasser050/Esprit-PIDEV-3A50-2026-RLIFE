@@ -508,11 +508,20 @@ class PetController extends AbstractController
             ->andWhere('n.type = :type')
             ->setParameter('user', $this->getUser())
             ->setParameter('type', 'pet_metaverse_msg')
-            ->orderBy('n.id', 'ASC')
             ->setMaxResults(20);
 
         if ($sinceId > 0) {
-            $qb->andWhere('n.id > :sinceId')->setParameter('sinceId', $sinceId);
+            $qb->andWhere('n.id > :sinceId')
+                ->setParameter('sinceId', $sinceId)
+                ->orderBy('n.id', 'ASC');
+        } else {
+            // Bootstrap from the most recent communications to avoid replaying very old history.
+            $qb->orderBy('n.id', 'DESC');
+        }
+
+        $notifications = $qb->getQuery()->getResult();
+        if ($sinceId === 0) {
+            $notifications = array_reverse($notifications);
         }
 
         $rows = array_map(static fn ($n) => [
@@ -520,7 +529,7 @@ class PetController extends AbstractController
             'title' => $n->getTitle(),
             'message' => $n->getMessage(),
             'createdAt' => $n->getCreatedAt()?->format(\DateTimeInterface::ATOM),
-        ], $qb->getQuery()->getResult());
+        ], $notifications);
 
         return $this->json([
             'success' => true,

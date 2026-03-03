@@ -1508,6 +1508,7 @@
                 playActionBurst(trigger, actionName);
             };
 
+            if (trigger && trigger.disabled) return;
             if (trigger) {
                 trigger.disabled = true;
                 trigger.classList.add('pet-action-btn-running');
@@ -4025,38 +4026,41 @@
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button"
                                 data-pet-action="play"
+                                onclick="runPetAction('play', this)"
                                 class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
                             <i data-lucide="gamepad-2" class="w-4 h-4"></i> Play
                         </button>
                         <button type="button"
                                 data-pet-action="sleep"
+                                onclick="runPetAction('sleep', this)"
                                 class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
                             <i data-lucide="moon-star" class="w-4 h-4"></i> Sleep
                         </button>
                         <button type="button"
                                 data-pet-action="heal"
+                                onclick="runPetAction('heal', this)"
                                 class="py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition text-sm flex items-center justify-center gap-1.5">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Heal
                         </button>
                     </div>
                     <p id="petActionFeedback" class="text-xs text-slate-500 dark:text-slate-400 px-1"></p>
-                    <button id="petFeedPrimaryBtn" onclick="openFeedModal()"
+                    <button type="button" id="petFeedPrimaryBtn" onclick="openFeedModal()"
                             class="w-full py-3.5 px-5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2.5">
                         <i data-lucide="heart-pulse" class="w-5 h-5"></i> Feed
                     </button>
-                    <button onclick="toggleRenameSection()"
+                    <button type="button" onclick="toggleRenameSection()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
                         <i data-lucide="edit-3" class="w-5 h-5"></i> Rename
                     </button>
-                    <button onclick="goToChangePetType()"
+                    <button type="button" onclick="goToChangePetType()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
                         <i data-lucide="repeat" class="w-5 h-5"></i> Change Companion Type
                     </button>
-                    <button onclick="goToPetPage()"
+                    <button type="button" onclick="goToPetPage()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
                         <i data-lucide="external-link" class="w-5 h-5"></i> Open Pet Page
                     </button>
-                    <button onclick="goToPetMetaverse()"
+                    <button type="button" onclick="goToPetMetaverse()"
                             class="w-full py-3.5 px-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700 transition flex items-center justify-center gap-2.5">
                         <i data-lucide="radar" class="w-5 h-5"></i> Open Pet Metaverse
                     </button>
@@ -4182,83 +4186,124 @@
 <script>
     (function() {
         'use strict';
-        const searchInput   = document.getElementById('searchInput');
-        const searchResults = document.getElementById('searchResults');
-        const globalSearch  = document.getElementById('globalSearch');
-        if (!searchInput || !searchResults) return;
 
-        let searchTimeout, isSearching = false, lastQuery = '', cachedResults = null;
+        function initGlobalSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchResults = document.getElementById('searchResults');
+            const globalSearch = document.getElementById('globalSearch');
+            if (!searchInput || !searchResults || !globalSearch) return;
+            if (searchInput.dataset.globalSearchInit === '1') return;
+            searchInput.dataset.globalSearchInit = '1';
 
-        const typeLabels = { course:'Courses', project:'Projects', assignment:'Assignments', deck:'Flashcards', page:'Pages', user:'Users' };
-        const typeIcons  = { course:'book-open', project:'folder', assignment:'clipboard-list', deck:'layers', page:'file-text', user:'user' };
+            let searchTimeout;
+            let isSearching = false;
+            let lastQuery = '';
+            let cachedResults = null;
 
-        searchInput.addEventListener('input', function(e) {
-            clearTimeout(searchTimeout);
-            const query = e.target.value.trim();
-            if (query.length < 2) { searchResults.classList.add('hidden'); cachedResults = null; return; }
-            if (query === lastQuery && cachedResults) { displayResults(cachedResults); return; }
-            showLoading();
-            searchTimeout = setTimeout(() => performSearch(query), 300);
-        });
+            const typeLabels = { course:'Courses', project:'Projects', assignment:'Assignments', deck:'Flashcards', page:'Pages', user:'Users' };
+            const typeIcons = { course:'book-open', project:'folder', assignment:'clipboard-list', deck:'layers', page:'file-text', user:'user' };
 
-        function showLoading() {
-            searchResults.innerHTML = `<div class="p-4 text-center text-slate-500 dark:text-slate-300"><i data-lucide="loader-2" class="inline-block animate-spin w-6 h-6"></i><p class="text-xs mt-2">Searching...</p></div>`;
-            searchResults.classList.remove('hidden');
-            window.initIcons();
-        }
-
-        function performSearch(query) {
-            if (isSearching) return;
-            isSearching = true;
-            fetch('/api/search?q=' + encodeURIComponent(query))
-                .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-                .then(data => { lastQuery = query; cachedResults = data.results; displayResults(data.results); })
-                .catch(err => {
-                    searchResults.innerHTML = `<div class="p-4 text-center text-red-500 dark:text-red-300"><p class="text-sm">Search failed</p><p class="text-xs">${err.message}</p></div>`;
-                    searchResults.classList.remove('hidden');
-                })
-                .finally(() => { isSearching = false; });
-        }
-
-        function displayResults(results) {
-            if (!results || results.length === 0) {
-                searchResults.innerHTML = `<div class="p-6 text-center text-slate-500 dark:text-slate-300"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2"></i><p class="text-sm font-medium">No results found</p></div>`;
+            function showLoading() {
+                searchResults.innerHTML = `<div class="p-4 text-center text-slate-500 dark:text-slate-300"><i data-lucide="loader-2" class="inline-block animate-spin w-6 h-6"></i><p class="text-xs mt-2">Searching...</p></div>`;
                 searchResults.classList.remove('hidden');
                 window.initIcons();
-                return;
             }
-            const grouped = {};
-            results.forEach(r => { if (!grouped[r.type]) grouped[r.type] = []; grouped[r.type].push(r); });
-            let html = '<div class="p-2">';
-            Object.keys(grouped).forEach((type, i) => {
-                if (i > 0) html += '<div class="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>';
-                html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">${typeLabels[type]}</p>`;
-                grouped[type].forEach(result => {
-                    html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors">
-                        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg"><i data-lucide="${typeIcons[result.type] || 'circle'}" class="w-4 h-4 text-slate-600 dark:text-slate-200"></i></div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">${result.title}</p>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">${result.subtitle}</p>
-                        </div></a>`;
+
+            function displayResults(results) {
+                if (!results || results.length === 0) {
+                    searchResults.innerHTML = `<div class="p-6 text-center text-slate-500 dark:text-slate-300"><i data-lucide="search-x" class="w-8 h-8 mx-auto mb-2"></i><p class="text-sm font-medium">No results found</p></div>`;
+                    searchResults.classList.remove('hidden');
+                    window.initIcons();
+                    return;
+                }
+                const grouped = {};
+                results.forEach(r => { if (!grouped[r.type]) grouped[r.type] = []; grouped[r.type].push(r); });
+                let html = '<div class="p-2">';
+                Object.keys(grouped).forEach((type, i) => {
+                    if (i > 0) html += '<div class="h-px bg-slate-200 dark:bg-slate-700 my-2"></div>';
+                    html += `<div class="mb-2"><p class="px-3 py-1 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">${typeLabels[type] || type}</p>`;
+                    grouped[type].forEach(result => {
+                        html += `<a href="${result.url}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 transition-colors">
+                            <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg"><i data-lucide="${typeIcons[result.type] || 'circle'}" class="w-4 h-4 text-slate-600 dark:text-slate-200"></i></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">${result.title}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">${result.subtitle}</p>
+                            </div></a>`;
+                    });
+                    html += '</div>';
                 });
                 html += '</div>';
+                searchResults.innerHTML = html;
+                searchResults.classList.remove('hidden');
+                window.initIcons();
+            }
+
+            function performSearch(query) {
+                if (isSearching) return;
+                isSearching = true;
+                fetch('/api/search?q=' + encodeURIComponent(query))
+                    .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+                    .then(data => {
+                        lastQuery = query;
+                        cachedResults = data.results || [];
+                        displayResults(cachedResults);
+                    })
+                    .catch(err => {
+                        searchResults.innerHTML = `<div class="p-4 text-center text-red-500 dark:text-red-300"><p class="text-sm">Search failed</p><p class="text-xs">${err.message}</p></div>`;
+                        searchResults.classList.remove('hidden');
+                    })
+                    .finally(() => { isSearching = false; });
+            }
+
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                if (query.length < 2) {
+                    searchResults.classList.add('hidden');
+                    cachedResults = null;
+                    return;
+                }
+                if (query === lastQuery && cachedResults) {
+                    displayResults(cachedResults);
+                    return;
+                }
+                showLoading();
+                searchTimeout = setTimeout(function() { performSearch(query); }, 300);
             });
-            html += '</div>';
-            searchResults.innerHTML = html;
-            searchResults.classList.remove('hidden');
-            window.initIcons();
+
+            searchInput.addEventListener('focus', function() {
+                const query = searchInput.value.trim();
+                if (query.length < 2) return;
+                if (cachedResults && query === lastQuery) {
+                    displayResults(cachedResults);
+                    return;
+                }
+                showLoading();
+                performSearch(query);
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    searchResults.classList.add('hidden');
+                    searchInput.blur();
+                }
+            });
+
+            if (!window.__rlifeGlobalSearchDocBound) {
+                document.addEventListener('click', function(e) {
+                    const currentGlobalSearch = document.getElementById('globalSearch');
+                    const currentSearchResults = document.getElementById('searchResults');
+                    if (currentGlobalSearch && currentSearchResults && !currentGlobalSearch.contains(e.target)) {
+                        currentSearchResults.classList.add('hidden');
+                    }
+                });
+                window.__rlifeGlobalSearchDocBound = true;
+            }
         }
 
-        document.addEventListener('click', e => { if (globalSearch && !globalSearch.contains(e.target)) searchResults.classList.add('hidden'); });
-        searchInput.addEventListener('focus', function() {
-            const query = searchInput.value.trim();
-            if (query.length >= 2) {
-                cachedResults && query === lastQuery ? displayResults(cachedResults) : (showLoading(), performSearch(query));
-            }
-        });
-        searchInput.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { searchResults.classList.add('hidden'); searchInput.blur(); }
-        });
+        document.addEventListener('DOMContentLoaded', initGlobalSearch);
+        document.addEventListener('turbo:load', initGlobalSearch);
+        initGlobalSearch();
     })();
 </script>
 
