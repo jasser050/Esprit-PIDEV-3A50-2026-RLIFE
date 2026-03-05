@@ -90,7 +90,10 @@ class WellbeingQuizController extends AbstractController
         foreach ($questionIds as $questionId) {
             if (!array_key_exists($questionId, $submittedAnswers)) {
                 $this->addFlash('error', 'Please answer all questions before submitting.');
-                return $this->redirectToRoute('app_wellbeing_quiz', ['mode' => $quizMode]);
+                return $this->redirectToRoute('app_wellbeing_quiz', [
+                    'mode' => $quizMode,
+                    'missing' => $questionId,
+                ]);
             }
 
             $choiceScore = (int) $submittedAnswers[$questionId];

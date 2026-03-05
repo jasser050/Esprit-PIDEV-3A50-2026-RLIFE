@@ -13,10 +13,14 @@ parameters:
     app.serpapi_key: '%env(SERPAPI_KEY)%'
     app.rapidapi_key: '%env(RAPIDAPI_KEY)%'
     app.rapidapi_host: '%env(RAPIDAPI_HOST)%'
+
+    # Football-Data API
+    football_data_api_key: '%env(FOOTBALL_DATA_API_KEY)%'
     
     # Mailer Configuration
     mailer_from_email: '%env(MAILER_FROM_EMAIL)%'
     mailer_from_name: '%env(MAILER_FROM_NAME)%'
+    app.server_pid_file: '%env(default::SERVER_PID_FILE)%'
 
 services:
     # default configuration for services in *this* file
@@ -27,6 +31,11 @@ services:
     # makes classes in src/ available to be used as services
     App\:
         resource: '../src/'
+
+    App\EventSubscriber\ServerRestartSubscriber:
+        arguments:
+            $pidFile: '%app.server_pid_file%'
+            $projectDir: '%kernel.project_dir%'
 
     # TranslationService ??? bind the API key (string, not auto-injectable)
     App\Service\TranslationService:
@@ -46,4 +55,8 @@ services:
     App\Service\GeminiService:
         bind:
             $geminiApiKey: '%gemini_api_key%'
+
+    App\Service\SportsApiService:
+        bind:
+            $footballDataApiKey: '%football_data_api_key%'
 

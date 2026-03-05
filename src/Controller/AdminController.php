@@ -739,7 +739,9 @@ $stats = [
     public function newSeance(Request $request, EntityManagerInterface $em): Response
     {
         $seance = new Seance();
-        $form = $this->createForm(\App\Form\SeanceType::class, $seance);
+        $form = $this->createForm(\App\Form\SeanceType::class, $seance, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
         $seance->setUser($this->getUser());
 
@@ -941,6 +943,12 @@ public function print(Request $request, EntityManagerInterface $em): Response
     #[Route('/type-seance/new', name: 'app_admin_type_seance_new', methods: ['GET', 'POST'])]
     public function newTypeSeance(Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
+            $this->addFlash('error', 'Vous devez être connecté.');
+            return $this->redirectToRoute('app_admin_type_seance_index');
+        }
+
         if ($request->isMethod('POST')) {
             $name = trim((string) $request->request->get('name', ''));
 
@@ -950,7 +958,7 @@ public function print(Request $request, EntityManagerInterface $em): Response
             }
 
             // éviter doublon
-            $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name]);
+            $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name, 'user' => $user]);
             if ($exists) {
                 $this->addFlash('error', 'Ce type existe déjà.');
                 return $this->redirectToRoute('app_admin_type_seance_new');
@@ -958,6 +966,7 @@ public function print(Request $request, EntityManagerInterface $em): Response
 
             $type = new TypeSeance();
             $type->setName($name);
+            $type->setUser($user);
 
             $em->persist($type);
             $em->flush();
@@ -986,7 +995,10 @@ public function print(Request $request, EntityManagerInterface $em): Response
             }
 
             // éviter doublon (autre id)
-            $exists = $em->getRepository(TypeSeance::class)->findOneBy(['name' => $name]);
+            $exists = $em->getRepository(TypeSeance::class)->findOneBy([
+                'name' => $name,
+                'user' => $type->getUser()
+            ]);
             if ($exists && $exists->getId() !== $type->getId()) {
                 $this->addFlash('error', 'Ce type existe déjà.');
                 return $this->redirectToRoute('app_admin_type_seance_edit', ['id' => $id]);

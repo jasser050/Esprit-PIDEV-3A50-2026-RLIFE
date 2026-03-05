@@ -14,17 +14,27 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use App\Entity\User;
 
 class PlanningType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $user = $options['user'];
+
         $builder
             ->add('seance', EntityType::class, [
                 'class' => Seance::class,
                 'choice_label' => 'titre',
                 'label' => 'Session',
                 'placeholder' => 'Choose a session',
+                'query_builder' => function ($repo) use ($user) {
+                    $qb = $repo->createQueryBuilder('s')->orderBy('s.id', 'DESC');
+                    if ($user instanceof User) {
+                        $qb->andWhere('s.user = :user')->setParameter('user', $user);
+                    }
+                    return $qb;
+                },
             ])
 
             // Un seul champ "date", obligatoire
@@ -94,6 +104,8 @@ class PlanningType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Planning::class,
+            'user' => null,
         ]);
+        $resolver->setAllowedTypes('user', ['null', User::class]);
     }
 }

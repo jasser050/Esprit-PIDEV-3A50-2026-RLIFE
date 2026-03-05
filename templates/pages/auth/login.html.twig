@@ -86,7 +86,7 @@
             </div>
 
             <!-- Login Form -->
-            {{ form_start(form, {'attr': {'class': 'space-y-5', 'data-turbo': 'false'}}) }}
+            {{ form_start(form, {'attr': {'id': 'login-form', 'class': 'space-y-5', 'data-turbo': 'false'}}) }}
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 
                 <!-- Email -->
@@ -522,6 +522,21 @@
     const LOGIN_MODEL_URL = '/models';
     let loginModelsLoaded = false;
     let loginStream = null;
+    function markBrowserSession() {
+        try {
+            sessionStorage.setItem('rlife_browser_session', '1');
+            sessionStorage.setItem('rlife_just_logged_in', '1');
+        } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var form = document.getElementById('login-form');
+        if (form) {
+            form.addEventListener('submit', function () {
+                markBrowserSession();
+            });
+        }
+    });
 
     function setLoginMsg(msg, color) {
         const el = document.getElementById('login-face-msg');
@@ -680,6 +695,7 @@
                 document.getElementById('login-face-dot').style.background = '#10b981';
                 setLoginMsg(data.message, 'green');
                 stopLoginStream();
+                markBrowserSession();
                 setTimeout(() => { window.location.href = data.redirect; }, 900);
             } else {
                 setLoginMsg('Try again', 'red');

@@ -30,6 +30,15 @@
             </div>
         </div>
     {% else %}
+        {% set missingId = app.request.query.get('missing') %}
+        {% set missingIndex = null %}
+        {% if missingId %}
+            {% for q in questions %}
+                {% if q.id == missingId %}
+                    {% set missingIndex = loop.index %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
         <div class="card p-6">
             <div class="flex items-center justify-between mb-2">
                 <span class="text-sm font-medium text-secondary-700 dark:text-secondary-300">
@@ -223,6 +232,16 @@ document.querySelectorAll('input[type="radio"]').forEach(radio => {
 
 updateProgress();
 applySelectedOptionStyles();
+
+// If server redirects with missing question, jump to it.
+const serverMissingIndex = {{ missingIndex is not null ? missingIndex : 'null' }};
+if (serverMissingIndex) {
+    if (quizError) {
+        quizError.textContent = 'Please answer the highlighted question before submitting.';
+        quizError.classList.remove('hidden');
+    }
+    showQuestion(serverMissingIndex);
+}
 </script>
 {% endif %}
 {% endblock %}

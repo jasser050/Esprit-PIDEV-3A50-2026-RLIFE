@@ -46,6 +46,20 @@
   color: var(--ai-ink);
 }
 
+html.dark .ai-wrap {
+  --ai-bg:          #0b1220;
+  --ai-surface:     rgba(15,23,42,0.78);
+  --ai-surface-s:   rgba(15,23,42,0.92);
+  --ai-border:      rgba(148,163,184,0.18);
+  --ai-border-s:    rgba(148,163,184,0.32);
+  --ai-ink:         #e5e7eb;
+  --ai-dim:         #cbd5e1;
+  --ai-faint:       #94a3b8;
+  --ai-sh:          0 6px 24px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --ai-sh-f:        0 12px 40px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3);
+  --ai-glow:        0 0 0 3px rgba(99,102,241,0.25);
+}
+
 /* Mesh background uniquement dans .ai-wrap */
 .ai-wrap::before {
   content: '';
@@ -61,6 +75,17 @@
   position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background-image: radial-gradient(circle, rgba(99,102,241,0.06) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+
+html.dark .ai-wrap::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%,  rgba(56,189,248,0.12)  0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(99,102,241,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 100%,rgba(168,85,247,0.12) 0%, transparent 60%),
+    rgba(11,18,32,0.98);
+}
+html.dark .ai-wrap::after {
+  background-image: radial-gradient(circle, rgba(148,163,184,0.08) 1px, transparent 1px);
 }
 
 /* ---- HEADER ---- */
@@ -113,6 +138,9 @@
   margin-bottom: 1.5rem; box-shadow: var(--ai-sh);
   backdrop-filter: blur(20px); position: relative; overflow: hidden;
 }
+html.dark .ai-period {
+  background: rgba(15,23,42,0.88);
+}
 .ai-period::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, var(--ai-violet), var(--ai-cyan), var(--ai-purple));
@@ -128,6 +156,9 @@
   border-radius: var(--ai-rs); font-family: var(--ai-mono);
   font-size: 0.87rem; font-weight: 500; outline: none;
   transition: border-color .2s, box-shadow .2s;
+}
+html.dark .ai-date-input {
+  background: rgba(15,23,42,0.85);
 }
 .ai-date-input:focus { border-color: var(--ai-violet); box-shadow: var(--ai-glow); }
 .ai-btn-gen {
@@ -161,11 +192,17 @@
   backdrop-filter: blur(20px); overflow: hidden;
   transition: border-color .25s, box-shadow .25s;
 }
+html.dark .ai-card {
+  background: rgba(15,23,42,0.82);
+}
 .ai-card:hover { border-color: var(--ai-border-s); box-shadow: var(--ai-sh-f); }
 .ai-card-head {
   padding: .9rem 1.2rem; border-bottom: 1px solid var(--ai-border);
   display: flex; align-items: center; justify-content: space-between;
   background: rgba(255,255,255,0.45);
+}
+html.dark .ai-card-head {
+  background: rgba(15,23,42,0.6);
 }
 .ai-card-title {
   font-family: var(--ai-mono); font-size: 0.68rem; color: var(--ai-dim);
@@ -183,6 +220,11 @@
   background: rgba(99,102,241,0.1); color: var(--ai-violet);
   border: 1px solid rgba(99,102,241,0.18);
 }
+html.dark .ai-badge {
+  background: rgba(99,102,241,0.2);
+  color: #c7d2fe;
+  border-color: rgba(99,102,241,0.35);
+}
 
 /* ---- BID ACTION BUTTONS ---- */
 .ai-bid-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-top: 1rem; }
@@ -192,6 +234,9 @@
   border: 1.5px solid var(--ai-border); background: rgba(255,255,255,0.6);
   cursor: pointer; font-family: var(--ai-font); font-size: 0.7rem; font-weight: 600;
   color: var(--ai-dim); transition: all .2s;
+}
+html.dark .ai-bid-btn {
+  background: rgba(15,23,42,0.7);
 }
 .ai-bid-btn .ai-bem { font-size: 1.1rem; line-height: 1; }
 .ai-bid-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.07); }
@@ -204,6 +249,9 @@
   padding: .58rem .82rem; border-radius: var(--ai-rs);
   background: rgba(255,255,255,0.72); border: 1px solid var(--ai-border);
   margin-bottom: .42rem; position: relative; overflow: hidden; transition: border-color .2s;
+}
+html.dark .ai-bid-item {
+  background: rgba(15,23,42,0.8);
 }
 .ai-bid-item::before { content:''; position:absolute; left:0; top:0; bottom:0; width:2.5px; border-radius:3px 0 0 3px; }
 .ai-bid-item.exam::before    { background: var(--ai-rose); }
@@ -219,7 +267,18 @@
 .ai-pill.exam    { background:rgba(244,63,94,0.1);  color:var(--ai-rose); }
 .ai-pill.dayoff  { background:rgba(16,185,129,0.1); color:var(--ai-emerald); }
 .ai-pill.session { background:rgba(99,102,241,0.1); color:var(--ai-violet); }
+html.dark .ai-pill.exam    { background:rgba(244,63,94,0.2); }
+html.dark .ai-pill.dayoff  { background:rgba(16,185,129,0.2); }
+html.dark .ai-pill.session { background:rgba(99,102,241,0.2); }
 .ai-bid-date { font-size:.7rem; font-family:var(--ai-mono); color:var(--ai-faint); margin-top:3px; }
+
+/* ✅ Delete bid button */
+.ai-bid-del {
+  position:absolute; top:6px; right:6px;
+  background:transparent; border:none; color:#f43f5e;
+  font-weight:700; cursor:pointer; font-size:.75rem;
+}
+.ai-bid-del:hover { transform:scale(1.1); }
 
 /* ---- EMPTY STATE ---- */
 .ai-empty { text-align:center; padding:2.2rem 1rem; color:var(--ai-faint); }
@@ -251,6 +310,9 @@
   border-radius:var(--ai-rs); padding:.72rem 1rem; margin-bottom:.45rem;
   position:relative; overflow:hidden; transition:border-color .2s;
 }
+html.dark .ai-confirmed {
+  background: rgba(15,23,42,0.82);
+}
 .ai-confirmed::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; border-radius:3px 0 0 3px; }
 .ai-confirmed.exam::before    { background:var(--ai-rose); }
 .ai-confirmed.dayoff::before  { background:var(--ai-emerald); }
@@ -271,9 +333,13 @@
   border-radius:var(--ai-rs); padding:.82rem 1rem; margin-bottom:.45rem;
   position:relative; overflow:hidden; transition:all .2s;
 }
+html.dark .ai-sug {
+  background: rgba(15,23,42,0.82);
+}
 .ai-sug::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; }
 .ai-sug:hover { border-color:var(--ai-border-s); box-shadow:0 4px 16px rgba(99,102,241,0.08); transform:translateX(2px); }
 .ai-sug.accepted { background:rgba(16,185,129,0.06); border-color:rgba(16,185,129,0.28); }
+html.dark .ai-sug.accepted { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.35); }
 .ai-sug.accepted::before { background:var(--ai-emerald) !important; }
 .ai-sug.declined { opacity:.3; }
 .ai-sug-head { display:flex; justify-content:space-between; gap:.5rem; align-items:flex-start; }
@@ -327,6 +393,23 @@
   flex-direction:column; align-items:center; justify-content:center; gap:1.5rem;
   font-family:'Syne',sans-serif;
 }
+#ai-engine-overlay .er-label,
+#ai-engine-overlay .er-log { color:#6b7694; }
+#ai-engine-overlay .er-bar { width:210px; height:2px; background:rgba(99,102,241,0.1); border-radius:2px; overflow:hidden; }
+#ai-engine-overlay .er-core { color:#1a1f36; }
+
+html.dark #ai-engine-overlay {
+  background:rgba(11,18,32,0.92);
+}
+html.dark #ai-engine-overlay .er-core {
+  background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(30,41,59,.92));
+  border-color:rgba(148,163,184,0.25);
+  color:#e5e7eb;
+  box-shadow:0 8px 32px rgba(0,0,0,0.45);
+}
+html.dark #ai-engine-overlay .er-label { color:#93c5fd; }
+html.dark #ai-engine-overlay .er-log { color:#cbd5e1; }
+html.dark #ai-engine-overlay .er-bar { background:rgba(99,102,241,0.25); }
 #ai-engine-overlay.running { display:flex; animation:aiFadeIn .2s ease; }
 @keyframes aiFadeIn { from{opacity:0;} to{opacity:1;} }
 #ai-engine-overlay .er-wrap { position:relative; width:190px; height:190px; display:flex; align-items:center; justify-content:center; }
@@ -373,31 +456,50 @@
   animation:aiModalUp .22s cubic-bezier(0.34,1.56,0.64,1);
   position:relative; overflow:hidden; font-family:'Syne',sans-serif; color:#1a1f36;
 }
+html.dark .ai-modal-overlay {
+  background:rgba(11,18,32,0.75);
+}
+html.dark .ai-modal-box {
+  background:rgba(15,23,42,0.96);
+  border-color:rgba(148,163,184,0.25);
+  box-shadow:0 24px 60px rgba(0,0,0,0.45),0 8px 20px rgba(0,0,0,0.3);
+  color:#e5e7eb;
+}
 @keyframes aiModalUp { from{transform:translateY(18px) scale(.97);opacity:0;} to{transform:translateY(0) scale(1);opacity:1;} }
 .ai-modal-box::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
 .ai-modal-box.violet::before { background:linear-gradient(90deg,#6366f1,#06b6d4); }
 .ai-modal-box.green::before  { background:linear-gradient(90deg,#10b981,#06b6d4); }
 .ai-modal-box.rose::before   { background:linear-gradient(90deg,#f43f5e,#f59e0b); }
 .ai-modal-title { font-size:1.1rem; font-weight:800; color:#1a1f36; margin-bottom:1.4rem; display:flex; align-items:center; gap:.55rem; letter-spacing:-.02em; }
+html.dark .ai-modal-title { color:#e5e7eb; }
 .ai-form-row { display:grid; grid-template-columns:1fr 1fr; gap:.72rem; }
 .ai-form-group { margin-bottom:.8rem; }
 .ai-form-label { display:block; font-family:'JetBrains Mono',monospace; font-size:.62rem; color:#a8b0cc; text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; font-weight:500; }
+html.dark .ai-form-label { color:#94a3b8; }
 .ai-form-ctrl {
   width:100%; background:rgba(99,102,241,0.04); border:1.5px solid rgba(99,102,241,0.13);
   color:#1a1f36; padding:.52rem .88rem; border-radius:10px;
   font-family:'Syne',sans-serif; font-size:.87rem; outline:none;
   transition:border-color .2s,box-shadow .2s;
 }
+html.dark .ai-form-ctrl {
+  background:rgba(15,23,42,0.85);
+  border-color:rgba(148,163,184,0.25);
+  color:#e5e7eb;
+}
 .ai-form-ctrl:focus { border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,0.14); }
 textarea.ai-form-ctrl { resize:vertical; min-height:72px; }
 select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
+html.dark select.ai-form-ctrl option { background:#0f172a; color:#e5e7eb; }
 .ai-modal-foot { display:flex; gap:.7rem; justify-content:flex-end; margin-top:1.4rem; }
 .ai-btn-cancel {
   background:transparent; border:1.5px solid rgba(99,102,241,0.15); color:#6b7694;
   padding:.5rem 1.1rem; border-radius:10px; cursor:pointer;
   font-family:'Syne',sans-serif; font-size:.83rem; font-weight:600; transition:all .2s;
 }
+html.dark .ai-btn-cancel { color:#cbd5e1; border-color:rgba(148,163,184,0.3); }
 .ai-btn-cancel:hover { border-color:rgba(99,102,241,0.28); color:#1a1f36; }
+html.dark .ai-btn-cancel:hover { color:#e5e7eb; border-color:rgba(99,102,241,0.5); }
 .ai-btn-sub {
   border:none; padding:.52rem 1.3rem; border-radius:10px; cursor:pointer;
   font-family:'Syne',sans-serif; font-weight:700; font-size:.83rem; color:#fff; transition:all .2s;
@@ -454,7 +556,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
       <div class="ai-field-label">To</div>
       <input id="end_date_input" type="date" class="ai-date-input" value="{{ endDate }}">
     </div>
-    <button id="ai-gen-btn" class="ai-btn-gen" disabled>⚡ Generate Planning</button>
+    <button id="ai-gen-btn" class="ai-btn-gen">⚡ Generate Planning</button>
   </div>
 
   <!-- LAYOUT -->
@@ -591,7 +693,8 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
     sugs:    '/ai/planning/suggestions',
     accept:  '/ai/planning/accept-suggestion',
     submit:  '/ai/planning/submit-bid',
-    subjects:'/ai/planning/subjects'   {# ← endpoint à créer dans le controller #}
+    subjects:'/ai/planning/subjects',
+    deleteBid:'/ai/planning/delete-bid'
   };
 
   const $  = id => document.getElementById(id);
@@ -672,10 +775,29 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
           <span class="ai-pill ${pc}">${esc(b.type||'')}</span>
         </div>
         <div class="ai-bid-date">${esc(d)}${b.matiere_nom?' · '+esc(b.matiere_nom):''}</div>
+        <button class="ai-bid-del" data-id="${b.id}">✕</button>
       </div>`;
     }).join('');
     return bids;
   }
+
+  /* ---- DELETE BID ---- */
+  document.addEventListener('click', async (e)=>{
+    if(e.target.classList.contains('ai-bid-del')){
+      const id = e.target.dataset.id;
+      if(!confirm('Delete this bid?')) return;
+      const res = await api(EP.deleteBid,{method:'POST',headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({bid_id:id})
+      });
+      const start=$('start_date_input')?.value, end=$('end_date_input')?.value;
+      if(res.ok && res.json?.success){
+        toast('Bid deleted ✓');
+        await Promise.all([loadBids(start,end), loadSuggestions(start,end)]);
+      } else {
+        toast(res.json?.error || 'Delete failed','error');
+      }
+    }
+  });
 
   /* ---- SUGGESTIONS ---- */
   window.aiSugsState=[];
@@ -770,7 +892,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
       if(ok>0&&!errs.length) toast(`✓ ${ok} session(s) added`,'success');
       else if(ok>0){ toast(`${ok} applied, ${errs.length} failed`,'error'); console.error(errs); }
       else{ toast('Failed to apply','error'); console.error(errs); }
-      if(ok>0) await Promise.all([loadBids(start,end),loadSuggestions(start,end)]);
+      if(ok>0) {await Promise.all([loadBids(start,end),loadSuggestions(start,end)]); window.location.href = '{{ path("app_planning") }}'; }
       else{ applyBtn.disabled=false; refreshApplyBtn(); }
     });
   }
@@ -807,7 +929,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
         date_debut:$('bs_debut').value?$('bs_debut').value+':00':null,
         date_fin:$('bs_fin').value?$('bs_fin').value+':00':null,
         priorite:'Medium',period_start:start,period_end:end})});
-    if(r.ok&&r.json?.success){ toast('Session bid submitted ✓'); aiCloseModal('aiModalSession'); await loadBids(start,end); }
+    if(r.ok&&r.json?.success){ toast('Session bid submitted ✓'); aiCloseModal('aiModalSession'); await Promise.all([loadBids(start,end), loadSuggestions(start,end)]); }
     else toast('Error: '+(r.json?.error||'Unknown'),'error');
   };
 
@@ -821,7 +943,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
         date_debut:$('bd_date').value?$('bd_date').value+' 00:00:00':null,
         date_fin:$('bd_date').value?$('bd_date').value+' 23:59:59':null,
         priorite:'Medium',period_start:start,period_end:end})});
-    if(r.ok&&r.json?.success){ toast('Day off requested ✓'); aiCloseModal('aiModalDayOff'); await loadBids(start,end); }
+    if(r.ok&&r.json?.success){ toast('Day off requested ✓'); aiCloseModal('aiModalDayOff'); await Promise.all([loadBids(start,end), loadSuggestions(start,end)]); }
     else toast('Error: '+(r.json?.error||'Unknown'),'error');
   };
 
@@ -836,7 +958,7 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
         date_evaluation:$('be_date').value?$('be_date').value+':00':null,
         duree_evaluation:parseInt($('be_duration').value||120),
         description:'',priorite:'High',period_start:start,period_end:end})});
-    if(r.ok&&r.json?.success){ toast('Exam added ✓'); aiCloseModal('aiModalExam'); await loadBids(start,end); }
+    if(r.ok&&r.json?.success){ toast('Exam added ✓'); aiCloseModal('aiModalExam'); await Promise.all([loadBids(start,end), loadSuggestions(start,end)]); }
     else toast('Error: '+(r.json?.error||'Unknown'),'error');
   };
 
@@ -844,7 +966,13 @@ select.ai-form-ctrl option { background:#fff; color:#1a1f36; }
   document.addEventListener('DOMContentLoaded',()=>{
     const g=$('ai-gen-btn'), si=$('start_date_input'), ei=$('end_date_input');
     const upd=()=>{ if(g) g.disabled=!(si?.value&&ei?.value); };
-    si?.addEventListener('change',upd); ei?.addEventListener('change',upd);
+    const autoRefresh=async()=>{
+      if(si?.value && ei?.value){
+        await loadBids(si.value, ei.value);
+      }
+    };
+    si?.addEventListener('change',()=>{ upd(); autoRefresh(); });
+    ei?.addEventListener('change',()=>{ upd(); autoRefresh(); });
     g?.addEventListener('click', generate);
     upd();
 

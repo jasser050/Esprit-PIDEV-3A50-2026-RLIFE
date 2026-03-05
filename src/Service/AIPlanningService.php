@@ -294,7 +294,8 @@ class AIPlanningService
     private function insertExamBids(array $bids): array
     {
         $suggestions = [];
-        $examType    = $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'Exam']);
+        $user = $this->security->getUser();
+        $examType = $user instanceof User ? $this->findTypeByNameForUser($user, 'Exam') : null;
 
         foreach ($bids as $bid) {
             if (($bid['type'] ?? '') !== 'exam' || empty($bid['date_evaluation'])) continue;
@@ -331,7 +332,8 @@ class AIPlanningService
     private function insertDayOffBids(array $bids): array
     {
         $suggestions = [];
-        $dayOffType  = $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'DAY OFF']);
+        $user = $this->security->getUser();
+        $dayOffType = $user instanceof User ? $this->findTypeByNameForUser($user, 'DAY OFF') : null;
 
         foreach ($bids as $bid) {
             if (($bid['type'] ?? '') !== 'dayoff' || empty($bid['date_debut'])) continue;
@@ -365,7 +367,8 @@ class AIPlanningService
     private function insertAutoDayOffs(array $autoDayOffDates): array
     {
         $suggestions = [];
-        $dayOffType  = $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'DAY OFF']);
+        $user = $this->security->getUser();
+        $dayOffType = $user instanceof User ? $this->findTypeByNameForUser($user, 'DAY OFF') : null;
 
         foreach ($autoDayOffDates as $dateStr) {
             $dayOffDate = new \DateTime($dateStr);
@@ -397,6 +400,7 @@ class AIPlanningService
     private function insertPreciseSessionBids(array $sessions): array
     {
         $suggestions = [];
+        $user = $this->security->getUser();
 
         foreach ($sessions as $session) {
             $startDateTime = new \DateTime($session['date_debut'] . ' ' . $session['heure_debut']);
@@ -407,9 +411,10 @@ class AIPlanningService
             $subject     = !empty($session['matiere_id'])
                 ? $this->entityManager->getRepository(Matiere::class)->find($session['matiere_id'])
                 : null;
-            $sessionType = !empty($session['type'])
-                ? $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => ucfirst($session['type'])])
-                : null;
+            $sessionType = null;
+            if (!empty($session['type']) && $user instanceof User) {
+                $sessionType = $this->findTypeByNameForUser($user, ucfirst($session['type']));
+            }
 
             $suggestions[] = [
                 'slot' => [
@@ -449,10 +454,13 @@ class AIPlanningService
 
         // ✅ Cherche le TypeSeance Revision sous toutes les casses possibles
         // Si introuvable → null, mais on génère quand même les révisions
-        $revisionType = $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'Revision'])
-            ?? $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'revision'])
-            ?? $this->entityManager->getRepository(TypeSeance::class)->findOneBy(['name' => 'REVISION'])
-            ?? null;
+        $user = $this->security->getUser();
+        $revisionType = null;
+        if ($user instanceof User) {
+            $revisionType = $this->findTypeByNameForUser($user, 'Revision')
+                ?? $this->findTypeByNameForUser($user, 'revision')
+                ?? $this->findTypeByNameForUser($user, 'REVISION');
+        }
 
         foreach ($examDates as $exam) {
             if (empty($exam['date'])) continue;
@@ -542,7 +550,15 @@ class AIPlanningService
             return [];
         }
 
-        $allTypes    = $this->entityManager->getRepository(TypeSeance::class)->findAll();
+        $user = $this->security->getUser();
+        $allTypes = [];
+        if ($user instanceof User) {
+            $allTypes = $this->entityManager->getRepository(TypeSeance::class)->createQueryBuilder('t')
+                ->andWhere('t.user = :user OR t.user IS NULL')
+                ->setParameter('user', $user)
+                ->getQuery()
+                ->getResult();
+        }
         $normalTypes = array_values(array_filter(
             $allTypes,
             fn($t) => !in_array($t->getName(), ['Exam', 'Revision', 'DAY OFF', 'Midday Break'], true)
@@ -813,5 +829,18 @@ class AIPlanningService
         $colors = ['#4f46e5', '#7c3aed', '#2563eb', '#db2777', '#ea580c', '#16a34a', '#9333ea', '#dc2626'];
         if ($matiereId === null) return $colors[0];
         return $colors[(int)$matiereId % count($colors)];
+    }
+
+    private function findTypeByNameForUser(User $user, string $name): ?TypeSeance
+    {
+        $type = $this->entityManager
+            ->getRepository(TypeSeance::class)
+            ->findOneBy(['name' => $name, 'user' => $user]);
+        if ($type) {
+            return $type;
+        }
+        return $this->entityManager
+            ->getRepository(TypeSeance::class)
+            ->findOneBy(['name' => $name, 'user' => null]);
     }
 }

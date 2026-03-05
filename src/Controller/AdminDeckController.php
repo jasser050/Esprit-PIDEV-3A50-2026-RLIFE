@@ -89,7 +89,7 @@ class AdminDeckController extends AbstractController
             case 'cards':
                 // Pour trier par nombre de cartes, on doit joindre les flashcards
                 $qb->leftJoin('d.flashcards', 'f')
-                   ->groupBy('d.idDeck')
+                   ->groupBy('d.id')
                    ->orderBy('COUNT(f.idFlashcard)', 'ASC');
                 break;
             default:
@@ -253,7 +253,7 @@ class AdminDeckController extends AbstractController
         $results = [];
         foreach ($decks as $deck) {
             $results[] = [
-                'id' => $deck->getIdDeck(),
+                'id' => $deck->getId(),
                 'titre' => $deck->getTitre(),
                 'matiere' => $deck->getMatiere(),
                 'niveau' => $deck->getNiveau(),
@@ -484,7 +484,7 @@ class AdminDeckController extends AbstractController
         EntityManagerInterface $em
     ): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $deck->getIdDeck(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $deck->getId(), $request->request->get('_token'))) {
             try {
                 $em->remove($deck);
                 $em->flush();

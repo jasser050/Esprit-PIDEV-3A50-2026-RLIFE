@@ -2,11 +2,55 @@
 {% block title %}Feedback{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto card p-6">
-    <h2 class="text-lg font-bold mb-4">Give your feedback for "{{ planning.seance }}"</h2>
-    {{ form_start(form) }}
-        {{ form_row(form.feedback) }}
-        <button class="btn btn-primary mt-3" type="submit">Submit your feedback</button>
-    {{ form_end(form) }}
-</div>
+<section class="relative px-4 sm:px-6 py-10 sm:py-14">
+    <div class="absolute inset-0 -z-10 pointer-events-none">
+        <div class="absolute top-12 left-1/2 -translate-x-1/2 h-52 w-52 rounded-full bg-fuchsia-200/35 blur-3xl dark:bg-fuchsia-700/20"></div>
+        <div class="absolute bottom-0 right-8 h-48 w-48 rounded-full bg-cyan-200/30 blur-3xl dark:bg-cyan-700/20"></div>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+        <div class="mb-6 sm:mb-8 text-center">
+            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-slate-600 dark:text-slate-300 shadow-sm">
+                Session Feedback
+            </span>
+            <h1 class="mt-4 text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+                Votre avis sur
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-500">
+                    {{ planning.seance }}
+                </span>
+            </h1>
+            <p class="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl mx-auto">
+                Dites-nous ce qui a bien fonctionne et ce qu'on peut ameliorer pour les prochaines seances.
+            </p>
+        </div>
+
+        <div class="rounded-3xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_20px_50px_-20px_rgba(15,23,42,0.45)] p-5 sm:p-7">
+            {{ form_start(form) }}
+                <div class="space-y-2">
+                    {{ form_label(form.feedback, 'Votre feedback', {
+                        label_attr: {
+                            class: 'block text-sm font-semibold text-slate-800 dark:text-slate-200'
+                        }
+                    }) }}
+
+                    {{ form_widget(form.feedback, {
+                        attr: {
+                            class: 'w-full min-h-[180px] rounded-2xl border border-slate-300 dark:border-slate-600 bg-white/95 dark:bg-slate-800 px-4 py-3 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition',
+                            rows: 7,
+                            placeholder: 'Partagez vos impressions...'
+                        }
+                    }) }}
+
+                    {{ form_errors(form.feedback) }}
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button class="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm sm:text-base font-semibold text-white bg-gradient-to-r from-indigo-500 to-fuchsia-600 hover:from-indigo-600 hover:to-fuchsia-700 shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:-translate-y-0.5" type="submit">
+                        Submit your feedback
+                    </button>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</section>
 {% endblock %}

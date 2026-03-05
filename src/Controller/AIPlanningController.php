@@ -32,12 +32,13 @@ class AIPlanningController extends AbstractController
     #[Route('/ai/planning', name: 'app_ai_planning_index')]
     public function index(Request $request): Response
     {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user) {
             return $this->render('ai_planning/index.html.twig', [
                 'planningData' => ['error' => 'User not connected'],
                 'startDate' => '',
                 'endDate' => '',
-                'sessionTypes' => $this->entityManager->getRepository(TypeSeance::class)->findAll()
+                'sessionTypes' => []
             ]);
         }
 
@@ -51,7 +52,12 @@ class AIPlanningController extends AbstractController
             'stats' => null
         ];
 
-        $sessionTypes = $this->entityManager->getRepository(TypeSeance::class)->findAll();
+        $sessionTypes = $this->entityManager->getRepository(TypeSeance::class)->createQueryBuilder('t')
+            ->andWhere('t.user = :user OR t.user IS NULL')
+            ->setParameter('user', $user)
+            ->orderBy('t.name', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         if (!empty($startDate) && !empty($endDate)) {
             try {
@@ -251,4 +257,101 @@ public function acceptSuggestion(Request $request): JsonResponse
         if ($matiereId === null) return $colors[0];
         return $colors[(int)$matiereId % count($colors)];
     }
+    /**
+ * Soumettre un bid (session, exam, day off)
+ */
+#[Route('/ai/planning/submit-bid', name: 'app_ai_planning_submit_bid', methods: ['POST'])]
+    public function submitBid(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        try {
+            $user = $this->getUser();
+            if (!$user) return new JsonResponse(['success' => false, 'error' => 'User not connected'], 401);
+
+            $conn = $this->entityManager->getConnection();
+
+            // Keep original behavior: insert into student_bids
+            if (($data['type'] ?? '') === 'session') {
+                $sql = "INSERT INTO student_bids 
+                        (user_id, type, titre, description, matiere_id, type_seance_id, date_debut, date_fin, priorite, period_start, period_end, status) 
+                        VALUES 
+                        (:user_id, :type, :titre, :description, :matiere_id, :type_seance_id, :date_debut, :date_fin, :priorite, :period_start, :period_end, 'pending')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('user_id', $user->getId());
+                $stmt->bindValue('type', 'session');
+                $stmt->bindValue('titre', $data['titre'] ?? '');
+                $stmt->bindValue('description', $data['description'] ?? '');
+                $stmt->bindValue('matiere_id', $data['matiere_id'] ?? null);
+                $stmt->bindValue('type_seance_id', $data['type_seance_id'] ?? null);
+                $stmt->bindValue('date_debut', $data['date_debut'] ?? null);
+                $stmt->bindValue('date_fin', $data['date_fin'] ?? null);
+                $stmt->bindValue('priorite', $data['priorite'] ?? 'Medium');
+                $stmt->bindValue('period_start', $data['period_start'] ?? null);
+                $stmt->bindValue('period_end', $data['period_end'] ?? null);
+                $stmt->executeStatement();
+            } elseif (($data['type'] ?? '') === 'dayoff') {
+                $sql = "INSERT INTO student_bids 
+                        (user_id, type, titre, description, date_debut, date_fin, priorite, period_start, period_end, status) 
+                        VALUES 
+                        (:user_id, :type, :titre, :description, :date_debut, :date_fin, :priorite, :period_start, :period_end, 'pending')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('user_id', $user->getId());
+                $stmt->bindValue('type', 'dayoff');
+                $stmt->bindValue('titre', $data['titre'] ?? 'Day Off');
+                $stmt->bindValue('description', $data['description'] ?? '');
+                $stmt->bindValue('date_debut', $data['date_debut'] ?? null);
+                $stmt->bindValue('date_fin', $data['date_fin'] ?? null);
+                $stmt->bindValue('priorite', $data['priorite'] ?? 'Medium');
+                $stmt->bindValue('period_start', $data['period_start'] ?? null);
+                $stmt->bindValue('period_end', $data['period_end'] ?? null);
+                $stmt->executeStatement();
+            } else {
+                $sql = "INSERT INTO student_bids 
+                        (user_id, type, titre, description, matiere_id, date_evaluation, duree_evaluation, priorite, note_maximale, period_start, period_end, status) 
+                        VALUES 
+                        (:user_id, :type, :titre, :description, :matiere_id, :date_evaluation, :duree_evaluation, :priorite, :note_maximale, :period_start, :period_end, 'pending')";
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('user_id', $user->getId());
+                $stmt->bindValue('type', 'exam');
+                $stmt->bindValue('titre', $data['titre'] ?? ('Exam - ' . ($data['matiere_nom'] ?? 'Subject')));
+                $stmt->bindValue('description', $data['description'] ?? '');
+                $stmt->bindValue('matiere_id', $data['matiere_id'] ?? null);
+                $stmt->bindValue('date_evaluation', $data['date_evaluation'] ?? null);
+                $stmt->bindValue('duree_evaluation', $data['duree_evaluation'] ?? 120);
+                $stmt->bindValue('priorite', $data['priorite'] ?? 'High');
+                $stmt->bindValue('note_maximale', $data['note_maximale'] ?? 100);
+                $stmt->bindValue('period_start', $data['period_start'] ?? null);
+                $stmt->bindValue('period_end', $data['period_end'] ?? null);
+                $stmt->executeStatement();
+            }
+
+            return new JsonResponse(['success' => true, 'message' => 'Bid submitted successfully']);
+        } catch (\Exception $e) {
+            $this->logger->error('submitBid error: '.$e->getMessage(), ['exception' => $e]);
+            return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 400);
+        }
+    }
+    #[Route('/ai/planning/delete-bid', name: 'app_ai_planning_delete_bid', methods: ['POST'])]
+public function deleteBid(Request $request): JsonResponse
+{
+    try {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'error' => 'User not connected'], 401);
+
+        $data = json_decode($request->getContent(), true);
+        $bidId = $data['bid_id'] ?? null;
+        if (!$bidId) return new JsonResponse(['success' => false, 'error' => 'bid_id required'], 400);
+
+        $conn = $this->entityManager->getConnection();
+        $conn->executeStatement(
+            "DELETE FROM student_bids WHERE id = ? AND user_id = ?",
+            [$bidId, $user->getId()]
+        );
+
+        return new JsonResponse(['success' => true, 'message' => 'Bid deleted']);
+    } catch (\Throwable $e) {
+        $this->logger->error('deleteBid error: '.$e->getMessage(), ['exception' => $e]);
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+}
 }

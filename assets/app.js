@@ -1,4 +1,6 @@
 import './bootstrap.js';
+import * as Turbo from '@hotwired/turbo';
+import '@symfony/ux-turbo';
 /*
  * Welcome to your app's main JavaScript file!
  *
@@ -110,4 +112,13 @@ document.addEventListener('turbo:before-render', (event) => {
 // Expose a single global helper used by Twig templates and inline scripts.
 if (typeof window !== 'undefined') {
     window.initIcons = initializeLucideIconsWithRetry;
+    if (!window.Turbo) {
+        window.Turbo = Turbo;
+    }
+    if (window.Turbo?.session) {
+        window.Turbo.session.drive = true;
+    }
+    if (typeof window.Turbo?.start === 'function') {
+        window.Turbo.start();
+    }
 }

@@ -47,7 +47,39 @@
         })();
     </script>
 </head>
-<body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100" data-turbo="false">
+<body class="h-full font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+      data-turbo="false"
+      data-auth="{{ app.user ? '1' : '0' }}"
+      data-route="{{ app.request.attributes.get('_route') }}">
+    <script>
+        (function () {
+            function checkSessionGate() {
+                try {
+                    var body = document.body;
+                    if (!body) return;
+                    var isAuthed = body.dataset.auth === '1';
+                    var route = body.dataset.route || '';
+                    if (!isAuthed || route === 'app_login') return;
+
+                    var key = 'rlife_browser_session';
+                    var justKey = 'rlife_just_logged_in';
+                    if (!sessionStorage.getItem(key)) {
+                        var justLogged = sessionStorage.getItem(justKey) === '1';
+                        sessionStorage.setItem(key, '1');
+                        sessionStorage.removeItem(justKey);
+                        if (!justLogged) {
+                            window.location.replace('{{ path('app_logout') }}');
+                        }
+                    }
+                } catch (e) {}
+            }
+
+            checkSessionGate();
+            window.addEventListener('pageshow', function (e) {
+                if (e.persisted) checkSessionGate();
+            });
+        })();
+    </script>
     <div class="min-h-screen" data-controller="sidebar">
         <!-- Sidebar -->
         <aside class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full lg:translate-x-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out"

@@ -28,9 +28,14 @@ export default class extends Controller {
     connect() {
         this.loadFromLocalStorage();
         this.applyAllSettings();
+        this.updateThemeButtons();
     }
 
     loadFromLocalStorage() {
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'dark' || currentTheme === 'light') {
+            this.themeValue = currentTheme;
+        }
         const saved = localStorage.getItem('accessibility_settings');
         if (saved) {
             try {
@@ -42,8 +47,13 @@ export default class extends Controller {
                 this.highContrastValue = s.highContrast || false;
                 this.lineHeightValue = s.lineHeight || 'normal';
                 this.letterSpacingValue = s.letterSpacing || 'normal';
-                this.themeValue = s.theme || 'auto';
+                if (!this.themeValue) {
+                    this.themeValue = s.theme || 'auto';
+                }
             } catch (e) {}
+        } else if (!this.themeValue) {
+            // Preserve existing theme choice when opening settings.
+            this.themeValue = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
         }
     }
 
@@ -241,6 +251,16 @@ export default class extends Controller {
     }
 
     applyTheme() {
+        const currentTheme = localStorage.getItem('theme');
+        // If the user already chose dark/light elsewhere, don't override it with "auto".
+        if (this.themeValue === 'auto' && (currentTheme === 'dark' || currentTheme === 'light')) {
+            document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+            return;
+        }
+        // If no stored theme, respect current DOM state instead of forcing light.
+        if (this.themeValue === 'auto' && !currentTheme) {
+            return;
+        }
         localStorage.setItem('theme', this.themeValue);
         if (this.themeValue === 'auto') {
             document.documentElement.classList.toggle('dark', window.matchMedia('(prefers-color-scheme: dark)').matches);

@@ -11,6 +11,9 @@ framework:
 
     session:
         enabled: true
+        cookie_lifetime: 0
+        cookie_secure: auto
+        cookie_samesite: lax
 
     #esi: true
     #fragments: true

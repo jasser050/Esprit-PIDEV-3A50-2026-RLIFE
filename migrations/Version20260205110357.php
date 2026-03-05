@@ -18,7 +18,7 @@ final class Version20260205110357 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
 
-        $this->addSql('CREATE TABLE well_being (
+        $this->addSql('CREATE TABLE IF NOT EXISTS well_being (
             id INT AUTO_INCREMENT NOT NULL,
             entryDate_well DATETIME NOT NULL,
             mood_well VARCHAR(50) NOT NULL,

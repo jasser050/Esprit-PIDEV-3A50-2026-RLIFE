@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Seance;
 use App\Entity\TypeSeance;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +22,7 @@ class SeanceController extends AbstractController
     #[Route('', name: 'app_seance_index', methods: ['GET'])]
     public function index(Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
         $q = trim((string) $request->query->get('q', ''));
         $typeId = (string) $request->query->get('type', '');
 
@@ -32,6 +34,29 @@ class SeanceController extends AbstractController
         $qb = $em->getRepository(Seance::class)->createQueryBuilder('s')
             ->leftJoin('s.typeSeance', 't')
             ->addSelect('t');
+
+        if ($user instanceof User) {
+            $qb->andWhere('s.user = :user')
+               ->setParameter('user', $user);
+        } else {
+            $seances = [];
+            $types = $em->getRepository(TypeSeance::class)->findBy([], ['name' => 'ASC']);
+            return $this->render('pages/seance/index.html.twig', [
+                'seances' => $seances,
+                'types' => $types,
+                'q' => $q,
+                'typeId' => $typeId,
+                'sort' => $sort,
+                'dir' => $dir,
+                'stats' => [
+                    'total' => 0,
+                    'typesTotal' => count($types),
+                    'topTypeName' => null,
+                    'topTypeCount' => 0,
+                    'byType' => [],
+                ],
+            ]);
+        }
 
         // Recherche: titre OU type.name
         if ($q !== '') {
@@ -56,7 +81,12 @@ class SeanceController extends AbstractController
         $qb->orderBy($sortField, strtoupper($dir));
 
         $seances = $qb->getQuery()->getResult();
-        $types = $em->getRepository(TypeSeance::class)->findBy([], ['name' => 'ASC']);
+        $types = $em->getRepository(TypeSeance::class)->createQueryBuilder('t')
+            ->andWhere('t.user = :user OR t.user IS NULL')
+            ->setParameter('user', $user)
+            ->orderBy('t.name', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         // --- Stats (sur les séances affichées) ---
         $total = count($seances);
@@ -99,7 +129,9 @@ class SeanceController extends AbstractController
         $seance->setUser($this->getUser());
 
         // Maintenant vous pouvez utiliser SeanceType::class
-        $form = $this->createForm(\App\Form\SeanceType::class, $seance);
+        $form = $this->createForm(\App\Form\SeanceType::class, $seance, [
+            'user' => $this->getUser(),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -121,8 +153,13 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
     if (!$seance) {
         throw $this->createNotFoundException('Session not found.');
     }
+    if ($seance->getUser() && $this->getUser() && $seance->getUser()->getId() !== $this->getUser()->getId()) {
+        throw $this->createAccessDeniedException();
+    }
 
-    $form = $this->createForm(\App\Form\SeanceType::class, $seance);
+    $form = $this->createForm(\App\Form\SeanceType::class, $seance, [
+        'user' => $this->getUser(),
+    ]);
     $form->handleRequest($request);
 
     if ($form->isSubmitted() && $form->isValid()) {
@@ -145,6 +182,9 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
         if (!$seance) {
             throw $this->createNotFoundException('Session not found.');
         }
+        if ($seance->getUser() && $this->getUser() && $seance->getUser()->getId() !== $this->getUser()->getId()) {
+            throw $this->createAccessDeniedException();
+        }
 
         $token = (string) $request->request->get('_token', '');
         if (!$this->isCsrfTokenValid('delete_seance_' . $id, $token)) {
@@ -161,6 +201,7 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
     #[Route('/export/pdf', name: 'app_seance_export_pdf', methods: ['GET'])]
     public function exportPdf(Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
         $q = trim((string) $request->query->get('q', ''));
         $typeId = (string) $request->query->get('type', '');
         $sort = (string) $request->query->get('sort', 'id');
@@ -170,6 +211,13 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
         $qb = $em->getRepository(Seance::class)->createQueryBuilder('s')
             ->leftJoin('s.typeSeance', 't')
             ->addSelect('t');
+
+        if ($user instanceof User) {
+            $qb->andWhere('s.user = :user')
+               ->setParameter('user', $user);
+        } else {
+            return $this->redirectToRoute('app_seance_index');
+        }
 
         if ($q !== '') {
             $qb->andWhere('LOWER(s.titre) LIKE LOWER(:q) OR LOWER(t.name) LIKE LOWER(:q)')
@@ -229,6 +277,7 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
     #[Route('/print', name: 'app_seance_print', methods: ['GET'])]
     public function print(Request $request, EntityManagerInterface $em): Response
     {
+        $user = $this->getUser();
         $q = trim((string) $request->query->get('q', ''));
         $typeId = (string) $request->query->get('type', '');
         $sort = (string) $request->query->get('sort', 'id');
@@ -238,6 +287,13 @@ public function edit(int $id, Request $request, EntityManagerInterface $em): Res
         $qb = $em->getRepository(Seance::class)->createQueryBuilder('s')
             ->leftJoin('s.typeSeance', 't')
             ->addSelect('t');
+
+        if ($user instanceof User) {
+            $qb->andWhere('s.user = :user')
+               ->setParameter('user', $user);
+        } else {
+            return $this->redirectToRoute('app_seance_index');
+        }
 
         if ($q !== '') {
             $qb->andWhere('LOWER(s.titre) LIKE LOWER(:q) OR LOWER(t.name) LIKE LOWER(:q)')

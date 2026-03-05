@@ -37,7 +37,7 @@ class QrCodeController extends AbstractController
         }
 
         // Token signé HMAC
-        $token = $this->makeToken($deck->getIdDeck());
+        $token = $this->makeToken($deck->getId());
 
         // ✅ Construire l'URL d'import (avec vraie IP réseau)
         $importUrl = $this->buildNetworkUrl($request, $token);
@@ -110,11 +110,11 @@ class QrCodeController extends AbstractController
             throw $this->createAccessDeniedException('Access denied.');
         }
 
-        $token = $this->makeToken($deck->getIdDeck());
+        $token = $this->makeToken($deck->getId());
         $importUrl = $this->buildNetworkUrl($request, $token);
 
         // 🔥 URL du QR Code via notre endpoint
-        $qrCodeUrl = $this->generateUrl('app_qrcode_generate', ['id' => $deck->getIdDeck()], true);
+        $qrCodeUrl = $this->generateUrl('app_qrcode_generate', ['id' => $deck->getId()], true);
 
         // URL de téléchargement haute résolution (via qrserver en fallback)
         $qrDownloadUrl = sprintf(
@@ -190,7 +190,7 @@ class QrCodeController extends AbstractController
 
         if ($existingDeck) {
             $this->addFlash('warning', '⚠️ You already have a copy of this deck.');
-            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $existingDeck->getIdDeck()]);
+            return $this->redirectToRoute('app_revisions_deck_study', ['id' => $existingDeck->getId()]);
         }
 
         // Copier le deck
@@ -229,7 +229,7 @@ class QrCodeController extends AbstractController
             $newDeck->getTitre(), $n, $n > 1 ? 's' : ''
         ));
 
-        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $newDeck->getIdDeck()]);
+        return $this->redirectToRoute('app_revisions_deck_study', ['id' => $newDeck->getId()]);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -250,7 +250,7 @@ class QrCodeController extends AbstractController
         }
 
         return $this->json([
-            'id'              => $deck->getIdDeck(),
+            'id'              => $deck->getId(),
             'titre'           => $deck->getTitre(),
             'matiere'         => $deck->getMatiere(),
             'niveau'          => $deck->getNiveau(),
@@ -275,7 +275,7 @@ class QrCodeController extends AbstractController
             throw $this->createAccessDeniedException('Access denied.');
         }
 
-        $token = $this->makeToken($deck->getIdDeck());
+        $token = $this->makeToken($deck->getId());
         $importUrl = $this->buildNetworkUrl($request, $token);
 
         // Récupérer les couleurs depuis les paramètres GET

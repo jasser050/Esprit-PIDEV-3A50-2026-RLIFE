@@ -4,10 +4,17 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('avatar-climb') }}
+    <script type="module" src="{{ asset('js/avatar-climb-runtime.js') }}"></script>
 {% endblock %}
 
 {% block body %}
+{% set settings = (app.user and app.user.settings) ? app.user.settings : {} %}
+{% set themePreference = settings.themePreference|default('auto') %}
+{% set fontFamily = settings.fontFamily|default('system') %}
+{% set lineHeight = settings.lineHeight|default('normal') %}
+{% set letterSpacing = settings.letterSpacing|default('normal') %}
+{% set reduceMotion = settings.reduceMotion|default(false) %}
+{% set highContrast = settings.highContrast|default(false) %}
 <!-- Avatar Container for Settings Animation -->
 <div id="avatar-container" class="fixed inset-0 z-50 pointer-events-none"></div>
 
@@ -560,16 +567,16 @@
         <!-- Accessibility Settings Section -->
         <div class="relative overflow-hidden bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-600 transition-all group shadow-lg"
              data-controller="accessibility"
-             data-accessibility-font-size-value="{{ app.user.settings.fontSize|default('normal') }}"
-             data-accessibility-font-family-value="{{ app.user.settings.fontFamily|default('system') }}"
-             data-accessibility-accent-color-value="{{ app.user.settings.accentColor|default('#6366f1') }}"
-             data-accessibility-reduce-motion-value="{{ app.user.settings.reduceMotion ? 'true' : 'false' }}"
-             data-accessibility-high-contrast-value="{{ app.user.settings.highContrast ? 'true' : 'false' }}"
-             data-accessibility-line-height-value="{{ app.user.settings.lineHeight|default('normal') }}"
-             data-accessibility-letter-spacing-value="{{ app.user.settings.letterSpacing|default('normal') }}"
-             data-accessibility-zoom-level-value="{{ app.user.settings.zoomLevel|default(100) }}"
-             data-accessibility-language-value="{{ app.user.settings.language|default('en') }}"
-             data-accessibility-theme-value="{{ app.user.settings.themePreference|default('auto') }}"
+             data-accessibility-font-size-value="{{ settings.fontSize|default('normal') }}"
+             data-accessibility-font-family-value="{{ fontFamily|default('system') }}"
+             data-accessibility-accent-color-value="{{ settings.accentColor|default('#6366f1') }}"
+             data-accessibility-reduce-motion-value="{{ reduceMotion ? 'true' : 'false' }}"
+             data-accessibility-high-contrast-value="{{ highContrast ? 'true' : 'false' }}"
+             data-accessibility-line-height-value="{{ lineHeight|default('normal') }}"
+             data-accessibility-letter-spacing-value="{{ letterSpacing|default('normal') }}"
+             data-accessibility-zoom-level-value="{{ settings.zoomLevel|default(100) }}"
+             data-accessibility-language-value="{{ settings.language|default('en') }}"
+             data-accessibility-theme-value="{{ themePreference|default('auto') }}"
              data-accessibility-save-url-value="{{ path('app_settings_accessibility_save') }}">
             <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));">
                 <div class="flex items-center gap-3">
@@ -617,21 +624,21 @@
                     </label>
                     <div class="grid grid-cols-3 gap-3" data-accessibility-target="themeButtons">
                         <button type="button" data-action="click->accessibility#setTheme" data-theme="light" 
-                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'light' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ themePreference == 'light' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center shadow-md">
                                 <i data-lucide="sun" class="w-5 h-5 text-white"></i>
                             </div>
                             <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Light</span>
                         </button>
                         <button type="button" data-action="click->accessibility#setTheme" data-theme="dark"
-                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'dark' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ themePreference == 'dark' ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-md">
                                 <i data-lucide="moon" class="w-5 h-5 text-white"></i>
                             </div>
                             <span class="text-xs font-semibold text-slate-600 dark:text-slate-300">Dark</span>
                         </button>
                         <button type="button" data-action="click->accessibility#setTheme" data-theme="auto"
-                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ app.user.settings.themePreference == 'auto' or not app.user.settings.themePreference ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
+                                class="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-500 transition-all flex flex-col items-center gap-2 {{ themePreference == 'auto' or not themePreference ? 'ring-2 ring-primary-500 ring-offset-2' : '' }}">
                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center shadow-md">
                                 <i data-lucide="monitor" class="w-5 h-5 text-white"></i>
                             </div>
@@ -645,9 +652,9 @@
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
                         <i data-lucide="type" class="w-4 h-4 text-indigo-500"></i>
                         Font Size
-                        <span data-accessibility-target="fontSizePreview" class="ml-auto text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-md font-bold">{{ app.user.settings.fontSize|default('normal')|upper }}</span>
+                        <span data-accessibility-target="fontSizePreview" class="ml-auto text-xs px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-md font-bold">{{ settings.fontSize|default('normal')|upper }}</span>
                     </label>
-                    <input type="range" min="1" max="6" value="{% set fs = app.user.settings.fontSize|default('normal') %}{% if fs == 'xs' %}1{% elseif fs == 'sm' %}2{% elseif fs == 'lg' %}4{% elseif fs == 'xl' %}5{% elseif fs == '2xl' %}6{% else %}3{% endif %}"
+                    <input type="range" min="1" max="6" value="{% set fs = settings.fontSize|default('normal') %}{% if fs == 'xs' %}1{% elseif fs == 'sm' %}2{% elseif fs == 'lg' %}4{% elseif fs == 'xl' %}5{% elseif fs == '2xl' %}6{% else %}3{% endif %}"
                            data-accessibility-target="fontSizeSlider"
                            data-action="input->accessibility#changeFontSize"
                            class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
@@ -671,14 +678,14 @@
                             data-accessibility-target="fontFamilySelect"
                             data-action="change->accessibility#changeFontFamily"
                             class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-                        <option value="system" {{ app.user.settings.fontFamily == 'system' ? 'selected' : '' }}>System Default</option>
-                        <option value="roboto" {{ app.user.settings.fontFamily == 'roboto' ? 'selected' : '' }}>Roboto</option>
-                        <option value="open-sans" {{ app.user.settings.fontFamily == 'open-sans' ? 'selected' : '' }}>Open Sans</option>
-                        <option value="lato" {{ app.user.settings.fontFamily == 'lato' ? 'selected' : '' }}>Lato</option>
-                        <option value="montserrat" {{ app.user.settings.fontFamily == 'montserrat' ? 'selected' : '' }}>Montserrat</option>
-                        <option value="arial" {{ app.user.settings.fontFamily == 'arial' ? 'selected' : '' }}>Arial</option>
-                        <option value="georgia" {{ app.user.settings.fontFamily == 'georgia' ? 'selected' : '' }}>Georgia (Serif)</option>
-                        <option value="opendyslexic" {{ app.user.settings.fontFamily == 'opendyslexic' ? 'selected' : '' }}>OpenDyslexic</option>
+                        <option value="system" {{ fontFamily == 'system' ? 'selected' : '' }}>System Default</option>
+                        <option value="roboto" {{ fontFamily == 'roboto' ? 'selected' : '' }}>Roboto</option>
+                        <option value="open-sans" {{ fontFamily == 'open-sans' ? 'selected' : '' }}>Open Sans</option>
+                        <option value="lato" {{ fontFamily == 'lato' ? 'selected' : '' }}>Lato</option>
+                        <option value="montserrat" {{ fontFamily == 'montserrat' ? 'selected' : '' }}>Montserrat</option>
+                        <option value="arial" {{ fontFamily == 'arial' ? 'selected' : '' }}>Arial</option>
+                        <option value="georgia" {{ fontFamily == 'georgia' ? 'selected' : '' }}>Georgia (Serif)</option>
+                        <option value="opendyslexic" {{ fontFamily == 'opendyslexic' ? 'selected' : '' }}>OpenDyslexic</option>
                     </select>
                     <p class="mt-1.5 text-xs text-slate-500 dark:text-slate-400">OpenDyslexic is designed for readers with dyslexia</p>
                 </div>
@@ -691,7 +698,7 @@
                     </label>
                     <div class="flex flex-col gap-4">
                         <div class="flex flex-wrap gap-3 items-center">
-                            <input type="color" value="{{ app.user.settings.accentColor|default('#6366f1') }}"
+                            <input type="color" value="{{ settings.accentColor|default('#6366f1') }}"
                                    data-accessibility-target="accentColorInput"
                                    data-action="input->accessibility#changeAccentColor"
                                    class="w-12 h-12 rounded-full border-2 border-slate-200 dark:border-slate-700 cursor-pointer bg-transparent">
@@ -741,10 +748,10 @@
                                 data-accessibility-target="lineHeightSelect"
                                 data-action="change->accessibility#changeLineHeight"
                                 class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-                            <option value="compact" {{ app.user.settings.lineHeight == 'compact' ? 'selected' : '' }}>Compact (1.25)</option>
-                            <option value="normal" {{ app.user.settings.lineHeight == 'normal' or not app.user.settings.lineHeight ? 'selected' : '' }}>Normal (1.5)</option>
-                            <option value="relaxed" {{ app.user.settings.lineHeight == 'relaxed' ? 'selected' : '' }}>Relaxed (1.75)</option>
-                            <option value="spacious" {{ app.user.settings.lineHeight == 'spacious' ? 'selected' : '' }}>Spacious (2.0)</option>
+                            <option value="compact" {{ lineHeight == 'compact' ? 'selected' : '' }}>Compact (1.25)</option>
+                            <option value="normal" {{ lineHeight == 'normal' or not lineHeight ? 'selected' : '' }}>Normal (1.5)</option>
+                            <option value="relaxed" {{ lineHeight == 'relaxed' ? 'selected' : '' }}>Relaxed (1.75)</option>
+                            <option value="spacious" {{ lineHeight == 'spacious' ? 'selected' : '' }}>Spacious (2.0)</option>
                         </select>
                     </div>
 
@@ -758,10 +765,10 @@
                                 data-accessibility-target="letterSpacingSelect"
                                 data-action="change->accessibility#changeLetterSpacing"
                                 class="block w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors">
-                            <option value="tight" {{ app.user.settings.letterSpacing == 'tight' ? 'selected' : '' }}>Tight (-0.025em)</option>
-                            <option value="normal" {{ app.user.settings.letterSpacing == 'normal' or not app.user.settings.letterSpacing ? 'selected' : '' }}>Normal (0)</option>
-                            <option value="wide" {{ app.user.settings.letterSpacing == 'wide' ? 'selected' : '' }}>Wide (0.025em)</option>
-                            <option value="wider" {{ app.user.settings.letterSpacing == 'wider' ? 'selected' : '' }}>Wider (0.05em)</option>
+                            <option value="tight" {{ letterSpacing == 'tight' ? 'selected' : '' }}>Tight (-0.025em)</option>
+                            <option value="normal" {{ letterSpacing == 'normal' or not letterSpacing ? 'selected' : '' }}>Normal (0)</option>
+                            <option value="wide" {{ letterSpacing == 'wide' ? 'selected' : '' }}>Wide (0.025em)</option>
+                            <option value="wider" {{ letterSpacing == 'wider' ? 'selected' : '' }}>Wider (0.05em)</option>
                         </select>
                     </div>
                 </div>
@@ -783,7 +790,7 @@
                             <input type="checkbox" 
                                    data-accessibility-target="reduceMotionToggle"
                                    data-action="change->accessibility#toggleReduceMotion"
-                                   {{ app.user.settings.reduceMotion ? 'checked' : '' }}
+                                   {{ reduceMotion ? 'checked' : '' }}
                                    class="sr-only peer">
                             <div class="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:ring-2 peer-focus:ring-indigo-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                         </label>
@@ -804,7 +811,7 @@
                              <input type="checkbox"
                                     data-accessibility-target="highContrastToggle"
                                     data-action="change->accessibility#toggleHighContrast"
-                                    {{ app.user.settings.highContrast ? 'checked' : '' }}
+                                    {{ highContrast ? 'checked' : '' }}
                                     class="sr-only peer">
                              <div class="w-11 h-6 bg-slate-300 dark:bg-slate-600 peer-focus:ring-2 peer-focus:ring-indigo-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
                          </label>
@@ -1065,3 +1072,4 @@ function validateSettingsForm(event) {
 </script>
 
 {% endblock %}
+

@@ -57,126 +57,118 @@
     {% endif %}
 
     <div class="text-center">
-        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r {{ config.badge }} border shadow-[0_0_30px_rgba(45,212,191,0.22)] mb-4">
+        <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 shadow-sm mb-4">
             <span class="text-xl">{{ config.emoji|raw }}</span>
-            <span class="font-bold">{{ quiz.stressLevel|capitalize }} Stress</span>
+            <span class="font-bold text-slate-800 dark:text-slate-100">{{ quiz.stressLevel|capitalize }} Stress</span>
         </div>
-        <h1 class="text-3xl md:text-4xl font-black text-white mb-2">{{ config.title }}</h1>
-        <p class="text-cyan-100/85 mb-3">{{ config.subtitle }}</p>
-        <p class="text-sm text-cyan-200/70">Assessment completed on {{ quiz.quizDate|date('F j, Y') }}</p>
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">{{ config.title }}</h1>
+        <p class="text-slate-600 dark:text-slate-300 mb-3">{{ config.subtitle }}</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Assessment completed on {{ quiz.quizDate|date('F j, Y') }}</p>
     </div>
 
-    <div class="card p-8 text-center relative overflow-hidden border border-cyan-300/25 bg-gradient-to-br from-slate-900/95 via-blue-900/35 to-cyan-900/30 shadow-[0_0_40px_rgba(45,212,191,0.14)]">
-        <div class="absolute -top-14 -left-14 w-48 h-48 rounded-full bg-cyan-300/20 blur-3xl"></div>
-        <div class="absolute -bottom-14 -right-14 w-48 h-48 rounded-full bg-indigo-300/20 blur-3xl"></div>
-        <p class="text-sm text-cyan-100/75 mb-2 relative">Your Stress Score</p>
+    <div class="card p-8 text-center border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Your Stress Score</p>
         <div class="flex items-baseline justify-center gap-2 mb-4 relative">
             <span class="text-6xl font-black {{ score_color }} {{ score_glow }}" style="color: {{ score_hex }}; text-shadow: {{ score_shadow }};">{{ quiz.totalScore }}</span>
-            <span class="text-xl text-cyan-100/70">/ {{ maxScore|default(40) }}</span>
+            <span class="text-xl text-slate-500 dark:text-slate-400">/ {{ maxScore|default(40) }}</span>
         </div>
-        <div class="h-6 bg-slate-800/80 rounded-full overflow-hidden max-w-md mx-auto border border-cyan-300/20 relative">
-            <div class="h-full rounded-full bg-gradient-to-r {{ config.gradient }} shadow-[0_0_20px_rgba(56,189,248,0.45)]" style="width: {{ scorePercent|default(0) }}%"></div>
+        <div class="h-3 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden max-w-md mx-auto">
+            <div class="h-full rounded-full bg-gradient-to-r from-primary-500 to-secondary-500" style="width: {{ scorePercent|default(0) }}%"></div>
         </div>
     </div>
 
-    <div class="card p-6 border border-cyan-300/25 bg-gradient-to-br from-blue-600/22 via-indigo-500/18 to-cyan-500/24 shadow-[0_0_45px_rgba(59,130,246,0.15)]">
-        <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/12 text-cyan-100 flex items-center justify-center border border-cyan-200/35 shadow-[0_0_20px_rgba(103,232,249,0.22)]">
+    <div class="card p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 flex items-center justify-center border border-primary-200 dark:border-primary-700">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
             </div>
             What This Means
         </h3>
-        <p class="text-cyan-50/95 leading-relaxed">{{ quiz.interpretation }}</p>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">{{ quiz.interpretation }}</p>
     </div>
 
-    <div class="card p-6 md:p-7 border border-fuchsia-300/35 bg-gradient-to-br from-indigo-600/35 via-blue-600/28 to-fuchsia-600/34 shadow-[0_0_70px_rgba(167,139,250,0.30)] backdrop-blur-xl relative overflow-hidden">
-        <div class="absolute -top-20 -right-10 w-52 h-52 rounded-full bg-fuchsia-300/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-16 -left-8 w-44 h-44 rounded-full bg-cyan-300/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.28), transparent 35%), radial-gradient(circle at 80% 70%, rgba(45,212,191,0.35), transparent 40%);"></div>
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/12 text-fuchsia-100 flex items-center justify-center border border-fuchsia-200/35 shadow-[0_0_20px_rgba(217,70,239,0.22)]">
+    <div class="card p-6 md:p-7 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm relative overflow-hidden">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-secondary-50 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-300 flex items-center justify-center border border-secondary-200 dark:border-secondary-700">
                 <i data-lucide="shield-star" class="w-5 h-5"></i>
             </div>
             Personalized Recommendations
         </h3>
 
         {% if recommendations|length > 0 %}
-            {% set rec_icons = ['sparkles', 'plus', 'heart', 'zap', 'music-2', 'leaf'] %}
-            <div class="space-y-3 relative z-10">
+            {% set rec_icons = ['sparkles', 'bot', 'brain', 'cpu', 'circuit-board', 'wand-2'] %}
+            <div class="space-y-3">
                 {% for rec in recommendations %}
-                <div class="group rec-item rounded-2xl border border-amber-300/70 bg-gradient-to-r from-cyan-300/45 via-sky-300/40 to-blue-300/45 px-5 py-4 shadow-[0_12px_36px_rgba(56,189,248,0.26)] hover:from-cyan-200/58 hover:to-blue-200/58 hover:border-amber-200/95 hover:shadow-[0_18px_48px_rgba(251,191,36,0.34)] transition-all duration-300 hover:-translate-y-1">
+                <div class="group rec-item rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-5 py-4 shadow-sm hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 hover:-translate-y-1">
                     <div class="flex items-start gap-4">
-                        <div class="w-11 h-11 rounded-xl rec-item-icon bg-slate-900/40 text-amber-100 flex items-center justify-center flex-shrink-0 border border-amber-200/65 group-hover:bg-slate-900/58 transition-colors shadow-[0_0_20px_rgba(15,23,42,0.35)]">
+                        <div class="w-11 h-11 rounded-xl rec-item-icon bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 flex items-center justify-center flex-shrink-0 border border-primary-200 dark:border-primary-700">
                             <i data-lucide="{{ rec_icons[loop.index0 % rec_icons|length] }}" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-extrabold text-white tracking-[0.01em]">{{ rec.title }}</h4>
-                            <p class="text-sm text-slate-950/80 mt-1">{{ rec.content }}</p>
+                            <h4 class="font-extrabold text-slate-900 dark:text-white tracking-[0.01em]">{{ rec.title }}</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">{{ rec.content }}</p>
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-cyan-100/85">No recommendations available yet.</p>
+            <p class="text-slate-600 dark:text-slate-300">No recommendations available yet.</p>
         {% endif %}
     </div>
 
-    <div class="card p-6 border border-indigo-300/30 bg-gradient-to-br from-indigo-700/35 via-slate-800/70 to-cyan-700/30">
+    <div class="card p-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
         <div class="flex items-center justify-between gap-3 mb-3">
-            <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                <i data-lucide="brain" class="w-5 h-5"></i>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
                 Other AI Recommendations
             </h3>
             <button id="load-ai-suggestions"
-                    class="px-4 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-semibold text-sm transition-colors">
+                    class="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-500 text-white font-semibold text-sm transition-colors">
                 Show AI Suggestions
             </button>
         </div>
-        <p id="ai-suggestions-message" class="text-cyan-100/80 text-sm mb-3">
+        <p id="ai-suggestions-message" class="text-slate-600 dark:text-slate-300 text-sm mb-3">
             Click the button to generate extra recommendations adapted to your stress result.
         </p>
         <div id="ai-suggestions-list" class="space-y-3"></div>
     </div>
 
-    <div class="card p-6 md:p-7 border border-cyan-300/35 bg-gradient-to-br from-blue-700/36 via-indigo-700/30 to-violet-700/36 shadow-[0_0_70px_rgba(99,102,241,0.30)] backdrop-blur-xl relative overflow-hidden">
-        <div class="absolute -top-20 left-8 w-44 h-44 rounded-full bg-sky-300/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-20 right-12 w-52 h-52 rounded-full bg-violet-300/20 blur-3xl pointer-events-none"></div>
-        <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(circle at 12% 22%, rgba(56,189,248,0.35), transparent 35%), radial-gradient(circle at 85% 80%, rgba(167,139,250,0.35), transparent 35%);"></div>
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-white/12 text-pink-100 flex items-center justify-center border border-pink-200/35 shadow-[0_0_20px_rgba(244,114,182,0.22)]">
+    <div class="card p-6 md:p-7 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 flex items-center justify-center border border-rose-200 dark:border-rose-700">
                 <i data-lucide="heart" class="w-5 h-5"></i>
             </div>
             Quick Actions
         </h3>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-10">
-            <a href="{{ path('app_wellbeing_checkin_new') }}" data-turbo="false" class="group qa-card qa-daily rounded-2xl border border-cyan-200/55 bg-gradient-to-r from-cyan-300/52 via-teal-300/48 to-emerald-300/52 px-5 py-4 hover:from-cyan-200/65 hover:to-emerald-200/65 transition-all duration-300 shadow-[0_10px_28px_rgba(45,212,191,0.28)] hover:shadow-[0_16px_40px_rgba(45,212,191,0.40)] hover:-translate-y-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <a href="{{ path('app_wellbeing_checkin_new') }}" data-turbo="false" class="group qa-card qa-daily rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-5 py-4 hover:border-emerald-300 dark:hover:border-emerald-600 transition-all duration-300 hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl qa-icon qa-daily-icon bg-teal-400/22 text-teal-100 flex items-center justify-center border border-teal-200/70 group-hover:bg-teal-400/35 transition-colors"><i data-lucide="calendar-plus" class="w-5 h-5"></i></div>
+                    <div class="w-10 h-10 rounded-xl qa-icon qa-daily-icon bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-300 flex items-center justify-center border border-emerald-200 dark:border-emerald-700"><i data-lucide="calendar-plus" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="font-extrabold text-white">Daily Check-in</p>
-                        <p class="text-sm text-slate-950/75">Track your mood & stress</p>
+                        <p class="font-extrabold text-slate-900 dark:text-white">Daily Check-in</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">Track your mood & stress</p>
                     </div>
                 </div>
             </a>
 
-            <a href="{{ path('app_wellbeing_quiz') }}" data-turbo="false" class="group qa-card qa-retake rounded-2xl border border-fuchsia-200/55 bg-gradient-to-r from-fuchsia-300/52 via-violet-300/48 to-purple-300/52 px-5 py-4 hover:from-fuchsia-200/65 hover:to-purple-200/65 transition-all duration-300 shadow-[0_10px_28px_rgba(217,70,239,0.28)] hover:shadow-[0_16px_40px_rgba(217,70,239,0.40)] hover:-translate-y-1">
+            <a href="{{ path('app_wellbeing_quiz') }}" data-turbo="false" class="group qa-card qa-retake rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-5 py-4 hover:border-secondary-300 dark:hover:border-secondary-600 transition-all duration-300 hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl qa-icon qa-retake-icon bg-violet-400/22 text-violet-100 flex items-center justify-center border border-violet-200/70 group-hover:bg-violet-400/35 transition-colors"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></div>
+                    <div class="w-10 h-10 rounded-xl qa-icon qa-retake-icon bg-secondary-50 dark:bg-secondary-900/30 text-secondary-600 dark:text-secondary-300 flex items-center justify-center border border-secondary-200 dark:border-secondary-700"><i data-lucide="rotate-ccw" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="font-extrabold text-white">Retake Quiz</p>
-                        <p class="text-sm text-slate-950/75">Check your progress later</p>
+                        <p class="font-extrabold text-slate-900 dark:text-white">Retake Quiz</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">Check your progress later</p>
                     </div>
                 </div>
             </a>
 
-            <a href="{{ path('app_wellbeing') }}" data-turbo="false" class="group qa-card qa-home rounded-2xl border border-sky-200/55 bg-gradient-to-r from-sky-300/50 via-cyan-300/44 to-indigo-300/50 px-5 py-4 hover:from-sky-200/63 hover:to-indigo-200/63 transition-all duration-300 md:col-span-2 shadow-[0_10px_28px_rgba(56,189,248,0.28)] hover:shadow-[0_16px_40px_rgba(56,189,248,0.39)] hover:-translate-y-1">
+            <a href="{{ path('app_wellbeing') }}" data-turbo="false" class="group qa-card qa-home rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-5 py-4 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-300 md:col-span-2 hover:-translate-y-1">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl qa-icon qa-home-icon bg-blue-400/22 text-blue-100 flex items-center justify-center border border-blue-200/70 group-hover:bg-blue-400/35 transition-colors"><i data-lucide="house" class="w-5 h-5"></i></div>
+                    <div class="w-10 h-10 rounded-xl qa-icon qa-home-icon bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300 flex items-center justify-center border border-primary-200 dark:border-primary-700"><i data-lucide="house" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="font-extrabold text-white">Back to Wellbeing</p>
-                        <p class="text-sm text-slate-950/75">View your dashboard</p>
+                        <p class="font-extrabold text-slate-900 dark:text-white">Back to Wellbeing</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-300">View your dashboard</p>
                     </div>
                 </div>
             </a>
@@ -184,9 +176,9 @@
     </div>
 
     <div class="text-center pb-4">
-        <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-cyan-200/35 bg-gradient-to-r from-cyan-400/35 to-sky-400/35 shadow-[0_0_30px_rgba(56,189,248,0.20)]">
+        <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/80 shadow-sm">
             <span class="text-2xl">{{ config.emoji|raw }}</span>
-            <span class="text-white font-semibold">{{ config.encouragement }}</span>
+            <span class="text-slate-800 dark:text-slate-100 font-semibold">{{ config.encouragement }}</span>
         </div>
     </div>
 </div>
@@ -210,12 +202,23 @@ function renderAiSuggestions(data) {
 
     message.textContent = data.message || 'AI suggestions generated.';
     const recs = Array.isArray(data.recommendations) ? data.recommendations : [];
+    const iconPool = ['sparkles', 'bot', 'brain', 'cpu', 'circuit-board', 'wand-2'];
     list.innerHTML = recs.map((rec) => (
-        `<div class="rounded-xl border border-indigo-300/35 bg-indigo-300/10 p-4">
-            <p class="font-bold text-white">${rec.title ?? 'Suggestion'}</p>
-            <p class="text-sm text-cyan-100/85 mt-1">${rec.content ?? ''}</p>
+        `<div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-4">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-slate-600">
+                    <i data-lucide="${iconPool[Math.floor(Math.random() * iconPool.length)]}" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-slate-900 dark:text-white">${rec.title ?? 'Suggestion'}</p>
+                    <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">${rec.content ?? ''}</p>
+                </div>
+            </div>
         </div>`
     )).join('');
+    if (typeof window.initIcons === 'function') {
+        window.initIcons();
+    }
 }
 
 async function fetchAiSuggestions() {
@@ -252,49 +255,49 @@ document.addEventListener('click', (event) => {
 
 <style>
 .quiz-results-theme .rec-item {
-    border-color: rgba(251, 191, 36, 0.75) !important;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.32), rgba(59, 130, 246, 0.3), rgba(125, 211, 252, 0.28)) !important;
+    border-color: rgba(96, 165, 250, 0.55) !important;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.45), rgba(37, 99, 235, 0.42), rgba(59, 130, 246, 0.4)) !important;
 }
 .quiz-results-theme .rec-item:hover {
-    border-color: rgba(252, 211, 77, 0.95) !important;
-    box-shadow: 0 14px 42px rgba(251, 191, 36, 0.35) !important;
+    border-color: rgba(147, 197, 253, 0.9) !important;
+    box-shadow: 0 14px 42px rgba(59, 130, 246, 0.32) !important;
 }
 .quiz-results-theme .rec-item-icon {
-    border-color: rgba(252, 211, 77, 0.7) !important;
-    color: #fde68a !important;
+    border-color: rgba(191, 219, 254, 0.7) !important;
+    color: #bfdbfe !important;
 }
 
 .quiz-results-theme .qa-card {
     border-width: 1px !important;
-    border-color: rgba(251, 191, 36, 0.75) !important;
+    border-color: rgba(148, 163, 184, 0.45) !important;
 }
 .quiz-results-theme .qa-card:hover {
-    border-color: rgba(252, 211, 77, 0.96) !important;
+    border-color: rgba(94, 234, 212, 0.75) !important;
 }
 .quiz-results-theme .qa-daily {
-    background: linear-gradient(135deg, rgba(45, 212, 191, 0.5), rgba(20, 184, 166, 0.45), rgba(16, 185, 129, 0.45)) !important;
+    background: linear-gradient(135deg, rgba(6, 95, 70, 0.75), rgba(16, 185, 129, 0.5), rgba(20, 184, 166, 0.45)) !important;
 }
 .quiz-results-theme .qa-retake {
-    background: linear-gradient(135deg, rgba(192, 132, 252, 0.5), rgba(168, 85, 247, 0.45), rgba(147, 51, 234, 0.45)) !important;
+    background: linear-gradient(135deg, rgba(88, 28, 135, 0.75), rgba(168, 85, 247, 0.45), rgba(147, 51, 234, 0.45)) !important;
 }
 .quiz-results-theme .qa-home {
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.5), rgba(59, 130, 246, 0.45), rgba(99, 102, 241, 0.45)) !important;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.7), rgba(59, 130, 246, 0.45), rgba(99, 102, 241, 0.4)) !important;
 }
 
 .quiz-results-theme .qa-daily-icon {
-    background: rgba(13, 148, 136, 0.35) !important;
-    border-color: rgba(153, 246, 228, 0.7) !important;
-    color: #ccfbf1 !important;
+    background: rgba(15, 118, 110, 0.45) !important;
+    border-color: rgba(110, 231, 183, 0.7) !important;
+    color: #99f6e4 !important;
 }
 .quiz-results-theme .qa-retake-icon {
-    background: rgba(139, 92, 246, 0.35) !important;
-    border-color: rgba(216, 180, 254, 0.7) !important;
-    color: #f3e8ff !important;
+    background: rgba(124, 58, 237, 0.4) !important;
+    border-color: rgba(196, 181, 253, 0.75) !important;
+    color: #e9d5ff !important;
 }
 .quiz-results-theme .qa-home-icon {
-    background: rgba(59, 130, 246, 0.35) !important;
-    border-color: rgba(147, 197, 253, 0.75) !important;
-    color: #dbeafe !important;
+    background: rgba(37, 99, 235, 0.4) !important;
+    border-color: rgba(191, 219, 254, 0.8) !important;
+    color: #e0f2fe !important;
 }
 </style>
 {% endblock %}

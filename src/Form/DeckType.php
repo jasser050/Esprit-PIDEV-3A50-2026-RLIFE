@@ -15,7 +15,7 @@ class DeckType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $isEdit = $options['data'] && $options['data']->getIdDeck() !== null;
+        $isEdit = $options['data'] && $options['data']->getId() !== null;
 
         $builder
             ->add('titre', TextType::class, [

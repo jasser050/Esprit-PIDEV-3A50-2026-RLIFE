@@ -16,6 +16,7 @@
   --bg-card:        #ffffff;
   --bg-subtle:      #f8faff;
   --bg-muted:       #f0f3fa;
+  --grid-dot:       rgba(79,70,229,0.035);
 
   /* Borders */
   --border-light:   #e4e9f5;
@@ -75,6 +76,39 @@
   --shadow-brand: 0 4px 16px rgba(79,70,229,0.25);
 }
 
+html.dark {
+  --bg-root:        #0b1220;
+  --bg-card:        #0f172a;
+  --bg-subtle:      #101a2f;
+  --bg-muted:       #121c33;
+  --grid-dot:       rgba(148,163,184,0.08);
+
+  --border-light:   #1f2a44;
+  --border-medium:  #2b3858;
+
+  --primary:         #818cf8;
+  --primary-light:   #1b2450;
+  --primary-mid:     #3a4a7a;
+  --secondary:       #c084fc;
+  --rose:           #fb7185;
+  --emerald:        #34d399;
+  --amber:          #fbbf24;
+  --sky:            #38bdf8;
+  --google-green:   #34d399;
+  --danger:         #f87171;
+
+  --text-primary:   #e5e7eb;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
+  --text-brand:     #a5b4fc;
+
+  --shadow-xs:  0 1px 3px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.25);
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.35), 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md:  0 6px 20px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-lg:  0 10px 36px rgba(0,0,0,0.45), 0 4px 14px rgba(0,0,0,0.35);
+  --shadow-brand: 0 6px 20px rgba(129,140,248,0.28);
+}
+
 /* ══ RESET ══ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -94,9 +128,72 @@ body.planning-body::before {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background-image: radial-gradient(circle at 1px 1px, rgba(79,70,229,0.035) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, var(--grid-dot) 1px, transparent 0);
   background-size: 28px 28px;
   pointer-events: none;
+}
+
+/* ══ DARK MODE POLISH ══ */
+html.dark .btn-outline {
+  background: var(--bg-card);
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+html.dark .btn-outline:hover {
+  background: #1a2440;
+  border-color: var(--primary-mid);
+  color: var(--primary);
+}
+html.dark .quote-strip {
+  background: var(--bg-card);
+  border-color: var(--border-light);
+}
+html.dark .alert-feedback {
+  background: rgba(129,140,248,0.12);
+  border-color: rgba(129,140,248,0.35);
+}
+html.dark .alert-conflict {
+  background: rgba(244,63,94,0.12);
+  border-color: rgba(244,63,94,0.35);
+}
+html.dark .alert-chip {
+  background: var(--bg-card);
+  border-color: var(--border-medium);
+  color: var(--primary);
+}
+html.dark .calendar-wrap,
+html.dark .side-card {
+  border-color: var(--border-light);
+}
+html.dark .cal-header {
+  background: var(--bg-subtle);
+  border-color: var(--border-light);
+}
+html.dark .cal-nav-btn {
+  background: var(--bg-card);
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+}
+html.dark .cal-nav-btn:hover {
+  background: #1a2440;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+html.dark .day-cell:not(.empty-cell):hover {
+  background: #111b2d;
+}
+html.dark .day-cell.is-today {
+  background: rgba(129,140,248,0.18);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(129,140,248,0.18);
+}
+html.dark .evt-item:hover {
+  background: #0f172a;
+}
+html.dark .evt-more {
+  background: #1b2448;
+  border-color: #2b3858;
+  color: var(--primary);
 }
 
 /* ══ LAYOUT ══ */
@@ -176,6 +273,33 @@ body.planning-body::before {
   gap: 0.6rem;
   flex-wrap: wrap;
   align-items: center;
+}
+
+/* Clock */
+.clock-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-md);
+  padding: 0.5rem 0.9rem;
+  min-width: 140px;
+  text-align: center;
+  box-shadow: var(--shadow-xs);
+}
+.clock-time {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.clock-date {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.15rem;
 }
 
 /* ══ BUTTONS ══ */
@@ -674,6 +798,98 @@ body.planning-body::before {
   box-shadow: var(--shadow-brand);
 }
 
+/* Dark mode overrides for inline-styled spotlight card */
+html.dark .planning-body .side-card[style] {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+}
+html.dark .planning-body .side-card [style*="background: #f8fafc"] {
+  background: var(--bg-subtle) !important;
+}
+html.dark .planning-body .side-card [style*="background: white"],
+html.dark .planning-body .side-card [style*="background:white"] {
+  background: var(--bg-card) !important;
+}
+html.dark .planning-body .side-card [style*="color: #1e293b"] {
+  color: var(--text-primary) !important;
+}
+html.dark .planning-body .side-card [style*="color: #64748b"] {
+  color: var(--text-muted) !important;
+}
+html.dark .planning-body .side-card img[style*="background: #f8fafc"] {
+  background: var(--bg-subtle) !important;
+}
+html.dark .planning-body #change-team-form {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+}
+html.dark .planning-body #change-team-form select {
+  background: var(--bg-subtle) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-light) !important;
+}
+html.dark .planning-body #change-team-form button[type="button"] {
+  background: var(--bg-muted) !important;
+  color: var(--text-secondary) !important;
+}
+html.dark .planning-body .sidebar-col [style*="background: white"],
+html.dark .planning-body .sidebar-col [style*="background:white"] {
+  background: var(--bg-card) !important;
+}
+html.dark .planning-body .sidebar-col [style*="background: #f8fafc"] {
+  background: var(--bg-subtle) !important;
+}
+html.dark .planning-body .sidebar-col [style*="border: 1px solid #e2e8f0"] {
+  border-color: var(--border-light) !important;
+}
+html.dark .planning-body .sidebar-col [style*="color: #1e293b"] {
+  color: var(--text-primary) !important;
+}
+html.dark .planning-body .sidebar-col [style*="color: #64748b"] {
+  color: var(--text-muted) !important;
+}
+html.dark .planning-body .sidebar-col img[style*="background: #f8fafc"] {
+  background: var(--bg-subtle) !important;
+}
+
+/* Dark mode hardening for main planning surfaces */
+html.dark .planning-body .quote-strip,
+html.dark .planning-body .alert-banner,
+html.dark .planning-body .calendar-wrap,
+html.dark .planning-body .day-cell,
+html.dark .planning-body .side-card,
+html.dark .planning-body .search-section,
+html.dark .planning-body .upcoming-card,
+html.dark .planning-body .stats-card,
+html.dark .planning-body .s-box,
+html.dark .planning-body .s-input,
+html.dark .planning-body .s-btn,
+html.dark .planning-body .up-item,
+html.dark .planning-body .stat-card,
+html.dark .planning-body .cal-header,
+html.dark .planning-body .cal-grid-wrap,
+html.dark .planning-body .evt-item {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-primary) !important;
+}
+html.dark .planning-body .day-cell.is-weekend,
+html.dark .planning-body .cal-header,
+html.dark .planning-body .side-card-head {
+  background: var(--bg-subtle) !important;
+}
+html.dark .planning-body .evt-item:hover {
+  background: var(--bg-subtle) !important;
+}
+html.dark .planning-body .quote-text,
+html.dark .planning-body .alert-sub,
+html.dark .planning-body .evt-time,
+html.dark .planning-body .up-meta,
+html.dark .planning-body .stat-sub,
+html.dark .planning-body .weekday-label {
+  color: var(--text-secondary) !important;
+}
+
 /* ══ SEARCH ══ */
 .search-section {
   padding: 1rem 1.25rem;
@@ -956,6 +1172,15 @@ body.planning-body::before {
 .feedback-pulse {
     animation: feedbackPulse 0.6s ease-in-out;
 }
+/* ══════════════════════════════════════════
+   CONFETTI FEEDBACK
+══════════════════════════════════════════ */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
 
 /* ══════════════════════════════════════════
    MASCOTTE — AMÉLIORÉE
@@ -996,6 +1221,7 @@ body.planning-body::before {
     box-shadow: 0 10px 40px rgba(79, 70, 229, 0.2);
     text-align: center;
     min-width: 220px;
+    width: 220px;
     position: relative;
     border: 3px solid var(--primary);
     transition: all 0.3s ease;
@@ -1068,6 +1294,9 @@ body.planning-body::before {
     position: relative;
     cursor: pointer;
     transition: transform 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mascot-avatar:hover {
@@ -1079,6 +1308,11 @@ body.planning-body::before {
     line-height: 1;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
     transition: all 0.3s ease;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .mascot-avatar:active .mascot-emoji {
@@ -1268,6 +1502,12 @@ body.planning-body::before {
     width: 30px;
     height: 30px;
     font-size: 0.85rem;
+}
+
+/* Fix details frame size (keep avatar + toggle size) */
+#mascotDetails {
+    height: 140px;
+    overflow: hidden;
 }
 
 @media (max-width: 768px) {
@@ -1865,6 +2105,739 @@ body.planning-body::before {
   .cal-header, .cal-grid-wrap { padding: 1rem 1.1rem; }
   .sidebar-col { position: static; }
 }
+/* ══════════════════════════════════════════
+   SMART STUDY-SPORT BALANCE WIDGET
+   Fichier: public/css/smart-balance.css
+══════════════════════════════════════════ */
+
+.smart-sport-card {
+  background: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(124,58,237,0.05));
+  border: 2px solid rgba(79,70,229,0.2);
+  border-radius: var(--r-xl);
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: all 0.3s;
+}
+
+.smart-sport-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(79,70,229,0.1);
+}
+
+.smart-sport-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-md);
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+}
+
+.smart-sport-title-block h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--indigo);
+  margin-bottom: 0.15rem;
+}
+
+.smart-sport-subtitle {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.balance-modes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.mode-btn {
+  padding: 0.6rem 0.5rem;
+  background: white;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-md);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-direction: column;
+}
+
+.mode-btn:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-light);
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+}
+
+.balance-tab {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Team Search */
+.team-search-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.team-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+}
+
+.team-search-input:focus {
+  outline: none;
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.team-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--r-md);
+  margin-top: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  display: none;
+}
+
+.team-search-results.show {
+  display: block;
+}
+
+.team-result-item {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.team-result-item:last-child {
+  border-bottom: none;
+}
+
+.team-result-item:hover {
+  background: var(--indigo-light);
+}
+
+.team-result-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.team-result-info {
+  flex: 1;
+}
+
+.team-result-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.team-result-country {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.sport-type-selector {
+  margin-bottom: 1rem;
+}
+
+.sport-type-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.sport-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.sport-type-btn {
+  padding: 0.6rem;
+  background: white;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sport-type-btn:hover {
+  border-color: var(--indigo);
+  background: var(--indigo-light);
+}
+
+.sport-type-btn.active {
+  background: var(--indigo);
+  color: white;
+  border-color: var(--indigo);
+}
+
+.smart-save-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  border-radius: var(--r-md);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+}
+
+.smart-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(79,70,229,0.4);
+}
+
+/* Favorite Team Display */
+.favorite-team-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 2px solid var(--border-light);
+  border-radius: var(--r-md);
+  margin-bottom: 1rem;
+}
+
+.favorite-team-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.favorite-team-info {
+  flex: 1;
+}
+
+.favorite-team-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.favorite-team-sport {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.change-team-btn {
+  padding: 0.4rem 0.75rem;
+  background: white;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.change-team-btn:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-light);
+}
+
+/* Motivation Message */
+.motivation-message {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  background: rgba(79,70,229,0.05);
+  border: 1.5px dashed rgba(79,70,229,0.3);
+  border-radius: var(--r-md);
+}
+
+.motivation-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.motivation-text {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.motivation-text strong {
+  color: var(--indigo);
+  font-weight: 700;
+}
+
+/* Matches List */
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.match-card {
+  background: white;
+  border: 1.5px solid var(--border-light);
+  border-left: 4px solid var(--indigo);
+  border-radius: var(--r-md);
+  padding: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.match-card:hover {
+  border-left-width: 6px;
+  box-shadow: var(--shadow-sm);
+  transform: translateX(3px);
+}
+
+.match-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.match-date {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.match-time {
+  background: var(--indigo-light);
+  color: var(--indigo);
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.match-teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.match-team {
+  flex: 1;
+  text-align: center;
+}
+
+.match-team-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  margin: 0 auto 0.4rem;
+}
+
+.match-team-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.match-vs {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  padding: 0 0.5rem;
+}
+
+.match-actions {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.match-action-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--r-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: white;
+  color: var(--text-secondary);
+}
+
+.match-action-btn:hover {
+  border-color: var(--indigo);
+  color: var(--indigo);
+  background: var(--indigo-light);
+}
+
+.match-action-btn.primary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+}
+
+.match-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79,70,229,0.3);
+}
+
+.matches-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.loader-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--indigo);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Balance Stats */
+.balance-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: white;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border-light);
+}
+
+.balance-stat-item {
+  text-align: center;
+}
+
+.balance-stat-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.balance-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--indigo);
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.balance-stat-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.balance-stat-divider {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.balance-chart {
+  margin-bottom: 1.25rem;
+}
+
+.balance-bar {
+  height: 32px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  display: flex;
+  border: 2px solid var(--border-light);
+}
+
+.balance-bar-fill {
+  height: 100%;
+  transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: white;
+}
+
+.balance-bar-fill.study {
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+}
+
+.balance-bar-fill.sport {
+  background: linear-gradient(90deg, #10b981, #06b6d4);
+}
+
+.balance-percentages {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.balance-feedback {
+  background: rgba(16,185,129,0.08);
+  border: 1.5px solid rgba(16,185,129,0.3);
+  border-radius: var(--r-md);
+  padding: 1rem;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.feedback-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.feedback-text {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.feedback-text strong {
+  color: var(--emerald);
+  font-weight: 800;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .balance-modes {
+    grid-template-columns: 1fr;
+  }
+  
+  .mode-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+}
+/* ══════════════════════════════════════════
+   MATCH BLOCK — MÊMES DIMENSIONS QUE LES SÉANCES NORMALES
+══════════════════════════════════════════ */
+
+.match-block {
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.15), rgba(124, 58, 237, 0.2));
+  border: 1.5px solid #4f46e5;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: all 0.18s;
+  position: relative;
+  min-height: 38px;  /* MÊME HAUTEUR QUE .evt-item */
+  width: 100%;
+  cursor: pointer;
+  margin-bottom: 0.35rem; /* MÊME ESPACEMENT QUE .evt-item */
+}
+
+/* Dark mode */
+.dark .match-block {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(124, 58, 237, 0.3));
+  border: 1.5px solid #a5b4fc;
+}
+
+.match-block:hover {
+  border-color: #4f46e5;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.25), rgba(124, 58, 237, 0.3));
+  box-shadow: var(--shadow-xs);
+  transform: translateX(2px); /* MÊME EFFET QUE .evt-item */
+}
+
+/* Barre de couleur à gauche - comme les séances normales */
+.match-block::before {
+  content: '';
+  width: 4px;
+  flex-shrink: 0;
+  background: #4f46e5;
+  border-radius: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+/* Contenu - comme les séances normales */
+.match-content {
+  flex: 1;
+  padding: 0.35rem 0.5rem 0.35rem 0.8rem; /* Padding gauche plus grand pour la barre */
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Partie gauche avec émoji et label */
+.match-left {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.match-emoji {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.match-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.1);
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+}
+
+.dark .match-label {
+  color: #a5b4fc;
+  background: rgba(165, 180, 252, 0.15);
+}
+
+/* Partie centrale avec le titre */
+.match-title {
+  font-weight: 600;
+  font-size: 0.72rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+/* Partie droite avec l'heure */
+.match-time {
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(79, 70, 229, 0.08);
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.dark .match-time {
+  background: rgba(165, 180, 252, 0.1);
+  color: #cbd5e1;
+}
+
+/* Pour les matchs avec des noms longs */
+.match-title-long .match-title {
+  font-size: 0.68rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .match-content {
+    padding: 0.25rem 0.4rem 0.25rem 0.7rem;
+    gap: 0.25rem;
+  }
+  
+  .match-emoji {
+    font-size: 0.8rem;
+  }
+  
+  .match-label {
+    font-size: 0.55rem;
+    padding: 0.05rem 0.2rem;
+  }
+  
+  .match-title {
+    font-size: 0.68rem;
+  }
+  
+  .match-time {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.3rem;
+  }
+}
 </style>
 {% endblock %}
 
@@ -1880,6 +2853,10 @@ body.planning-body::before {
       <p class="header-sub">Manage your time, track your sessions, stay ahead.</p>
     </div>
     <div class="header-actions">
+      <div class="clock-card" id="clockCard" aria-live="polite">
+        <div class="clock-time" id="clockTime">--:--</div>
+        <div class="clock-date" id="clockDate">-- --- ----</div>
+      </div>
       <a href="{{ path('app_planning_new') }}" class="btn btn-primary">
         <i data-lucide="plus" style="width:15px;height:15px;"></i>
         Add Event
@@ -1896,12 +2873,10 @@ body.planning-body::before {
         <i data-lucide="calendar-days" style="width:13px;height:13px;"></i>
         Week View
       </a>
-      <!-- AI Planning Button -->
       <a href="{{ path('app_ai_planning_index') }}" class="btn btn-primary btn-sm">
         <i data-lucide="sparkles" style="width:13px;height:13px;"></i>
         AI Planning ✨
       </a>
-      <!-- Fun Mode Button -->
       <button class="btn btn-outline btn-sm" onclick="openTetris()">
         <i data-lucide="gamepad-2" style="width:13px;height:13px;"></i>
         Fun Mode 🎮
@@ -1929,6 +2904,39 @@ body.planning-body::before {
       {% endfor %}
     {% endif %}
   {% endfor %}
+  {# Récupérer les flashes et les passer au JavaScript #}
+{% set feedbackSuccess = app.flashes('feedback_success') %}
+{% if feedbackSuccess|length > 0 %}
+    {% set feedbackValues = app.flashes('feedback_value')|default([]) %}
+    {% set feedbackTitles = app.flashes('feedback_title')|default([]) %}
+    
+    {% for key, message in feedbackSuccess %}
+        {% set feedbackValue = feedbackValues[key] is defined ? feedbackValues[key] : 3 %}
+        {% set feedbackTitle = feedbackTitles[key] is defined ? feedbackTitles[key]|escape('js') : 'Session' %}
+        
+        <div id="feedback-data" 
+             data-value="{{ feedbackValue }}" 
+             data-title="{{ feedbackTitle }}"
+             style="display: none;">
+        </div>
+        
+        {# N'appeler qu'une seule fois #}
+        {% if loop.first %}
+        <script>
+            (function() {
+                const feedbackValue = {{ feedbackValue }};
+                const feedbackTitle = "{{ feedbackTitle|raw }}";
+                
+                setTimeout(function() {
+                    if (typeof showFeedbackFromFlash === 'function') {
+                        showFeedbackFromFlash(feedbackValue, feedbackTitle);
+                    }
+                }, 500);
+            })();
+        </script>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 
   {% if pending_feedback|length > 0 %}
   <div class="alert-banner alert-feedback">
@@ -1966,8 +2974,7 @@ body.planning-body::before {
 
     <!-- ████ CALENDAR ████ -->
     <div class="calendar-wrap">
-
-      <!-- Calendar Header -->
+      <!-- Votre calendrier existant -->
       <div class="cal-header">
         <div class="cal-month-block">
           <div class="cal-month-icon">📅</div>
@@ -1993,31 +3000,26 @@ body.planning-body::before {
         </div>
       </div>
 
-      <!-- Calendar Grid -->
       <div class="cal-grid-wrap">
         <div class="cal-grid">
-
-          <!-- Weekday headers -->
           {% for day in ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] %}
             <div class="weekday-label">{{ day }}</div>
           {% endfor %}
 
-          <!-- Empty cells before month start -->
           {% for i in 1..(first_day_of_week - 1) %}
             <div class="day-cell empty-cell"></div>
           {% endfor %}
 
-          <!-- Day cells -->
           {% for day in 1..days_in_month %}
             {% set date_key  = current_year ~ '-' ~ (current_month < 10 ? '0' ~ current_month : current_month) ~ '-' ~ (day < 10 ? '0' ~ day : day) %}
             {% set day_events = events_by_date[date_key] ?? [] %}
             {% set is_today   = date_key == today %}
             {% set day_off    = day_events|filter(e => e.title|lower == 'day off')|first %}
-            {# Determine if weekend (SAT=6, SUN=0) #}
             {% set dow = (date_key)|date('N') %}
             {% set is_weekend = (dow == 6 or dow == 7) %}
 
             <div class="day-cell {{ is_today ? 'is-today' : '' }} {{ is_weekend and not is_today ? 'is-weekend' : '' }}" data-date="{{ date_key }}">
+              <!-- Contenu de la cellule -->
               <div class="cell-top">
                 <span class="day-num {{ is_today ? 'today-num' : '' }}">{{ day }}</span>
                 {% if day_events|length > 0 and not day_off %}
@@ -2026,58 +3028,77 @@ body.planning-body::before {
               </div>
 
               {% if day_off %}
-                <div class="day-off-block">
-                  <span class="day-off-emoji">🌴</span>
-                  <span class="day-off-label">Day Off</span>
-                </div>
-
-              {% else %}
-                <div class="evt-list">
-                  {% for event in day_events %}
-                    {% set is_google = event.is_google|default(false) %}
-                    {% set evt_color = is_google ? '#34a853' : event.ui.color|default('#4f46e5') %}
-
-                    {% if is_google %}
-                      <div class="evt-item google-evt" style="--evt-color: {{ evt_color }};" title="{{ event.title }} (Google Calendar — read only)">
-                    {% else %}
-                      <a href="{{ path('app_planning_edit', {id: event.id}) }}" class="evt-item" style="--evt-color: {{ evt_color }};" title="{{ event.title }}">
-                    {% endif %}
-
-                      <div class="evt-color-bar" style="background: {{ evt_color }};"></div>
-
-                      <div class="evt-content">
-                        <div class="evt-time {{ is_google ? 'google-time' : '' }}">
-                          {% if is_google %}
-                            <i data-lucide="chrome" style="width:8px;height:8px;"></i>
-                          {% else %}
-                            <i data-lucide="clock" style="width:8px;height:8px;"></i>
-                          {% endif %}
-                          {{ event.start_time }}{% if event.end_time %}–{{ event.end_time }}{% endif %}
-                        </div>
-                        <span class="evt-name">{{ event.title }}</span>
-                      </div>
-
-                      {% if not is_google and event.feedback is not null %}
-                        <div class="evt-feedback-icon">
-                          {% if event.feedback == 1 %}😡
-                          {% elseif event.feedback == 2 %}😕
-                          {% elseif event.feedback == 3 %}😐
-                          {% elseif event.feedback == 4 %}🙂
-                          {% else %}🤩{% endif %}
-                        </div>
-                      {% endif %}
-
-                    {% if is_google %}</div>{% else %}</a>{% endif %}
-                  {% endfor %}
-
-                  {% if day_events|length == 0 %}
-                    <div class="cell-empty-hint"><span>·</span></div>
-                  {% endif %}
-                </div>
-              {% endif %}
+  {# DAY OFF - inchangé #}
+  <div class="day-off-block">
+    <span class="day-off-emoji">🌴</span>
+    <span class="day-off-label">Day Off</span>
+  </div>
+{% else %}
+  <div class="evt-list">
+    {% for event in day_events %}
+      {% set is_google = event.is_google|default(false) %}
+      {# Détection des matchs #}
+      {% set is_match = event.title|lower == 'match' or 'match' in event.title|lower or ' vs ' in event.title|lower %}
+      {% set evt_color = is_google ? '#34a853' : (is_match ? '#4f46e5' : event.ui.color|default('#4f46e5')) %}
+      
+      {# SI C'EST UN MATCH - DESIGN AUX MÊMES DIMENSIONS #}
+      {% if is_match %}
+        <div class="match-block" onclick="window.location.href='{{ path('app_planning_edit', {id: event.id}) }}'">
+          <div class="match-content">
+            <div class="match-left">
+              <span class="match-emoji">⚽</span>
+              <span class="match-label">MATCH</span>
+            </div>
+            <span class="match-title">{{ event.title }}</span>
+            <span class="match-time">{{ event.start_time }}</span>
+          </div>
+        </div>
+      
+      {# SINON SI C'EST GOOGLE #}
+      {% elseif is_google %}
+        <div class="evt-item google-evt" style="--evt-color: {{ evt_color }};" title="{{ event.title }} (Google Calendar — read only)">
+          <div class="evt-color-bar" style="background: {{ evt_color }};"></div>
+          <div class="evt-content">
+            <div class="evt-time google-time">
+              <i data-lucide="chrome" style="width:8px;height:8px;"></i>
+              {{ event.start_time }}{% if event.end_time %}–{{ event.end_time }}{% endif %}
+            </div>
+            <span class="evt-name">{{ event.title }}</span>
+          </div>
+        </div>
+      
+      {# SINON - DESIGN NORMAL #}
+      {% else %}
+        <a href="{{ path('app_planning_edit', {id: event.id}) }}" class="evt-item" style="--evt-color: {{ evt_color }};" title="{{ event.title }}">
+          <div class="evt-color-bar" style="background: {{ evt_color }};"></div>
+          <div class="evt-content">
+            <div class="evt-time">
+              <i data-lucide="clock" style="width:8px;height:8px;"></i>
+              {{ event.start_time }}{% if event.end_time %}–{{ event.end_time }}{% endif %}
+            </div>
+            <span class="evt-name">{{ event.title }}</span>
+          </div>
+          
+          {% if event.feedback is not null %}
+            <div class="evt-feedback-icon">
+              {% if event.feedback == 1 %}😡
+              {% elseif event.feedback == 2 %}😕
+              {% elseif event.feedback == 3 %}😐
+              {% elseif event.feedback == 4 %}🙂
+              {% else %}🤩{% endif %}
+            </div>
+          {% endif %}
+        </a>
+      {% endif %}
+    {% endfor %}
+    
+    {% if day_events|length == 0 %}
+      <div class="cell-empty-hint"><span>·</span></div>
+    {% endif %}
+  </div>
+{% endif %}
             </div>
           {% endfor %}
-
         </div>
       </div>
     </div>
@@ -2085,6 +3106,102 @@ body.planning-body::before {
 
     <!-- ████ SIDEBAR ████ -->
     <div class="sidebar-col">
+
+      <!-- ══ MATCH SPOTLIGHT — Version compacte ══ -->
+      {% if favorite_team is defined and favorite_team and favorite_team.teamApiId is defined %}
+  <div class="side-card" style="border-left: 4px solid #4f46e5; overflow: visible;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; background: linear-gradient(135deg, #4f46e5, #7c3aed);">
+      <div style="background: rgba(255,255,255,0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem;">⚽</div>
+      <div style="color: white;">
+        <div style="font-size: 0.7rem; opacity: 0.9;">MATCH SPOTLIGHT</div>
+        <strong style="font-size: 0.95rem;">{{ favorite_team.teamName|default('My Team') }}</strong>
+      </div>
+      <button onclick="document.getElementById('change-team-form').style.display='block';"
+              style="margin-left: auto; background: rgba(255,255,255,0.2); border: none; color: white; padding: 4px 10px; border-radius: 999px; font-size: 0.7rem; cursor: pointer;">
+        Modify
+      </button>
+    </div>
+
+    <div style="padding: 1.25rem;">
+      {% if next_match %}
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <div style="text-align: center; width: 80px;">
+            <img src="https://crests.football-data.org/{{ favorite_team.teamApiId }}.png"
+                 alt="{{ next_match.home_team|default('Home') }}"
+                 onerror="this.src='https://via.placeholder.com/50/4f46e5/ffffff?text={{ next_match.home_team|default('H')|slice(0,1) }}'"
+                 style="width: 50px; height: 50px; object-fit: contain; border-radius: 10px; background: #f8fafc; padding: 4px;">
+            <div style="font-size: 0.7rem; font-weight: 600; margin-top: 0.2rem;">{{ next_match.home_team }}</div>
+          </div>
+          <div style="font-size: 1rem; font-weight: 800; color: #4f46e5;">VS</div>
+          <div style="text-align: center; width: 80px;">
+            <img src="https://crests.football-data.org/{{ next_match.away_team_id ?? '94' }}.png"
+                 alt="{{ next_match.away_team|default('Away') }}"
+                 onerror="this.src='https://via.placeholder.com/50/4f46e5/ffffff?text={{ next_match.away_team|default('A')|slice(0,1) }}'"
+                 style="width: 50px; height: 50px; object-fit: contain; border-radius: 10px; background: #f8fafc; padding: 4px;">
+            <div style="font-size: 0.7rem; font-weight: 600; margin-top: 0.2rem;">{{ next_match.away_team }}</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 1rem;">
+          <div style="font-size: 0.8rem; font-weight: 600; color: #1e293b;">
+            {{ next_match.date|date('d M Y · H:i') }}
+          </div>
+          <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.1rem;">
+            {{ next_match.competition }}
+          </div>
+        </div>
+
+        <form method="post" action="{{ path('app_planning_add_match') }}">
+          <input type="hidden" name="title" value="{{ next_match.home_team }} vs {{ next_match.away_team }}">
+          <input type="hidden" name="date" value="{{ next_match.date|date('Y-m-d') }}">
+          <input type="hidden" name="start_time" value="{{ next_match.date|date('H:i:s') }}">
+          <input type="hidden" name="end_time" value="{{ next_match.date|date_modify('+2 hours')|date('H:i:s') }}">
+
+          <button type="submit"
+                  style="width: 100%; background: #4f46e5; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer;">
+            ➕ Add this match to my schedule
+          </button>
+        </form>
+      {% else %}
+        <p style="text-align: center; color: #64748b; padding: 1rem 0; font-size: 0.8rem;">
+          No match scheduled
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div id="change-team-form" style="display: none; margin-top: 0.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <form method="post" action="{{ path('app_set_favorite_team') }}">
+      <select name="team_id" id="teamSelect" style="width:100%; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem;" required>
+        <option value="">Choose a team...</option>
+        <option value="65" data-name="Manchester City">Manchester City</option>
+        <option value="66" data-name="Manchester United">Manchester United</option>
+        <option value="57" data-name="Arsenal">Arsenal</option>
+        <option value="64" data-name="Liverpool">Liverpool</option>
+        <option value="61" data-name="Chelsea">Chelsea</option>
+        <option value="81" data-name="Barcelona">Barcelona</option>
+        <option value="529" data-name="PSG">PSG</option>
+        <option value="86" data-name="Real Madrid">Real Madrid</option>
+        <option value="73" data-name="Tottenham">Tottenham Hotspur</option>
+        <option value="78" data-name="Atlético">Atlético de Madrid</option>
+      </select>
+      <input type="hidden" name="team_name" id="teamNameHidden" value="">
+      <div style="display: flex; gap: 10px; margin-top: 1rem;">
+        <button type="submit" style="flex: 1; background: #4f46e5; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 0.75rem;">Submit</button>
+        <button type="button" onclick="document.getElementById('change-team-form').style.display='none'" style="flex: 1; background: #e2e8f0; border: none; padding: 8px; border-radius: 6px; font-weight: 600; font-size: 0.75rem;">Cancel</button>
+      </div>
+    </form>
+  </div>
+{% else %}
+  <div class="side-card" style="padding: 1rem; text-align: center;">
+    <p style="color: #64748b; font-size: 0.8rem;">Aucune équipe favorite</p>
+    <button onclick="document.getElementById('change-team-form').style.display='block';"
+            style="margin-top: 0.5rem; background: #4f46e5; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 0.75rem; cursor: pointer;">
+      Choose a team
+    </button>
+  </div>
+  <div id="change-team-form" style="display: none; margin-top: 0.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px;"></div>
+{% endif %}
 
       <!-- Upcoming Events -->
       <div class="side-card">
@@ -2199,7 +3316,7 @@ body.planning-body::before {
       </div>
 
     </div>
-    <!-- end sidebar -->
+    <!-- end sidebar-col -->
   </div>
   <!-- end main-layout -->
 
@@ -2210,7 +3327,7 @@ body.planning-body::before {
   </div>
   {% endif %}
 
-  <!-- ══ MASCOTTE AMÉLIORÉE ══ -->
+  <!-- ══ MASCOTTE ══ -->
   <div class="mascot-container" id="mascotContainer">
     <div class="mascot-card" id="mascotCard">
       <button class="mascot-toggle-btn" onclick="toggleMascot(event)" title="Minimize">
@@ -2261,16 +3378,15 @@ body.planning-body::before {
     </div>
   </div>
 
-  <!-- ══ TETRIS MODAL AMÉLIORÉ ══ -->
+  <!-- ══ TETRIS MODAL ══ -->
   <div id="tetrisModal" class="tetris-modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Tetris des Tâches">
     <div class="tetris-modal">
-
       <div class="tetris-header">
         <div class="tetris-header-left">
           <div class="tetris-logo">🎮</div>
           <div>
-            <div class="tetris-title">Tetris des Tâches</div>
-            <div class="tetris-sub">Place chaque séance sur son jour spécifique !</div>
+            <div class="tetris-title">Task Tetris</div>
+            <div class="tetris-sub">Place each session on its specific day !</div>
           </div>
         </div>
         <button class="tetris-close" onclick="closeTetris()" title="Fermer">&times;</button>
@@ -2286,41 +3402,40 @@ body.planning-body::before {
           <div class="hud-value" id="t-combo">x1</div>
         </div>
         <div class="hud-block">
-          <div class="hud-label">📅 Placés</div>
+          <div class="hud-label">📅 Placed</div>
           <div class="hud-value" id="t-placed">0</div>
         </div>
         <div class="hud-block hud-timer">
-          <div class="hud-label">⏱ Temps</div>
+          <div class="hud-label">⏱ Time</div>
           <div class="hud-value" id="t-timer">02:00</div>
         </div>
         <div class="hud-block">
-          <div class="hud-label">❤️ Vies</div>
+          <div class="hud-label">❤️ Lives</div>
           <div class="hud-value" id="t-lives">3</div>
         </div>
       </div>
 
       <div class="tetris-game-area">
-
         <div class="tetris-queue-panel">
-          <div class="queue-title">📋 File d'attente</div>
+          <div class="queue-title">📋 Stand by list</div>
           <div id="t-queue" class="queue-list"></div>
           <div class="queue-hint">
-            <div>Clique sur un événement</div>
-            <div>puis sur le bon jour</div>
-            <div style="color:#fbbf24; margin-top:5px;">⚠️ Jour imposé !</div>
+            <div>Click on an event</div>
+            <div>then on the right day</div>
+            <div style="color:#fbbf24; margin-top:5px;">⚠️ Mandatory day !</div>
           </div>
         </div>
 
         <div class="tetris-board-wrap">
           <div class="board-label-row">
             <div class="board-corner"></div>
-            <div class="day-col-label" data-day="1">LUN</div>
-            <div class="day-col-label" data-day="2">MAR</div>
-            <div class="day-col-label" data-day="3">MER</div>
-            <div class="day-col-label" data-day="4">JEU</div>
-            <div class="day-col-label" data-day="5">VEN</div>
-            <div class="day-col-label" data-day="6">SAM</div>
-            <div class="day-col-label" data-day="7">DIM</div>
+            <div class="day-col-label" data-day="1">MON</div>
+            <div class="day-col-label" data-day="2">TUE</div>
+            <div class="day-col-label" data-day="3">WED</div>
+            <div class="day-col-label" data-day="4">THU</div>
+            <div class="day-col-label" data-day="5">FRI</div>
+            <div class="day-col-label" data-day="6">SAT</div>
+            <div class="day-col-label" data-day="7">SUN</div>
           </div>
           <div class="board-scroll">
             <div id="t-board" class="tetris-board"></div>
@@ -2329,40 +3444,37 @@ body.planning-body::before {
 
         <div class="tetris-info-panel">
           <div class="info-section">
-            <div class="info-title">🎯 Prochain</div>
+            <div class="info-title">🎯 Next</div>
             <div id="t-next-card" class="next-card"></div>
           </div>
           <div class="info-section">
-            <div class="info-title">📖 Règles</div>
+            <div class="info-title">📖 Rules</div>
             <div class="rules-list">
-              <div class="rule-item">✅ Place sur le bon jour <strong>+100pts × durée</strong></div>
-              <div class="rule-item">💥 Mauvais jour <strong>-1 vie</strong></div>
-              <div class="rule-item">🌟 Ligne complète <strong>+500pts</strong></div>
-              <div class="rule-item">⚡ Jour de repos interdit</div>
-              <div class="rule-item">🎯 Bonus rapidité</div>
+              <div class="rule-item">✅ Place on the correct day <strong>+100pts × duration</strong></div>
+              <div class="rule-item">💥 Bad day <strong>-1 life</strong></div>
+              <div class="rule-item">🌟 Complete line <strong>+500pts</strong></div>
+              <div class="rule-item">⚡ Prohibited rest day</div>
             </div>
           </div>
           <div class="info-section">
             <div class="info-title">🏆 Best</div>
             <div id="t-best" class="best-score">0</div>
           </div>
-          <button class="btn-restart" onclick="restartTetris()">🔄 Rejouer</button>
+          <button class="btn-restart" onclick="restartTetris()">🔄 Replay</button>
         </div>
-
       </div>
 
       <div id="t-message" class="tetris-message" style="display:none;">
         <div class="t-msg-box">
           <div id="t-msg-icon" class="t-msg-icon">🏆</div>
-          <div id="t-msg-title" class="t-msg-title">Partie terminée !</div>
+          <div id="t-msg-title" class="t-msg-title">Game over !</div>
           <div id="t-msg-body" class="t-msg-body"></div>
           <div class="t-msg-actions">
-            <button class="btn-msg-play" onclick="restartTetris()">🎮 Rejouer</button>
-            <button class="btn-msg-close" onclick="closeTetris()">✖ Fermer</button>
+            <button class="btn-msg-play" onclick="restartTetris()">🎮 Replay</button>
+            <button class="btn-msg-close" onclick="closeTetris()">✖ Close</button>
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -2406,7 +3518,7 @@ function showFeedbackAnimation(eventId, feedbackValue, eventTitle) {
         <div class="feedback-toast-content" style="background: ${fb.bgColor}; border-left: 4px solid ${fb.color};">
             <div class="feedback-toast-emoji" style="color: ${fb.color};">${fb.emoji}</div>
             <div class="feedback-toast-text">
-                <div class="feedback-toast-title">Feedback enregistré !</div>
+                <div class="feedback-toast-title">Feedback submited !</div>
                 <div class="feedback-toast-subtitle">"${eventTitle}" - ${fb.message}</div>
             </div>
         </div>
@@ -2438,22 +3550,22 @@ const mascotStates = {
         "Every journey begins with a single step!",
         "You're doing great!"
     ]},
-    growing: { emoji: '🐥', name: 'Growing Planner', level: 2, minStreak: 4, messages: [
+    growing: { emoji: '🐥', name: 'Growing Planner', level: 2, minStreak: 2, messages: [
         "You're getting the hang of it! 🌱",
         "Keep this momentum going!",
         "I'm growing with you!"
     ]},
-    confident: { emoji: '🐤', name: 'Confident Planner', level: 3, minStreak: 8, messages: [
+    confident: { emoji: '🐤', name: 'Confident Planner', level: 3, minStreak: 4, messages: [
         "Wow! You're on fire! 🚀",
         "Your consistency is impressive!",
         "We're crushing it together!"
     ]},
-    expert: { emoji: '🦜', name: 'Expert Planner', level: 4, minStreak: 15, messages: [
+    expert: { emoji: '🦜', name: 'Expert Planner', level: 4, minStreak: 6, messages: [
         "You're a planning master! 🏆",
         "Incredible streak! Keep flying!",
         "I'm so proud of you!"
     ]},
-    master: { emoji: '🦅', name: 'Master Planner', level: 5, minStreak: 30, messages: [
+    master: { emoji: '🦅', name: 'Master Planner', level: 5, minStreak: 8, messages: [
         "Legendary status! 🌟",
         "You're unstoppable!",
         "Together we conquer everything!"
@@ -2470,9 +3582,9 @@ function saveMascotStats(streak, avgFeedback) {
         localStorage.setItem('mascot_streak', streak);
         localStorage.setItem('mascot_avg_feedback', avgFeedback || '');
         localStorage.setItem('mascot_last_update', Date.now().toString());
-        console.log('Stats mascotte sauvegardées:', { streak, avgFeedback });
+        console.log('Saved mascot stats:', { streak, avgFeedback });
     } catch(e) {
-        console.error('Erreur sauvegarde mascotte:', e);
+        console.error('Mascot save error:', e);
     }
 }
 
@@ -2484,17 +3596,17 @@ function loadMascotStats() {
         
         // Si la dernière mise à jour date de plus de 24h, réinitialiser
         if (Date.now() - lastUpdate > 24 * 60 * 60 * 1000) {
-            console.log('Stats mascotte expirées (24h)');
+            console.log('Expired mascot stats (24h)');
             return { streak: 0, avgFeedback: null };
         }
         
-        console.log('Stats mascotte chargées:', { streak, avgFeedback });
+        console.log('Mascot stats loaded:', { streak, avgFeedback });
         return { 
             streak: streak, 
             avgFeedback: avgFeedback ? parseFloat(avgFeedback) : null 
         };
     } catch(e) {
-        console.error('Erreur chargement mascotte:', e);
+        console.error('Error loading mascot:', e);
         return { streak: 0, avgFeedback: null };
     }
 }
@@ -2504,7 +3616,7 @@ function calculateStats() {
         const eventsData = {{ events_by_date|json_encode|raw }};
         const today = "{{ today }}";
         
-        console.log('=== Calcul des statistiques ===');
+        console.log('=== Stats ===');
         console.log('Events data:', eventsData);
         console.log('Today:', today);
         
@@ -2528,20 +3640,20 @@ function calculateStats() {
                 const dayOff = events.filter(e => e.title && e.title.toLowerCase() === 'day off');
                 
                 if (dayOff.length > 0) {
-                    console.log('Jour de repos (Day Off) trouvé à:', dateStr, '- Arrêt du streak');
+                    console.log('Rest day (Day Off) found at:', dateStr, '- End of streak');
                     break;
                 }
                 
                 // Jour normal avec des séances
                 streak++;
-                console.log('Jour avec événements:', dateStr, 'streak:', streak);
+                console.log('Day with events:', dateStr, 'streak:', streak);
                 
                 // Compter les feedbacks pour ce jour
                 events.forEach(event => {
                     if (event.feedback && !isNaN(event.feedback) && event.feedback > 0) {
                         feedbackSum += parseInt(event.feedback);
                         feedbackCount++;
-                        console.log('Feedback trouvé:', event.feedback, 'pour', event.title);
+                        console.log('Feedback found:', event.feedback, 'for', event.title);
                     }
                 });
                 
@@ -2550,29 +3662,29 @@ function calculateStats() {
                 daysChecked++;
             } else {
                 // Jour sans événements, on arrête
-                console.log('Jour sans événements:', dateStr, '- Arrêt du streak');
+                console.log('Day without events:', dateStr, '- End of streak');
                 break;
             }
         }
         
         const avgFeedback = feedbackCount > 0 ? (feedbackSum / feedbackCount).toFixed(1) : null;
         
-        console.log('Résultat final - Streak:', streak, 'Moyenne feedback:', avgFeedback, 'Nombre feedbacks:', feedbackCount);
-        console.log('=== Fin calcul ===');
+        console.log('Final result - Streak:', streak, 'Average feedback:', avgFeedback, 'Number feedbacks:', feedbackCount);
+        console.log('=== End calculation ===');
         
         // Sauvegarder dans localStorage
         saveMascotStats(streak, avgFeedback);
         
         return { streak, avgFeedback };
     } catch (error) {
-        console.error('Erreur calcul stats:', error);
+        console.error('Eror calculation stats:', error);
         // En cas d'erreur, essayer de charger depuis localStorage
         return loadMascotStats();
     }
 }
 
 function getNextLevelStreak(currentLevel) {
-    const levels = [0, 4, 8, 15, 30];
+    const levels = [0, 2, 4, 6, 8];
     return levels[currentLevel] || null;
 }
 
@@ -2589,7 +3701,7 @@ function addSparkles() {
 }
 
 function updateMascot() {
-    console.log('=== MISE À JOUR MASCOTTE ===');
+    console.log('=== UPDATE MASCOT ===');
     try {
         const { streak, avgFeedback } = calculateStats();
         console.log('Stats calculées:', { streak, avgFeedback });
@@ -2606,7 +3718,7 @@ function updateMascot() {
         const mascotSparkles = document.getElementById('mascotSparkles');
         
         if (!mascotEmoji || !mascotLevel || !mascotName || !streakDays) {
-            console.error('Éléments mascotte non trouvés');
+            console.error('CAN NOT FIND ANY EVENT');
             return;
         }
         
@@ -2619,7 +3731,7 @@ function updateMascot() {
             }
         }
         
-        console.log('État déterminé:', state.name);
+        console.log('State determined:', state.name);
         
         // Update UI
         mascotEmoji.textContent = state.emoji;
@@ -2665,17 +3777,17 @@ function updateMascot() {
         }
         
         // Sparkles for high performers
-        if (streak >= 7 || (avgFeedback !== null && avgFeedback >= 4)) {
+        if (streak >= 3 || (avgFeedback !== null && avgFeedback >= 4)) {
             addSparkles();
         } else if (mascotSparkles) {
             mascotSparkles.innerHTML = '';
         }
         
-        console.log('Mascotte mise à jour avec succès');
+        console.log('Mascot successfully updated');
     } catch (error) {
-        console.error('Erreur mise à jour mascotte:', error);
+        console.error('Mascot update error:', error);
     }
-    console.log('=== FIN MISE À JOUR ===');
+    console.log('=== Mascot update complete ===');
 }
 
 function pulseMascot() {
@@ -2741,7 +3853,7 @@ const DAYS = 7;
 const GAME_DURATION = 120; // 2 minutes
 const BASE_PTS = 100;
 
-const DAY_NAMES = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'];
+const DAY_NAMES = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 // Palette de couleurs
 const PALETTE = [
@@ -2761,7 +3873,7 @@ let gameState = {
 function scrapeEventsFromDOM() {
   const eventsData = {{ events_by_date|json_encode|raw }};
   
-  console.log('Données brutes du calendrier:', eventsData);
+  console.log('DATA FROM CALENDAR:', eventsData);
   
   // Collecter tous les événements valides
   const allEvents = [];
@@ -2887,8 +3999,8 @@ function scrapeEventsFromDOM() {
   // MÉLANGE ALEATOIRE - randomiser l'ordre des événements à chaque partie
   const shuffled = allEvents.sort(() => Math.random() - 0.5);
   
-  console.log('Événements pour le jeu (aléatoire):', shuffled.map(e => 
-    `${e.name} - ${e.originalDay} ${e.originalTime} (${e.duration} créneaux)`
+  console.log('Events for the game (random):', shuffled.map(e => 
+    `${e.name} - ${e.originalDay} ${e.originalTime} (${e.duration} slots)`
   ));
   
   return shuffled.slice(0, 12); // Limiter à 12 événements
@@ -2994,7 +4106,7 @@ function onCellHover(cell, row, col) {
   if (gameState.selectedEvent.dayIndex !== col) {
     cell.classList.add('t-cell-highlight');
     cell.style.borderColor = '#ef4444';
-    cell.title = `❌ Mauvais jour ! (${DAY_NAMES[col]} au lieu de ${DAY_NAMES[gameState.selectedEvent.dayIndex]})`;
+    cell.title = `❌ Bad day ! (${DAY_NAMES[col]} instead of ${DAY_NAMES[gameState.selectedEvent.dayIndex]})`;
     return;
   }
   
@@ -3005,7 +4117,7 @@ function onCellHover(cell, row, col) {
   if (row !== expectedRow) {
     cell.classList.add('t-cell-highlight');
     cell.style.borderColor = '#ef4444';
-    cell.title = `❌ Mauvaise heure ! Attendue: ${gameState.selectedEvent.originalTime}`;
+    cell.title = `❌ Bad timing ! Expected: ${gameState.selectedEvent.originalTime}`;
     return;
   }
   
@@ -3014,7 +4126,7 @@ function onCellHover(cell, row, col) {
     if (c) {
       c.classList.add('t-cell-highlight');
       c.style.borderColor = '#fbbf24';
-      c.title = `✅ Bon emplacement pour ${gameState.selectedEvent.name}`;
+      c.title = `✅ Good location for ${gameState.selectedEvent.name}`;
     }
   }
 }
@@ -3031,14 +4143,14 @@ function onCellClick(row, col) {
   
   // Vérifier le jour
   if (gameState.selectedEvent.dayIndex !== col) {
-    showConflict(`❌ Mauvais jour ! (${DAY_NAMES[col]} au lieu de ${DAY_NAMES[gameState.selectedEvent.dayIndex]})`);
+    showConflict(`❌ Bad day ! (${DAY_NAMES[col]} instead of ${DAY_NAMES[gameState.selectedEvent.dayIndex]})`);
     loseLife();
     return;
   }
   
   // Vérifier l'heure
   if (row !== gameState.selectedEvent.startRow) {
-    showConflict(`❌ Mauvaise heure ! Attendue: ${gameState.selectedEvent.originalTime}`);
+    showConflict(`❌ Bad timing ! Expected: ${gameState.selectedEvent.originalTime}`);
     loseLife();
     return;
   }
@@ -3051,7 +4163,7 @@ function placeEvent(evt, row, col) {
 
   // Vérifier les limites
   if (row + dur > TOTAL_ROWS) {
-    showConflict('⛔ Hors des limites !');
+    showConflict('⛔ Out of bounds !');
     loseLife();
     return;
   }
@@ -3059,7 +4171,7 @@ function placeEvent(evt, row, col) {
   // Vérifier les chevauchements
   for (let r = row; r < row + dur; r++) {
     if (gameState.grid[r][col] !== null) {
-      showConflict('💥 Chevauchement !');
+      showConflict('💥 Overlap !');
       loseLife();
       return;
     }
@@ -3102,7 +4214,7 @@ function placeEvent(evt, row, col) {
 
   const msg = gameState.combo >= 3
     ? `🔥 COMBO x${gameState.combo}! +${pts}pts`
-    : `✅ Placé ! +${pts}pts`;
+    : `✅ Place ! +${pts}pts`;
   showToast(msg);
 
   checkFullRows(row, dur);
@@ -3130,7 +4242,7 @@ function checkFullRows(startRow, dur) {
   }
   if (bonusRows > 0) {
     gameState.score += bonusRows * 500;
-    showToast(`🌟 ${bonusRows} ligne${bonusRows > 1 ? 's' : ''} complète${bonusRows > 1 ? 's' : ''} ! +${bonusRows*500}pts`);
+    showToast(`🌟 ${bonusRows} line ${bonusRows > 1 ? 's' : ''} complete${bonusRows > 1 ? 's' : ''} ! +${bonusRows*500}pts`);
     renderHUD();
   }
 }
@@ -3177,7 +4289,7 @@ function renderQueue() {
     el.innerHTML = `
       <div class="q-evt-name">${evt.name}</div>
       <div class="q-evt-time">📅 ${evt.originalDay || '?'} · ⏰ ${evt.originalTime || '?'}</div>
-      <span class="q-evt-dur">${durLabel} (${evt.duration} crén.)</span>
+      <span class="q-evt-dur">${durLabel} (${evt.duration} slot.)</span>
     `;
     
     if (!evt.placed) {
@@ -3201,7 +4313,7 @@ function renderNextCard() {
   
   const evt = gameState.selectedEvent || gameState.events.find(e => !e.placed);
   if (!evt) {
-    container.innerHTML = '<div style="color:rgba(165,180,252,0.4);font-size:.75rem;text-align:center;padding:.5rem;">Tous placés!</div>';
+    container.innerHTML = '<div style="color:rgba(165,180,252,0.4);font-size:.75rem;text-align:center;padding:.5rem;">All placed!</div>';
     return;
   }
   const durMin = evt.duration * SLOT_MINS;
@@ -3212,7 +4324,7 @@ function renderNextCard() {
   container.innerHTML = `
     <div class="next-card-name" style="color:${evt.color}">${evt.name}</div>
     <div class="next-card-time">📅 ${evt.originalDay || '?'} · ⏰ ${evt.originalTime || '?'}</div>
-    <span class="next-card-dur">${durLabel} · ${evt.duration} créneaux</span>
+    <span class="next-card-dur">${durLabel} · ${evt.duration} slots</span>
   `;
 }
 
@@ -3249,16 +4361,16 @@ function endGame(reason) {
 
   if (reason === 'win') {
     iconEl.textContent = '🏆';
-    titleEl.textContent = 'Parfait !';
-    bodyEl.innerHTML = `Tu as placé <strong style="color:#fbbf24">${placed}</strong> événements !<br>Score final : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+    titleEl.textContent = 'Perfect !';
+    bodyEl.innerHTML = `You have placed <strong style="color:#fbbf24">${placed}</strong> events !<br>Score final : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
   } else if (reason === 'time') {
     iconEl.textContent = '⏱';
-    titleEl.textContent = 'Temps écoulé !';
-    bodyEl.innerHTML = `${placed} / ${total} placés<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+    titleEl.textContent = 'Time elapsed !';
+    bodyEl.innerHTML = `${placed} / ${total} placed<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
   } else {
     iconEl.textContent = '💀';
     titleEl.textContent = 'Game Over !';
-    bodyEl.innerHTML = `Plus de vies...<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
+    bodyEl.innerHTML = `More lives...<br>Score : <strong style="color:#a5b4fc">${gameState.score.toLocaleString()} pts</strong>`;
   }
 
   msgEl.style.display = 'flex';
@@ -3319,12 +4431,12 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Initialiser la mascotte avec chargement depuis localStorage
-  console.log('Init mascotte...');
+  console.log('Init mascot...');
   
   // Essayer de charger depuis localStorage d'abord
   const saved = loadMascotStats();
   if (saved.streak > 0) {
-    console.log('Stats chargées depuis localStorage:', saved);
+    console.log('Stats loaded from localStorage:', saved);
   }
   
   // Première mise à jour après un délai
@@ -3370,7 +4482,7 @@ document.addEventListener('DOMContentLoaded', function () {
 // Forcer une mise à jour quand la page est chargée depuis le cache
 window.addEventListener('pageshow', function(event) {
     if (event.persisted) {
-        console.log('Page chargée depuis le cache, mise à jour de la mascotte...');
+        console.log('Page loaded from cache, mascot updated...');
         setTimeout(() => {
             updateMascot();
         }, 500);
@@ -3380,8 +4492,413 @@ window.addEventListener('pageshow', function(event) {
 // Mettre à jour la mascotte quand l'onglet redevient actif
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
-        console.log('Onglet réactivé, mise à jour de la mascotte...');
+        console.log('Tab reactivated, mascot updated...');
         updateMascot();
+    }
+});
+/* ══════════════════════════════════════════
+   SMART STUDY-SPORT BALANCE JAVASCRIPT
+   Fichier: public/js/smart-balance.js
+══════════════════════════════════════════ */
+function addMatchToPlanning(matchId, home, away, rawDate) {
+    let formattedDate = new Date().toISOString().split('T')[0];
+    let startTime = '15:00:00';
+    let endTime = '17:00:00';
+
+    try {
+        if (/^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
+            const parts = rawDate.split(' ');
+            formattedDate = parts[0];
+            if (parts[1]) {
+                const t = parts[1].split(':');
+                startTime = parts[1] + (t.length === 2 ? ':00' : '');
+                const endH = Math.min(23, parseInt(t[0]) + 2);
+                endTime = String(endH).padStart(2,'0') + ':' + (t[1] || '00') + ':00';
+            }
+        }
+    } catch(e) {}
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ path("app_planning_add_match") }}';
+
+    const fields = {
+        title: `${home} vs ${away}`,
+        date: formattedDate,
+        start_time: startTime,
+        end_time: endTime,
+        match_id: matchId
+    };
+
+    Object.entries(fields).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// ══════════════════════════════════════════
+// CHARGEMENT DES MATCHS À VENIR (corrigé)
+// ══════════════════════════════════════════
+async function loadUpcomingMatches() {
+    const container = document.getElementById('upcomingMatches');
+    if (!container) return;
+
+    container.innerHTML = '<div class="matches-loader"><div class="loader-spinner"></div><div>Chargement...</div></div>';
+
+    try {
+        const res = await fetch('/favorite-team/matches');
+        const data = await res.json();
+
+        if (!data.success || !data.matches?.length) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:2rem; color:#64748b;">
+                    <div style="font-size:2.5rem; margin-bottom:0.5rem;">📅</div>
+                    No upcoming matches
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = data.matches.map(m => {
+            const d = new Date(m.date);
+            const dateStr = d.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+            const timeStr = d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+
+            return `
+                <div class="match-card">
+                    <div class="match-header">
+                        <div class="match-date">${dateStr} · ${m.competition || 'Unknown League'}</div>
+                        <div class="match-time">⏰ ${timeStr}</div>
+                    </div>
+                    <div class="match-teams">
+                        <div class="match-team">
+                            <img src="https://crests.football-data.org/{{ favorite_team.teamApiId ?? '94' }}.png"
+                                 alt="{{ next_match.home_team|default('Home') }}"
+                                 onerror="this.src='https://via.placeholder.com/78/6366f1/ffffff?text={{ next_match.home_team|default('H')|slice(0,1) }}'"
+                                 style="width:78px;height:78px;object-fit:contain;border-radius:12px;background:white;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            <div class="match-team-name">${m.home_team}</div>
+                        </div>
+                        <div class="match-vs">VS</div>
+                        <div class="match-team">
+                            <img src="https://crests.football-data.org/${m.away_team_id || '94'}.png"
+                                 alt="${m.away_team}"
+                                 onerror="this.src='https://via.placeholder.com/78/6366f1/ffffff?text=${(m.away_team || 'A').charAt(0)}'"
+                                 style="width:78px;height:78px;object-fit:contain;border-radius:12px;background:white;padding:6px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+                            <div class="match-team-name">${m.away_team}</div>
+                        </div>
+                    </div>
+                    <div class="match-actions">
+                        <button class="match-action-btn primary"
+                                onclick="addMatchToPlanning('${m.match_id}', '${m.home_team.replace(/'/g,"\\'")}', '${m.away_team.replace(/'/g,"\\'")}', '${m.date}')">
+                            <i data-lucide="calendar-plus" style="width:12px;height:12px;"></i>
+                            Ajouter
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        lucide?.createIcons();
+    } catch(e) {
+        console.error(e);
+        container.innerHTML = '<div style="padding:1rem;text-align:center;color:#ef4444;">Erreur chargement</div>';
+    }
+}
+
+// ══════════════════════════════════════════
+// INITIALISATION GLOBALE
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    lucide?.createIcons();
+
+    // Live clock
+    const tEl = document.getElementById('clockTime');
+    const dEl = document.getElementById('clockDate');
+    function pad(n){ return String(n).padStart(2,'0'); }
+    function tick(){
+        const now = new Date();
+        if (tEl) tEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        if (dEl) dEl.textContent = now.toLocaleDateString('en-US', {
+            weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+        });
+    }
+    tick();
+    setInterval(tick, 1000 * 30);
+
+    // Animation des cellules du calendrier
+    document.querySelectorAll('.day-cell:not(.empty-cell)').forEach((cell, i) => {
+        cell.style.opacity = '0';
+        cell.style.transform = 'translateY(14px)';
+        setTimeout(() => {
+            cell.style.opacity = '1';
+            cell.style.transform = '';
+        }, 40 + i * 12);
+    });
+
+    // Animation des compteurs stats
+    document.querySelectorAll('.stat-tag').forEach(tag => {
+        const n = parseInt(tag.textContent) || 0;
+        if (n > 0) {
+            let cur = 0;
+            const step = Math.ceil(n / 20);
+            const t = setInterval(() => {
+                cur = Math.min(cur + step, n);
+                tag.textContent = cur;
+                if (cur >= n) clearInterval(t);
+            }, 40);
+        }
+    });
+
+    // Effet ripple sur les cellules
+    document.querySelectorAll('.day-cell').forEach(cell => {
+        cell.addEventListener('click', e => {
+            const ripple = document.createElement('span');
+            const rect = cell.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.cssText = `
+                position:absolute; border-radius:50%; pointer-events:none;
+                width:${size}px; height:${size}px;
+                left:${e.clientX - rect.left - size/2}px;
+                top:${e.clientY - rect.top - size/2}px;
+                background:rgba(79,70,229,0.18);
+                transform:scale(0);
+                animation:ripple 0.6s ease-out forwards;
+            `;
+            cell.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+    });
+
+    // Mascotte
+    setTimeout(updateMascot, 600);
+    setInterval(updateMascot, 15000);
+
+    // Chargement matchs si équipe favorite
+    if ({{ favorite_team is defined and favorite_team ? 'true' : 'false' }}) {
+        loadUpcomingMatches();
+    }
+
+    // Gestion changement équipe (rechargement après submit)
+    document.querySelector('#change-team-form form')?.addEventListener('submit', e => {
+        // Le rechargement se fera naturellement via la redirection du contrôleur
+    });
+});
+
+// Rechargement forcé si page restaurée depuis cache
+window.addEventListener('pageshow', e => {
+    if (e.persisted) updateMascot();
+});
+
+// Mise à jour quand onglet actif
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) updateMascot();
+});
+/* ══════════════════════════════════════════
+   FEEDBACK ANIMATION - VERSION CORRIGÉE
+══════════════════════════════════════════ */
+
+// Configuration des feedbacks
+const feedbackConfig = {
+    1: { emoji: '😡', message: 'Very disappointed', color: '#ef4444', bgColor: '#fee2e2', confettis: ['😡', '💢', '👎'] },
+    2: { emoji: '😕', message: 'Not satisfied', color: '#f97316', bgColor: '#ffedd5', confettis: ['😕', '😞', '🤨'] },
+    3: { emoji: '😐', message: 'Medium', color: '#f59e0b', bgColor: '#fef3c7', confettis: ['😐', '🤔', '😶'] },
+    4: { emoji: '🙂', message: 'Satisfied', color: '#10b981', bgColor: '#d1fae5', confettis: ['🙂', '😊', '👍'] },
+    5: { emoji: '🤩', message: 'Excellent !', color: '#4f46e5', bgColor: '#e0e7ff', confettis: ['🤩', '🎉', '🌟', '✨'] }
+};
+
+// Fonction principale appelée par les flashes Symfony
+function showFeedbackFromFlash(feedbackValue, eventTitle) {
+    const fb = feedbackConfig[feedbackValue] || feedbackConfig[3];
+    
+    // 1. Afficher le toast
+    showFeedbackToast(fb, eventTitle);
+    
+    // 2. Lancer les confettis
+    launchSimpleConfetti(fb.confettis, fb.color);
+    
+    // 3. Animer les éléments sur la page
+    animatePageElements();
+}
+
+// Afficher le toast
+function showFeedbackToast(fb, eventTitle) {
+    // Supprimer l'ancien toast s'il existe
+    const oldToast = document.querySelector('.feedback-toast');
+    if (oldToast) oldToast.remove();
+    
+    const toast = document.createElement('div');
+    toast.className = 'feedback-toast';
+    toast.innerHTML = `
+        <div class="feedback-toast-content" style="background: ${fb.bgColor}; border-left: 4px solid ${fb.color};">
+            <div class="feedback-toast-emoji">${fb.emoji}</div>
+            <div class="feedback-toast-text">
+                <div class="feedback-toast-title">Feedback Submited !</div>
+                <div class="feedback-toast-subtitle">"${eventTitle}" - ${fb.message}</div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animation d'entrée
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Disparition après 3 secondes
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Version simplifiée des confettis (beaucoup plus fiable)
+function launchSimpleConfetti(emojis, color) {
+    const count = 40;
+    const container = document.body;
+    
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'emoji-confetti';
+            confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.style.cssText = `
+                position: fixed;
+                left: ${Math.random() * 100}vw;
+                top: -20px;
+                font-size: ${Math.random() * 20 + 20}px;
+                color: ${color};
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+                z-index: 10000;
+                pointer-events: none;
+                animation: fallConfetti ${Math.random() * 2 + 2}s linear forwards;
+                transform: rotate(${Math.random() * 360}deg);
+            `;
+            container.appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 4000);
+        }, i * 50); // Espacer légèrement l'apparition
+    }
+}
+
+// Animer les éléments de la page
+function animatePageElements() {
+    // Animer les icônes de feedback dans le calendrier
+    document.querySelectorAll('.evt-feedback-icon').forEach(el => {
+        el.classList.add('feedback-pulse');
+        setTimeout(() => el.classList.remove('feedback-pulse'), 1000);
+    });
+    
+    // Animer les cartes dans la sidebar
+    document.querySelectorAll('.upcoming-card').forEach(card => {
+        card.style.animation = 'none';
+        card.offsetHeight;
+        card.style.animation = 'cardPulse 0.6s ease-in-out';
+    });
+}
+
+// Ajouter les styles nécessaires
+function addAnimationStyles() {
+    if (document.getElementById('feedback-animation-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'feedback-animation-styles';
+    style.textContent = `
+        .feedback-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 320px;
+        }
+        
+        .feedback-toast.show {
+            transform: translateX(0);
+        }
+        
+        .feedback-toast-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .feedback-toast-emoji {
+            font-size: 2.5rem;
+            line-height: 1;
+            animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .feedback-toast-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #1f2937;
+        }
+        
+        .feedback-toast-subtitle {
+            font-size: 0.8rem;
+            color: #4b5563;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        
+        @keyframes fallConfetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        @keyframes cardPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); background: #f0f3ff; }
+        }
+        
+        .feedback-pulse {
+            animation: pulse 0.6s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .emoji-confetti {
+            position: fixed;
+            user-select: none;
+            will-change: transform;
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
+
+// Récupérer les données des flashes au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    addAnimationStyles();
+    
+    // Récupérer les données des flashes depuis les attributs data
+    const feedbackData = document.getElementById('feedback-data');
+    if (feedbackData) {
+        const feedbackValue = feedbackData.dataset.value;
+        const feedbackTitle = feedbackData.dataset.title;
+        
+        if (feedbackValue) {
+            setTimeout(() => {
+                showFeedbackFromFlash(parseInt(feedbackValue), feedbackTitle || 'Session');
+            }, 500);
+        }
     }
 });
 </script>
