@@ -33,7 +33,7 @@ class CreateAdminCommand extends Command
 
         // Ask for user details
         $email = $io->ask('Email', 'admin@studyflow.com');
-        $password = $io->askHidden('Password (hidden)', null, function ($password) {
+        $password = $io->askHidden(function ($password) {
             if (empty($password)) {
                 throw new \RuntimeException('Password cannot be empty.');
             }

@@ -80,7 +80,7 @@ class CollaborationController extends AbstractController
             $userToAssign->getId(),
             $assignment->getId(),
             $assignment->getTitre(),
-            $this->getUser()->getFullName() ?? $this->getUser()->getEmail()
+            ($this->getUser()->getFullName() ?: $this->getUser()->getEmail()) ?: 'User'
         );
 
         $this->addFlash('success', 'Task assigned successfully!');

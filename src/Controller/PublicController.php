@@ -70,7 +70,7 @@ class PublicController extends AbstractController
             $gender = $request->request->get('gender', 'male');
             $studyLevel = $request->request->get('study_level', 'beginner');
             $weeklyGoal = $request->request->get('weekly_goal', 5);
-            $interests = $request->request->all('interests') ?? [];
+            $interests = $request->request->all('interests');
             $notifications = $request->request->get('notifications') ? true : false;
             
             // Get form data - Step 3 (Avatar)

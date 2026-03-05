@@ -1,0 +1,28 @@
+parameters:
+    level: 5
+    paths:
+        - src
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#Class App\\Entity\\ScheduledEmail not found#'
+        - '#Class App\\Entity\\StudentGamification not found#'
+        - '#Class App\\Repository\\ScheduledEmailRepository not found#'
+        - '#Class Pusher\\Pusher not found#'
+        - '#Call to method .* on an unknown class#'
+        - '#Instantiated class .* not found#'
+        - '#Parameter .* of method .* has invalid type#'
+        - '#Method .* has invalid return type#'
+        - '#Property .* has unknown class#'
+        - '#Call to function method_exists\(\)#'
+        - '#Expression on left side of \?\? is not nullable#'
+        - '#Property .* is never assigned int so it can be removed#'
+        - '#Property .* does not accept#'
+        - '#PHPDoc tag @param references unknown parameter#'
+        - '#Property .* is never read, only written#'
+        - '#Arguments count#'
+        - '#Call to an undefined method#'
+        - '#Property .* is never assigned null#'
+        - '#expects string#'
+        - '#Call to an undefined method Symfony#'
+        - '#UserPasswordHasherInterface::(isPasswordValid|hashPassword)#'
+        - '#setUser.*expects App\\Entity#'

@@ -126,11 +126,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: EvaluationMatiere::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $evaluations;
 
+    #[ORM\OneToMany(targetEntity: Assignment::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $assignments;
+
+    #[ORM\OneToMany(targetEntity: Deck::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $decks;
+
+    #[ORM\OneToMany(targetEntity: Project::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $projects;
+
     public function __construct()
     {
         $this->careers = new ArrayCollection();
         $this->matieres = new ArrayCollection();
         $this->evaluations = new ArrayCollection();
+        $this->assignments = new ArrayCollection();
+        $this->decks = new ArrayCollection();
+        $this->projects = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
@@ -487,6 +499,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    public function getAssignments(): Collection
+    {
+        return $this->assignments;
+    }
+
+    public function getDecks(): Collection
+    {
+        return $this->decks;
+    }
+
+    public function getProjects(): Collection
+    {
+        return $this->projects;
     }
 
     public function getGoogleId(): ?string

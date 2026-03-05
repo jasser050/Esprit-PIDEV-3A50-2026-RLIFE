@@ -75,6 +75,162 @@
     .avatar-card.avatar-jump {
         animation: avatarJump 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
     }
+
+    /* ===== ROBOT EYE FLAMES ===== */
+    .robot-flames-container {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 25;
+        overflow: hidden;
+    }
+
+    .eye-flame-wrapper {
+        position: absolute;
+        width: 80px;
+        height: 100px;
+        transform: translate(-50%, -50%);
+    }
+
+    .eye-flame {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .flame-core {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 20px;
+        height: 30px;
+        background: linear-gradient(to top, #2563EB, #60A5FA, #BFDBFE);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        filter: blur(3px);
+        animation: flameFlicker 0.8s ease-in-out infinite;
+    }
+
+    .flame-main {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 35px;
+        height: 50px;
+        background: linear-gradient(to top, #1E3A8A 0%, #2563EB 30%, #3B82F6 60%, #60A5FA 100%);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        filter: blur(6px);
+        animation: flameFlicker 1s ease-in-out infinite alternate;
+    }
+
+    .flame-outer {
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 65px;
+        background: linear-gradient(to top, transparent 0%, #2563EB 30%, #3B82F6 50%, #60A5FA 70%, transparent 100%);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        filter: blur(12px);
+        animation: flameFlicker 1.2s ease-in-out infinite alternate;
+    }
+
+    .flame-glow {
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 70px;
+        height: 80px;
+        background: radial-gradient(ellipse at center bottom, rgba(96, 165, 250, 0.4) 0%, transparent 70%);
+        filter: blur(20px);
+        animation: glowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes flameFlicker {
+        0%, 100% {
+            transform: translateX(-50%) translateY(0) scaleY(1) scaleX(1) rotate(-3deg);
+            opacity: 0.9;
+        }
+        25% {
+            transform: translateX(-50%) translateY(-3px) scaleY(1.1) scaleX(0.95) rotate(2deg);
+            opacity: 1;
+        }
+        50% {
+            transform: translateX(-50%) translateY(-6px) scaleY(0.95) scaleX(1.05) rotate(-2deg);
+            opacity: 0.85;
+        }
+        75% {
+            transform: translateX(-50%) translateY(-4px) scaleY(1.05) scaleX(0.98) rotate(3deg);
+            opacity: 0.95;
+        }
+    }
+
+    @keyframes glowPulse {
+        0%, 100% {
+            opacity: 0.6;
+            transform: translateX(-50%) scale(1);
+        }
+        50% {
+            opacity: 1;
+            transform: translateX(-50%) scale(1.15);
+        }
+    }
+
+    /* Eye positions - centered initially */
+    .eye-left {
+        top: var(--eye-top, 35%);
+        left: var(--eye-left-pos, 45%);
+    }
+
+    .eye-right {
+        top: var(--eye-top, 35%);
+        left: var(--eye-right-pos, 55%);
+    }
+
+    /* Hide flames when leaving page */
+    .robot-flames-container.leaving .eye-flame-wrapper {
+        animation: flamesExit 0.5s ease-in forwards;
+    }
+
+    @keyframes flamesExit {
+        to {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+        }
+    }
+
+    /* ===== FORM FIELD ANIMATIONS ===== */
+    .form-field-animated {
+        opacity: 0;
+        transform: translateX(-80px);
+    }
+
+    .form-field-animated.animated {
+        animation: slideInFromLeft 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes slideInFromLeft {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .form-field-animated {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-field-animated:hover {
+        transform: scale(1.02);
+    }
+
+    .form-field-animated:focus-within {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
 </style>
 {% endblock %}
 
@@ -906,6 +1062,28 @@ window.addEventListener('pagehide', stopStream);
             loading="lazy"
         ></spline-viewer>
 
+        <!-- Robot Eye Flames -->
+        <div class="robot-flames-container" id="robot-flames">
+            <!-- Left Eye -->
+            <div class="eye-flame-wrapper eye-left">
+                <div class="eye-flame">
+                    <div class="flame-glow"></div>
+                    <div class="flame-outer"></div>
+                    <div class="flame-main"></div>
+                    <div class="flame-core"></div>
+                </div>
+            </div>
+            <!-- Right Eye -->
+            <div class="eye-flame-wrapper eye-right">
+                <div class="eye-flame">
+                    <div class="flame-glow"></div>
+                    <div class="flame-outer"></div>
+                    <div class="flame-main"></div>
+                    <div class="flame-core"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Left-edge seamless blend with the form panel -->
         <div class="absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-slate-50 dark:from-slate-900 to-transparent pointer-events-none z-10"></div>
 
@@ -1108,4 +1286,43 @@ window.addEventListener('pagehide', stopStream);
         </div>
     </div>
 </div>
+
+<script>
+    // Robot Flames Animation Control
+    (function() {
+        const flamesContainer = document.getElementById('robot-flames');
+        
+        function startFlames() {
+            if (flamesContainer) {
+                flamesContainer.classList.remove('leaving');
+            }
+        }
+        
+        function stopFlames() {
+            if (flamesContainer) {
+                flamesContainer.classList.add('leaving');
+                setTimeout(function() {
+                    if (flamesContainer) {
+                        flamesContainer.style.display = 'none';
+                    }
+                }, 500);
+            }
+        }
+        
+        // Start flames on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startFlames);
+        } else {
+            startFlames();
+        }
+        
+        // Start flames on Turbo navigation
+        document.addEventListener('turbo:load', startFlames);
+        
+        // Stop flames when leaving
+        window.addEventListener('beforeunload', stopFlames);
+        window.addEventListener('pagehide', stopFlames);
+        document.addEventListener('turbo:before-cache', stopFlames);
+    })();
+</script>
 {% endblock %}

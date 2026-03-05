@@ -38,7 +38,7 @@ class NotificationService
         $subject = "Échéance proche : " . $task->getTitre();
 
         $html = $this->getTaskDeadlineHtml(
-            $user->getFullName() ?? $user->getEmail(),
+            $user->getFullName() ?: $user->getEmail(),
             $task->getTitre(),
             $task->getDateFin()->format('d/m/Y'),
             $projectTitle
@@ -46,7 +46,7 @@ class NotificationService
 
         $email = (new Email())
             ->from(new Address($this->fromEmail, $this->fromName))
-            ->to(new Address($user->getEmail(), $user->getFullName() ?? ''))
+            ->to(new Address($user->getEmail(), $user->getFullName() ?: ''))
             ->subject($subject)
             ->html($html);
 
@@ -66,14 +66,14 @@ class NotificationService
         $subject = "Échéance projet proche : " . $project->getTitre();
 
         $html = $this->getProjectDeadlineHtml(
-            $user->getFullName() ?? $user->getEmail(),
+            $user->getFullName() ?: $user->getEmail(),
             $project->getTitre(),
             $project->getDateFin()->format('d/m/Y')
         );
 
         $email = (new Email())
             ->from(new Address($this->fromEmail, $this->fromName))
-            ->to(new Address($user->getEmail(), $user->getFullName() ?? ''))
+            ->to(new Address($user->getEmail(), $user->getFullName() ?: ''))
             ->subject($subject)
             ->html($html);
 

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AssignmentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -48,9 +50,17 @@ class Assignment
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\OneToMany(targetEntity: AssignmentCollaborator::class, mappedBy: 'assignment', orphanRemoval: true)]
+    private Collection $collaborators;
+
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'assignment', orphanRemoval: true)]
+    private Collection $comments;
+
     public function __construct()
     {
         $this->createdAt = new \DateTime();
+        $this->collaborators = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -172,5 +182,15 @@ class Assignment
     {
         $this->updatedAt = $updatedAt;
         return $this;
+    }
+
+    public function getCollaborators(): Collection
+    {
+        return $this->collaborators;
+    }
+
+    public function getComments(): Collection
+    {
+        return $this->comments;
     }
 }
