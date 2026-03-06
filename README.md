@@ -123,12 +123,12 @@ php bin/console server:run
 
 | Membre | Rôle | Contribution |
 |--------|------|--------------|
-| **Jasser Balti** | Lead Developer | Architecture, Authentification, Dashboard |
-| **Eya Dhrioua** | Développeur | Gestion des révisions, Cartes mémoire |
-| **Yassine Mlaouah** | Développeur | Projets collaboratifs, Planification |
-| **Nermine Karoui** | Développeur | Bien-être étudiant, Quiz |
-| **Samar Masmoudi** | Développeur | Cours, Séances |
-| **Maram Mohamed** | Développeur | Interface utilisateur, Design |
+| **Jasser Balti** | Développeur | Architecture, Authentification, Dashboard |
+| **Eya Dhrioua** | Développeur | Bien-être étudiant, Quiz |
+| **Yassine Mlaouah** | Développeur | Planification et séances |
+| **Nermine Karoui** | Développeur | Cours, Matières |
+| **Samar Masmoudi** | Développeur | Projets collaboratifs |
+| **Maram Mohamed** | Développeur | Gestion des révisions, Cartes mémoire |
 
 ### Encadrants
 - **Professeur** - Direction du projet PIDEV
