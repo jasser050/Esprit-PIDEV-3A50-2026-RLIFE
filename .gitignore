@@ -19,6 +19,11 @@ yarn-error.log
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###
 
+# API Keys / Config sensible
+.env
+.env.local
+.env.prod
+
 # IDE
 /.idea/
 /.vscode/
@@ -32,7 +37,20 @@ Thumbs.db
 
 # Logs
 *.log
+logs/
 
-# Database
-*.sql
+# Cache
+/var/cache/
+/var/log/
+
+# Base de données (sauf schema versionné)
 *.sqlite
+backup_*.sql
+*_backup.sql
+
+# Uploads utilisateurs
+/public/uploads/
+
+# Tests
+/test-results/
+/tmp_zip_preview/
